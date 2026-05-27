@@ -598,29 +598,13 @@ async def home(r: Request):
                     mtime = 0
                 banner_images.append(f"/static/images/banner/{fname}?v={mtime}")
     if not banner_images:
-        banner_images = [""]
+        banner_images = ["", "", "", ""]
+    elif len(banner_images) < 4:
+        while len(banner_images) < 4:
+            banner_images += banner_images
+        banner_images = banner_images[:4]
 
-    # Fetch plan prices for pricing section
-    plan_prices = []
-    try:
-        from app.core.database import get_db as _get_db
-        async for db in _get_db():
-            from sqlalchemy import select
-            from app.models.models import PlanConfig
-            res = await db.execute(select(PlanConfig).order_by(PlanConfig.price_firo))
-            plans = res.scalars().all()
-            for p in plans:
-                plan_prices.append({
-                    "name": p.name,
-                    "display_name": getattr(p, 'display_name', p.name),
-                    "price_firo": p.price_firo,
-                    "price_usd": getattr(p, 'price_usd', 0),
-                    "requests": getattr(p, 'api_quota', 0),
-                    "duration_days": getattr(p, 'duration_days', 0),
-                })
-            break
-    except Exception:
-        pass
+    plan_prices = []  # Pricing section removed in Community Edition
 
     return page(
         "index.html", r,

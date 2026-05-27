@@ -321,7 +321,7 @@ async def _confirm_payment(db: AsyncSession, p: Payment, now: datetime):
 
     # Regular payment: credit to merchant balance
     if merchant:
-        merchant.requests_used     = (merchant.requests_used or 0) + 1
+        # Community Edition — no request counting
         merchant.balance_firo      = round((merchant.balance_firo or 0) + merchant_net, 8)
         merchant.balance_pending   = max(0, round((merchant.balance_pending or 0) - p.amount_firo, 8))
         merchant.total_earned_firo = round((merchant.total_earned_firo or 0) + received, 8)

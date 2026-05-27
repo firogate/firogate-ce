@@ -112,18 +112,9 @@ async def create_link(
         validate_url(body.cancel_url)
 
     # ─ Custom slug — paid plans only ─
-    FREE_PLANS = {"free", ""}
-    merchant_plan = (getattr(merchant, "plan", None) or "free").lower().strip()
-    is_paid = merchant_plan not in FREE_PLANS
-
+    # Community Edition — all users can use custom slugs
     custom_slug_val = None
     if body.custom_slug:
-        if not is_paid:
-            raise HTTPException(
-                403,
-                "Custom payment link names require a paid plan. "
-                "Upgrade to Starter or above to use a custom slug."
-            )
         raw = body.custom_slug.strip().lower()
         # Validate: 3-32 chars, letters/digits/hyphens only, no leading/trailing hyphens
         import re as _re
@@ -286,8 +277,7 @@ async def checkout_from_link(
         raise HTTPException(503, "Merchant unavailable")
 
     # Check quota
-    if (merchant.requests_total or 0) - (merchant.requests_used or 0) <= 0:
-        raise HTTPException(402, "Merchant quota exhausted")
+    # Community Edition — no quota limits
 
     # Get HD address from Firo node
     from app.services.firo_rpc import get_rpc
@@ -319,7 +309,7 @@ async def checkout_from_link(
     db.add(lnk)
 
     # Increment merchant quota usage
-    merchant.requests_used = (merchant.requests_used or 0) + 1
+    # Community Edition — no request counting
     db.add(merchant)
 
     await db.commit()

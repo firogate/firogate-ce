@@ -41,8 +41,7 @@ async def get_merchant(
 
 
 def _check_quota(m: User):
-    if (m.requests_total or 0) - (m.requests_used or 0) <= 0:
-        raise HTTPException(402, "Quota exhausted. Please upgrade your plan.")
+    pass  # Community Edition — no quota limits
 
 
 class CreatePaymentIn(BaseModel):
