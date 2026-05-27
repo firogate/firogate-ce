@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Theme Preview{% endblock %}
+{% block extra_css %}
+<style>
+  #site-footer, #site-header, .sidebar { display:none !important; }
+  body { background: var(--th-bg, #0A0806) !important; }
+</style>
+{% endblock %}
+{% block body %}
+<div id="theme-preview-root" style="
+  min-height:100vh;
+  background:var(--th-bg,#0A0806);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  font-family:var(--th-font,-apple-system,sans-serif);
+">
+  <!-- Mock checkout card -->
+  <div style="
+    width:100%;max-width:440px;
+    background:var(--th-surface,#161210);
+    border:1px solid var(--th-border,#2A221A);
+    border-radius:var(--th-radius,12px);
+    overflow:hidden;
+    box-shadow:0 24px 64px rgba(0,0,0,.5);
+  ">
+    <!-- Header -->
+    <div style="padding:24px 24px 20px;border-bottom:1px solid var(--th-border,#2A221A)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <div style="
+          width:36px;height:36px;border-radius:var(--th-radius-sm,8px);
+          background:var(--th-accent,#F5C542);
+          display:flex;align-items:center;justify-content:center;
+          font-weight:800;font-size:.9rem;color:#111;
+        " id="pv-initial">M</div>
+        <div>
+          <div id="pv-title" style="font-weight:700;font-size:.95rem;color:var(--th-text,#EBE4D7)">Merchant Store</div>
+          <div id="pv-subtitle" style="font-size:.75rem;color:rgba(235,228,215,.5)">Secure payment powered by Firo</div>
+        </div>
+      </div>
+    </div>
+    <!-- Amount -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--th-border,#2A221A)">
+      <div style="font-size:.75rem;color:rgba(235,228,215,.4);margin-bottom:4px">Total Due</div>
+      <div style="font-size:2rem;font-weight:800;color:var(--th-text,#EBE4D7);font-family:var(--mono)">1.50 <span style="font-size:1rem;font-weight:600;color:var(--th-accent,#F5C542)">FIRO</span></div>
+      <div style="font-size:.78rem;color:rgba(235,228,215,.4);margin-top:2px">≈ $3.24 USD</div>
+    </div>
+    <!-- Address -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--th-border,#2A221A)">
+      <div style="font-size:.75rem;color:rgba(235,228,215,.4);margin-bottom:8px">Send exactly to this address</div>
+      <div style="
+        background:rgba(0,0,0,.3);
+        border:1px solid var(--th-border,#2A221A);
+        border-radius:var(--th-radius-sm,8px);
+        padding:10px 12px;
+        font-family:var(--mono);font-size:.72rem;
+        color:var(--th-text,#EBE4D7);
+        word-break:break-all;
+      ">TBbGHCNfhg9BxRkwR1HBqJtTNxBwBSV3Mj</div>
+      <!-- QR placeholder -->
+      <div style="
+        width:140px;height:140px;margin:16px auto 0;
+        background:white;border-radius:8px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:.7rem;color:#999;
+      ">QR Code</div>
+    </div>
+    <!-- Status bar -->
+    <div style="padding:14px 24px;display:flex;align-items:center;gap:8px">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--th-accent,#F5C542);animation:pulse 2s infinite"></div>
+      <span style="font-size:.78rem;color:rgba(235,228,215,.6)">Waiting for payment…</span>
+      <span style="margin-left:auto;font-size:.72rem;color:rgba(235,228,215,.3)">0/2</span>
+    </div>
+    <!-- Button -->
+    <div style="padding:0 24px 24px">
+      <button style="
+        width:100%;padding:13px;
+        background:var(--th-accent,#F5C542);
+        color:#111;font-weight:700;font-size:.88rem;
+        border:none;cursor:pointer;
+        border-radius:var(--th-radius-btn,12px);
+        font-family:var(--th-font,inherit);
+        transition:opacity .15s;
+      " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Copy Address
+      </button>
+      <button style="
+        width:100%;padding:11px;margin-top:8px;
+        background:transparent;
+        color:rgba(235,228,215,.4);font-size:.8rem;
+        border:1px solid var(--th-border,#2A221A);cursor:pointer;
+        border-radius:var(--th-radius-btn,12px);
+        font-family:var(--th-font,inherit);
+      ">Cancel Payment</button>
+    </div>
+  </div>
+
+  <!-- Preview banner -->
+  <div style="
+    position:fixed;top:0;left:0;right:0;
+    background:rgba(245,197,66,.15);
+    border-bottom:1px solid rgba(245,197,66,.3);
+    padding:8px 16px;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:.78rem;
+  ">
+    <span style="color:#F5C542;font-weight:600">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Theme Preview — changes are not saved
+    </span>
+    <button onclick="window.close()" style="background:none;border:none;color:rgba(235,228,215,.5);cursor:pointer;font-size:.78rem">Close ✕</button>
+  </div>
+</div>
+
+<style>
+@keyframes pulse { 0%,100%{opacity:.4}50%{opacity:1} }
+</style>
+{% endblock %}
+{% block js %}
+<script>
+// Apply theme params from URL query string
+(function() {
+  var p = new URLSearchParams(window.location.search);
+  var root = document.documentElement;
+
+  function safeHex(v) {
+    if (!v) return null;
+    v = v.trim();
+    return /^#[0-9A-Fa-f]{6}$/.test(v) ? v : null;
+  }
+  function safeInt(v, min, max) {
+    var n = parseInt(v, 10);
+    return (!isNaN(n) && n >= min && n <= max) ? n : null;
+  }
+  function safeFontStack(v) {
+    if (!v || !/^[-a-zA-Z0-9 ,'"._]+$/.test(v)) return null;
+    return v;
+  }
+
+  var accent  = safeHex(p.get('accent'));
+  var bg      = safeHex(p.get('bg'));
+  var surface = safeHex(p.get('surface'));
+  var text    = safeHex(p.get('text'));
+  var radius  = safeInt(p.get('radius'), 0, 24);
+  var btn     = safeInt(p.get('btn'), 0, 999);
+  var font    = safeFontStack(p.get('font'));
+  var title   = (p.get('title') || '').replace(/[<>&"']/g, '').slice(0, 80);
+  var sub     = (p.get('subtitle') || '').replace(/[<>&"']/g, '').slice(0, 120);
+
+  if (accent)  { root.style.setProperty('--th-accent', accent); root.style.setProperty('--y', accent); }
+  if (bg)      { root.style.setProperty('--th-bg', bg); document.body.style.background = bg; }
+  if (surface) { root.style.setProperty('--th-surface', surface); }
+  if (text)    { root.style.setProperty('--th-text', text); }
+  if (radius !== null) {
+    root.style.setProperty('--th-radius', radius + 'px');
+    root.style.setProperty('--th-radius-sm', Math.max(0, radius - 4) + 'px');
+  }
+  if (btn !== null)    root.style.setProperty('--th-radius-btn', btn + 'px');
+  if (font)            root.style.setProperty('--th-font', font);
+
+  // Detect light/dark and adjust text vars
+  var bgHex = bg || '#0A0806';
+  var bgR = parseInt(bgHex.slice(1,3),16);
+  var bgG = parseInt(bgHex.slice(3,5),16);
+  var bgB = parseInt(bgHex.slice(5,7),16);
+  var isLight = (bgR*299 + bgG*587 + bgB*114)/1000 > 128;
+  var textColor = text || (isLight ? '#111111' : '#FFFFFF');
+  function hexAlpha(h, a) {
+    if (!h) return 'rgba(128,128,128,'+a+')';
+    var rr=parseInt(h.slice(1,3),16), gg=parseInt(h.slice(3,5),16), bb=parseInt(h.slice(5,7),16);
+    return 'rgba('+rr+','+gg+','+bb+','+a+')';
+  }
+  root.style.setProperty('--white', textColor);
+  root.style.setProperty('--t1', textColor);
+  root.style.setProperty('--t2', hexAlpha(textColor, 0.7));
+  root.style.setProperty('--t3', hexAlpha(textColor, 0.42));
+  root.style.setProperty('--bw',  isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.07)');
+
+  // Update text content
+  if (title) {
+    var el = document.getElementById('pv-title');
+    if (el) el.textContent = title;
+    var ini = document.getElementById('pv-initial');
+    if (ini) ini.textContent = title[0].toUpperCase();
+  }
+  if (sub) {
+    var el2 = document.getElementById('pv-subtitle');
+    if (el2) el2.textContent = sub;
+  }
+})();
+</script>
+{% endblock %}

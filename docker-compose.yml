@@ -1,0 +1,41 @@
+# FiroGate Community Edition — Docker Compose
+# Usage: docker compose up -d
+#
+# Requirements:
+#   - Copy .env.example to .env and fill in your values
+#   - A synced Firo Core node (can be on host or separate container)
+
+version: "3.9"
+
+services:
+  firogate:
+    build: .
+    container_name: firogate
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"    # Only expose to localhost (use nginx in front)
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/gateway.db
+    env_file:
+      - .env
+    volumes:
+      - firogate_data:/app/data   # Persistent database
+      - firogate_logs:/app/logs   # Persistent logs
+    networks:
+      - firogate_net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  firogate_data:
+    driver: local
+  firogate_logs:
+    driver: local
+
+networks:
+  firogate_net:
+    driver: bridge

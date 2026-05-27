@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="{{ lang or 'en' }}" dir="{{ dir or 'ltr' }}" class="lang-{{ lang or 'en' }}{% if is_rtl %} is-rtl{% endif %}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>{% block title %}FiroGate{% endblock %}</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Content-Language" content="{{ lang or 'en' }}">
+  <script>
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  AUTH REDIRECT CIRCUIT-BREAKER                                   ║
+    // ╠══════════════════════════════════════════════════════════════════╣
+    // ║  Runs FIRST — before app.js, Firebase, or any page script.       ║
+    // ║  Tracks every load of /login or / (dashboard home) in a          ║
+    // ║  cookie shared across all .firogate.com subdomains. If >= 3      ║
+    // ║  visits happen within 10 seconds, we set window._fgLoopBreak so  ║
+    // ║  every downstream auth redirect bails out instantly. Also shows  ║
+    // ║  a big red "Session loop" banner with a "Clear & reload" button. ║
+    // ║  This is the safety net for ANY code path that tries to bounce   ║
+    // ║  between dashboard ↔ /login — no matter who fires the redirect. ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    (function(){
+      try {
+        var path = (location.pathname || '').replace(/\/$/, '') || '/';
+        // Only arm on the two pages that form the loop.
+        if (path !== '/' && path !== '/login') return;
+
+        function cookieGet(name){
+          var m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g,'\\$1') + '=([^;]*)'));
+          return m ? decodeURIComponent(m[1]) : '';
+        }
+        function cookieSet(name, value, maxAgeSeconds){
+          var host = location.hostname;
+          // Scope to the registrable domain so it survives cross-subdomain hops.
+          var parts = host.split('.');
+          var dom = '';
+          if (parts.length >= 2 && host !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+            dom = '; domain=.' + parts.slice(-2).join('.');
+          }
+          var sec = location.protocol === 'https:' ? '; Secure' : '';
+          document.cookie = name + '=' + encodeURIComponent(value) + '; Path=/; Max-Age=' + maxAgeSeconds + '; SameSite=Lax' + sec + dom;
+        }
+
+        var now = Date.now();
+        var raw = cookieGet('fg_nav_count');
+        var arr = raw ? raw.split('.').map(function(x){ return parseInt(x,10); }).filter(function(x){ return !isNaN(x); }) : [];
+        var recent = arr.filter(function(t){ return now - t < 10000; });
+        recent.push(now);
+        // Keep last 10 entries at most.
+        if (recent.length > 10) recent = recent.slice(-10);
+        cookieSet('fg_nav_count', recent.join('.'), 60);
+
+        // Silent breaker: after 5 auth-page loads within 10 seconds, stop
+        // every downstream redirect. No visible banner — we just bail out
+        // of the loop quietly and let the user see whichever page they're on.
+        if (recent.length >= 5) {
+          window._fgLoopBreak = true;
+        }
+      } catch(_) { /* never let the breaker itself crash the page */ }
+    })();
+  </script>
+  <style>
+    /* System fonts only - no external CDN for Tor/Clearnet compatibility */
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+    }
+    body { font-family: var(--font-sans); }
+    code, pre, .mono { font-family: var(--font-mono); }
+  </style>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/i18n.css?v=20260516a">
+  <link rel="icon" href="/static/favicon.ico?v=2">
+  <!-- i18n initial state snapshot (read by static/js/i18n.js before paint) -->
+  <script>
+    window.__FG_I18N__ = {
+      lang: {{ (lang or 'en') | tojson }},
+      dir:  {{ (dir or 'ltr') | tojson }},
+      supported: ["en","ar","ru","de","zh"]
+    };
+  </script>
+  <!-- i18n engine — loaded BEFORE app.js so window.t() exists for any inline scripts -->
+  <script src="/static/js/i18n.js?v=20260516a"></script>
+  <script src="/static/js/currency.js?v=20260520a"></script>
+  <script src="/static/js/sse.js?v=20260521a"></script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  
+  <div id="site-bg" aria-hidden="true"></div>
+
+  {% if is_testnet %}
+  
+  <div id="testnet-banner" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+    background:#92400e;border-bottom:1.5px solid #f59e0b;padding:4px 12px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    font-size:.72rem;font-weight:600;color:#fde68a;user-select:none;">
+    <svg width="17" height="17" viewBox="0 0 128 128"><path fill="#fcc21b" d="M9.6 114.26L64 20.03l54.41 94.23z"/><g fill="#2f2f2f"><path d="M127.07 115.93L66.89 11.7c-.6-1.03-1.7-1.67-2.89-1.67c-1.19 0-2.29.64-2.88 1.67L.93 115.93c-.6 1.03-.6 2.3 0 3.34c.6 1.03 1.7 1.66 2.89 1.66h120.36c1.19 0 2.29-.63 2.89-1.66c.59-1.04.59-2.31 0-3.34zM9.6 114.26L64 20.03l54.41 94.23H9.6z"/><path d="M59.12 83.21h9.76c.36 0 .65-.23.67-.53l2.66-38.27c.01-.16-.05-.3-.18-.42a.736.736 0 0 0-.49-.18H56.46c-.19 0-.37.07-.49.18a.54.54 0 0 0-.18.42l2.67 38.27c.01.29.3.53.66.53zm-3.01 20.11c0-1.41.2-2.6.61-3.57c.4-.98.96-1.77 1.68-2.37c.72-.6 1.56-1.04 2.54-1.31c.97-.27 2.01-.41 3.13-.41c1.05 0 2.05.14 3 .41c.95.27 1.78.71 2.49 1.31c.72.6 1.29 1.38 1.71 2.37c.42.97.63 2.16.63 3.57c0 1.35-.21 2.51-.63 3.46c-.42.96-.99 1.76-1.71 2.39c-.71.63-1.54 1.09-2.49 1.37c-.95.28-1.95.43-3 .43c-1.11 0-2.15-.14-3.13-.43s-1.82-.74-2.54-1.37a6.196 6.196 0 0 1-1.68-2.39c-.41-.96-.61-2.11-.61-3.46z"/></g></svg>
+    <span style="color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;font-size:.7rem">Testnet</span>
+    <span style="color:#fde68a;font-weight:400"> No real funds</span>
+    <button onclick="dismissTestnetBanner()" title="Dismiss"
+  style="
+    margin-left:8px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:none;
+    background:rgba(251,191,36,0.15);
+    color:#0e0206;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    line-height:1;
+    padding:0;
+    flex-shrink:0;
+  "
+  aria-label="Dismiss testnet banner">
+  ✕
+</button>
+  </div>
+  <div id="testnet-spacer" style="height:26px" aria-hidden="true"></div>
+  <script>
+    (function(){
+      // Restore dismissed state across page loads
+      if(sessionStorage.getItem('testnet_banner_dismissed')==='1'){
+        var b=document.getElementById('testnet-banner');
+        var s=document.getElementById('testnet-spacer');
+        if(b) b.style.display='none';
+        if(s) s.style.display='none';
+      }
+    })();
+    function dismissTestnetBanner(){
+      var b=document.getElementById('testnet-banner');
+      var s=document.getElementById('testnet-spacer');
+      if(b){ b.style.transition='opacity .2s'; b.style.opacity='0';
+             setTimeout(function(){ b.style.display='none'; },200); }
+      if(s) s.style.display='none';
+      try{ sessionStorage.setItem('testnet_banner_dismissed','1'); }catch(e){}
+    }
+  </script>
+  {% endif %}
+
+  <div id="page-wrap">
+    {% block body %}{% endblock %}
+  </div>
+
+  
+  <footer id="site-footer">
+    <div class="footer-inner">
+
+   
+
+      
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="/about" class="footer-link">About</a>
+        <span class="footer-sep" aria-hidden="true"></span>
+        <a href="/legal" class="footer-link">Legal</a>
+        <span class="footer-sep" aria-hidden="true"></span>
+        <a href="/legal#privacy" class="footer-link">Privacy</a>
+      </nav>
+
+      
+      <div class="footer-right">
+        <!-- Language switcher in footer — opens UPWARD (dropup) so it isn't
+             clipped at the bottom of the viewport on short pages. -->
+        <div class="fg-i18n-mount fg-i18n-dropup" data-i18n-switcher="compact" data-testid="footer-i18n-switcher" style="margin-right:8px"></div>
+           
+      <a href="/" class="footer-icon-link" aria-label="Home">
+        <svg width="35" height="35" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#8D1B28" d="M12 18.857a6.858 6.858 0 0 0 6.36-9.429h-3.34a.43.43 0 0 0-.373.219l-.591 1.067h1.371a.43.43 0 0 1 .429.429v1.285a.43.43 0 0 1-.428.429h-2.572l-2.036 3.639a.43.43 0 0 1-.373.218H7.02A6.84 6.84 0 0 0 12 18.857M5.64 14.57a6.857 6.857 0 0 1 11.34-7.286h-3.214a.43.43 0 0 0-.373.22l-1.796 3.209H9a.43.43 0 0 0-.429.429v1.285a.43.43 0 0 0 .429.429h1.4l-.835 1.496a.43.43 0 0 1-.373.218z"/>
+        </svg>
+      </a>
+        <a href="https://github.com/firoorg" class="footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="FiroOrg on GitHub">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+        </a>
+        <a href="https://gitlab.com/firoorg" class="footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="FiroOrg on GitLab">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.386 9.452.044 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.625-8.443a.92.92 0 0 0 .33-1.024"/>
+          </svg>
+        </a>
+        <a href="https://stackwallet.com" class="footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="Stack Wallet" title="Stack Wallet">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </a>
+        <a href="https://firo.org/2024/07/12/campfire-firo-wallet.html" class="footer-icon-link" target="_blank" rel="noopener noreferrer" aria-label="Campfire Wallet" title="Campfire Wallet">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 22c-2 0-7-2-7-8 0-3 1.5-5 3-6.5S12 4 12 2c0 2 2.5 3.5 4 5.5S19 11 19 14c0 6-5 8-7 8z" fill="currentColor" opacity=".15"/>
+            <path d="M12 22c-2 0-7-2-7-8 0-3 1.5-5 3-6.5S12 4 12 2c0 2 2.5 3.5 4 5.5S19 11 19 14c0 6-5 8-7 8z"/>
+            <path d="M12 22c-1 0-4-1-4-5 0-2 1-3 2-4s2-2 2-3c0 1 1 2 2 3s2 2 2 4c0 4-3 5-4 5z"/>
+          </svg>
+        </a>
+        <span class="footer-copy">&#169; 2026 @firoorg</span>
+      </div>
+
+    </div>
+  </footer>
+
+  <style>
+    /* ─ Site Footer ── */
+    #site-footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.35) 100%);
+      padding: 0 22px;
+    }
+
+    /* Decorative top-line accent matching .card::before style */
+    #site-footer::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(245,197,66,.15), transparent);
+      margin-bottom: 0;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--t2);
+      letter-spacing: -.01em;
+      transition: color var(--t);
+      gap: 8px;
+      text-decoration: none;
+    }
+    .footer-logo:hover { color: var(--white); }
+    .footer-logo .logo-box {
+      box-shadow: 0 1px 8px rgba(245,197,66,.25), inset 0 1px 0 rgba(255,255,255,.15);
+    }
+
+    .footer-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-link {
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--t3);
+      text-decoration: none;
+      letter-spacing: .02em;
+      padding: 4px 6px;
+      border-radius: 5px;
+      transition: color var(--t), background var(--t);
+    }
+    .footer-link:hover {
+      color: var(--y);
+      background: rgba(245,197,66,.07);
+    }
+
+    .footer-sep {
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--t4);
+      flex-shrink: 0;
+      opacity: .5;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .footer-icon-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px 4px 6px 4px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.03);
+      color: var(--t3);
+      text-decoration: none;
+      transition: color var(--t), border-color var(--t), background var(--t), transform var(--t);
+      flex-shrink: 0;
+    }
+    .footer-icon-link:hover {
+      color: var(--y);
+      border-color: rgba(245,197,66,.25);
+      background: rgba(245,197,66,.07);
+      transform: translateY(-2px);
+    }
+
+    .footer-copy {
+      font-size: .72rem;
+      color: var(--t4);
+      font-weight: 500;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    /* Hide footer on full-height dashboard / admin / checkout layouts */
+    body:has(.layout) #site-footer { display: none; }
+
+    /* Mobile — stack to two rows */
+    @media (max-width: 640px) {
+      .footer-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 14px;
+        padding: 18px 0 max(18px, env(safe-area-inset-bottom));
+      }
+      .footer-nav { gap: 8px; }
+      .footer-right { flex-wrap: wrap; justify-content: center; gap: 12px; }
+    }
+  </style>
+
+  <div id="tc"></div>
+  
+  <script>
+    window.DASHBOARD_URL = {{ (dashboard_url ~ '/') | tojson }};
+    window.LOGIN_URL     = {{ login_url | tojson }};
+    window.CHECKOUT_URL  = {{ checkout_url | tojson }};
+    window.PLAN_URL      = {{ plan_url | tojson }};
+    window.API_BASE      = {{ api_url | tojson }};
+  </script>
+  <script src="/static/js/app.js?v=20260421a"></script>
+  <!-- Re-mount switchers after app.js boot so any dynamically inserted
+       containers (mobile sidebar, dashboard footer) get rendered. -->
+  <script>
+    (function(){
+      function mount(){
+        if (window.i18n && typeof window.i18n.mountSwitchers === 'function') {
+          try { window.i18n.mountSwitchers(); } catch(_) {}
+          try { window.i18n.translate(document.body); } catch(_) {}
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mount);
+      } else { mount(); }
+      // Re-run shortly after to catch nav/sidebar that gets injected by app.js
+      setTimeout(mount, 250);
+      setTimeout(mount, 1000);
+    })();
+  </script>
+  {% block js %}{% endblock %}
+</body>
+</html>

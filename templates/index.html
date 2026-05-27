@@ -1,0 +1,2346 @@
+{% extends "base.html" %}
+{% block title %}FiroGate — Accept FIRO Payments{% endblock %}
+
+{% block extra_css %}
+<style>
+.lp-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  background: rgba(6, 4, 2, 0.86);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(245, 197, 66, 0.09);
+}
+/* Desktop nav dropdown (escapes the fixed 60px nav height) */
+#lp-nav-mobile.nav-links {
+  position: absolute;
+  top: 60px;
+  right: 24px;
+  left: auto;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  background: rgba(6,4,2,0.97);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(245,197,66,0.14);
+  border-radius: 14px 4px 14px 4px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.7), 0 2px 8px rgba(0,0,0,.45);
+  padding: 10px;
+  z-index: 999;
+}
+#lp-nav-mobile.nav-links .nav-link {
+  padding: 11px 14px;
+  font-size: .9rem;
+  border-radius: 10px 3px 10px 3px;
+  color: #fff;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  display: block;
+}
+#lp-nav-mobile.nav-links .nav-link:hover {
+  background: rgba(245,197,66,.08);
+  color: #F5C542;
+}
+.lp-navi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.banner-wrap {
+  margin-top: 60px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+  max-height: calc(100vh - 60px);
+  position: relative;
+  overflow: hidden;
+  background: #08050200;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity   1.0s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+  pointer-events: none;
+  z-index: 1;
+}
+.slide.on {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 2;
+}
+.slide.off {
+  opacity: 0;
+  transform: scale(0.96);
+  z-index: 1;
+}
+
+.s-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: filter 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(0.26) saturate(0.5);
+}
+.slide.on .s-bg { filter: brightness(0.35) saturate(0.72); }
+
+.s-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to top, rgba(6,4,2,0.82) 0%, rgba(6,4,2,0.28) 38%, transparent 60%),
+    linear-gradient(to right, rgba(6,4,2,0.62) 0%, rgba(6,4,2,0.08) 50%, transparent 72%),
+    linear-gradient(to bottom, rgba(6,4,2,0.28) 0%, transparent 18%);
+}
+
+.s-body {
+  position: relative;
+  z-index: 3;
+  text-align: left;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 60px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.s-content { max-width: 600px; }
+
+.s-mascot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.s-mascot-img {
+  max-width: 320px;
+  max-height: 350px;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transform: translateX(40px) scale(0.9);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 8px 32px rgba(0,0,0,0.4));
+}
+.s-mascot-svg svg {
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  max-height: 340px;
+  display: block;
+}
+.slide.on .s-mascot-img {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition-delay: 0.3s;
+}
+
+.s-tag, .s-h1, .s-p, .s-btns {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide.on .s-tag  { opacity: 1; transform: none; transition-delay: 0.1s; }
+.slide.on .s-h1   { opacity: 1; transform: none; transition-delay: 0.25s; }
+.slide.on .s-p    { opacity: 1; transform: none; transition-delay: 0.4s; }
+.slide.on .s-btns { opacity: 1; transform: none; transition-delay: 0.55s; }
+
+.s-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(6, 4, 2, 0.75);
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #F5C542;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.s-h1 {
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 32px rgba(0,0,0,0.9);
+  white-space: nowrap;   /* keep main title on one line */
+}
+/* Colored accent word goes on its own line */
+.s-h1 > br   { display: none; }
+.s-h1 .grad  { display: block; white-space: normal; }
+
+.s-p {
+  font-size: clamp(0.88rem, 1.8vw, 1.05rem);
+  color: rgba(235, 228, 215, 0.88);
+  max-width: 520px;
+  margin-bottom: 30px;
+  line-height: 1.75;
+  text-shadow: 0 1px 14px rgba(0,0,0,0.7);
+}
+
+.s-btns {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-lp-y {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 25px;
+  background: linear-gradient(135deg, #FFD56B 0%, #F5C542 55%, #C9A020 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(245, 197, 66, 0.45);
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+  white-space: nowrap;
+}
+.btn-lp-y:hover  { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 34px rgba(245,197,66,0.6); color: #000; }
+.btn-lp-y:active { transform: translateY(-1px) scale(0.98); }
+
+.btn-lp-o {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 25px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+.btn-lp-o:hover  { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); transform: translateY(-3px) scale(1.02); color:#fff; }
+.btn-lp-o:active { transform: translateY(-1px) scale(0.98); }
+
+.btn-lp-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 25px;
+  background: linear-gradient(135deg, #4ADE80 0%, #22C55E 55%, #15803D 100%);
+  color: #0a140c;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(34,197,94,0.45);
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+  white-space: nowrap;
+}
+.btn-lp-demo:hover  { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 34px rgba(34,197,94,0.6); color:#0a140c; }
+.btn-lp-demo:active { transform: translateY(-1px) scale(0.98); }
+
+/* Marquee removed in Community Edition */
+.fg-marq-wrap {
+  width: 100%;
+  padding: 28px 0 10px;
+  position: relative;
+}
+.fg-marq-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.fg-marq-head h2 {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.32);
+}
+.fg-marq-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 10px 0;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0,0,0,0.1) 5%,
+    rgba(0,0,0,0.4) 15%,
+    rgba(0,0,0,0.7) 30%,
+    black 40%,
+    black 60%,
+    rgba(0,0,0,0.7) 70%,
+    rgba(0,0,0,0.4) 85%,
+    rgba(0,0,0,0.1) 95%,
+    transparent 100%
+  );
+          mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0,0,0,0.1) 5%,
+    rgba(0,0,0,0.4) 15%,
+    rgba(0,0,0,0.7) 30%,
+    black 40%,
+    black 60%,
+    rgba(0,0,0,0.7) 70%,
+    rgba(0,0,0,0.4) 85%,
+    rgba(0,0,0,0.1) 95%,
+    transparent 100%
+  );
+}
+.fg-marq-track {
+  display: flex;
+  width: max-content;
+  animation: fg-marq-scroll 60s linear infinite;
+  will-change: transform;
+  align-items: center;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+}
+.fg-marq-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.fg-marq-logo {
+  flex: 0 0 auto;
+  width: 210px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: none;
+}
+.fg-marq-logo::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  height: 26px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
+}
+.fg-marq-logo img {
+  height: 68px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(0.85);
+  opacity: 0.6;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+  display: block;
+}
+@keyframes fg-marq-scroll {
+  0%   { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-33.3333%,0,0); }
+}
+.fg-marq-divider {
+  width: 30px;
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 14px auto 0;
+}
+@media (max-width: 768px) {
+  .fg-marq-logo { width: 170px; height: 76px; }
+  .fg-marq-logo img { height: 54px; max-width: 140px; }
+  .fg-marq-logo::after { height: 22px; }
+  .fg-marq-track { animation-duration: 48s; }
+}
+@media (max-width: 480px) {
+  .fg-marq-logo { width: 130px; height: 64px; }
+  .fg-marq-logo img { height: 44px; max-width: 108px; }
+  .fg-marq-logo::after { height: 18px; }
+  .fg-marq-head h2 { font-size: 8px; letter-spacing: 0.35em; }
+  .fg-marq-track { animation-duration: 40s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fg-marq-track { animation: none; }
+}
+
+.s-arr {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px; height: 44px;
+  background: rgba(6, 4, 2, 0.55);
+  border: 1px solid rgba(245, 197, 66, 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(255,255,255,0.68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  padding: 0;
+}
+.s-arr:hover  { background: rgba(245,197,66,0.14); border-color: #F5C542; color: #F5C542; }
+.s-arr.s-prev { left: 16px; }
+.s-arr.s-next { right: 16px; }
+
+.s-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  align-items: center;
+}
+.s-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.28);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.32s ease, border-radius 0.32s ease, background 0.32s ease;
+  flex-shrink: 0;
+}
+.s-dot.on { width: 24px; border-radius: 4px; background: #F5C542; box-shadow: 0 0 10px rgba(245,197,66,0.55); }
+
+.s-prog {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  z-index: 10;
+  background: linear-gradient(90deg, #F5C542 0%, #22C55E 100%);
+  width: 0%;
+  will-change: width;
+}
+
+.s-hint {
+  position: absolute;
+  bottom: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: rgba(202,190,190,0.5);
+  font-size: 0.60rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+  animation: s-bounce 2.8s ease infinite;
+}
+@keyframes s-bounce {
+  0%,100% { opacity: 0.28; transform: translateX(-50%) translateY(0); }
+  50%      { opacity: 0.50; transform: translateX(-50%) translateY(6px); }
+}
+
+.lp-sec { padding: 68px 0; }
+.lp-divider { border-top: 1px solid rgba(255,255,255,0.042); }
+
+.stat-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: linear-gradient(135deg, rgba(30,18,4,0.84), rgba(14,9,2,0.92));
+  border: 1px solid rgba(245, 197, 66, 0.10);
+  border-radius: 14px 5px 12px 7px;
+  overflow: hidden;
+}
+.stat-cell { padding: 20px 16px; text-align: center; border-right: 1px solid rgba(245,197,66,0.07); }
+.stat-cell:last-child { border-right: none; }
+.stat-v { font-size: 1.72rem; font-weight: 800; line-height: 1; }
+.stat-l { font-size: 0.62rem; color: var(--t3); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.fc-h { transition: transform 0.20s ease; }
+.fc-h:hover { transform: translateY(-3px); }
+
+.pop-badge {
+  position: absolute;
+  top: 5px; left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #FFD56B, #C9A020);
+  color: #000;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 3px 14px;
+  border-radius: 100px;
+  white-space: nowrap;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.api-ex-wrap {
+  background: linear-gradient(155deg, rgba(18,12,4,0.96), rgba(10,7,2,0.98));
+  border: 1px solid rgba(245,197,66,0.18);
+  border-radius: 10px 4px 12px 6px;
+  overflow: hidden;
+}
+.api-ex-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(245,197,66,0.06);
+  border-bottom: 1px solid rgba(245,197,66,0.10);
+}
+.api-ex-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(245,197,66,0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+.api-ex-dots { display: flex; gap: 6px; }
+.api-ex-dot { width: 10px; height: 10px; border-radius: 50%; }
+.api-ex-body { padding: 20px 24px; overflow-x: auto; }
+.api-ex-body pre {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.75;
+  color: #e8e8e8;
+  white-space: pre;
+  margin: 0;
+}
+.c-method { color: #F5C542; font-weight: 700; }
+.c-url    { color: #60A5FA; }
+.c-flag   { color: #A78BFA; }
+.c-key    { color: #F472B6; }
+.c-val    { color: #34D399; }
+.c-str    { color: #FCD34D; }
+
+.uc-icon-box {
+  width: 44px; height: 44px;
+  border-radius: 12px 4px 10px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.trust-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 26px 24px;
+  border-radius: 14px 6px 12px 8px;
+  background: linear-gradient(155deg, rgba(22,15,4,0.90), rgba(14,9,2,0.95));
+  border: 1px solid rgba(245,197,66,0.10);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.trust-card:nth-child(2) { border-radius: 6px 14px 8px 12px; }
+.trust-card:nth-child(3) { border-radius: 12px 8px 14px 6px; }
+.trust-card:nth-child(4) { border-radius: 8px 12px 6px 14px; }
+.trust-card:hover {
+  border-color: rgba(245,197,66,0.28);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+.trust-icon-box {
+  width: 46px; height: 46px;
+  border-radius: 12px 4px 10px 4px;
+  background: rgba(245,197,66,0.10);
+  border: 1px solid rgba(245,197,66,0.20);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.trust-card:nth-child(2) .trust-icon-box { border-radius: 4px 12px 4px 10px; }
+.trust-card:nth-child(3) .trust-icon-box { border-radius: 10px 4px 12px 4px; }
+.trust-card:nth-child(4) .trust-icon-box { border-radius: 4px 10px 4px 12px; }
+.trust-card h3 { font-size: 0.98rem; margin-bottom: 6px; }
+.trust-card p  { font-size: 0.83rem; color: var(--t2); line-height: 1.65; margin: 0; }
+
+.comp-panel {
+  border-radius: 14px 6px 12px 8px;
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(155deg, rgba(18,12,4,0.90), rgba(10,7,2,0.95));
+}
+.comp-panel.comp-fg {
+  border-color: rgba(245,197,66,0.22);
+  background: linear-gradient(155deg, rgba(30,18,4,0.92), rgba(18,10,2,0.96));
+  border-radius: 6px 14px 8px 12px;
+}
+.comp-panel h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+.comp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.comp-row:last-child { border-bottom: none; padding-bottom: 0; }
+.comp-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.comp-icon.bad  { background: rgba(239,68,68,0.12); }
+.comp-icon.good { background: rgba(34,197,94,0.12); }
+.comp-row-text  { font-size: 0.85rem; color: var(--t2); line-height: 1.5; }
+.comp-row-label { font-size: 0.65rem; color: var(--t3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 2px; }
+
+/* ─ Comparison accordion ── */
+.comp-accordion { display: flex; flex-direction: column; gap: 14px; max-width: 860px; margin: 0 auto; }
+.comp-acc-item  {
+  border-radius: 14px 6px 12px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(155deg, rgba(18,12,4,0.90), rgba(10,7,2,0.95));
+  overflow: hidden;
+  transition: border-color .25s ease, background .25s ease;
+}
+.comp-acc-item.is-fg { border-radius: 6px 14px 8px 12px; }
+.comp-acc-item.is-fg.is-open { border-color: rgba(245,197,66,0.32); }
+.comp-acc-item.is-open:not(.is-fg) { border-color: rgba(239,68,68,0.24); }
+.comp-acc-head  {
+  width: 100%; text-align: left;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 18px 22px;
+  background: transparent; border: none; cursor: pointer;
+  font-family: inherit; color: inherit;
+  transition: background .25s ease;
+}
+.comp-acc-head:hover { background: rgba(255,255,255,0.02); }
+.comp-acc-title { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 700; }
+.comp-acc-title .comp-acc-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+.is-fg .comp-acc-title { color: var(--y); }
+.is-fg .comp-acc-title .comp-acc-dot { background: var(--y); }
+.comp-acc-chev  {
+  width: 22px; height: 22px; flex-shrink: 0;
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  opacity: .6;
+}
+.comp-acc-item.is-open .comp-acc-chev { transform: rotate(180deg); opacity: 1; }
+.comp-acc-body  {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s cubic-bezier(.4,0,.2,1);
+}
+.comp-acc-body-inner { padding: 0 22px 22px 22px; }
+@media (max-width: 640px) {
+  .comp-acc-head { padding: 14px 16px; }
+  .comp-acc-body-inner { padding: 0 16px 18px 16px; }
+  .comp-acc-title { font-size: .92rem; }
+}
+
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
+.faq-item {
+  background: linear-gradient(155deg, rgba(20,13,4,0.92), rgba(12,8,2,0.96));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px 4px 10px 6px;
+  overflow: hidden;
+  transition: border-color 0.25s ease;
+}
+.faq-item:nth-child(even) { border-radius: 4px 12px 6px 10px; }
+.faq-item.fq-open { border-color: rgba(245,197,66,0.22); }
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--white);
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: var(--font);
+  text-align: left;
+  transition: color 0.2s ease;
+}
+.faq-q:hover { color: var(--y); }
+.faq-item.fq-open .faq-q { color: var(--y); }
+.faq-chevron {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  color: var(--t3);
+  transition: transform 0.28s ease, color 0.2s ease;
+}
+.faq-item.fq-open .faq-chevron { transform: rotate(180deg); color: var(--y); }
+.faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+}
+.faq-item.fq-open .faq-a { max-height: 400px; }
+.faq-a-inner {
+  padding: 0 22px 18px;
+  font-size: 0.86rem;
+  color: var(--t2);
+  line-height: 1.72;
+}
+
+.nav-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(34,197,94,0.10);
+  border: 1px solid rgba(34,197,94,0.30);
+  color: #22C55E;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 8px 4px 6px 4px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+.nav-demo-btn:hover { background: rgba(34,197,94,0.20); border-color: rgba(34,197,94,0.55); color: #4ADE80; transform: translateY(-1px); }
+
+@media (max-width: 1200px) {
+  .s-body { padding: 0 40px; gap: 30px; }
+  .s-mascot-img { max-width: 280px; max-height: 300px; }
+}
+@media (max-width: 900px) {
+  .s-body { grid-template-columns: 1fr auto; text-align: left; padding: 0 20px; gap: 15px; }
+  .s-content { max-width: 100%; order: 0; }
+  .s-mascot { order: 1; margin-bottom: 0; }
+  .s-mascot-img { max-width: 140px; max-height: 140px; }
+  .s-btns { align-items: flex-start; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .btn-lp-y, .btn-lp-o { width: auto; max-width: none; padding: 8px 16px; font-size: 0.82rem; }
+  .s-arr { display: none; }
+  .s-h1 { text-align: left; font-size: clamp(1.4rem, 3.5vw, 2.2rem); white-space: normal; }
+  .s-p  { text-align: left; }
+  .s-tag { margin-bottom: 10px; }
+  .trust-card { padding: 20px; gap: 14px; }
+  .comp-panel { padding: 20px; }
+}
+@media (max-width: 768px) {
+  .grid.g-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid.g-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid.g-2 { grid-template-columns: 1fr !important; }
+  #api-example .container > div { grid-template-columns: 1fr !important; }
+  #comparison .container > div { grid-template-columns: 1fr !important; }
+  .lp-sec { padding: 52px 0; }
+  .trust-card { flex-direction: row; }
+}
+@media (max-width: 640px) {
+  .banner-wrap { aspect-ratio: 16 / 9; min-height: 180px; max-height: calc(56.25vw + 20px); }
+  .s-body { padding: 0 12px; gap: 10px; align-items: center; }
+  .s-h1 { font-size: clamp(1rem, 4.5vw, 1.5rem); text-align: left; margin-bottom: 4px; line-height: 1.2; }
+  .s-p { text-align: left; font-size: 0.65rem; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .s-tag { font-size: 0.5rem; padding: 2px 8px; margin-bottom: 6px; }
+  .btn-lp-y, .btn-lp-o { padding: 5px 12px; font-size: 0.7rem; border-radius: 6px; }
+  .s-btns { gap: 6px; flex-direction: row; }
+  .s-mascot-img { max-width: 80px; max-height: 80px; }
+  .stat-bar { border-radius: 60px; overflow-x: auto; max-width: 100%; }
+  .stat-cell { padding: 8px 14px; gap: 6px; }
+  .stat-v { font-size: .8rem; }
+  .stat-l { font-size: .62rem; }
+  .s-hint { display: none; }
+  .lp-navi { padding: 0 14px; }
+  .s-dots { bottom: 8px; }
+  .s-dot { width: 6px; height: 6px; }
+  .s-dot.on { width: 16px; }
+  /* Nav layout — prevent search from pushing auth buttons off screen */
+  .lp-navi { flex-wrap: nowrap; overflow: visible; }
+  #lp-nav-search { flex-shrink: 1; min-width: 0; gap: 4px !important; padding: 4px 8px !important; position: relative; }
+  /* Search input — starts collapsed, expands on focus (JS also sets .expanded) */
+  #lp-nav-search input[name="q"] {
+    width: 28px;
+    padding: 2px 0;
+    transition: width .2s ease;
+    max-width: 130px;
+  }
+  #lp-nav-search input[name="q"]::placeholder { color: transparent; }
+  #lp-nav-search input[name="q"]:focus,
+  #lp-nav-search input[name="q"].expanded {
+    width: 120px;
+  }
+  #lp-nav-search input[name="q"]:focus::placeholder,
+  #lp-nav-search input[name="q"].expanded::placeholder { color: #9ca3af; }
+  /* Auth + toggle never shrink */
+  #lp-nav-auth { flex-shrink: 0; }
+  .nav-toggle  { flex-shrink: 0; }
+  #lp-search-drop a[data-idx]:hover { background: rgba(245,197,66,.08) !important; }
+  .api-ex-body pre { font-size: 0.75rem; }
+  .trust-card { flex-direction: column; gap: 12px; }
+  .comp-panel { padding: 16px; }
+  .faq-q { padding: 14px 16px; font-size: 0.85rem; }
+  .faq-a-inner { padding: 0 16px 14px; }
+  .grid.g-3 { grid-template-columns: 1fr !important; }
+  .grid.g-4 { grid-template-columns: 1fr !important; }
+  .grid.g-2 { grid-template-columns: 1fr !important; }
+  .lp-sec { padding: 36px 0; }
+  .container { padding: 0 14px; }
+  .nav-toggle { display: flex !important; }
+  /* On mobile, the header shrinks to logo + primary auth button + hamburger.
+     Docs / Logout / any other pill-button with .lp-nav-hide-mobile collapses
+     into the hamburger instead of overflowing off the right edge. */
+  .lp-nav-hide-mobile { display: none !important; }
+  /* Auth + toggle buttons never shrink */
+  #lp-nav-auth { flex-shrink: 0 !important; }
+  .nav-toggle  { flex-shrink: 0 !important; }
+  #lp-nav-mobile.nav-links {
+    position: fixed;
+    top: 62px; left: 0; right: 0;
+    width: auto;
+    max-width: none;
+    background: rgba(6,4,2,0.97);
+    border: none;
+    border-bottom: 1px solid rgba(245,197,66,0.12);
+    border-radius: 0;
+    flex-direction: column;
+    padding: 10px 12px 16px;
+    gap: 3px;
+    z-index: 998;
+    box-shadow: 0 8px 32px rgba(0,0,0,.7);
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+  #lp-nav-mobile.nav-links .nav-link { padding: 12px 14px; font-size: .92rem; border-radius: 10px 3px 10px 3px; color: var(--white); display: block; text-decoration: none; transition: background .15s; }
+  #lp-nav-mobile.nav-links .nav-link:hover { background: rgba(255,255,255,.06); }
+}
+@media (max-width: 400px) {
+  .s-body { grid-template-columns: 1fr 70px; gap: 8px; padding: 0 10px; }
+  .s-btns { flex-direction: row; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap; gap: 4px; }
+  .btn-lp-y, .btn-lp-o { width: auto; min-width: auto; max-width: none; padding: 4px 10px; font-size: 0.65rem; }
+  .s-mascot-img { max-width: 65px; max-height: 65px; }
+  .s-h1 { font-size: 0.95rem; margin-bottom: 3px; }
+  .s-p  { font-size: 0.6rem; -webkit-line-clamp: 2; margin-bottom: 6px; }
+  .s-tag { font-size: 0.45rem; padding: 2px 6px; margin-bottom: 4px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<nav class="lp-nav" role="navigation">
+  <div class="lp-navi">
+    <a href="/" class="logo" style="text-decoration:none">
+      
+        <svg width="70" height="70" viewBox="0 0 150 30">
+  <style type="text/css">.cls-0 {fill:url(#SVGID_1_);stroke:#DAD9D9;stroke-width:0.39;stroke-miterlimit:10;}
+.cls-1 {fill:#BBBDBF;}</style>
+  <linearGradient id="SVGID_1_" x1="1.758" x2="144.8" y1="6.964" y2="28.19" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E7E6E4" offset="0"/>
+    <stop stop-color="#F2F1EF" offset=".25"/>
+    <stop stop-color="#E9E8E6" offset=".5"/>
+    <stop stop-color="#F0F0EE" offset=".75"/>
+    <stop stop-color="#E5E4E2" offset="1"/>
+  </linearGradient>
+  <path class="cls-0" d="m4.1 4.6h15.9v3.7h-11.4v6.9h9.9v3.8h-9.9v8.9h-4.5v-23.3zm19.2-0.5c0-1.5 1.2-2.7 2.8-2.7s3.1 1.1 3.1 2.7c0 1.5-1.2 2.8-2.9 2.8s-3-1.3-3-2.8zm0.5 6h4.7v18.1h-4.7v-18.1zm10 0h4.6v2.2l0.2 0.1c1.1-1.4 2.8-2.7 5-2.7h0.8v4.6h-1.1c-2.1 0-3.8 1-4.7 2.8v11.1h-4.8v-18.1zm22.3-0.4c5.2 0 9.4 3.5 9.4 9.3s-4.2 9.4-9.4 9.4-9.5-3.6-9.5-9.4 4.2-9.3 9.5-9.3zm0 14.9c2.8 0 4.6-2.1 4.6-5.3s-1.8-5.5-4.6-5.5-4.7 2.2-4.7 5.5c0 3.2 1.8 5.3 4.7 5.3zm24.5-20.8c3.5 0 6.3 1.2 9.1 3.5l-2.8 3.2c-1.6-1.2-3.3-2.3-6.2-2.3-4.2 0-7.3 3.3-7.3 8.1 0 5.2 3 8 7 8 1.6 0 3.1-0.4 4.5-1v-7.1h4.7v9.4c-1.9 1.5-5.1 2.9-9 2.9-6.5 0-12-4.2-12-12.1 0-7.4 5.2-12.6 12-12.6zm24.8 13.8v-0.8c0-1.9-1.5-3.2-3.8-3.2-2 0-3.6 0.6-5.4 1.5l-1.7-3.2c2.2-1.3 4.4-2.2 7.1-2.2 4.6 0 8.7 1.8 8.7 7v11.5h-4.3v-1.9c-1.3 1.5-3.2 2.2-5.4 2.2-3.5 0-6.9-1.4-6.9-5.5s3.9-5.4 7.4-5.4h4.3zm-3.9 7.7c1.7 0 3.2-0.7 3.9-1.9v-3.1h-3.3c-2.3 0-3.6 0.9-3.6 2.6s1.1 2.4 3 2.4zm14.7-11.3h-2.6v-3.6h2.6v-4.8h4.8v4.8h4.5v3.6h-4.5v8c0 1.8 0.9 2.6 2.4 2.6 0.7 0 1.6-0.1 2.3-0.4l0.9 3.3c-1 0.6-2.5 0.9-3.7 0.9-3.5 0-6.7-1.3-6.7-6v-8.4zm21.2-4.4c5.4 0 8.4 4.1 8.4 9v2h-12.4c0.1 2.6 2.2 4.1 4.9 4.1 1.7 0 3.2-0.5 4-1.6l2.3 2.7c-1.7 1.9-4 2.7-6.9 2.7-5.8 0-9.1-3.8-9.1-9.3 0-5.3 3.5-9.6 8.8-9.6zm-4.1 8h8.1c-0.1-2.2-1.5-4.3-4-4.3s-4 2-4.1 4.3z"/>
+  <path class="cls-1" d="m20.1 4.6"/>
+</svg>
+
+    
+    </a>
+
+    <div style="display:flex;align-items:center;gap:8px">
+      <!-- Desktop language switcher (PC only; hidden on mobile via lp-nav-hide-mobile) -->
+      <div class="fg-i18n-mount lp-nav-i18n lp-nav-hide-mobile" data-i18n-switcher="inline" data-testid="lp-nav-i18n"></div>
+      <!-- Desktop currency switcher: PC only, hidden on mobile (sidebar has it) -->
+      <div data-currency-switcher="compact" data-testid="lp-nav-currency"
+           style="margin-left:4px"
+           class="lp-curr-desktop-only lp-nav-hide-mobile"></div>
+      <div id="lp-nav-auth" style="display:flex;align-items:center;gap:8px"></div>
+      <button id="lp-nav-toggle" class="nav-toggle" aria-label="Menu" aria-expanded="false"
+        style="display:none;background:none;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:7px 9px;cursor:pointer;color:#fff;transition:all .2s ease">
+        <svg id="nav-icon-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="nav-icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="lp-nav-mobile" class="nav-links"
+       style="display:none;flex-direction:column;padding:10px 12px 16px;gap:4px;border-top:1px solid rgba(245,197,66,.1)">
+  </div>
+</nav>
+
+
+<div class="banner-wrap" id="slider" role="region" aria-label="Feature highlights">
+
+  {% set _dash = dashboard_url %}
+  {% set _login = login_url %}
+  {% set slide_content = [
+    {
+      "tag_icon": '<span class="dot dot-g"></span>',
+      "tag_text": "Firo Node Online · Mainnet",
+      "h1": 'Accept FIRO Payments.<br><span class="grad">Automatically.</span>',
+      "p": "Integrate crypto payments in minutes. No approvals, no intermediaries — runs on your own server, your own infrastructure.",
+      "mascot": "stand",
+      "guest_btn1_href": _login,
+      "guest_btn1_text": "Start Free",
+      "guest_btn2_href": "",
+      "guest_btn2_text": "",
+      "user_btn1_href": (dashboard_url or '') ~ "/payments",
+      "user_btn1_text": "My Payment",
+      "user_btn2_href": "/docs",
+      "user_btn2_text": "API Docs"
+    },
+    {
+      "tag_icon": '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      "tag_text": "Privacy First",
+      "h1": 'Privacy Your Customers<br><span class="grad">Expect</span>',
+      "p": "Payments are processed through your own FiroGate instance. No tracking, no shared balances, no third-party controlling your funds.",
+      "mascot": "walk",
+      "guest_btn1_href": _login,
+      "guest_btn1_text": "Get Started",
+      "guest_btn2_href": "/about#how",
+      "guest_btn2_text": "How It Works",
+      "user_btn1_href": _dash ~ "/payments",
+      "user_btn1_text": "View Payments",
+      "user_btn2_href": "/about#how",
+      "user_btn2_text": "How It Works"
+    },
+    {
+      "tag_icon": '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+      "tag_text": "Simple API",
+      "h1": 'One API Call.<br><span class="grad">Full Checkout.</span>',
+      "p": "Generate a complete payment page with a single request. Your customer pays, you receive FIRO automatically.",
+      "mascot": "run",
+      "guest_btn1_href": _login,
+      "guest_btn1_text": "Start Building",
+      "guest_btn2_href": "/about#how",
+      "guest_btn2_text": "How It Works",
+      "user_btn1_href": "/docs",
+      "user_btn1_text": "API Reference",
+      "user_btn2_href": "/about#features",
+      "user_btn2_text": "Features"
+    },
+    {
+      "tag_icon": '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+      "tag_text": "Self-Hosted",
+      "h1": 'Your Infrastructure.<br><span class="grad">Your Control.</span>',
+      "p": "If you run your own node and keep full ownership. No platform risk, no dependency on external services.",
+      "mascot": "stand",
+      "guest_btn1_href": _login,
+      "guest_btn1_text": "Deploy Now",
+      "guest_btn2_href": "/about#features",
+      "guest_btn2_text": "See Features",
+      "user_btn1_href": _dash ~ "/security",
+      "user_btn1_text": "Setup Security",
+      "user_btn2_href": "/about#features",
+      "user_btn2_text": "See Features"
+    }
+  ] %}
+
+  {% for img in banner_images %}
+  {% set content = slide_content[loop.index0 % slide_content|length] %}
+  <div class="slide{% if loop.first %} on{% endif %}"
+       role="group"
+       aria-label="Slide {{ loop.index }} of {{ banner_images|length }}">
+
+    <div class="s-bg"{% if img %} style="background-image:url('{{ img }}')"{% endif %}></div>
+    <div class="s-veil"></div>
+
+    <div class="s-body">
+      <div class="s-content">
+        <div class="s-tag">
+          {{ content.tag_icon | safe }}{{ content.tag_text | safe }}
+        </div>
+        <h1 class="s-h1">{{ content.h1 | safe }}</h1>
+        <p class="s-p">{{ content.p }}</p>
+        <div class="s-btns lp-cta-guest">
+          <a href="{{ content.guest_btn1_href }}" class="btn-lp-y">{{ content.guest_btn1_text }}</a>
+          {% if content.guest_btn2_text %}<a href="{{ content.guest_btn2_href }}" class="btn-lp-o">{{ content.guest_btn2_text }}</a>{% endif %}
+        </div>
+        <div class="s-btns lp-cta-user" style="display:none">
+          <a href="{{ content.user_btn1_href }}" class="btn-lp-y">{{ content.user_btn1_text }}</a>
+          <a href="{{ content.user_btn2_href }}" class="btn-lp-o">{{ content.user_btn2_text }}</a>
+        </div>
+      </div>
+      {% if content.mascot %}
+      <div class="s-mascot" aria-hidden="true">
+        {% if content.mascot == "stand" %}
+        <div class="s-mascot-img s-mascot-svg"><svg width="260" height="260" viewBox="0 0 150 103" xmlns="http://www.w3.org/2000/svg">
+  <style type="text/css">.cls-0 {fill:url(#BNR_STAND_SVGID_1_);}
+.cls-1 {fill:url(#BNR_STAND_SVGID_2_);}
+.cls-2 {fill:#4D1015;}
+.cls-3 {fill:#DD4239;}
+.cls-4 {fill:#ED7047;}
+.cls-5 {fill:#A82438;}
+.cls-6 {fill:#C42C37;}
+.cls-7 {fill:#FFFFFF;}
+.cls-8 {fill:#FFF7ED;}
+.cls-9 {fill:#771F21;}
+.cls-10 {fill:#9C332F;}
+.cls-11 {fill:#B1403B;}
+.cls-12 {fill:#F05E4A;}
+.cls-13 {fill:#681B1F;}
+.cls-14 {fill:#C95454;}
+.cls-15 {fill:#E5A29E;}
+.cls-16 {fill:#D16965;}
+.cls-17 {fill:#9B303A;}
+.cls-18 {fill:#E5ACA8;}
+.cls-19 {fill:url(#BNR_STAND_SVGID_3_);}
+.cls-20 {fill:url(#BNR_STAND_SVGID_4_);}
+.cls-21 {fill:#F1E8E5;}
+.cls-22 {fill:#7F1E1D;}
+.cls-23 {fill:#C44F2D;}
+.cls-24 {fill:#E08649;}
+.cls-25 {fill:#441112;}
+.cls-26 {fill:#701818;}</style>
+  <linearGradient id="BNR_STAND_SVGID_1_" x1="95.61" x2="136.4" y1="98.21" y2="98.21" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#B7B4B1" offset="0"/>
+    <stop stop-color="#999593" offset="1"/>
+  </linearGradient>
+  <path class="cls-0" d="m109.2 95.5c-4.3 0.2-13.6 0.5-13.6 2.7 0 1.8 8.2 2.7 17.4 2.7 2.5 0.3 23.4 0.2 23.4-2.7 0-2.2-8.2-3-14.3-3.1l-12.9 0.4z"/>
+  <linearGradient id="BNR_STAND_SVGID_2_" x2="38.46" y1="96.3" y2="96.3" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#B7B4B1" offset="0"/>
+    <stop stop-color="#999593" offset="1"/>
+  </linearGradient>
+  <path class="cls-1" d="m17.4 93.3c-3.2 0-17.4 0.3-17.4 2.8 0 2.3 13.8 3.1 19.2 3.1 5.3 0 19.3-0.7 19.3-3 0-2.4-7.6-2.9-21.1-2.9z"/>
+  <path class="cls-2" d="m28.3 51.5c3.4-1.6 9.7-5.7 9.7-15 0-6.3-3.9-11.5-4-15.2l0.1-2.6c0-0.7-0.7-0.4-1-0.1-0.8 0.6-1.5 1.4-2 2.1-1.7-6.6-7.2-8.3-9.2-10.7-1.7-1.9-1.9-3.7-2.3-3.9-0.8-0.4-1.9 3.3-1 7.1-2.8-2.1-0.3-8-7.1-11.5-0.4-0.1-0.8 0.2-0.6 0.6 2.3 5.3-2.1 8.4-4 13.1-0.5 1.3-0.7 2.7-0.7 4.5-0.7-0.7-1.9-2-3-2.4-0.2 0-0.7 0-0.4 0.8 1.4 4.9-2.7 9.7-2.7 17.1 0 6.8 3.4 13.1 9.2 16.1-6.1 3-5.4 8.5-1.7 13.9 0.6 1 1.6 2.1 2.6 2.8 0.2 0.8 0.5 2.1 0.4 3.8-0.3 2.5-2 9.1-3.2 17.9-0.5 2-4.4 3.1-2.6 6.7 2.9 1.8 9.7 1.3 9.5-1.7l0.1-1.7c0.7-1.9 4.1-9.3 5.8-12.7 0.6 2.1 0.8 9.4 0.6 13.1 0 1.2 0.9 2.1 2.2 2.2 2.3 0.5 6.5 1.1 9.1 0.2 2.3-0.7 1.3-4.8-3.8-5.2 2-8.2 2.3-11.9 2.4-18.9 0-0.8 0.1-2 0.1-2.7 4.1 0.1 6.7-1.4 6.2-5.7-0.3-3.2-3.1-6-4.5-8.2-1.3-1.8-2.6-3.1-4.2-3.8z"/>
+  <linearGradient id="BNR_STAND_SVGID_3_" x1="22.33" x2="17.9" y1="2.995" y2="52.62" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#ED672F" offset="0"/>
+    <stop stop-color="#C42C37" offset="1"/>
+  </linearGradient>
+  <path class="cls-19" d="m12.1 3.3c1.1 3.9-1 7.1-2.6 9.7-3.4 5.1-2.6 9.3-2.4 10.3 0 0.3-0.4 0.6-0.6 0.2-0.6-1.6-1.7-3.7-2.9-4.5 1.2 4.7-2.7 9.6-2.7 16.6 0 9.1 6.5 17 18.5 17.1 9.2 0.4 17.6-6 17.6-16 0-6.5-4-10.3-4-15.2l0.1-1.7c-1.9 1.4-2 4.5-2.4 4.6-0.5 0-0.5-4.1-2.7-7-2.9-3.9-7.4-4.3-8.7-9.5-0.8 3.8 1.9 8.1 1.9 8.1-6.1-2.3-4.5-6.5-6.5-9.9-0.7-1.1-1.5-2.2-2.6-2.8z"/>
+  <path class="cls-6" d="m12.1 4.1c1.8 4.8-4 8.6-4.7 13.7-0.6 3.7 0.7 6.1-0.9 5.1-0.4-1.2-1.5-3.3-2.9-3.9 1.2 4.7-2.7 9.6-2.7 16.6 0 9.1 6.5 17 18.5 17.1 5.3 0.2 10.2-1.9 13.3-5.6-13.3 8.9-28.9 1.4-27.5-14.4 0.4-2.5 0.8-5 0.4-8.7 2.9 4.1 5.7 2.7 4.6-4 0.9 1.6 2.3 2.7 3.9 3.2-2.9-2.5-3.5-6.5-1.7-10.9 1.4-3.4 1.3-5.8-0.3-8.2z"/>
+  <path class="cls-4" d="m19.3 8.2c-0.7 3.5 3 5.2 4.6 6.7 1.7 1.8 2.6 4.7 0.8 7.5 0.8-6.5-7-6.1-8.9-10.1-1.1-2.3-0.9-5.1-3.7-8.8 4.3 2.4 2.6 9.2 7.8 11.7-1.8-2.7-1.3-5.5-0.6-7z"/>
+  <path class="cls-4" d="m25.3 15.6c2.4 3.6 0.1 5.5-0.6 6.8 1.3-1.8 3.9-1.8 5.4 0.7-0.5-3.2-2.4-6.1-4.8-7.5z"/>
+  <path class="cls-3" d="m10.3 52c-2.7 1-4.4 3-4.4 6.2 0.2 4.8 4.8 11.4 9.7 11.4 6.3 0 10-5.5 13.4-7.7l1.6-0.8-0.5-1.4-0.2-0.8-1.7-6.7c-1.5-0.7-4.6 1.9-10.8 1.1l-7.1-1.3z"/>
+  <path class="cls-5" d="m20.8 55.4c-4.7 0-8.5-2.1-10.2-1.9-2.3 0.3-4.1 3.2-2.6 6.5 1.5 3.4 3.9 7.3 7.6 7.3 5 0.2 9.5-4.6 12.3-5.8l2.8-0.4-0.6-0.9c-2.9-0.5-7.4 0.8-12.2 2.1l-1.5 0.6-2-0.6-1.4-2.4 1.1-2.5 3.3 0.3 2.9 2.2 5.6-1.4 0.9 0.2 0.9-2-0.7-4.2c-1.2 1.3-3.4 2.9-6.2 2.9z"/>
+  <linearGradient id="BNR_STAND_SVGID_4_" x1="6.782" x2="30.24" y1="82.85" y2="82.85" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#BD2737" offset="0"/>
+    <stop stop-color="#D43B32" offset="1"/>
+  </linearGradient>
+  <path class="cls-20" d="m10.9 68.4c0.4 1.8 0.4 2.9 0 5-1 5-2.6 15.6-2.9 18.1-1.2 0.8-3.3 2.8-2.5 4.4 0.9 0.9 8.1 1.3 8.1-1.3v-1.7c0.8-2.5 5-11.6 6.4-13.9 1.9 0 4.1-0.7 5.3-2.1-0.4 1.5-1.7 2.8-4.3 3 0.7 3.6 0.7 12 0.9 14.2 0.2 1.6 9.8 1.8 10.2 1 0.4-1.9-2.5-3.8-6-3.4l1.2-0.6c2.1-8.5 2.6-13.4 2.3-22l-5.9-0.2c-3.8 2.4-6.8 3.8-9.7 3.4 0.1 3.4-3.7 8.8-4.4 19l-1.6 0.2c0.6-3 3.1-16.8 3.5-19.2 0-1.6-0.2-3-0.6-3.9z"/>
+  <path class="cls-5" d="m10.9 92.1c-1.3-0.4-3.8 1.6-3.3 4.4l-2.1-0.5c-1.4-1.4 1.7-4.9 5.3-3.9h0.1z"/>
+  <path class="cls-4" d="m29 69.7 0.6 0.2c-0.1 6.2-0.9 13.3-2.3 20l-0.8 1.2c1.2-5.2 2.5-12.7 2.5-21.4z"/>
+  <path class="cls-5" d="m21 79.9 0.9 14.2c0.4 1.6 9.8 1.9 10.2 1-2.6 0-8.5 0-8.6-2.4v-10.5c0-2 0.9-3.2 1.4-4.3-0.8 1-2.2 1.8-3.9 2z"/>
+  <path class="cls-4" d="m26.7 52.1c2.9 0.6 4.5 3.2 5.8 5 1.9 2.8 4.2 5.8 3.2 8.3-0.4-1.9-2.1-5.1-4-7.7-1.8-2.6-3.6-3.7-5.3-4.3l0.3-1.3z"/>
+  <path class="cls-5" d="m23.9 66.7 0.2 0.7c1.8 0.8 4.5 1.6 5.9 1.6v-0.6l-6.1-1.7z"/>
+  <path class="cls-4" d="m26.5 91.7c2.6-0.2 5.2 1.3 5.6 3.4-1.2-1.4-3-3-6-3l0.4-0.4z"/>
+  <path class="cls-7" d="m21.2 58.9 1.1-0.2c0.4-2.3 1.8-3.8 3.7-3.7l-0.1 1.7c-1.2-0.2-1.8 0.7-2 1.7l1.7-0.2-0.1 1.3-4.4 0.5 0.1-1.1z"/>
+  <path class="cls-2" d="m17.4 57.5c-1.2-0.6-2.3-0.8-3.4-0.4l-1.2-1.2 0.6 1.5c-0.9 0.3-2.1 2.3-0.9 2.8l0.5 0.2c-0.3 1.8 1 2.2 1.7 2 0.4 1.1 2.2 1.1 3 0.2 2.4-1.5 7-3.3 9.8-3 1.4 0.1 3.1 1 3.1 1.5-3.1 0.6-7 8.8-14.9 8.8-4.6 0-9-6-9.8-10.6-0.4-3.2 1.5-6.2 4.4-7.3l1 0.5c-3.6 1-4.8 3.6-3.9 6.6 1.7 5.5 5 9.9 8.5 10.2 6.5 0.2 10.6-7.1 13.6-8.2-2.1-2.1-8.9 0.3-11.8 1.3-1.1 0.6-2 0-1.8-0.3 0.3-1.9 2.6-1.9 2.6-1.9-1.1-0.6-3.2 0-3.6 1.5-1.4 0.4-1-1.5-0.4-1.8 1.1-1.2 2.6-1.3 3.5-0.9-0.9-0.8-2.9-0.6-4.1 0.5-1.5 0-0.7-1.6 1.5-1.8 1.3 0 3.5 1.3 4.7 2.7l0.5-0.4-3.2-2.5z"/>
+  <path class="cls-2" d="m24.1 66.4 0.3 0.7c3.3 1.9 11.3 3.6 12-2-2 3.8-8.2 2.6-12.3 1.3z"/>
+  <path class="cls-2" d="m30.1 59.1c-0.2-1.2-1.5-3.5-2.1-3.8 0.6 1.2 1 2.9 1 3.7l1.1 0.1z"/>
+  <path class="cls-2" d="m25.9 62.9 1.6 2.5c2.4 1.1 6.9 2.3 8.5-0.3l-0.3-3.7-1.8-3c0.8 2 1.7 3.8 1.4 5.1-1.3 2.4-4.7 3.2-8.3 1.9l-1.1-2.5z"/>
+  <path class="cls-2" d="m24.1 62.1 2.6 2.3 4-3.3c-1.6-0.5-4.2 0-6.6 1z"/>
+  <path class="cls-2" d="m30.1 60.6 1 1.1c0.6-0.6 1.4-0.6 2 0-0.7-0.2-2 0-3.2 0.4-1.2 0.5-3.9 3.5-6 4.6l-0.4-0.2 4.5-4.1 2.1-1.8z"/>
+  <path class="cls-8" d="m10.7 35.4c-1 1.5-1 5.6 3.2 5.7 2.2 0 4.5-0.7 4.5-1.7 0-2.7-1.5-5.5-4.3-5.5-1.4 0-2.4 0.5-3.4 1.5z"/>
+  <path class="cls-8" d="m29.9 33.2c-2.4 0-3.8 2.4-3.5 5.5 0.7 3 7 2.2 7-1.8 0-2.5-1.8-3.7-3.5-3.7z"/>
+  <ellipse class="cls-12" cx="11.5" cy="42.5" rx="2.2" ry="1.2"/>
+  <ellipse class="cls-12" cx="31.7" cy="41.7" rx="2" ry="1.1"/>
+  <path class="cls-2" d="m10.3 33.9-1.7-0.5c0 1 0.3 1.6 1 1.7-0.4 0.5-1.2-0.2-1.8-0.2 0.3 1.2 0.8 1.8 1.5 1.6-0.2 2.6 1.5 3.5 1.5 3.5-1.2-1.8-0.7-4.6 0.5-4.9 2.4-1.6 5.6-1.7 7.1 4.3 0.3-3-1.5-6.5-4.8-6.5-1.5 0-2.9 1-3.3 1z"/>
+  <path class="cls-2" d="m25.9 38.6c-0.5-4.7 3.2-7.3 6.5-5.2l1.5-0.5c0.1 0.8-0.3 1.5-0.8 1.5 0.5 0.6 1.3 0 1.8 0 0 1-0.8 1.7-1.3 1.6 0.3 2.4-1.2 3.4-1.2 3.4 1.5-2.3 0.6-5-2.3-5.7 1.5 0.9 2.8 5.7-1 6.7-1.6 0.2-3-0.7-3.2-1.8z"/>
+  <path class="cls-9" d="m10.6 30.6c0.7-1.6 3.8-2.2 6-0.9 2 1 2.3 2.8 0.3 2.2-1.5-0.7-3.7-1.7-6.3-1.3z"/>
+  <path class="cls-9" d="m32.1 30.2c-0.6-1.2-2.7-1.7-4.6-0.6-1.6 1-2 2.9-0.1 2.1 1.2-0.7 2.5-1.7 4.7-1.5z"/>
+  <path class="cls-2" d="m16.2 44.4c0-1.2 1.2-1.5 1.5-1.2l-0.6 0.7c2.9 1.5 7 1.5 9.4 0.2 0.5 0.3-0.1 1.3-3.6 1.8-2.6 0.2-5.2-1-6-1.8l-0.7 0.3z"/>
+  <path class="cls-11" d="m22.9 39.4c1.5-0.4 2.7 1 1.5 2.5-0.7 0.5-1.7 0.2-1.9 0 2.2 0.2 2.2-2.5 0.4-2.5z"/>
+  <path class="cls-12" d="m22.9 39.9c-0.8 1 1 1.5 1.2 0.5 0-0.7-0.7-0.8-1.2-0.5z"/>
+  <path class="cls-4" d="m20.6 47c0.6 0.7 2.8 1.2 3.3-0.1-0.8 0.2-2.3 0.2-3.3 0.1z"/>
+  <linearGradient id="BNR_STAND_SVGID_5_" x1="10.68" x2="16.44" y1="37.54" y2="37.54" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#AA3031" offset="0"/>
+    <stop stop-color="#892526" offset="1"/>
+  </linearGradient>
+  <ellipse cx="13.6" cy="37.5" rx="2.9" ry="3" fill="url(#BNR_STAND_SVGID_5_)"/>
+  <circle class="cls-2" cx="13.4" cy="37.2" r="1.7"/>
+  <circle class="cls-7" cx="12.4" cy="35.9" r="1.1"/>
+  <circle class="cls-7" cx="15.1" cy="38.7" r=".5"/>
+  <linearGradient id="BNR_STAND_SVGID_6_" x1="26.26" x2="31.38" y1="37.77" y2="37.77" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#AA3031" offset="0"/>
+    <stop stop-color="#892526" offset="1"/>
+  </linearGradient>
+  <path d="m26.4 36.9c0.7-0.5 1.3-1.7 2.2-1.9 1.5-0.4 2.8 1.1 2.8 2.6 0 1.3-1.4 3-3.2 2.6-1.7-0.3-2.1-2-1.8-3.3z" fill="url(#BNR_STAND_SVGID_6_)"/>
+  <circle class="cls-2" cx="28.6" cy="37.7" r="1.7"/>
+  <circle class="cls-7" cx="27.9" cy="35.9" r="1"/>
+  <circle class="cls-7" cx="29.9" cy="38.4" r=".4"/>
+  <path class="cls-2" d="m133.6 36.5c0.4-0.9 2-2.8 2-0.4-0.4 7.8-5 13.8-11.8 17.8 3.6 1.1 4.8 3.8 8.6 9 1.2-0.3 2.3-0.5 3.5-1 0.5-3.3 2.5-2.4 3-5.2 1-3 4.7-0.7 2.7 2.9 2.6 0.8 6.5-2.9 7.3-0.7l0.2 0.8c1.5 0.7 1.1 2.5-1.4 3.8-1.5 3-5.6 4-8.3 3.8-1.7 1.3-5.4 4.2-8.7 4.4-2.6 0.2-4.6-1.1-6.8-4.4-0.5 1.7-1 4.6-0.7 7.1l4.2 19c1.5 0.7 4 3.1 3.2 5-0.9 1.6-9.5 2-11-1.2l-0.2-2.1-5.3-12.6-0.2-0.1c-0.4 4.3-0.3 10.2-0.2 13.5 0 0.8-0.7 1.6-1.6 1.8-2.7 0.7-6.9 1.3-9.7 0.5-2.3-1-1.5-4.5 3.6-5.3-0.4-3.3-2.1-8.3-2.4-17-0.2-1.5-0.5-4.4-0.6-6.9-1.9 1.2-3.1 2.3-5.3 2.3-3 0-7.1-1.9-9.3-3.8-2.5 0.6-7.5 0-9.5-3.4-2.7-1.2-2.9-3-1.4-3.7 0.2-2.9 3.1-1.4 5.7-0.4h2.2c-1.8-2.9 0.3-5 1.7-4.1 1.3 1 0.3 2 3 3.7l1.5 1.9c1.3 0.6 3.3 0.9 5.1 1.2 4.2-4.1 4.8-7.1 8.5-8.6-2.2-1.2-5.6-5-6.7-8.5-1-3.2-0.5-6.2-0.6-8.2-0.2-1.5-0.4-4-0.3-6 0.6-5.4 5.1-9.7 4-15-0.1-1.2 2.1 0 3.1 1.6 1.5-6.1 6.8-6.5 7.5-11.6 0.7-0.8 2.2 2.1 1.8 5 2.6-1 0.1-7 6.4-11.4h0.7c0.5 0.2-0.4 0.7-0.4 2.4-0.1 5.1 6.8 7.6 6.8 16 1-1.4 2.4-2.7 4.6-3.4 1.1 0.2-0.2 0.7 0 4.6 0.1 3.5 2.6 6.5 2.3 11.9 0 2.2-0.7 4.1-0.8 5z"/>
+  <linearGradient id="BNR_STAND_SVGID_7_" x1="98.61" x2="134.7" y1="34.91" y2="34.91" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E14D36" offset="0"/>
+    <stop stop-color="#E64335" offset="1"/>
+  </linearGradient>
+  <path d="m102.7 17c0.9 4.7-4 8.9-4.1 14.7-0.1 2.7 0.5 4.7 0.4 7.3-0.5 6.9 2.7 11.4 7.9 14.7 3.7 2.3 7.3 2.8 13.2 1.2 7.5-2.2 13.6-8 14.6-18-1 1-3.1 3-3.7 2.2 0.7-0.9 2.1-2 2.2-7.4 0.2-5.8-3.2-9.2-1.8-15.4-2.5 0.9-4.5 4.1-4.7 6.4-1.5-3.1 1.5-6.6-4.8-14.2-1.3-1.8-2.9-4.5-2-7.4-5 3.9-2.8 8.8-7.4 12.9 1-1.6 0.9-5 0.2-6-1.1 3.9-6.3 4.7-7.3 13.9-0.5-2-1.5-4.4-2.7-4.9z" fill="url(#BNR_STAND_SVGID_7_)"/>
+  <linearGradient id="BNR_STAND_SVGID_8_" x1="123.5" x2="132.9" y1="16.99" y2="38.5" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#D33434" offset="0"/>
+    <stop stop-color="#B42837" offset="1"/>
+  </linearGradient>
+  <path d="m131.4 16.3c-2 3.6 0.3 8.7 1.1 11.6 0.9 4.2 0 8.5-1.5 11.2 1.1-0.2 2.2-1.2 3.7-2.2-1.1 9.6-7.1 15-13.6 17.2 4.6-2.6 8.9-7.4 8.3-12.7-3 6.3-6.4 7.1-8 4.5l-1.8-1.5c2.8 2.5 0.1 8.6-4.1 9-2.5 0.2-2-2-4.9-1.4-1 0.1-0.6 1.4-2.7 0.6-3.2-0.9-4.3-5.1-3.8-6.1-1 1.4-2.6 0.6-3.6-1.3 1.1 3.8 3.5 6.7 6.4 8.5 2.8 1.9 6.7 3 13.2 1.2 7.5-2.2 13.8-8 14.6-18l-3.3 1.8-0.2-0.5c3.9-5.7-0.1-12.8-0.6-16.3-0.4-2-0.2-4.5 0.8-5.6z" fill="url(#BNR_STAND_SVGID_8_)"/>
+  <path class="cls-4" d="m119.9 1.1c-1.4 6.3 0.7 7.6 2.5 10.3 2.5 3.3 3.2 5 3.8 10.3l0.5 1c0.2-1.2 1.8-4.6 3.8-6-2.5 0.7-3.4 2.7-3.8 3.9 0-3.5 0.3-6.5-4.8-12.2-1.3-1.7-2.9-4.4-2-7.3z"/>
+  <path class="cls-4" d="m116.6 14.9c0 5.1-8.6 5.7-8.7 12.6-1.3-0.4-2.3-2.6-2.2-4-1.1 0.9-2.5 3.2-2.7 5.1-1.9-2.2-0.1-4 0.5-6.2l0.4-3.7 1.5 3.7 0.8-0.3c0.7-7.4 5.5-8.4 6.5-12 0.4 1.6 0 3.8-0.3 4.5 3.6-1.2 4.7-3.1 5.2-7 0.4-2.5 1.3-4.6 2.3-5.5-1.5 3.1-0.5 5.8-2 9.3-0.8 2-2.9 2.5-5.4 3 2.2-2.7 0.7-6.4 0.2-6.4-0.1 2.9-3.3 4.4-3.8 6-0.4 1.6 0.2 3.7 0.5 4.9-0.5-3.5 1.1-5.2 2.2-6.2-1.2 2.4-2.5 3.2-1.9 6.2l-0.6 0.1c0.4 0.6 0.3 0 0.3-0.1h0.1-0.1c0.5 0.7 0.2 0.1 0.1 0l0.6 0.1c-0.5-3.9 1.1-5.5 2.5-6.9-1.2 1.8 0.1 1.6 2 0.8 2.8-1.2 2.8-4.5 3.5-7.5l1.4-3.7c-1.4 4.4 0.4 8.2 1.6 10.9 2.1 4.3 0.1 8.9-2.9 14.9 1.7-0.6 4.8-1.4 5.2-4.8 1.5 2.3 2.5 5.4 1.3 7.7 0.9-0.2 1.7-1 2-2.2 1.9 2.9 1.9 6.9 0.7 10.8 0.8 2.5-1.4 10-6 7.4 4.7 3.2 6.5-4.9 5.7-6.4 1.9-4.8 2-8.1-0.4-12.5l-0.1 0.7 0.1-2.8"/>
+  <path class="cls-4" d="m102.7 17.7c0.9 4.2-3.7 8.2-3.7 13.7-0.1 3 0.5 5 0.4 7.6-0.3 6.6 2.2 10.4 6 13.4-2.5-2.5-5.3-6-5.4-10-0.3-7.7-1.6-11.5 2.5-18 1.5-2.5 1.6-5.4 1.6-5.8l-1.4-0.9z"/>
+  <linearGradient id="BNR_STAND_SVGID_9_" x1="97.58" x2="135.1" y1="68.85" y2="68.85" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#D23735" offset="0"/>
+    <stop stop-color="#DE4034" offset="1"/>
+  </linearGradient>
+  <path d="m106.2 55c-3.1 0.9-4.8 4.6-8.7 8.2l1.1 1.4c-1.6-1.1-4.7-1.1-7.1-2.2l-0.4 0.6 0.3 0.9c1.5-0.4 5.2 0.2 7.2 0.7-2.7-0.7 2.3-1.1 4.8-5.7l3.2-3.3-0.4-0.6z" fill="url(#BNR_STAND_SVGID_9_)"/>
+  <linearGradient id="BNR_STAND_SVGID_10_" x1="85.49" x2="133.7" y1="68.01" y2="68.01" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#D23735" offset="0"/>
+    <stop stop-color="#DE4034" offset="1"/>
+  </linearGradient>
+  <path d="m85.5 57.6c0.2 1.5 1.2 2.6 1.2 2.6l-0.3 0.9c-3.3-0.7-3.7-0.5-5.8-1.4-2-0.6-2.4 0.2-2.1 0.7 1.7 0 4 1.7 5.1 1.1l-0.2 0.6c-1.7-0.6-4.2-1.7-5.4-1-0.5 0.4-0.1 1.5 1.1 2 0.6-1.6 3.4-0.5 4.3-0.1l0.1-0.9 0.2-0.6 0.2-0.1-0.3 0.1c0.3 0.6 0.1 2.6 0.1 2.6-1.5-0.7-3.6-2-3.7-0.7 1.1 2 3.4 3.7 8 3.5 1.5-0.2 2.6-0.5 2.6-1.7 0 0.7 0 1.3-1.5 1.9 2.3 1.5 5.6 3.5 8.8 3.5 1.5 0 3.7-1.5 5-2.7l0.1-4.2c-0.3-5.6 2.4-7.8 3.5-8.7l0.1 0.6 2.5-0.6c2.4 1.1 5.8 2 13.1-0.4l0.4-0.2c3.8 0.2 5.5 2.7 8.8 8.3l-0.8 1-0.6 1.4c-1.4-0.2-3.6-7.4-7.3-9.1-1.6-0.4-4.6 2.9-10.3 2.7-2.8-0.1-6.4-2.3-6.2-3.6-2.8 1.4-5.6 4.9-8.6 8.1l1.1 1.4c-0.6-0.5-2.1-0.9-7.1-2.2-0.7-2.8-2.5-3-3.1-3.8l-1.3-2.1c-0.7-0.6-1.6 0.4-1.7 1.1z" fill="url(#BNR_STAND_SVGID_10_)"/>
+  <linearGradient id="BNR_STAND_SVGID_11_" x1="103.2" x2="129.9" y1="77.59" y2="77.59" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#D23037" offset="0"/>
+    <stop stop-color="#BD2636" offset="1"/>
+  </linearGradient>
+  <path d="m104.5 59.4c-1.5 5.2-1.1 8.7-0.3 16.6 0.5 5.9 1.4 11.5 2.5 17-2.2 0.2-5.2 2.1-4.2 4.1 0.7 1.3 8.9 1 10.2-0.2l0.4-1 0.4-14.5c-2.4-0.3-4.4-2.4-4.6-2.4l5.5 2.1 5.8 13.3 0.4 2.6c0.8 1.7 7.9 2.6 9.1 0.9 0.5-2-2.2-4-3.2-4.3l-3.9-19.5c-0.2-3 0.4-6.2 1-7.7l-1.7-4-0.3 0.2c-0.7 2.4-2.2 8.3-1.7 12.4 0.7 4.1 4.3 15 5.2 18.4l-1.4 0.7 3.3 0.5-1.6-0.7 1.6-0.3-4.4-19.5 0.3-7-0.3-5c1.6 2.3 5 6.5 7.5 6.8 2.6 0.1 5.3-1.4 7.6-2.9l-0.6-0.9c3.3 1.4 8.6 1 10.1-2 1.2-1.2-1.5-1.4-3.2 0.4l-0.9 0.4 0.4-2.5 0.2-0.3 0.2 1.5 2-1.1 2.7-1.1c0-2.3-2.4-0.8-4.4 0h-2.8l-0.8 0.2 0.4-0.2-0.9 0.2 0.5-0.2-0.2-0.5c1.3-1.8 1-3.8-0.5-4l-1.3 2.7-2 1.8-0.6 2.3-5.4 1.4-0.5 1c-0.5 0-0.9 0.3-0.7-0.2l1.2-1.2c-1.2-2.6-4-7.2-8-9.1-6.7 1.9-11.1 2.8-16 0.4l-2.1 4.4z" fill="url(#BNR_STAND_SVGID_11_)"/>
+  <path class="cls-4" d="m106.2 55c-2.8 1-4.3 3.9-8.6 8.2l0.4 0.4c3-2.2 5-7.2 8.6-8l-0.4-0.6z"/>
+  <path class="cls-5" d="m91.2 62.6 0.2 0.4c1.2 0.6 4.8 1.4 7.3 1.6l-1.1-1-6.4-1z"/>
+  <path class="cls-5" d="m90.4 66.1 0.2-0.9c0.8 1.8 5.1 3.2 6.9 3.2 2.6-0.2 4.1-2.3 5.2-4.5l0.2 4c-1.2 0.8-2.9 2.7-5 2.7-2.7 0-6.9-2-8.8-3.5l1.3-1z"/>
+  <path class="cls-4" d="m104.4 58.9c-0.9 4.7-0.3 9 0.3 16 0.4 6 1.7 12.8 2.4 18h0.6c-1.1-5.2-2.1-12.8-2.3-18.3-1.2-6.9-1.5-12.7-1-15.7z"/>
+  <path class="cls-5" d="m108.6 93.6c-1.9-0.2-6.2 1-6.1 3.5 0.9-1.2 2.9-3.2 5.6-3.2l0.5-0.3z"/>
+  <path class="cls-5" d="m108.6 93.6c-1.9-0.2-6.1 1-6.1 3.5 2.9 0.6 7.9-0.5 7.9-1 1.2-0.5 0.2-9.6 0.2-11.5s-2-4.6-1.7-5.6c0.8 1 2.5 2.7 4.6 2.9l-0.3 14.2c-0.7 1-8 1.6-10.7 1 2.9 0.6 7.9-0.5 7.9-1"/>
+  <path class="cls-5" d="m123.2 94.1c2.4-0.5 4.4 1.3 4.3 3.5l2.2 0.3c0.4-2.2-2.1-4-3.1-4.3-1.2-0.4-3-0.2-3.4 0.5z"/>
+  <path class="cls-6" d="m114.6 81.1c1.9 2 6.6 12.3 6.6 14.8 0 1.7 1 2 1.4 2.2-1.2-4-5.2-14.6-8-17z"/>
+  <path class="cls-5" d="m121.9 62.1c1.6 2.3 5.7 6.5 8.2 6.8 2.6 0.2 4.8-1 7.3-2.8l1.2 0.8c-1.9 1.7-5.2 3.8-7.9 3.8-3.2 0.2-6.6-4.2-8.1-6.3l-0.7-2.3z"/>
+  <path class="cls-5" d="m137.1 64.9 0.3 1.2c3 1.3 8.3 0 9.8-3-1.6 1.5-5.5 3.4-10.1 1.8z"/>
+  <path class="cls-5" d="m137.1 63.5c2.3-1.1 3.3-0.6 4.6-0.1-1.3-1.7-4-1.3-4.6 0.1z"/>
+  <path class="cls-21" d="m108.4 39c0.5 2.9-4.3 3.1-7-0.1 0-2.8 5.5-4.8 7 0.1z"/>
+  <path class="cls-8" d="m114.7 40.1c0.7 2.3 7.7 2.5 8.8-0.7-1.3-5-8-4.3-8.8 0.7z"/>
+  <linearGradient id="BNR_STAND_SVGID_12_" x1="103.2" x2="108.1" y1="38.6" y2="38.6" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E7A76E" offset="0"/>
+    <stop stop-color="#C46836" offset="1"/>
+  </linearGradient>
+  <ellipse cx="105.6" cy="38.6" rx="2.4" ry="2.5" fill="url(#BNR_STAND_SVGID_12_)"/>
+  <linearGradient id="BNR_STAND_SVGID_13_" x1="116.7" x2="121.6" y1="38.84" y2="38.84" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E7A76E" offset="0"/>
+    <stop stop-color="#C46836" offset="1"/>
+  </linearGradient>
+  <ellipse cx="119.1" cy="38.8" rx="2.4" ry="2.5" fill="url(#BNR_STAND_SVGID_13_)"/>
+  <ellipse class="cls-22" cx="105.4" cy="38.6" rx="1.9" ry="1.9"/>
+  <linearGradient id="BNR_STAND_SVGID_14_" x1="117.4" x2="121.3" y1="38.67" y2="38.67" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#9E4723" offset="0"/>
+    <stop stop-color="#B35826" offset="1"/>
+  </linearGradient>
+  <circle cx="119.3" cy="38.7" r="1.9" fill="url(#BNR_STAND_SVGID_14_)"/>
+  <ellipse class="cls-25" cx="119.1" cy="38.7" rx="1.4" ry="1.4"/>
+  <ellipse class="cls-7" cx="104.6" cy="37.9" rx=".7" ry=".7"/>
+  <ellipse class="cls-7" cx="118.2" cy="38.1" rx=".7" ry=".7"/>
+  <path class="cls-2" d="m101.1 38.7c0.4-3.7 6.6-5 7.1 0.3-1.2-3-5.5-3.4-7.1-0.3z"/>
+  <path class="cls-2" d="m114.6 40.4c0-5 6.8-7 9.1-1.7l-0.2 0.9c-1.6-4-7.3-4-8.9 0.8z"/>
+  <path class="cls-13" d="m100.2 34.4c2.5-1.8 4.3-1.2 6.9 0 2.3 1.2 1.3-0.3 1-1.7-1.2-1.3-5.9-3.6-7.9 1.7z"/>
+  <path class="cls-13" d="m114.5 33.6c0 2.3 1.1 1 3.7 0.3 2.7-0.8 4.3-0.3 6.3 0.8 0.6-0.3-1.6-3.3-4.3-3.3-2.1 0-5.7 0.5-5.7 2.2z"/>
+  <path class="cls-2" d="m106.5 46.9c2.5 1.5 8.9 1.8 11.9-1l0.6 0.7c-2.1 1.5-8.5 3.4-12.5 0.3z"/>
+  <path class="cls-2" d="m116.9 45c1.2-0.4 2.5 0 2 1.7-0.5-0.8-1.3-1.3-2-1.7z"/>
+  <path class="cls-23" d="m107.2 47.4c1 1 7 3.5 10.7-0.7l-5.8 1.3-4.9-0.6z"/>
+  <path class="cls-4" d="m109.1 48.9c1.8 0.5 4.8 0.7 7.5-0.9-1 1.4-5.2 3.1-7.5 0.9z"/>
+  <path class="cls-11" d="m109.1 43.4c1-1.5 1-4.3 1-5.9 0.6 2.5-0.4 4.6-0.5 5.2 0 1.3 2.6 1.2 3 0.7 0.1 1.7-3.2 1.7-3.5 0z"/>
+  <path class="cls-2" d="m106.5 46.9c3.6 1 8 0.7 11.1-1h0.8c-1.8 1.7-8.8 3.5-11.9 1z"/>
+  <path class="cls-11" d="m108.1 43.2c0.5 2.2 4.5 2.9 4.5 0.2-0.7 0.5-3.2 0.7-3.5-0.4l-1 0.2z"/>
+  <path class="cls-4" d="m109.5 42.7c-0.1 1 1.5 0.5 0.9-0.3l-0.9 0.3z"/>
+  <path class="cls-23" d="m109.1 49.6c0.9 0.6 3.4 1 4.9 0.4-0.5 1.1-4 1.7-4.9-0.4z"/>
+  <path class="cls-21" d="m107 69.2-0.3 1.9c3.4 0.1 5.4-2.1 6-4.7h1.9l0.3-2h-2l0.2-0.5c0.4-1.5 1.3-2 2.8-2l0.2-2c-2.7-0.2-4.7 1.2-5.5 4.2h-1.7l-0.2 2h1.7c-0.5 2-1.4 3.1-3.4 3.1z"/>
+  <path class="cls-2" d="m106.5 46.9v0"/>
+  <path class="cls-4" d="m86.4 56.5c-0.7 0.6-0.7 2.1 1.5 3.9l-0.5 1.3-0.7-1.3c-0.8-1-1.8-3.3-0.3-3.9z"/>
+  <path class="cls-26" d="m85.2 63.6c0.9-1.2 3.9-1.7 4.5 0.1-1.1-1.1-3.2-1.1-4.5-0.1z"/>
+  <path class="cls-21" d="m77.6 49.7v2.8c3.9 0.4 6.4-3.1 7.1-7.5l2.9-0.6 0.3-2.8-2.7 0.5c0.5-2.4 1.7-3.4 3.9-3.5l0.1-3c-3.1 0.3-6.1 2.5-7 7.8-0.7 4.2-2.1 6.3-4.6 6.3z"/>
+  <path class="cls-14" d="m67.5 30.5 13-4.9 13.6 4.9v20.5l-13.9 5-12.7-4.9v-20.6z"/>
+  <path class="cls-15" d="m68.9 30.4 11.6-4.2 12.5 4.2-12.5 4.1-11.6-4.1z"/>
+  <path class="cls-16" d="m80.5 29.6v16.3l-12.6 4.6v-19.6l11.2 4.2c0.5 0.3 0.9 0.5 0.9 1.3v19.5l0.5-0.3v-19.2c0-0.8 0.2-1 0.9-1.3l12-3.7v19.5l0.5 0.1v-20.1l-13.4 4.5v-5.8z"/>
+  <path class="cls-17" d="m80.5 45.9 13 4.7-13 5v-9.7z"/>
+  <path class="cls-18" d="m67.9 30.9 11.2 4.2c0.5 0.3 0.9 0.5 0.9 1.3h0.5c0-0.8 0.2-1 0.9-1.3l12.5-4.2-0.9-0.5-12.5 4.1-11.6-4.1-1 0.5z"/>
+  <path d="m80.5 25-13.1 4.4c-0.4 0.1-0.8 0.6-0.8 1.1v20.5c0 0.5 0.3 0.9 0.8 1l12.5 4.7c0.5 0.3 1.1 0.4 1.5 0.2l12.7-4.9c0.4 0 0.8-0.4 0.8-1v-20.4c0-0.5-0.4-1-0.8-1.1l-13-4.5c-0.2 0-0.5-0.1-0.6 0zm0 0.9 13.4 4.7v20.4l-13.5 4.9-12.8-5v-20.4l12.9-4.5v-0.1z" fill="#571518"/>
+  <linearGradient id="BNR_STAND_SVGID_15_" x1="80.52" x2="80.52" y1="26.19" y2="34.54" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E5ACA8" offset="0"/>
+    <stop stop-color="#E5A29E" offset="1"/>
+  </linearGradient>
+  <path d="m68.9 30.4 11.6-4.2 11.6 4.2-11.6 4.1-11.6-4.1z" fill="url(#BNR_STAND_SVGID_15_)"/>
+</svg></div>
+        {% elif content.mascot == "walk" %}
+        <div class="s-mascot-img s-mascot-svg"><svg width="260" height="260" viewBox="0 0 150 103" xmlns="http://www.w3.org/2000/svg">
+  <style type="text/css">.cls-0 {fill:#C1C1C1;}
+.cls-1 {fill:#FFFFFF;}
+.cls-2 {fill:#040202;}
+.cls-3 {fill:#C42422;}
+.cls-4 {fill:#EA362D;}
+.cls-5 {fill:#C4C3C3;}
+.cls-6 {fill:#050303;}
+.cls-7 {fill:#871D18;}
+.cls-8 {fill:#DF362C;}
+.cls-9 {fill:none;stroke:#050303;stroke-width:0.9389;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-10 {fill:none;stroke:#050303;stroke-width:0.7442;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-11 {fill:#FFFFFF;stroke:#050303;stroke-width:0.9777;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-12 {fill:none;stroke:#050303;stroke-width:0.8374;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-13 {fill:none;stroke:#050303;stroke-width:0.6922;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-14 {fill:none;stroke:#050303;stroke-width:0.7562;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-15 {fill:#E9372E;}
+.cls-16 {fill:#C22422;}
+.cls-17 {fill:#871D18;}
+.cls-18 {fill:#E9493A;}
+.cls-19 {fill:none;stroke:#050303;stroke-width:0.7837;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+.cls-20 {fill:#FFFFFF;}</style>
+  <path class="cls-5" d="m108 103.9-0.1 5.2c0.1 0.9-0.6 1.5-1.5 1.9l-4.8 2.7c-1.8 1-4.5 1.4-6.5 0.4l-36.1-20.6c-0.9-0.5-2-0.5-2.1-1.1-0.3-0.8-0.3-5.9-0.3-5.9l22.2 10.1 29.2 7.3z"/>
+  <path class="cls-2" d="m56.4 86.3 38.9 22.1c1.8 1.1 4.6 1.3 6.3 0.4l5.6-3.2c0.6-0.3 0.9-0.9 0.9-1.5v-0.9l-51.1-17.3-0.6 0.4z"/>
+  <path class="cls-1" d="m57.4 87.3 38.2 21.1c1.6 0.9 4.3 0.9 5.9 0.1l5.1-2.9c1.6-0.9 1.6-2.3 0-3.2l-38.2-21.1-11 0.6v5.4z"/>
+  <path class="cls-5" d="m72.3 94.8c-0.7 1.2 2.2 2.9 6.9 2.9s8.7-0.6 8.7-2.1c0.1-2-5.8-2.3-8.7-2.3-2.8 0-6.5 0.8-6.9 1.5z"/>
+  <path class="cls-2" d="m57 86.3-0.1 5.1c0.1 0.8 1 1.1 1.6 1.5l36.6 20.1c2 1.1 4.5 1.5 6.9 0.4l4.3-2.5c1-0.6 1.4-1 1.4-1.6l-0.1-5.6-0.2 1.8-0.1 3.5c0 0.6-0.5 0.9-1.1 1.3l-4.2 2.5c-2.1 1.4-4.9 1.4-6.9 0.3l-36.4-20.3c-0.8-0.5-1.3-1-1.3-1.5v-4.3l-0.4-0.7z"/>
+  <path class="cls-3" d="m76.9 89.9c-0.7 0.6-1.6 2.2-1.3 3.7 0.5 2 4 2.1 5.8 1.5 2.6-0.8 3.6-3.6 3.5-7.3l-0.6-1.8-4-2.3-1.2-1.7-9.1 2.4 0.9 2 3.3 2.6 2.7 0.9z"/>
+  <path class="cls-4" d="m52.9 79.8c1-0.9 3.8-2.4 7.1-3l-0.4-5.3 1.4-6.4 5.5 1.4 10.1 0.7 8.9-1.8 3.5 0.5 5.5 2.1c1.3 1.1 3.5 3.8 2.1 7-0.8 1.9-3.1 2.6-5.5 1.2-1.7-0.1-2.1-1.2-2.3-2.5-1.5-1.4-4.2-2.6-5.8-2.6l-1.4 1.1c0.7 3.9-0.3 8.6-4 10.6-3 1.5-6.4 1.8-11.6 1.1-2.7-0.4-6.9 0.8-8.7 2.1l-3.5 2.9-7.7-8.8c0.6-2.1 3.6-3.3 6.8-0.3z"/>
+  <path class="cls-3" d="m58.2 63.8c-1.6 0.4-4.2 0.4-5.7-0.8l-2-2.7-1.7 0.3-4.4 1.8-0.4 2.7 1.7 2.3c2.2 2.1 6.5 3.5 10.9 2.5l3.3-1 1.1-3.8-2.8-1.3z"/>
+  <path class="cls-8" d="m58 62.7-4.9-3.3-3.5-5.8-1.6-6.4 0.4-6.8 2.2-6.1 3.3-5.9 2.2-7.7 2.5 4.8 1.4-2.6 3.8-4.4 6.2-4.6 4.2-4.2v-1l0.4 0.4-0.4 4-1.3 3.1 0.2 2.2 1.5 0.1 2.8-2.1 2.2-3.8 1-4.7-0.1-6.1 3 1.8 4 4.1 2.6 4.9 0.5 5.8-0.8 6.3-0.9 4.8 0.9 1.7 0.8 0.3 1.5-2.4 3.5-3.4-0.5 3.8v7.7l-1.5 5.4 0.5 0.8 1.8-0.8 1.7-2.6 0.6 2.6-0.3 6.9-2.8 6.9-4.6 5.6-5.5 3.4-5.6 1.6-7.3 0.4-7.7-1-6.4-3.7z"/>
+  <path class="cls-3" d="m55.6 61c3.9 2.1 9.3 3.8 14.5 4 12.3 0 24.8-5.5 27.8-19.5 0.5 5.9-2.3 12.4-6.9 16.1-4.1 3.4-7.4 5.4-13.9 5.8-8 0.5-15.7-1.4-21.5-6.4z"/>
+  <path class="cls-3" d="m61.1 66.9 0.3-1.3c4 1 7 1.8 12 2 4.4 0 9.2-0.6 12.1-2h2.1c-3 2-7.2 3.8-14.5 3.8-3.5-0.3-8-0.5-12-2.5z"/>
+  <path class="cls-3" d="m53.6 87.4c2.8-2.4 8-5.5 12-4.9 4.3 0.9 9.9 1.1 13.3-0.9l-2 1.8-4.5 1.1-6.9-0.6-5.1 0.6-3.4 1.5-3.1 2.4-0.3-1z"/>
+  <path class="cls-3" d="m89.2 73.1 1.4 2.3c0.8 0.6 1.6 1.2 2.5 1.5l-1-0.7-1.5-0.3-1-1.3-0.4-1.5z"/>
+  <path class="cls-4" d="m92.9 12.4c0.7 3 0.7 6.5 0 9.2 1.6-0.5 4.1-2.7 3-6.2-0.5-1.3-1.8-3-3-3z"/>
+  <path class="cls-15" d="m47.5 60.5c-1.6 0-3.7 1.1-3.6 3.9 0.1 2.2 1.6 3.6 3.2 3.2 1.9-0.2 3.5-2 3.5-3.7 0-2.3-1.6-3.4-3.1-3.4z"/>
+  <path class="cls-16" d="m48.9 60.6c1 0.4 2.1 1.8 1.7 3.9 0.9 0 2-1 1.8-2.1-0.3-1.4-1.9-3-3.5-1.8z"/>
+  <path class="cls-17" d="m46.1 79.6c-1 1.8 6 10 7.8 9.4 1.6-1.5-5.4-9.5-7.8-9.4z"/>
+  <path class="cls-9" d="m58.4 26.6c2.5-8 11.5-11.6 15.8-18 0.9 1.8-0.3 5.3-0.8 6.4-1.3 3.4 0.5 4.5 2.7 2.6 3.5-2.6 5-9.2 4.4-15.9 2.4 0.9 12.1 8.7 10 19.7-0.5 3.1-1.4 5.7-1.4 7.2-0.1 3.3 1 4 1.5 2.4 0.9-1.9 2.5-5.1 5.3-5.5-0.8 2.4-0.9 4.5-0.8 7.1 0.1 2.8 0 5.5-1.2 8-1 2.3 0.2 3.3 2.5 0.9 0.6-0.8 1.2-2.1 1.2-2.5 1.5 3.9 0.5 12.6-3.1 18-3.9 5.6-9.9 10.4-20 10.4-13 0-24.4-5-26.4-19-0.7-5.4 0.9-10.8 4-16.5 1.9-3.5 3.1-6.3 4-11.3 1.3 1.4 2 3.5 2.3 6z"/>
+  <path class="cls-12" d="m58.1 63.6c-1.2 0.5-4.2 0.8-5.7-0.6"/>
+  <path class="cls-14" d="m46 67.6c2.1 2 7.6 4 13.6 1.3"/>
+  <path class="cls-13" d="m45.5 67.4c-1.5-1-1.9-2.9-1.4-4.5 0.9-2.9 4.3-3.4 5.8-1.4 2 2.4-0.9 7.4-4.4 5.9z"/>
+  <path class="cls-12" d="m48.9 60.6c1.7-1 3.5 0 3.5 2 0.1 0.9-0.8 1.8-1.8 1.9"/>
+  <path class="cls-19" d="m61 65.4c-1.1 3.5-1.9 7.7-1 11.2"/>
+  <path class="cls-6" d="m54.9 36.2c-2.3 0.3-3.9 3.8-3.9 7.8 0.2 2.9 1.4 5.9 3.5 5.9 2.1 0.1 3.9-2.8 4-6.9 0.1-3.1-0.9-7-3.6-6.8z"/>
+  <path class="cls-1" d="m55.6 37.4c-1 0.2-1.7 2.1-1.6 3.6 0.1 1 0.6 2.5 1.9 2.5 0.7 0 1.7-1.1 1.7-2.6 0-1.8-0.6-3.5-2-3.5z"/>
+  <path class="cls-17" d="m52.4 46.5c0.2 1.4 1.2 2.9 2.2 2.6 1.3-0.1 1.9-0.7 1.9-1.7-0.6-0.9-1.9-0.5-3.1-1.4-0.5-0.1-0.8 0.4-1 0.5z"/>
+  <path class="cls-18" d="m53.9 46.9c-0.8 0-0.9 1.2 0 1.2 0.7 0 0.7-1.2 0-1.2z"/>
+  <path class="cls-18" d="m55.5 46.9c-0.9 0-0.6 1.2 0.1 1.2s0.8-1.2-0.1-1.2z"/>
+  <path class="cls-6" d="m75 41.2c-3-0.1-6.6 3.8-6.6 8.3 0 4 2.6 6.9 5.7 6.7 3-0.1 5.8-3.3 5.9-7.7s-2.1-7.1-5-7.3z"/>
+  <path class="cls-1" d="m73.6 42.5c-1.2-0.1-3 1.4-2.8 3.9 0.2 1.2 1.1 2.5 2.6 2.3 1.2-0.1 2.2-1.3 2.3-3.1 0-1.6-0.7-3-2.1-3.1z"/>
+  <path class="cls-17" d="m70 52.4c0.4 1.5 2.1 3.2 4 2.8 1.5 0 2.9-0.8 3.4-2.1-1-1.1-1.5-1-2-0.6-0.8 0.5-2.5 0.5-3.7-0.5-0.6-0.5-1.2 0.1-1.7 0.4z"/>
+  <path class="cls-18" d="m71.2 51.7c-0.8 0-0.6 1.2 0.2 1 0.7-0.1 0.5-1.1-0.2-1z"/>
+  <path class="cls-18" d="m72.6 52.5c-1 0.1-1 1.9 0.3 1.7 1-0.1 0.7-1.8-0.3-1.7z"/>
+  <path class="cls-18" d="m74.4 52.6c-0.9 0-0.8 1.5 0.2 1.4 0.9-0.1 0.8-1.4-0.2-1.4z"/>
+  <path class="cls-18" d="m76.1 52.1c-0.6 0-0.5 1 0.1 1 0.7-0.1 0.7-1.1-0.1-1z"/>
+  <path class="cls-14" d="m57.5 55c1.1 2.9 6.5 4.6 9.1 1.9"/>
+  <path class="cls-19" d="m92.6 22c1.4-0.1 4.8-2.6 3.3-6.6-0.5-1.3-2-3.2-3.2-3 0.9 3.1 0.9 6.5-0.1 9.6z"/>
+  <path class="cls-12" d="m52.9 79.9c1.2-1.2 5.5-3.5 10.5-2.8"/>
+  <path class="cls-12" d="m46.1 79.5c0.5-0.6 1.3-1.6 3.3-1.5 1.5 0 3 1.4 3.7 2.6"/>
+  <path class="cls-14" d="m46.1 79.6c1.4-0.5 8.4 4.9 7.8 9.4 2-1.1 5-5 11.5-5.3l3.6 0.5c3.9 0.4 7.5 0 10.1-2.2 2.3-2 4.3-5.6 2.3-10.9"/>
+  <path class="cls-12" d="m79.1 71c3.4-0.1 6.3 0.1 9.5 2.4 0.9 0.5 0.3 2.7 2.4 2.7 3 2.3 6.1 0.5 6-3-0.1-1.7-1.6-4-5-5.7-1.5-0.8-4-1.5-6.5-1.9"/>
+  <path class="cls-14" d="m69.6 84.5c2.4 3.1 4.5 4.6 8.3 6.1"/>
+  <path class="cls-12" d="m77.1 90.6c-0.7 0.3-3 3-0.6 4.4 1.1 0.6 4 0.7 5.6-0.3 2.4-1.3 3-5.3 2.5-7.6-0.5-1.7-3.5-1.1-5.6-4.7"/>
+  <path class="cls-14" d="m46.1 79.6c-1.1 1.8 5.4 9.5 7.7 9.5"/>
+  <path class="cls-20" d="m66.2 68.9-1.8 2.8h-1.5l-0.1 1.4h1l-1 1.6h-1.4l0.5 1.5h1.9l1.6-2.8 2.2 0.1 0.1-1.6h-1.5c0.4-0.8 0.8-1.8 1.3-1.8l2.7 0.1-0.6-1.4-3.4-0.1v0.2z"/>
+  <path class="cls-7" d="m53.4 46c-0.5 0-1 0.4-0.9 0.9l0.4 0.5 1-0.9-0.5-0.5z"/>
+  <path class="cls-6" d="m57.4 55"/>
+  <path class="cls-19" d="m57.5 55c1 2.9 6.6 4.6 9.1 1.6"/>
+</svg></div>
+        {% elif content.mascot == "run" %}
+        <div class="s-mascot-img s-mascot-svg"><svg width="260" height="260" viewBox="0 0 150 103" xmlns="http://www.w3.org/2000/svg">
+  <style type="text/css">.cls-0 {fill:url(#BNR_RUN_SVGID_1_);}
+.cls-1 {fill:#D18C6E;}
+.cls-2 {fill:url(#BNR_RUN_SVGID_2_);}
+.cls-3 {fill:#AF383C;}
+.cls-4 {fill:#E28E5B;}
+.cls-5 {fill:url(#BNR_RUN_SVGID_3_);}
+.cls-6 {fill:#501212;}
+.cls-7 {fill:url(#BNR_RUN_SVGID_4_);}
+.cls-8 {fill:#A8313C;}
+.cls-9 {fill:#F59274;}
+.cls-10 {fill:#C0383C;}
+.cls-11 {fill:#591313;}
+.cls-12 {fill:url(#BNR_RUN_SVGID_5_);}
+.cls-13 {fill:#FFFFFF;}
+.cls-14 {fill:#E5998F;}
+.cls-15 {fill:#F47F66;}
+.cls-16 {fill:#F47676;}
+.cls-17 {fill:#591317;}
+.cls-18 {fill:#441114;}
+.cls-19 {fill:#FFF7EB;}
+.cls-20 {fill:url(#BNR_RUN_SVGID_6_);}
+.cls-21 {fill:#FFB55C;}
+.cls-22 {fill:#F7B881;}
+.cls-23 {fill:#D37955;}
+.cls-24 {fill:#9FD9EB;}
+.cls-25 {fill:#F9AF76;}
+.cls-26 {fill:url(#BNR_RUN_SVGID_7_);}
+.cls-27 {fill:#D1D3D4;}
+.cls-28 {fill:#F7B781;}</style>
+  <linearGradient id="BNR_RUN_SVGID_1_" x1="26.03" x2="123.2" y1="64.01" y2="64.01" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F69C6B" offset="0"/>
+    <stop stop-color="#F7C791" offset="1"/>
+  </linearGradient>
+  <path class="cls-0" d="m87.4 128c-3.2 0-4.8-1.7-6.9-4.5-0.5-0.7-1.5-0.5-4.1-0.6-5.3-0.1-11.8-0.2-11.7-0.8 0.1-0.5 3.7-0.7 12.9-1.3-1.7-2.5-5-5.4-10.1-6.6-1.2-0.2-2.8 1.6-5.8 2.9l-0.5 0.2c-2.3 1-4.5 1.5-6.9 1.5-2.9 0-5.7-0.7-8.5-2-0.9-0.4-1.4-0.5-1.6-0.3-1.8 0.9-3.8 1.5-5.8 1.5-4.1 0.1-6.3-2-7.1-4.1-2-5 1.5-11.5 6.8-15.8 1.6-1.2 3.4-2.2 5.3-2.2 2 0 3.5 0.8 5.2 2-0.3-3.5 0.9-7.3 2.2-10.6-0.6-0.3-1.4-0.4-2.2-0.2-0.7 0.1-1.3 0.4-1.9 0.7 0.1 3.3-1.7 6.1-4.7 6.9-1.8 0.6-3.3 2.6-7.5 2.2-2.1-0.3-3.6-1.6-5.4-3.4-1.7-1.6-3-3.7-3.1-6.9-0.1-5.2 2.8-7.9 6.3-10.3 4.2-2.8 7-5.4 13-6.6l2.1-0.5c-2.7-5-4.4-11.3-4-18.2 0.4-6.3 3.2-14.2 0.2-18.4-2.9-3.1-1.1-7.2 3-7l3.3 0.1c-0.6-6.6 0.5-13.3 4.2-20.1 1-1.9 2.2-3 3.6-3 1.8-0.2 3.2 0.8 3.9 2 0 2.1 2.4 7 7.5 8.4 4.4 1.2 8.5 2.3 12.4 4.9 1.4-2.1 2.8-3.6 4.6-3.7 2-0.1 3.8 0.9 4.3 3.5 0.9 4.3 4.5 6 9 11 7.2 7.8 11.9 17.2 11.6 27.8-0.1 3.5-0.5 6.8-1.8 10.1 1.1-0.4 2.3-0.8 3.8-0.8 2.5 0 4.3 0.9 5.6 2.4l1.7 1.7c1.8 1.8 2.3 4.4 2.8 6.5 0.5 4.5-2.4 9-7.3 11l-0.4 0.2c-4.8 4.5-9.5 8.7-18 8.8-1.7 0-3.6-0.3-6.1-0.6-0.8 0.1-0.8 2.7-2.7 5.1v1l0.3 0.4c1.8 1.6 3.1 3.2 4.4 5 0.8 0.3 1.4-0.1 2.8-0.1 4.1 0 8.3 1.8 8.4 6.5 0.4 5.4-8.1 13-13.7 14l-0.3 0.1c-1.1 0.1-2.1 0.2-3.1 0.2z"/>
+  <path class="cls-1" d="m70.2 119.2c0-0.4 4.4-0.5 5.7-0.4l0.6 0.6-6.3-0.2z"/>
+  <linearGradient id="BNR_RUN_SVGID_2_" x1="47.48" x2="49.86" y1="92.84" y2="92.84" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E5996F" offset="0"/>
+    <stop stop-color="#E28E52" offset="1"/>
+  </linearGradient>
+  <path class="cls-2" d="m46.7 87.8c0.2 3-1.3 5.5-3.4 6.5l5.3 3.6c-0.4-3 0.8-7.5 2.2-10.8-1.4-0.4-2.8-0.3-4.1 0.7z"/>
+  <path class="cls-6" d="m119.3 75.7c-0.3-0.4-0.4-3.8-2.6-4.3-1-2.8-5.5-4.1-7.6-0.2-3-0.3-5 2.6-3.7 6.2-2.7 2.5-6.6 4.1-13.5 2 6.7-2.8 14.7-8.5 15.5-20.5 0.9-15-7.3-24.5-13-30.3-3.6-3.6-6-6-7.4-10.8-0.2-1.3-3.3 0.8-3.4 6.7-7-8-13.4-7.2-17.9-9.8-1.8-1-3.4-2-4.3-3.3l0.2-0.2c-1.7-1.6-2.6-3.6-3-5.3-0.1-0.4-0.8-0.8-1.3 0-2.1 3.5-5.3 9.1-4.6 17 0.3 3 0.9 5.5 1.9 8.3-1.5-1.1-3.2-2.5-8-2.5-0.8 0-1.4 0.9-0.8 1.4 5.6 5.9 0.7 14.9 0.7 22.3 0 8.2 3.1 16 8.9 21.1-8.4-1.6-13.8-0.7-20.4 4.6-1.6 1.5-5.8 2.8-5.7 7.8 0.3 3.5 2.3 5.5 3.6 5.7 1.5 2.3 4.9 3 6.5 0.5h1.2c1.8 0 4-2.5 2.5-6.2 3.8-2.5 6.8-3.5 12.3-1.2-2 3.7-5 10.4-2.4 15.2-2.1 4.5-4.5 0-8.3-0.5-1.1-0.3-2.8 0-4.3 1.2-3.4 2.5-7.4 8.3-6.4 11.8 1.1 3.2 5.6 3.6 9.9-0.3 4.5 3 9.8 5 17.5 1.6l4.5-3.1v-0.5c8.1 1.6 9.8 2.8 14 7.5 4.2 4.8 4.7 8 7.7 7.9 3.8 0.4 13.8-6.1 13.6-11.6-0.3-3.9-5.8-4.3-9.5-2.3-2-3.2-4.1-6.7-8.2-9.2 2.2-1.8 3.9-7.5 4.7-11.3 11.8 2.8 17.3 2.3 25.8-7 3.6-0.7 6.6-5 5.3-8.4z"/>
+  <linearGradient id="BNR_RUN_SVGID_3_" x1="81.34" x2="109.2" y1="95.11" y2="75.97" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#AF383C" offset=".2718"/>
+    <stop stop-color="#F0653C" offset="1"/>
+  </linearGradient>
+  <path class="cls-5" d="m88.4 81.9c0 1.5-0.3 5.6-0.3 7.5 11.3 3.2 16.8 2.2 24.3-5.8l-1.7-1.2-5.8-3.5c-3.3 3.2-9.7 3.5-14.9 1l-1.6 2z"/>
+  <path class="cls-3" d="m88.5 83.1-0.4 6.3c10.5 3.2 16.4 2.7 23.5-4.3l1-1.5-0.9-0.5c-2.3 1.8-9.6 9.5-21.8 3.8l-1.4-3.8z"/>
+  <linearGradient id="BNR_RUN_SVGID_4_" x1="56.6" x2="98.93" y1="8.015" y2="76.23" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#ED6435" offset=".1075"/>
+    <stop stop-color="#D6413E" offset="1"/>
+  </linearGradient>
+  <path class="cls-7" d="m57.7 8c-3.6 6.6-4.1 12.4-3 17.5 1 5.1 2.2 7.1 1.5 9.9-1.5-2.8-4.1-5-8.6-5.3 4.8 6 0.3 14.1 0.5 23.3 0.5 15.7 11.3 26 30 26.5 14.6 0 27.6-6 27.8-22.8 0.2-19.5-15.5-28-19.7-37.2-0.7 2.1-1.3 4.8-1.1 9.7-6.4-10.7-13.2-10.5-18.2-12.5-2.3-1-5.5-2.5-9.2-9.1z"/>
+  <path class="cls-8" d="m57.7 8.9c-2.3 4.5-1.8 11.5 3.9 19.7l0.1 1.8c-1 3.6 2.2 5.8-0.3 9.7-1.5 1.3-3.4 1.8-4.8-1.1-0.7-1.6-2.5-3.3-4.2-3.3 2 5.9-1.3 11.7 2.3 23.3 1.4 3.9 3.9 8.4 8.2 12.6 5.1 3.5 11.1 6.3 18.5 6.3 6.2 0.2 10.2-1.3 15-3.5 7.1-3.5 9.1-10 8.3-21-1.3-8.8-6.6-16.5-13.1-22.8-3.4-3-5.4-5-5.4-8l-0.8-1.7c-0.7 3.1-0.5 6.5 0.3 11l-0.1-0.3c-7-10.6-13.6-10-18.5-12-2.4-1-5.7-2.5-9.2-8.5l-0.2-2.2z"/>
+  <linearGradient id="BNR_RUN_SVGID_5_" x1="53.11" x2="63.95" y1="54.59" y2="87.78" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E05541" offset="0"/>
+    <stop stop-color="#D53D3B" offset="1"/>
+  </linearGradient>
+  <path class="cls-12" d="m58.4 75.9c-8.8-2.4-13.8-3-22.3 3.5l-3.2 2.2c-2.8 2.3-2.2 7.8 1.1 8.3 1.6 2.7 4.6 2.2 5.6-0.3l1.3 0.3c1.7 0 2-2.3 0.5-4.8 4-3.2 8-5.2 15.3-0.7-2.3 5.2-5.6 11.5-1.6 17.5l-1 0.5c1.5 2.2 6.1 5.2 10.3 6.5l1.5 0.2c8.5 1.5 10.8 3.3 15.2 8.3l3.6 4.6c2.2 2.9 3.7 3.1 6.7 1.6 3.8-1.7 10-6.7 8.7-10.2-1-2.3-5.2-2.5-8.4-0.5-3.8-5-6.1-8.5-9.7-10.3 3.6-3.5 5.7-10.2 5.7-20.7-7.1 3.2-18.1 3.7-26-3.8l-3.3-2.2z"/>
+  <path class="cls-9" d="m87.4 82.1c-0.8 4-1.2 13.3-6 19.3l0.6 0.5c3.4-3.3 5.9-10.5 5.9-19.5l-0.5-0.3z"/>
+  <path class="cls-9" d="m71.1 100.6c9.5 0.9 14.6 6 18.9 12.5l0.6-0.5c-3.5-6.7-8.6-11.7-16.5-12.5l-3 0.5z"/>
+  <path class="cls-8" d="m59.1 86.6 0.5-0.2c1.8-2.3-3.2-5.8-9.6-6.3-5.9-0.1-10.3 3.3-9.8 5.5l0.2 1c-2.2 2.8-8 3.8-8.5-1.2l-1 0.2c0 2.3 1 4 3.1 4.3 1.1 2.2 4.4 2.5 5.6-0.3l1.3 0.3c1.7-0.5 1.8-2.5 0.5-4.8 4-3.2 8-5.2 15.3-0.7-3 5.5-5.6 12.5-1.8 17.5l-0.8 0.5 10 6.5 1.8 0.2c8.5 1.5 10.8 3.3 15.2 8.3l3.8 4.7c1.7 2 2.8 2.5 4.5 1.9l0.7-1.9c-3.9-0.5-6.7-8.5-14-12.7-6.7-3.5-10.5-2.8-14.4-5.3-6-4.2-6.3-10-2.6-17.5z"/>
+  <linearGradient id="BNR_RUN_SVGID_6_" x1="34.84" x2="64.11" y1="108.2" y2="108.2" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#A32F3E" offset="0"/>
+    <stop stop-color="#962931" offset="1"/>
+  </linearGradient>
+  <path class="cls-12" d="m42.4 100.6c-2.8 1.3-8 7.8-7 11.5 1 2.9 6.2 1.8 8.5-0.7 4.8 3 10.7 5.2 17.2 1l3-2.8c-3.2-1.5-7.5-3.7-10-7.2-2.5 2.5-3.7 1.5-7.7-1-1.2-0.8-2.3-1.8-4-0.8z"/>
+  <path class="cls-10" d="m59.9 77.1c-8-2-14.5-3.5-23.5 2.9l-3.2 2.1c-1.5 1.3-2 3.3-1.6 5l0.8-1.5c0.3 4 5.6 4.5 8 1l-0.2-1c0.2-2.7 4.8-5.6 9.8-5.5 4.9 0.3 11.4 2.5 10.1 6.3l0.3-0.3c2.2-1.5-0.8-5.2-6-6.1l5.5-2.9z"/>
+  <path class="cls-8" d="m61.7 77.6c4.7 4.3 15.9 9.8 27.7 3.3l0.2-0.8c-5.5 2-17.7 2-27.5-3l-0.4 0.5z"/>
+  <path class="cls-9" d="m89.4 80.5c4.5 1.9 10.2 5.4 17.3-1.1l-0.3-0.8c-3 3-9 4.3-16.3 1.3l-0.7 0.6z"/>
+  <path class="cls-9" d="m89.1 115.1c3.1-1.5 7.1-2.5 10.9-1l-0.1-1c-2-1.5-7.3-1.2-10.8 2z"/>
+  <linearGradient id="BNR_RUN_SVGID_7_" x1="86.64" x2="100" y1="119.7" y2="119.7" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#A32F3E" offset="0"/>
+    <stop stop-color="#962931" offset="1"/>
+  </linearGradient>
+  <path class="cls-26" d="m87.4 122.6 0.2 1.4c0.8 0.4 3-0.1 3.8-0.5 3.2-1.4 8.3-4.9 8.6-9.4-3.3-0.5-9.4 4.3-12.6 8.5z"/>
+  <path class="cls-13" d="m81.6 85.6c-2.5 0-4 1.3-5.2 4.3l-2.2 0.2-0.5 2 2 0.3c-0.7 2-1.8 3.2-4 3.2l-0.6 2c3.6 1 5.8-1.5 7-5l2.4 0.3 0.5-2.3-2.1-0.2c0.7-1.8 1.8-2.5 3.7-2.3l0.5-2.5h-1.5z"/>
+  <path class="cls-6" d="m69.6 42.4c1-1.8 3.4-3.5 6-3.4 2 0.1 2.1 2.9 0 2.7-3-0.1-5.5 2.4-6.2 1.9-0.5-0.2-0.3-0.7 0.2-1.2z"/>
+  <path class="cls-6" d="m100.4 42.6c-0.8-1.2-2.5-2.6-4.3-2.6-1.7 0.1-2.4 2.4-0.2 2.7 2.5 0.3 3.5 1.4 4.1 1.7 0.7 0 1.1-0.8 0.4-1.8z"/>
+  <path class="cls-11" d="m75.1 47.1c-3-0.1-5.2 2.5-5.5 5.5-0.4 4.5 2.3 8.3 5.8 8.3 2.7 0 5-2.5 5-6 0.3-4.2-2.2-7.7-5.3-7.8z"/>
+  <path class="cls-11" d="m97.4 47.6c-2 0.1-4.3 2.1-4.2 6.5 0 3.5 1.9 6.5 4.2 6.5 2.2 0.1 4.2-2 4.1-6 0-4-2.1-7-4.1-7z"/>
+  <path class="cls-13" d="m76.6 49.2c-1 0-1.7 1.2-1.5 2.5 0.3 1.3 1.1 2.4 2.3 2.3 1-0.1 1.7-1.4 1.3-2.8-0.3-1.1-1.1-2-2.1-2z"/>
+  <path class="cls-14" d="m73.1 56.6c-0.5 0-1.2 0.8-0.9 1.5 0.2 0.5 0.8 0.9 1.4 0.6 0.4-0.1 0.6-0.8 0.5-1.3-0.1-0.3-0.5-0.8-1-0.8z"/>
+  <path class="cls-13" d="m98.2 49.7c-0.8 0.2-1.6 1.2-1.3 2.4 0.2 1 1.2 2.3 2.2 1.9 0.9-0.3 1.3-1.4 0.9-2.6-0.1-1-0.9-1.7-1.8-1.7z"/>
+  <path class="cls-14" d="m95.9 56.7c-0.5 0.3-0.7 0.9-0.5 1.4s0.7 0.6 1.2 0.3c0.4-0.3 0.5-0.8 0.3-1.3-0.2-0.4-0.7-0.5-1-0.4z"/>
+  <path class="cls-15" d="m70.6 61.2c-2 0-3.9 1-3.7 2.2s1.7 2 3.8 2c2 0 4-0.8 4-2-0.1-1.3-2.1-2.2-4.1-2.2z"/>
+  <path class="cls-15" d="m100.2 61c-1.5 0.1-3.1 0.9-3 2.1 0.2 1.3 1.9 1.8 3.4 1.6 1.5-0.1 3-0.8 2.8-2.1-0.2-1-1.7-1.7-3.2-1.6z"/>
+  <path class="cls-6" d="m81.4 61.9c-4-1.5-3.5 6-1.4 10.2 2.7 4.8 8.4 5 10.6 1.6 2.3-2.8 2.5-7.3 3.8-10.3 0-0.7-0.5-1-1-0.8-3.5 1.1-7.9 1-12-0.7z"/>
+  <linearGradient id="BNR_RUN_SVGID_8_" x1="86.37" x2="85.13" y1="74.35" y2="63.02" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#591419" offset=".2279"/>
+    <stop stop-color="#591313" offset="1"/>
+  </linearGradient>
+  <path d="m81.4 63.1c-2-0.7-1.8 2.5-1.3 5.3 3.9-0.8 7.8 1.5 8.6 5 2.7-1.3 3.4-6.5 4.4-9.5-2.9 0.8-7 0.8-11.7-0.8z" fill="url(#BNR_RUN_SVGID_8_)"/>
+  <path class="cls-16" d="m80 68.6c0.9 3.8 3.7 7 8.6 4.8 0-1.8-3.6-5.5-8.6-4.8z"/>
+  <linearGradient id="BNR_RUN_SVGID_9_" x1="111.4" x2="117.4" y1="74.58" y2="81.08" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#EE7851" offset="0"/>
+    <stop stop-color="#D14C3D" offset="1"/>
+  </linearGradient>
+  <path d="m106.9 78.4c-1-2.8-0.5-5.5 1.7-5.5 2.1 0.7 4.1 3 2.3 4.2l2.8 2.8c2.7 0 5.4-2 3.9-4.3-1.7-0.7-3.6 0.8-4.9 2.4l0.2-2.9-0.7-0.9c1.4-1.6 3.5-2.1 4.7-0.8 2 3.2 1.5 9.5-5.8 9.5l-4.2-4.5z" fill="url(#BNR_RUN_SVGID_9_)"/>
+  <path class="cls-9" d="m113.4 75.6 4-0.5-0.8-1.5c-1.4-1.9-3-1-4.4 0.5l1.2 1.5z"/>
+  <path class="cls-9" d="m110 71.9 2.6 1.2 3-1.2c-1.9-2.3-4.4-2-5.6 0z"/>
+  <path class="cls-9" d="m107.2 74.4c1.4-1 2.9 1.2 4 1.2 1.2-1.2-3.1-4.5-4-1.2z"/>
+  <path class="cls-15" d="m114.1 77.9 3.3-0.8-0.3-0.5c-0.7-0.5-2.2-0.2-3 1.3z"/>
+  <path class="cls-6" d="m116.9 79c-0.3-0.9-0.8-0.6-1.3-0.1-1 1-2.9 0.5-1.5-1.3-1.4 0-2.2 2-0.2 3 1.2 0.5 3-0.7 3-1.6z"/>
+  <path class="cls-9" d="m61.9 21.1c-1.5 4.8 1.2 10.6 0.2 16.3l0.5-1.3c2.1-5.4 8.3-4.7 14-5.7-3.2-3.8-11-2.3-14.7-9.3z"/>
+  <path class="cls-17" d="m59.1 85.6c-0.7-1.7-9.2-7-18-0.5 1.6 2.8 0.6 5.5-1.4 5.3l0.2-2-2.5 1.2 0.2 0.5h1.3c-0.5 1.5-3.2 3.3-5 0.3-2.3 0-3.7-4.3-2.3-7.3 1-2 2.8-2.5 4.4-4 5.7-4.7 11.7-7 22.4-3.2l-1-2c-7.4-1.8-13.8-2.3-22.4 4.2-2.1 1.8-5.8 3-5.7 8 0.4 2.8 1.8 5 3.6 5.5 1.3 2.3 4.7 3 6.5 0.5 2.6 0.8 5.5-1.7 3.7-6.2 3.3-2.3 6.8-3.8 13.8-0.5l1.5 0.7 0.7-0.5z"/>
+  <linearGradient id="BNR_RUN_SVGID_10_" x1="25.66" x2="35.96" y1="44.59" y2="44.59" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F07145" offset="0"/>
+    <stop stop-color="#E88650" offset="1"/>
+  </linearGradient>
+  <path d="m28.4 38.6c-0.3-0.7-2.8 1.3-2.7 5.3 0.4 4.8 4.5 8 8.2 6.7 3.8-1.2 2.5-7.5-0.7-8.2-1.8 0-4.2 0.3-4.8-3.8z" fill="url(#BNR_RUN_SVGID_10_)"/>
+  <path class="cls-21" d="m29.6 44.6c-1.5 3 3 7.5 5.1 4.8 1.2-1.3-0.3-4-1.8-3.7-1.3 0.4-2.7-0.1-3.3-1.1z"/>
+  <linearGradient id="BNR_RUN_SVGID_11_" x1="31.79" x2="36.46" y1="24.75" y2="24.75" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F07145" offset="0"/>
+    <stop stop-color="#E88650" offset="1"/>
+  </linearGradient>
+  <path d="m32.4 20.6c0.5 2.8-1.5 4.5-0.3 6.8 1.1 1.7 4.1 2.2 4.3 1.5 0.2-0.8 0-4.5-0.5-6-0.5-1.3-3-3-3.5-2.3z" fill="url(#BNR_RUN_SVGID_11_)"/>
+  <path class="cls-21" d="m33.9 24.9c-1.5 0.5-1.2 4 0.7 3.5 1.3-0.3 0.5-3.7-0.7-3.5z"/>
+  <linearGradient id="BNR_RUN_SVGID_12_" x1="116.1" x2="120.4" y1="53.53" y2="57.53" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#E57055" offset="0"/>
+    <stop stop-color="#F8C694" offset="1"/>
+  </linearGradient>
+  <path d="m118.6 52.7c-1-0.1-0.2 1.9-1.2 2.7-1 0.7-1.8 1.2-1.2 3.7 0.2 0.9 1.2 1.6 3.2 0.3 2.5-1.3 1.7-6-0.8-6.7z" fill="url(#BNR_RUN_SVGID_12_)"/>
+  <path class="cls-19" d="m119.1 55.9-0.9-0.3-1.6 1.8-0.2 1.3c1.3 0.4 3-0.8 2.7-2.8z"/>
+  <path class="cls-28" d="m118.7 58.1h-1l-0.5 0.3-0.1 1 0.5 0.6c0.8 0.1 1.8-1.3 1.1-1.9z"/>
+  <linearGradient id="BNR_RUN_SVGID_13_" x1="7.685" x2="36.9" y1="58.27" y2="58.27" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#82CDEE" offset="0"/>
+    <stop stop-color="#BDE2E8" offset="1"/>
+  </linearGradient>
+  <path d="m7.7 58.4c3.5 1 25 1.5 28.2 1 2-0.3 2.5-2.5-3.2-2.5-6.8-0.2-25 1-25 1.5z" fill="url(#BNR_RUN_SVGID_13_)"/>
+  <path class="cls-25" d="m22.7 66.6c0.4 0.5 14.7 1.5 17.7 1.1 1.7-0.1 1.8-2.1-0.3-2.3-3.5-0.3-17.4 0.5-17.4 1.2z"/>
+  <linearGradient id="BNR_RUN_SVGID_14_" x1="4.818" x2="22.64" y1="83.93" y2="83.93" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#82CDEE" offset="0"/>
+    <stop stop-color="#B1E2F2" offset="1"/>
+  </linearGradient>
+  <path d="m4.8 83.9c1.6 0.5 15.6 1.2 17.2 1 1.4-0.2 1.4-1.8-0.4-2-3.5-0.2-16.2 0.2-16.8 1z" fill="url(#BNR_RUN_SVGID_14_)"/>
+  <linearGradient id="BNR_RUN_SVGID_15_" x1="16.3" x2="24.64" y1="77.93" y2="77.93" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#B1E2F2" offset="0"/>
+    <stop stop-color="#95D8E9" offset="1"/>
+  </linearGradient>
+  <path d="m16.3 77.9c-0.2 1.1 3.1 0.8 5.3 0.8 3.1 0 3.6-0.6 2.8-1.5-0.5-0.1-7.8-0.6-8.1 0.7z" fill="url(#BNR_RUN_SVGID_15_)"/>
+  <linearGradient id="BNR_RUN_SVGID_16_" x1="14.56" x2="17.92" y1="42.67" y2="42.67" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F7C791" offset="0"/>
+    <stop stop-color="#E2B392" offset="1"/>
+  </linearGradient>
+  <path d="m16.2 40.9c-2.1 0.1-2 3.5 0.4 3.5 2.1-0.2 1.6-3.5-0.4-3.5z" fill="url(#BNR_RUN_SVGID_16_)"/>
+  <linearGradient id="BNR_RUN_SVGID_17_" x1="74.92" x2="79.26" y1="8.81" y2="8.81" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#F7C791" offset="0"/>
+    <stop stop-color="#F9E0C5" offset="1"/>
+  </linearGradient>
+  <path d="m75.6 6.1c-1.7 1 0.3 6 2.8 5.7 1.5-0.2 1.2-3.4-1-4.2-0.8-0.5-1.5-1.9-1.8-1.5z" fill="url(#BNR_RUN_SVGID_17_)"/>
+  <path class="cls-13" d="m76.6 7.9c-1 0.7 1 4 1.8 2.7 0.7-0.7-1-2.9-1.8-2.7z"/>
+  <path class="cls-6" d="m63.7 107.6c-10.6-4-12.3-11-6.8-22l-1.3-0.7c-2.4 4.2-5 10.7-2.5 16.2 1.5 3 6.6 6.5 11.6 8l1.2 0.5 0.2-1.5-2.4-0.5z"/>
+  <path class="cls-6" d="m53.6 101.1c-1.5 2.5-2.7 2.5-5.9 0-2.3-1.5-3.3-2.5-5.8-1.4-3.3 1.7-8 7.2-8 11.4 0.1 4.5 6.2 5.3 10.2 1h0.5l-0.5-1.2c-2.7 2-8 4.5-8.5 0.5 0.3-4.8 5-9.5 7.5-10.7 2-0.8 4.3 2.7 7.5 3.4 1.8 0.3 2.8-1 4.1-2l-1.1-1z"/>
+  <path class="cls-6" d="m41.7 109.6 0.7 1c4.8 3.4 9.2 6.8 17.5 3.5l1.7-0.7v-1c-7 3.5-11.5 2.6-18.7-3.3l-0.8-0.1-0.4 0.6z"/>
+  <path class="cls-6" d="m65.4 108.4-4.3 3.2 0.5 1.8 4.3-3.3v-1.7h-0.5z"/>
+  <path class="cls-6" d="m71.1 99.9c0.3 1.2 9.5-0.3 15.3 6.5l4.3 6h1.2c-2.3-3.8-5-8-9-10-4-2.3-10.8-3.5-11.8-2.5z"/>
+  <path class="cls-18" d="m87.7 82.1c0.9 2.5-1.1 15.8-5.7 19.5l1.4 0.8c3.5-3 6.2-13.8 5.2-20l-0.9-0.3z"/>
+  <path class="cls-6" d="m88.6 114.6 0.5 0.5c3.6-3.2 10.3-4.5 10.9-1 0 3.3-7.4 9-11.4 9.8-1.5 0-2 0-4.2-3-6.5-7.8-8.2-10.3-16.8-12l-3.2-0.5v1.5l3.7 0.7c6.5 1.5 8.6 3.3 13.5 9.3 2.4 2.8 3.4 5.7 6.3 5.6 3.7 0.1 13.2-5.9 13.3-11.1 0-4.5-7.3-5.3-12.6 0.2z"/>
+  <path class="cls-27" d="m16.4 41.4"/>
+  <circle class="cls-28" cx="16.1" cy="42.6" r="1.2"/>
+</svg></div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+  {% if banner_images|length > 1 %}
+  <button class="s-arr s-prev" onclick="sliderGo(-1)" aria-label="Previous">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <button class="s-arr s-next" onclick="sliderGo(1)" aria-label="Next">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </button>
+  <div class="s-dots" role="tablist">
+    {% for img in banner_images %}
+    <button class="s-dot{% if loop.first %} on{% endif %}"
+            onclick="sliderTo({{ loop.index0 }})"
+            aria-label="Slide {{ loop.index }}"
+            role="tab"></button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="s-prog" id="s-prog" role="progressbar" aria-hidden="true"></div>
+
+  <div class="s-hint" onclick="lpScroll('lp-stats', null)">
+    <span>Scroll</span>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
+
+</div>
+
+
+<section class="lp-sec" style="padding:44px 0" id="lp-stats">
+  <div class="container">
+    <div class="stat-bar">
+      <div class="stat-cell">
+          <div class="stat-v" style="color:#F5C542">2</div>
+          <div class="stat-l">Confirmations</div>
+      </div>
+
+      <div class="stat-cell">
+          <div class="stat-v" style="color:#22C55E">Protected</div>
+          <div class="stat-l">Transactions</div>
+      </div>
+
+      <div class="stat-cell">
+          <div class="stat-v" style="color:#ffffff">99.9%</div>
+          <div class="stat-l">Reliable Uptime</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<section class="lp-sec lp-divider" id="api-example">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.18);border-radius:100px;padding:5px 16px;font-size:.68rem;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Quick Start
+        </div>
+        <h2 style="margin-bottom:14px">Integrate in Minutes</h2>
+        <p style="margin-bottom:20px;font-size:.95rem;line-height:1.75">One API request creates a full payment session. Send your customer to the checkout URL and FiroGate handles the rest — blockchain monitoring, confirmation, and webhook delivery.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="{{ (dashboard_url or '') ~ '/docs' }}" class="btn btn-o btn-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            View Full Docs
+          </a>
+          <a href="{{ login_url }}" class="btn btn-y btn-sm lp-cta-guest">Start for Free</a>
+        </div>
+      </div>
+      <div class="api-ex-wrap">
+        <div class="api-ex-header">
+          <div class="api-ex-dots">
+            <div class="api-ex-dot" style="background:#ef4444"></div>
+            <div class="api-ex-dot" style="background:#f59e0b"></div>
+            <div class="api-ex-dot" style="background:#22c55e"></div>
+          </div>
+          <div class="api-ex-label">API Quick Example</div>
+        </div>
+        <div class="api-ex-body">
+          <pre><code><span class="c-method">curl</span> <span class="c-flag">-X POST</span> <span class="c-url">https://api.firogate.com/payments</span> \
+  <span class="c-flag">-H</span> <span class="c-str">"X-API-Key: <span class="c-val">fgate_xxx</span>"</span> \
+  <span class="c-flag">-d</span> <span class="c-str">"amount=<span class="c-val">100</span>"</span> \
+  <span class="c-flag">-d</span> <span class="c-str">"currency=<span class="c-val">FIRO</span>"</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="lp-sec lp-divider" id="use-cases">
+  <div class="container">
+    <h2 style="text-align:center;margin-bottom:8px">Built for Every Business</h2>
+    <p style="text-align:center;color:var(--t2);margin-bottom:40px">From solo developers to growing platforms FiroGate works for any use case</p>
+    <div class="grid g-4 g3">
+
+      <div class="card fc-h" style="border-radius:18px 6px 14px 8px">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+    <div class="uc-icon-box" style="background:rgba(245,197,66,.10); border:1px solid rgba(245,197,66,.20); border-radius:10px 4px 8px 4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+          </div>
+          <h3 style="margin:0;">E-commerce</h3></div>
+        <p>Add instant FIRO checkout to any online store. Customers pay in seconds, you get notified automatically, orders fulfill without delay.</p>
+      </div>
+
+      <div class="card fc-h" style="border-radius:6px 18px 8px 14px">
+         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div class="uc-icon-box" style="background:rgba(245,197,66,.10); border:1px solid rgba(245,197,66,.20); border-radius:10px 4px 8px 4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <h3 style="margin:0;">SaaS</h3> </div>
+        <p>Accept one-time or recurring plan payments in FIRO. Customers pay, plans activate, and your dashboard shows every transaction.</p>
+      </div>
+
+      <div class="card cy fc-h" style="border-radius:14px 8px 18px 6px">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div class="uc-icon-box" style="background:rgba(245,197,66,.10); border:1px solid rgba(245,197,66,.20); border-radius:10px 4px 8px 4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 style="margin:0;">Digital Products</h3></div>
+        <p>Sell downloads, licenses, or access keys. Payment confirmation triggers delivery automatically — no waiting, no manual fulfilment.</p>
+      </div>
+
+      <div class="card cg fc-h" style="border-radius:8px 14px 6px 18px">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div class="uc-icon-box" style="background:rgba(245,197,66,.10); border:1px solid rgba(245,197,66,.20); border-radius:10px 4px 8px 4px; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><circle cx="12" cy="13" r="2"/></svg>
+        </div>
+        <h3 style="margin:0;">Game Credits</h3></div>
+        <p>Fund in-game wallets, sell virtual items, and process microtransactions. Fast confirmation times keep players in the flow.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<section class="lp-sec lp-divider" id="comparison">
+  <div class="container">
+    <h2 style="text-align:center;margin-bottom:8px">FiroGate vs Traditional Gateways</h2>
+    <p style="text-align:center;color:var(--t2);margin-bottom:40px">See why merchants choose FiroGate over legacy payment processors</p>
+
+    <div class="comp-accordion" id="comp-accordion">
+
+      <article class="comp-acc-item is-fg is-open" data-comp="firogate">
+        <button class="comp-acc-head" type="button" onclick="toggleComp('firogate')" aria-expanded="true" aria-controls="comp-body-firogate">
+          <span class="comp-acc-title">
+            <span class="comp-acc-dot"></span>
+            FiroGate
+          </span>
+          <svg class="comp-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="comp-acc-body" id="comp-body-firogate">
+          <div class="comp-acc-body-inner">
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">Approval Process</div>
+                <div class="comp-row-text">No approval needed — deploy and go live instantly.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">Fund Management</div>
+                <div class="comp-row-text">You retain full control funds go direct to your dashboard.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">Setup Time</div>
+                <div class="comp-row-text">Instant create your account and start accepting in minutes.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">Custody Risk</div>
+                <div class="comp-row-text">None — funds flow through your own server.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">KYC Required</div>
+                <div class="comp-row-text">No — sign up and start immediately.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon good"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="comp-row-label">Transaction Fees</div>
+                <div class="comp-row-text">Low — pay for your plan request and per-transaction.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </article>
+
+      <article class="comp-acc-item" data-comp="traditional">
+        <button class="comp-acc-head" type="button" onclick="toggleComp('traditional')" aria-expanded="false" aria-controls="comp-body-traditional">
+          <span class="comp-acc-title">
+            <span class="comp-acc-dot"></span>
+            Traditional Gateways
+          </span>
+          <svg class="comp-acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="comp-acc-body" id="comp-body-traditional">
+          <div class="comp-acc-body-inner">
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">Approval Process</div>
+                <div class="comp-row-text">Required — manual review and merchant underwriting before you can accept payments.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">Fund Management</div>
+                <div class="comp-row-text">Gateway holds your funds — subject to freezes, rolling reserves, and chargebacks.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">Setup Time</div>
+                <div class="comp-row-text">Lengthy onboarding — paperwork, KYC, business verification.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">Custody Risk</div>
+                <div class="comp-row-text">Yes — your balance depends on the platform's policies and solvency.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">KYC Required</div>
+                <div class="comp-row-text">Yes — identity documents and business records mandatory.</div>
+              </div>
+            </div>
+
+            <div class="comp-row">
+              <div class="comp-icon bad"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+              <div>
+                <div class="comp-row-label">Transaction Fees</div>
+                <div class="comp-row-text">High — percentage cut on every transaction plus monthly fees.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // One-at-a-time accordion with smooth max-height animation.
+      // Initial state: FiroGate panel is open; measure its body and lock the height.
+      function setOpen(item, open) {
+        var body = item.querySelector('.comp-acc-body');
+        var btn  = item.querySelector('.comp-acc-head');
+        if (!body) return;
+        if (open) {
+          item.classList.add('is-open');
+          if (btn) btn.setAttribute('aria-expanded', 'true');
+          body.style.maxHeight = body.scrollHeight + 'px';
+          // Release the cap after the transition so dynamic content still fits.
+          setTimeout(function(){
+            if (item.classList.contains('is-open')) body.style.maxHeight = 'none';
+          }, 420);
+        } else {
+          item.classList.remove('is-open');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+          // If it was 'none' (fully open), snap to its current pixel height first
+          // so the CSS transition has something to animate from.
+          if (body.style.maxHeight === 'none') body.style.maxHeight = body.scrollHeight + 'px';
+          requestAnimationFrame(function(){ body.style.maxHeight = '0px'; });
+        }
+      }
+      window.toggleComp = function(which) {
+        var items = document.querySelectorAll('#comp-accordion .comp-acc-item');
+        items.forEach(function(it){
+          var open = (it.getAttribute('data-comp') === which) && !it.classList.contains('is-open');
+          setOpen(it, open);
+        });
+      };
+      // Initialise: open whichever has .is-open at load.
+      document.querySelectorAll('#comp-accordion .comp-acc-item').forEach(function(it){
+        if (it.classList.contains('is-open')) setOpen(it, true);
+        else setOpen(it, false);
+      });
+    })();
+  </script>
+</section>
+
+
+
+<section class="lp-sec lp-divider" id="open-source">
+  <div class="container" style="text-align:center">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.18);border-radius:100px;padding:5px 16px;font-size:.68rem;font-weight:700;color:var(--g);letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Free & Open Source
+    </div>
+    <h2 style="margin-bottom:12px">Free to use. Forever.</h2>
+    <p style="color:var(--t2);max-width:520px;margin:0 auto 40px;line-height:1.7">FiroGate Community Edition is open-source under Apache 2.0.<br>No subscription. No limits. Run it on your own server.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:720px;margin:0 auto 40px;text-align:left">
+      <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:20px">
+        <div style="font-size:1.5rem;font-weight:800;color:var(--g);font-family:var(--mono);margin-bottom:4px">$0</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--white);margin-bottom:6px">License cost</div>
+        <div style="font-size:.78rem;color:var(--t3);line-height:1.5">Use commercially, modify freely, self-host without restrictions.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:20px">
+        <div style="font-size:1.5rem;font-weight:800;color:var(--y);font-family:var(--mono);margin-bottom:4px">∞</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--white);margin-bottom:6px">No rate limits</div>
+        <div style="font-size:.78rem;color:var(--t3);line-height:1.5">Your server, your limits. No artificial quotas or API caps.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:20px">
+        <div style="font-size:1.5rem;font-weight:800;color:#60A5FA;font-family:var(--mono);margin-bottom:4px">MIT</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--white);margin-bottom:6px">Apache 2.0</div>
+        <div style="font-size:.78rem;color:var(--t3);line-height:1.5">Open source, auditable, community-maintained infrastructure.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="https://github.com/firogate/firogate" target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--bg2);border:1px solid var(--bw);border-radius:10px;text-decoration:none;color:var(--white);font-size:.88rem;font-weight:600;transition:border-color .15s"
+         onmouseover="this.style.borderColor='var(--y)'" onmouseout="this.style.borderColor='var(--bw)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        View on GitHub
+      </a>
+      <a href="/docs" style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--y);border-radius:10px;text-decoration:none;color:#000;font-size:.88rem;font-weight:700;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        Read the Docs
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="lp-sec lp-divider" id="faq">
+  <div class="container">
+    <h2 style="text-align:center;margin-bottom:8px">Frequently Asked Questions</h2>
+    <p style="text-align:center;color:var(--t2);margin-bottom:40px">Everything you need to know before getting started</p>
+    <div style="max-width:720px;margin:0 auto">
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What happens if a payment is delayed?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">You can extend the payment deadline with one click from your dashboard. Payments that arrive within 24 hours of creation are still detected and confirmed automatically — your customer does not need to create a new request.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can I cancel a payment?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Yes. Pending payments can be marked as cancelled from your dashboard at any time before they are confirmed on-chain. Once the required confirmations are reached, the payment is finalized and cannot be reversed through FiroGate — on-chain transactions are immutable.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Do I need to run my own node?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Yes. FiroGate connects to a Firo Core node you control. Your node generates the payment addresses, reads the blockchain, and holds the wallet keys. FiroGate is the orchestration layer — it monitors transactions and provides the merchant dashboard and API.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Is FiroGate custodial?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">In the self-hosted version, funds go to addresses managed by your own Firo node and gateway. When using the hosted service, FiroGate holds funds in the gateway wallet until you request a withdrawal. You control when and where funds are withdrawn.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How long does payment confirmation take?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Typically 5 to 10 minutes. FiroGate requires 2 block confirmations by default, which is approximately 5 minutes on the Firo network. You can adjust the required confirmations in your settings to trade off between speed and security for your use case.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="lp-sec lp-divider" style="padding:56px 0">
+  <div class="container" style="text-align:center">
+    <h2 style="margin-bottom:10px">Ready to accept FIRO?</h2>
+    <p style="color:var(--t2);margin-bottom:28px;max-width:380px;margin-left:auto;margin-right:auto">
+      Create your free account and start accepting payments in minutes.
+    </p>
+    <div class="lp-cta-guest" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+      <a href="{{ login_url }}" class="btn-lp-y">Create Account</a>
+    </div>
+    <div class="lp-cta-user" style="display:none;justify-content:center;gap:12px;flex-wrap:wrap">
+      <a href="{{ (dashboard_url or '') ~ '/payments' }}" class="btn-lp-y">View Payments</a>
+      <a href="{{ (dashboard_url or '') ~ '/docs' }}" class="btn-lp-o">API Docs</a>
+    </div>
+    <p style="margin-top:14px;font-size:.73rem;color:var(--t4)">
+      No credit card required · Free tier included · Open source on GitHub
+    </p>
+  </div>
+</section>
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+window.SHOW_TESTNET_STORE = {{ show_testnet_store | tojson }};
+
+function lpScroll(id, e) {
+  if (e) e.preventDefault();
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildNav(isLoggedIn, dashUrl, loginUrl) {
+  // API docs live on the SAME backend FastAPI app — served at /docs from
+  // any origin. We intentionally do NOT prefix with dashUrl: that would
+  // produce /dashboard/docs which falls through to the dashboard SPA's
+  // default "home" tab (tab "docs" is not in _DASHBOARD_TABS).
+  var docsHref = '/docs';
+  // Docs button is hidden on narrow screens (.lp-nav-hide-mobile) and
+  // surfaces through the hamburger instead.
+  var docsBtn = '<a href="' + docsHref + '" class="btn btn-o btn-sm lp-nav-hide-mobile" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>API Docs</a>';
+
+  // ─ API-docs search ─
+  // Small inline search input placed next to the auth button. On Enter,
+  // navigate to the docs page with a ?q=<query> param. Value is URL-
+  // encoded via encodeURIComponent — no innerHTML / raw DOM insertion of
+  // the user string happens anywhere, so XSS is structurally impossible.
+  // Shown on every screen size — collapses to an icon-width box on mobile
+  // and expands on focus so it still fits next to Sign In / Dashboard.
+  // Keyboard shortcut: ⌘/Ctrl + K focuses the input from anywhere.
+  var searchBtn =
+    '<form id="lp-nav-search" role="search" autocomplete="off" ' +
+         'style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);' +
+         'border:1px solid rgba(245,197,66,.18);border-radius:10px 3px 10px 3px;padding:4px 10px">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2"' +
+           ' aria-hidden="true" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+      '<input type="search" name="q" ' +
+             'placeholder="Search docs" aria-label="Search API documentation" ' +
+             'maxlength="120" ' +
+             'style="background:transparent;border:none;outline:none;color:#fff;' +
+             'font-size:12.5px;padding:2px 0" data-testid="lp-nav-search-input">' +
+      '<kbd class="lp-nav-hide-mobile" aria-hidden="true" ' +
+          'style="font:inherit;font-size:10px;padding:1px 5px;border:1px solid rgba(245,197,66,.25);' +
+          'border-radius:4px;color:#9ca3af;background:transparent;flex-shrink:0">⌘K</kbd>' +
+    '</form>';
+
+  var authBtn = isLoggedIn
+    ? '<a href="' + dashUrl + '" class="btn btn-y btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Dashboard</a>'
+    : '<a href="' + loginUrl + '" class="btn btn-y btn-sm" style="text-decoration:none">Sign In</a>';
+
+  // Logout button is hidden on narrow screens — available via the hamburger.
+  var logoutBtn = isLoggedIn
+    ? '<button id="lp-logout-btn" type="button" class="btn btn-o btn-sm lp-nav-hide-mobile" style="display:inline-flex;align-items:center;gap:5px;cursor:pointer" data-testid="landing-logout-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</button>'
+    : '';
+
+  var navAuth = document.getElementById('lp-nav-auth');
+  if (navAuth) navAuth.innerHTML = docsBtn + searchBtn + authBtn + logoutBtn;
+
+  // Wire the search form — submit navigates to the docs page. The query
+  // is URL-encoded; nothing from the input is ever written back to DOM.
+  // Also bind ⌘/Ctrl+K to focus the input from anywhere on the page.
+  (function wireSearch() {
+    var form = document.getElementById('lp-nav-search');
+    if (!form) return;
+    var input = form.querySelector('input[name="q"]');
+    if (!input) return;
+
+    // ─ Search index — sections from api-docs ─
+    var SECTIONS = [
+      { title:'Overview',           id:'overview',        kw:['overview','how it works','introduction'] },
+      { title:'Installation',       id:'installation',    kw:['install','setup','deploy','github','clone','self-host','self host','vps','server','run','requirements'] },
+      { title:'Authentication',     id:'auth',            kw:['auth','api key','x-api-key','token','authenticate'] },
+      { title:'Create Payment',     id:'create-payment',  kw:['create','payment','post','checkout_url','amount_firo','order_id'] },
+      { title:'Get Payment Status', id:'get-payment',     kw:['status','get','payment','pending','confirming','confirmed','expired'] },
+      { title:'List Payments',      id:'list-payments',   kw:['list','payments','history','filter'] },
+      { title:'Webhook Events',     id:'webhooks',        kw:['webhook','event','confirmed','cancelled','signature','hmac'] },
+      { title:'Payment Links',      id:'payment-links',   kw:['payment link','paylink','slug','custom'] },
+      { title:'Withdrawals',        id:'withdrawals',     kw:['withdraw','withdrawal','send','firo','address'] },
+      { title:'Error Codes',        id:'errors',          kw:['error','400','401','403','404','422','429','500'] },
+      { title:'Open Source',        id:'open-source',     kw:['open source','free','github','license','self-host'] },
+      { title:'Metadata',           id:'metadata',        kw:['metadata','custom data','order description'] },
+      { title:'Node.js Example',    id:'sdk-node',        kw:['node','nodejs','javascript','npm','axios'] },
+      { title:'Python Example',     id:'sdk-python',      kw:['python','pip','requests','flask','django'] },
+      { title:'PHP Example',        id:'sdk-php',         kw:['php','laravel','curl','composer'] },
+      { title:'Go Example',         id:'sdk-go',          kw:['go','golang','net/http'] },
+      { title:'Rust Example',       id:'sdk-rust',        kw:['rust','reqwest','cargo'] },
+      { title:'Java Example',       id:'sdk-java',        kw:['java','spring','maven','okhttp'] },
+      { title:'Webhook Signature',  id:'webhook-verify',  kw:['signature','verify','hmac','sha256','security'] },
+      { title:'Checkout Token',     id:'checkout-token',  kw:['token','checkout','hmac','security','t='] },
+      { title:'Rate Limits',        id:'rate-limits',     kw:['rate limit','429','throttle','limit'] },
+    ];
+
+    // ─ Dropdown ─
+    var dropdown = document.createElement('div');
+    dropdown.id = 'lp-search-drop';
+    dropdown.style.cssText = [
+      'display:none','position:absolute','top:calc(100% + 6px)','left:0',
+      'width:280px','background:rgba(6,4,2,0.98)',
+      'border:1px solid rgba(245,197,66,0.18)','border-radius:12px 4px 12px 4px',
+      'box-shadow:0 16px 48px rgba(0,0,0,.8)','padding:6px',
+      'z-index:9999','backdrop-filter:blur(20px)',
+      'max-height:320px','overflow-y:auto',
+    ].join(';');
+    form.style.position = 'relative';
+    form.appendChild(dropdown);
+
+    var _sel = -1;
+
+    function safeText(s) {
+      return (s || '').replace(/[<>&"']/g, function(c) {
+        return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    function buildDropdown(q) {
+      var ql = q.toLowerCase().trim();
+      if (!ql) { dropdown.style.display = 'none'; return; }
+
+      var results = SECTIONS.filter(function(s) {
+        if (s.title.toLowerCase().indexOf(ql) !== -1) return true;
+        return s.kw.some(function(k) { return k.indexOf(ql) !== -1; });
+      }).slice(0, 8);
+
+      if (!results.length) {
+        dropdown.innerHTML = '<div style="padding:10px 12px;font-size:.78rem;color:var(--t3)">No results for "' + safeText(q.slice(0,40)) + '"</div>';
+        dropdown.style.display = 'block';
+        _sel = -1;
+        return;
+      }
+
+      // Highlight matched part in title
+      var re = new RegExp('(' + ql.replace(/[.*+?^${}()|[\\]\\]/g,'\$&') + ')', 'gi');
+      dropdown.innerHTML = results.map(function(s, i) {
+        var hi = safeText(s.title).replace(re, '<strong style="color:#F5C542">$1</strong>');
+        return '<a href="' + safeText(docsHref) + '#' + safeText(s.id) + '?q=' + encodeURIComponent(q) +
+          '" data-idx="' + i + '" ' +
+          'style="display:flex;align-items:center;gap:8px;padding:8px 10px;text-decoration:none;' +
+          'color:rgba(235,228,215,.88);font-size:.82rem;border-radius:8px 3px 8px 3px;' +
+          'transition:background .1s"> ' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2" style="flex-shrink:0"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          hi + '</a>';
+      }).join('');
+      // Enter link — "search all"
+      dropdown.innerHTML += '<div style="padding:6px 10px 2px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">' +
+        '<a href="' + safeText(docsHref) + '?q=' + encodeURIComponent(q) + '" ' +
+        'style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--t3);text-decoration:none;padding:4px 0">' +
+        '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        'Search docs for "' + safeText(q.slice(0,30)) + '"</a></div>';
+      dropdown.style.display = 'block';
+      _sel = -1;
+    }
+
+    function closeDropdown() {
+      dropdown.style.display = 'none';
+      _sel = -1;
+    }
+
+    function navigate(q) {
+      var url = docsHref + '?q=' + encodeURIComponent(q);
+      window.location.href = url;
+    }
+
+    // ─ Events ─
+    var _dbt;
+    input.addEventListener('input', function() {
+      var q = input.value.trim().slice(0, 120);
+      clearTimeout(_dbt);
+      if (!q) { closeDropdown(); return; }
+      _dbt = setTimeout(function() { buildDropdown(q); }, 120);
+    });
+
+    // Keyboard navigation inside dropdown
+    input.addEventListener('keydown', function(e) {
+      var items = dropdown.querySelectorAll('a[data-idx]');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        _sel = Math.min(_sel + 1, items.length - 1);
+        items.forEach(function(a, i) { a.style.background = i === _sel ? 'rgba(245,197,66,.1)' : ''; });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        _sel = Math.max(_sel - 1, -1);
+        items.forEach(function(a, i) { a.style.background = i === _sel ? 'rgba(245,197,66,.1)' : ''; });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (_sel >= 0 && items[_sel]) {
+          window.location.href = items[_sel].href;
+        } else {
+          var q = input.value.trim();
+          if (q) navigate(q);
+        }
+      } else if (e.key === 'Escape') {
+        closeDropdown();
+        input.blur();
+      }
+    });
+
+    // Submit = navigate
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var q = input.value.trim();
+      if (q) navigate(q);
+    });
+
+    // Click outside closes dropdown
+    document.addEventListener('click', function(e) {
+      if (!form.contains(e.target)) closeDropdown();
+    });
+
+    // Mobile: expand input on touch/focus
+    input.addEventListener('focus', function() {
+      input.style.width = '120px';
+    });
+    input.addEventListener('blur', function() {
+      setTimeout(function() {
+        if (document.activeElement !== input) {
+          input.style.width = '';
+          closeDropdown();
+        }
+      }, 200);
+    });
+
+    // ⌘K / Ctrl+K global shortcut
+    document.addEventListener('keydown', function(ev) {
+      if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') {
+        ev.preventDefault();
+        input.focus();
+        input.select();
+      }
+    });
+  })();
+
+  var mobile = document.getElementById('lp-nav-mobile');
+  if (mobile) {
+    var mobileDocsHref = '/docs';
+    var links = [
+      { text: 'How It Works', href: '/about#how' },
+      { text: 'Features', href: '/about#features' },
+      { text: 'Use Cases', href: '#use-cases' },
+      { text: 'Open Source', href: '#open-source' },
+      { text: 'API Docs', href: mobileDocsHref },
+    ];
+    if (isLoggedIn) {
+      // Sandbox lives ONLY in the mobile sidebar, gated on the env flag.
+      if (window.SHOW_TESTNET_STORE) {
+        links.unshift({ text: 'Sandbox', href: 'https://sandbox.firogate.com', external: true });
+      }
+      links.push({ text: 'Dashboard', href: dashUrl });
+      links.push({ text: 'Logout', href: '#', action: 'logout' });
+    } else {
+      links.push({ text: 'Sign In', href: loginUrl });
+      links.push({ text: 'Register', href: '/register' });
+    }
+    // ─ Switchers row: lang LEFT + currency RIGHT, side by side ─
+    var switchersRow =
+      '<div style="display:flex;gap:8px;padding:8px 4px 10px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:6px">' +
+        '<div class="fg-i18n-mount" data-i18n-switcher="mobile" style="flex:1"></div>' +
+        '<div data-currency-switcher="sidebar-inline" style="flex:1"></div>' +
+      '</div>';
+
+    var linksHTML = links.map(function(l) {
+      var attr = l.external ? ' target="_blank" rel="noopener"' : '';
+      var data = l.action ? ' data-action="' + l.action + '"' : '';
+      return '<a href="' + l.href + '" class="nav-link"' + attr + data + ' style="padding:11px 14px;font-size:.92rem;border-radius:10px 3px 10px 3px;color:#fff;text-decoration:none;transition:background .15s;display:block">' + l.text + '</a>';
+    }).join('');
+
+    mobile.innerHTML = switchersRow + linksHTML;
+    // Mount the switcher immediately (i18n.js auto-mounts on init too,
+    // but this menu is generated dynamically AFTER init).
+    if (window.i18n && typeof window.i18n.mountSwitchers === 'function') {
+      try { window.i18n.mountSwitchers(); } catch(_) {}
+    }
+    if (window.FGCurrency && typeof window.FGCurrency.mountAll === 'function') {
+      try { window.FGCurrency.mountAll(); } catch(_) {}
+    }
+  }
+
+  // Wire up both desktop + mobile logout buttons to a single handler.
+  function doLandingLogout(e) {
+    if (e) e.preventDefault();
+    try {
+      if (typeof Auth !== 'undefined' && typeof Auth.logout === 'function') {
+        Auth.logout();     // uses the shared logout (cookie clear + cross-tab broadcast + reload)
+        return;
+      }
+    } catch(_){}
+    // Fallback if app.js hasn't loaded: minimal logout + reload.
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+      .catch(function(){})
+      .finally(function(){ window.location.reload(); });
+  }
+  var deskLogout = document.getElementById('lp-logout-btn');
+  if (deskLogout) deskLogout.addEventListener('click', doLandingLogout);
+  if (mobile) {
+    var mobLogout = mobile.querySelector('[data-action="logout"]');
+    if (mobLogout) mobLogout.addEventListener('click', doLandingLogout);
+  }
+
+  var toggle = document.getElementById('lp-nav-toggle');
+  var mobileMenu = document.getElementById('lp-nav-mobile');
+  if (toggle && mobileMenu) {
+    toggle.style.display = 'flex';
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var open = mobileMenu.style.display === 'flex';
+      mobileMenu.style.display = open ? 'none' : 'flex';
+      document.getElementById('nav-icon-open').style.display  = open ? 'block' : 'none';
+      document.getElementById('nav-icon-close').style.display = open ? 'none'  : 'block';
+      toggle.setAttribute('aria-expanded', !open);
+    });
+    document.addEventListener('click', function(e) {
+      if (!toggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.style.display = 'none';
+        document.getElementById('nav-icon-open').style.display  = 'block';
+        document.getElementById('nav-icon-close').style.display = 'none';
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    mobileMenu.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        mobileMenu.style.display = 'none';
+        document.getElementById('nav-icon-open').style.display  = 'block';
+        document.getElementById('nav-icon-close').style.display = 'none';
+      });
+    });
+    var ro = new ResizeObserver(function() {
+      if (window.innerWidth > 640) {
+        mobileMenu.style.display = 'none';
+        document.getElementById('nav-icon-open').style.display  = 'block';
+        document.getElementById('nav-icon-close').style.display = 'none';
+      }
+    });
+    ro.observe(document.body);
+  }
+}
+
+(function () {
+  var slides  = document.querySelectorAll('.slide');
+  var dots    = document.querySelectorAll('.s-dot');
+  var prog    = document.getElementById('s-prog');
+  var TOTAL   = slides.length;
+  var DELAY   = 6000;
+  var current = 0;
+  var timer   = null;
+  var paused  = false;
+
+  function goTo(next) {
+    if (next === current) return;
+    slides[current].classList.remove('on');
+    slides[current].classList.add('off');
+    dots[current].classList.remove('on');
+    var prev = current;
+    current  = ((next % TOTAL) + TOTAL) % TOTAL;
+    ;(function(p) {
+      setTimeout(function () { slides[p].classList.remove('off'); }, 1300);
+    })(prev);
+    slides[current].classList.add('on');
+    dots[current].classList.add('on');
+    if (prog) {
+      prog.style.transition = 'none';
+      prog.style.width = '0%';
+      void prog.offsetWidth;
+      prog.style.transition = 'width ' + DELAY + 'ms linear';
+      prog.style.width = '100%';
+    }
+  }
+
+  function startAuto() {
+    clearInterval(timer);
+    timer = setInterval(function () {
+      if (!paused) goTo(current + 1);
+    }, DELAY);
+    if (prog) {
+      prog.style.transition = 'none';
+      prog.style.width = '0%';
+      void prog.offsetWidth;
+      prog.style.transition = 'width ' + DELAY + 'ms linear';
+      prog.style.width = '100%';
+    }
+  }
+
+  var wrap = document.getElementById('slider');
+  if (wrap) {
+    wrap.addEventListener('mouseenter', function () { paused = true; });
+    wrap.addEventListener('mouseleave', function () { paused = false; });
+    var touchX = 0;
+    wrap.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+    wrap.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 44) goTo(current + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+  });
+
+  window.sliderTo = goTo;
+  window.sliderGo = function (d) { goTo(current + d); };
+  startAuto();
+}());
+
+(function () {
+  var _dash  = (window.DASHBOARD_URL  || '/dashboard').replace(/\/$/, '');
+  var _login = (window.LOGIN_URL       || '/login');
+
+  // Server already knows if we're logged in and injected the flag below.
+  // Using the server value avoids the "render guest nav then upgrade" flash
+  // that Chrome uses to speculatively prefetch /login.
+  var _loggedInServer = {{ (is_logged_in if is_logged_in is defined else False) | tojson }};
+
+  buildNav(_loggedInServer, _dash, _login);
+  if (_loggedInServer) {
+    document.querySelectorAll('.lp-cta-guest').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.lp-cta-user').forEach(function(el)  { el.style.display = 'flex'; });
+    document.querySelectorAll('.lp-plan-btn').forEach(function(el) {
+      el.href = _dash;
+      el.textContent = 'Open Dashboard';
+    });
+    document.querySelectorAll('a[href="/dashboard"]').forEach(function(el) { el.href = _dash; });
+    return;
+  }
+
+  // Fallback: verify via API only when server said "guest" — covers the rare
+  // case where the cookie was sent to the app (proxy scenario) and server
+  // didn't see it.
+  fetch('/api/auth/me', { credentials: 'include' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (me) {
+      var loggedIn = !!(me && me.id);
+      if (!loggedIn) return;
+
+      buildNav(true, _dash, _login);
+
+      document.querySelectorAll('.lp-cta-guest').forEach(function(el) { el.style.display = 'none'; });
+      document.querySelectorAll('.lp-cta-user').forEach(function(el)  { el.style.display = 'flex'; });
+
+      document.querySelectorAll('.lp-plan-btn').forEach(function(el) {
+        el.href = _dash;
+        el.textContent = 'Open Dashboard';
+      });
+
+      document.querySelectorAll('a[href="/dashboard"]').forEach(function(el) { el.href = _dash; });
+    })
+    .catch(function () { /* offline or blocked — keep guest nav */ });
+}());
+
+function toggleFaq(btn) {
+  var item = btn.closest('.faq-item');
+  var isOpen = item.classList.contains('fq-open');
+  document.querySelectorAll('.faq-item.fq-open').forEach(function(el) {
+    el.classList.remove('fq-open');
+  });
+  if (!isOpen) item.classList.add('fq-open');
+}
+</script>
+{% endblock %}

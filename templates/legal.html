@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service & Privacy Policy — FiroGate{% endblock %}
+{% block body %}
+<style>
+#legal-wrap {
+  min-height: 100vh;
+  padding: 40px 20px 60px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(245,197,66,.04) 0%, transparent 55%);
+}
+.legal-container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.legal-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.legal-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+.legal-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 32px;
+}
+.legal-tab {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--t3);
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+}
+.legal-tab.active {
+  background: var(--bg4);
+  color: var(--white);
+  border: 1px solid var(--b2);
+}
+.legal-section { display: none; }
+.legal-section.active { display: block; }
+.legal-card {
+  background: var(--bg2);
+  border: 1px solid var(--b1);
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-bottom: 16px;
+}
+.legal-card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bw);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.legal-card h2 .icon { font-size: 1.1rem; }
+.legal-card p, .legal-card li {
+  font-size: .85rem;
+  color: var(--t2);
+  line-height: 1.7;
+  margin: 0 0 8px;
+}
+.legal-card ul, .legal-card ol {
+  margin: 8px 0 8px 18px;
+  padding: 0;
+}
+.legal-card li { margin-bottom: 5px; }
+.legal-warn {
+  background: rgba(239,68,68,.07);
+  border: 1px solid rgba(239,68,68,.25);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.legal-warn-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.legal-warn p {
+  font-size: .82rem;
+  color: var(--t2);
+  margin: 0;
+  line-height: 1.6;
+}
+.legal-info {
+  background: rgba(96,165,250,.07);
+  border: 1px solid rgba(96,165,250,.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.legal-info p {
+  font-size: .82rem;
+  color: var(--t2);
+  margin: 0;
+  line-height: 1.6;
+}
+.legal-footer {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--bw);
+}
+.legal-date {
+  font-size: .75rem;
+  color: var(--t4);
+  margin-bottom: 16px;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--yellow);
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.back-btn:hover { opacity: .8; }
+</style>
+
+<div id="legal-wrap">
+  <div class="legal-container">
+
+    
+    <div class="legal-header">
+     
+      <h1 style="font-size:1.4rem;font-weight:800;color:var(--white);margin:0 0 6px">Legal Documents</h1>
+      <p style="font-size:.85rem;color:var(--t3);margin:0">Terms of Service &amp; Privacy Policy</p>
+    </div>
+
+    
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="showTab('tos')"> Terms of Service</button>
+      <button class="legal-tab" onclick="showTab('privacy')"> Privacy Policy</button>
+    </div>
+
+    
+    <div id="tab-tos" class="legal-section active">
+
+      <div class="legal-warn">
+        <div class="legal-warn-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Important — Read Before Using FiroGate
+        </div>
+        <p>FiroGate is a <strong>self-hosted cryptocurrency payment gateway</strong>. By creating an account you agree to use it exclusively for lawful purposes. Misuse may result in immediate account termination and reporting to relevant authorities.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 1. Acceptance of Terms</h2>
+        <p>By registering for or using FiroGate ("the Service"), you ("User" or "Merchant") agree to be bound by these Terms of Service. If you do not agree, you may not use the Service.</p>
+        <p>These terms apply to all users worldwide, regardless of jurisdiction. It is your responsibility to ensure that your use of the Service complies with the laws of your country.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 2. Permitted Use</h2>
+        <p>You may use FiroGate solely to:</p>
+        <ul>
+          <li>Accept Firo (FIRO) cryptocurrency payments for <strong>legitimate goods and services</strong></li>
+          <li>Integrate our payment API into lawful e-commerce, SaaS, or digital product platforms</li>
+          <li>Process transactions where you have obtained all required licenses and permits in your jurisdiction</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span>3. Prohibited Activities</h2>
+        <p>You <strong>must not</strong> use FiroGate to process payments for, or in connection with:</p>
+        <ul>
+          <li><strong>Illegal goods or services</strong> of any kind under applicable local, national, or international law</li>
+          <li>Narcotics, controlled substances, or drug paraphernalia</li>
+          <li>Weapons, firearms, explosives, or military equipment without proper licensing</li>
+          <li>Child sexual abuse material (CSAM) or any content exploiting minors — zero tolerance</li>
+          <li>Human trafficking, forced labor, or exploitation</li>
+          <li>Fraud, phishing, identity theft, or scams of any kind</li>
+          <li>Money laundering, terrorist financing, or sanctions evasion</li>
+          <li>Unauthorized hacking services, malware, ransomware, or exploit kits</li>
+          <li>Gambling or betting services where prohibited by law</li>
+          <li>Counterfeit goods, pirated software, or intellectual property infringement</li>
+          <li>Any service that violates applicable AML/KYC regulations in your jurisdiction</li>
+        </ul>
+        <div class="legal-warn" style="margin-top:12px;margin-bottom:0">
+          <div class="legal-warn-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            Zero Tolerance Policy
+          </div>
+          <p>Violations will result in immediate account suspension, fund freezing pending review, and reporting to law enforcement where legally required.</p>
+        </div>
+      </div>
+
+      <div class="legal-card">
+      <h2><span class="icon"></span>4. Legal Compliance</h2>
+      <p>You are solely responsible for ensuring that your use of FiroGate complies with all applicable laws and regulations in your jurisdiction.</p>
+      <ul>
+        <li>Complying with all applicable laws, including tax, AML, KYC, and financial regulations</li>
+        <li>Obtaining any required business licenses or regulatory approvals</li>
+        <li>Calculating, collecting, and remitting applicable taxes</li>
+        <li>Maintaining accurate transaction records where required</li>
+        <li>Implementing KYC/AML procedures where legally required</li>
+      </ul>
+      <p>
+        FiroGate does not provide legal, tax, or financial advice. 
+        You should consult a qualified professional in your jurisdiction before using the software in a production or commercial environment.
+      </p>
+    </div>
+    <div class="legal-card">
+      <h2><span class="icon"></span>5. Service Availability</h2>
+  <p>
+    FiroGate is provided as <strong>self-hosted, source-available software</strong>. 
+    It is distributed on an "as-is" basis, without warranties of any kind, express or implied.
+  </p>
+  <p>We do not guarantee:</p>
+  <ul>
+    <li>Continuous, uninterrupted, or error-free operation</li>
+    <li>Transaction confirmation times on the Firo network</li>
+    <li>Compatibility with future versions of the Firo protocol</li>
+    <li>Availability of any optional or private-core features</li>
+  </ul>
+</div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 6. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, FiroGate and its operators shall not be liable for:</p>
+        <ul>
+          <li>Any direct, indirect, incidental, or consequential damages</li>
+          <li>Loss of funds due to user error, wallet mismanagement, or blockchain issues</li>
+          <li>Actions taken by third parties, including the Firo network validators</li>
+          <li>Losses resulting from your failure to comply with these Terms</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 7. Modifications</h2>
+        <p>We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the updated Terms. We will make reasonable efforts to notify users of material changes.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 8. Termination</h2>
+        <p>We may suspend or terminate your account without notice if we determine, in our sole discretion, that you have violated these Terms or applicable law. Upon termination, your right to use the Service ceases immediately.</p>
+      </div>
+
+    </div>
+
+    
+    <div id="tab-privacy" class="legal-section">
+
+      <div class="legal-info">
+        <p> <strong>Privacy First:</strong> FiroGate is built with privacy as a core principle. We collect the minimum data necessary to operate the payment gateway. We do not sell your data to third parties.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 1. Data We Collect</h2>
+        <p><strong>Account data (required):</strong></p>
+        <ul>
+          <li>Username, email address, hashed password</li>
+          <li>API keys and webhook configurations (encrypted at rest)</li>
+          <li>2FA secrets (encrypted with AES-256)</li>
+        </ul>
+        <p><strong>Payment data:</strong></p>
+        <ul>
+          <li>Payment amounts, Firo receiving addresses, transaction IDs</li>
+          <li>Order IDs and descriptions you provide</li>
+          <li>Customer email addresses (if collected via checkout)</li>
+        </ul>
+        <p><strong>Technical data:</strong></p>
+        <ul>
+          <li>IP addresses for rate limiting and fraud prevention (not sold or shared)</li>
+          <li>Request logs (retained for a limited period for security purposes)</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 2. How We Use Your Data</h2>
+        <ul>
+          <li>To operate and maintain your payment gateway account</li>
+          <li>To process and monitor Firo blockchain transactions</li>
+          <li>To send webhook notifications to your configured endpoint</li>
+          <li>To detect and prevent fraud, abuse, and unauthorized access</li>
+          <li>To comply with legal obligations where applicable</li>
+        </ul>
+        <p>We do <strong>not</strong> use your data for advertising, profiling, or sale to third parties.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 3. Data Security</h2>
+        <ul>
+          <li>All sensitive fields (2FA secrets, webhook secrets) are encrypted at rest using AES-256</li>
+          <li>Passwords are hashed using bcrypt — never stored in plaintext</li>
+          <li>API keys are generated using cryptographically secure random functions</li>
+          <li>Webhook payloads are signed with HMAC-SHA256 for integrity verification</li>
+          <li>Operator access is protected by IP whitelist and two-factor authentication</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 4. Tor / Privacy Mode</h2>
+        <p>FiroGate supports access via Tor (.onion hidden service). When you connect via Tor:</p>
+        <ul>
+          <li>Your IP address is not logged or linked to your account</li>
+          <li>Your account is flagged as "privacy mode" — certain IP-based features are disabled</li>
+          <li>Checkout links generated for .onion sessions use the onion address</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 5. Data Retention</h2>
+        <ul>
+          <li>Account data is retained while your account is active</li>
+          <li>Payment records are retained for a minimum period required by applicable law</li>
+          <li>IP logs are purged on a rolling basis per our database cleanup schedule</li>
+          <li>Upon account deletion request, personal data is removed within 30 days (except where legal retention is required)</li>
+        </ul>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 6. Third-Party Sharing</h2>
+        <p>We do <strong>not</strong> sell, rent, or share your personal data with third parties, except:</p>
+        <ul>
+          <li>When required by law or court order</li>
+          <li>To prevent imminent harm or illegal activity</li>
+          <li>With your explicit written consent</li>
+        </ul>
+        <p>Note: Firo blockchain transactions are public by nature. Transaction IDs, addresses, and amounts visible on-chain are not considered private data under this policy.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 7. Your Rights</h2>
+        <p>Depending on your jurisdiction, you may have the right to:</p>
+        <ul>
+          <li>Access the personal data we hold about you</li>
+          <li>Request correction of inaccurate data</li>
+          <li>Request deletion of your account and associated data</li>
+          <li>Object to certain processing of your data</li>
+        </ul>
+        <p>To exercise these rights, contact the operator of this FiroGate instance via the email configured in the system.</p>
+      </div>
+
+      <div class="legal-card">
+        <h2><span class="icon"></span> 8. Changes to This Policy</h2>
+        <p>We may update this Privacy Policy periodically. Material changes will be communicated through the platform. Your continued use after changes constitutes acceptance.</p>
+      </div>
+
+    </div>
+
+    
+    <div class="legal-footer">
+      <div class="legal-date">Last updated: April 13, 2026</div>
+      <a href="/register" class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Registration
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+function showTab(name) {
+  // Update section visibility
+  document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+  const section = document.getElementById('tab-' + name);
+  if (section) section.classList.add('active');
+  // Find and activate the clicked tab button
+  const tabs = document.querySelectorAll('.legal-tab');
+  const map = { tos: 0, privacy: 1 };
+  if (tabs[map[name]]) tabs[map[name]].classList.add('active');
+  // Scroll to top of legal section
+  document.getElementById('legal-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Support direct hash navigation: /legal#privacy
+(function() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'privacy' || hash === 'tos') showTab(hash);
+})();
+</script>
+{% endblock %}

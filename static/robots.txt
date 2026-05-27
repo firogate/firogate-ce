@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /docs
+Allow: /legal
+
+Disallow: /api/
+Disallow: /admin*
+Disallow: /dashboard*
+Disallow: /login
+Disallow: /register
+Disallow: /invoice/

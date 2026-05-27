@@ -1,0 +1,1229 @@
+{% extends "base.html" %}
+{% block title %}Payment{% endblock %}
+{% block extra_css %}
+<style>
+#site-footer { display: none !important; }
+/* Brand color overrides — set by JS from merchant data */
+:root {
+  --brand-primary: var(--y);
+  --brand-bg:      var(--bg1);
+  --brand-text:    var(--white);
+}
+/* ─ Arabic font (preserved for RTL) ─ */
+/* Arabic font — Noto Sans Arabic (local, no external requests) */
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('/static/fonts/noto-sans-arabic-arabic-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('/static/fonts/noto-sans-arabic-arabic-500-normal.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('/static/fonts/noto-sans-arabic-arabic-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF;
+}
+/* Apply to all elements — unicode-range means Arabic chars use Noto, Latin uses Inter/system */
+* { font-family: 'Noto Sans Arabic', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
+[dir="rtl"] .btn, body.rtl .btn { letter-spacing: 0; }
+[dir="rtl"] #pay-addr, [dir="rtl"] .addrbox, [dir="rtl"] .mono { direction:ltr; text-align:left; }
+
+/* ─ Theme font & radius — applied globally on checkout ── */
+.st-wrap, .st-wrap * {
+  font-family: var(--th-font, 'Noto Sans Arabic', 'Inter', -apple-system, sans-serif);
+}
+.st-wrap .btn,
+.st-wrap .finput,
+.st-wrap .st-addr,
+.st-wrap .st-status {
+  border-radius: var(--th-radius-btn, 10px) !important;
+}
+.st-wrap .st-left  { background: var(--th-surface, var(--bg2)); }
+.st-wrap .st-right { background: var(--th-bg, var(--bg1)); }
+.st-wrap .st-brand-logo { background: var(--th-accent, var(--y)); }
+.st-wrap .btn.btn-y {
+  background: var(--th-accent, var(--y));
+  border-color: var(--th-accent, var(--y));
+}
+
+/* Lang/currency switcher — always outside st-wrap, always dark theme vars */
+.lang-wrap, .fg-curr-wrap {
+  /* These use root CSS vars, not overridden by theme */
+  isolation: isolate;
+}
+
+/* ─ Minimal Stripe-style checkout layout ── */
+.st-wrap {
+  min-height:100vh; display:flex; align-items:stretch; justify-content:center;
+  background:var(--bg1);
+}
+.st-grid {
+  display:grid; grid-template-columns: 1fr 1fr; width:100%; max-width:1100px;
+  min-height:100vh;
+}
+@media (max-width: 900px) {
+  .st-grid { grid-template-columns: 1fr; }
+  .st-left { border-right:none !important; border-bottom:1px solid var(--bw); }
+}
+
+.st-side { padding: 56px 56px 32px 56px; }
+@media (max-width: 640px) { .st-side { padding: 28px 20px 24px 20px; } }
+
+.st-left  { background:var(--bg2); border-right:1px solid var(--bw); }
+.st-right { background:var(--bg1); display:flex; flex-direction:column; }
+
+.st-brand { display:flex; align-items:center; gap:10px; margin-bottom:40px; }
+.st-brand-logo {
+  width:32px; height:32px; border-radius:8px;
+  background:var(--y); color:#111;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1rem;
+}
+.st-brand-name { font-size:1rem; font-weight:700; color:var(--white); letter-spacing:.01em; }
+
+.st-desc { color:var(--t3); font-size:.86rem; margin-bottom:16px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+.st-amount { font-size:2.4rem; font-weight:800; color:var(--white); font-family:var(--mono); line-height:1.1; margin-bottom:4px; }
+.st-amount-sub { color:var(--t3); font-size:.82rem; }
+
+.st-summary {
+  margin-top:36px; padding-top:22px; border-top:1px solid var(--bw);
+  display:grid; gap:14px;
+}
+.st-row { display:flex; justify-content:space-between; gap:14px; }
+.st-row .k { color:var(--t3); font-size:.82rem; }
+.st-row .v { color:var(--white); font-size:.86rem; font-weight:600; text-align:right; }
+
+.st-foot {
+  margin-top:auto; padding-top:22px; font-size:.72rem; color:var(--t4);
+  display:flex; gap:12px; align-items:center;
+}
+
+/* Right column */
+.st-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; gap:10px; }
+.st-head h1 { margin:0; font-size:1.1rem; font-weight:700; color:var(--white); }
+.st-status {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:5px 10px; border-radius:999px;
+  font-size:.7rem; font-weight:600; letter-spacing:.04em;
+}
+.st-status .dot { width:7px; height:7px; border-radius:50%; }
+.st-status.pending    { background:rgba(245,197,66,.08); border:1px solid rgba(245,197,66,.25); color:var(--y); }
+.st-status.pending .dot    { background:var(--y); animation:st-pulse 1.5s ease-in-out infinite; }
+.st-status.confirming { background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.25); color:#60a5fa; }
+.st-status.confirming .dot { background:#60a5fa; animation:st-pulse 1.2s ease-in-out infinite; }
+.st-status.ok         { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); color:#22c55e; }
+.st-status.ok .dot         { background:#22c55e; }
+@keyframes st-pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+
+.st-qr-card {
+  background:var(--bg2); border:1px solid var(--bw);
+  border-radius:16px;
+  padding:24px;
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.st-qr-box {
+  width:220px; height:220px; background:#fff;
+  border-radius:12px; padding:10px; box-shadow:0 8px 24px rgba(0,0,0,.25);
+  display:flex; align-items:center; justify-content:center;
+}
+.st-qr-box img { width:100%; height:100%; display:block; }
+
+.st-addr {
+  width:100%; background:var(--bg3); border:1px solid var(--bw);
+  border-radius:10px; padding:12px 14px;
+  display:flex; align-items:center; gap:10px; cursor:pointer;
+  transition:border-color .15s;
+}
+.st-addr:hover { border-color:var(--y); }
+.st-addr-text { font-family:var(--mono); font-size:.74rem; color:var(--t1); word-break:break-all; flex:1; direction:ltr; }
+.st-addr-copy { color:var(--t3); flex-shrink:0; }
+
+.st-meta {
+  margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.st-meta-cell {
+  background:var(--bg2); border:1px solid var(--bw);
+  border-radius:10px; padding:12px 14px;
+}
+.st-meta-lbl { font-size:.66rem; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+.st-meta-val { font-family:var(--mono); font-size:1.1rem; font-weight:700; color:var(--white); }
+
+.st-help {
+  margin-top:22px;
+  border-top:1px solid var(--bw); padding-top:18px;
+}
+.st-help summary {
+  list-style:none; cursor:pointer; padding:4px 0;
+  color:var(--t2); font-size:.82rem; display:flex; align-items:center; gap:6px;
+}
+.st-help summary::-webkit-details-marker { display:none; }
+.st-help summary::before { content:'+'; color:var(--t3); font-weight:600; width:12px; }
+.st-help[open] summary::before { content:'−'; }
+
+.st-ok-screen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:60px 20px; gap:14px;
+  min-height:50vh;
+}
+.st-ok-check {
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35);
+  display:flex; align-items:center; justify-content:center;
+}
+.st-ok-title { font-size:1.5rem; font-weight:700; color:var(--white); }
+.st-ok-sub { color:var(--t3); font-size:.88rem; max-width:360px; }
+
+.st-err-screen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:60px 20px; gap:10px; min-height:50vh;
+}
+
+/* Language selector (top-right, minimal) */
+.lang-wrap { position:absolute; top:22px; right:22px; z-index:50; }
+[dir="rtl"] .lang-wrap { right:auto; left:22px; }
+
+/* Cancel button — lives INSIDE the left panel at the top, so it sits in
+   the same content column as the merchant brand and summary rows
+   without overlapping the merchant name. RTL flips alignment to the
+   right side of the left panel. */
+.cancel-inline { margin-bottom: 18px; }
+[dir="rtl"] .cancel-inline { text-align: right; }
+.cancel-top-btn {
+  display:inline-flex; align-items:center; gap:7px;
+  background:transparent; border:1px solid var(--bw);
+  border-radius:999px; padding:6px 12px 6px 10px;
+  cursor:pointer; font-size:.72rem; color:var(--t2);
+  transition:all .18s; text-decoration:none;
+  font-family:inherit;
+}
+.cancel-top-btn:hover { border-color:var(--red); color:#fca5a5; background:rgba(239,68,68,.06); }
+.cancel-top-btn svg { flex-shrink:0; }
+.lang-btn {
+  display:flex; align-items:center; gap:6px;
+  background:transparent; border:1px solid var(--bw);
+  border-radius:999px; padding:5px 11px; cursor:pointer;
+  font-size:.72rem; color:var(--t2); transition:all .18s;
+}
+.lang-btn:hover { border-color:var(--y); color:var(--white); }
+.lang-drop {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0; /* replaces right: 0 */
+  
+  background: var(--bg2);
+  border: 1px solid var(--bw);
+  border-radius: 10px;
+  padding: 5px;
+  min-width: 170px;
+  box-shadow: 0 10px 32px rgba(0,0,0,.55);
+  display: none;
+}
+.lang-wrap.open .lang-drop { display:block; }
+.lang-opt {
+  display:flex; align-items:center; gap:9px;
+  padding:7px 10px; border-radius:7px; cursor:pointer;
+  font-size:.78rem; color:var(--t2);
+}
+.lang-opt:hover { background:var(--bg3); color:var(--white); }
+.lang-opt.active { color:var(--y); }
+
+@media print { .lang-wrap, .cancel-inline, .st-help, .st-status { display:none !important; } }
+</style>
+{% endblock %}
+{% block body %}
+<div class="st-wrap">
+  <div class="lang-wrap" id="lang-wrap">
+    <button class="lang-btn" onclick="toggleLangMenu()" data-testid="lang-btn">
+      <span id="cur-flag">🇺🇸</span>
+      <span id="cur-lang-name">EN</span>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="lang-drop" id="lang-drop">
+      <div class="lang-opt active" onclick="setLang('en')" data-lang="en"><span>🇺🇸</span><span>English</span></div>
+      <div class="lang-opt" onclick="setLang('ar')" data-lang="ar"><span>🇸🇦</span><span>العربية</span></div>
+      <div class="lang-opt" onclick="setLang('ru')" data-lang="ru"><span>🇷🇺</span><span>Русский</span></div>
+      <div class="lang-opt" onclick="setLang('zh')" data-lang="zh"><span>🇨🇳</span><span>中文</span></div>
+      <div class="lang-opt" onclick="setLang('ja')" data-lang="ja"><span>🇯🇵</span><span>日本語</span></div>
+      <div class="lang-opt" onclick="setLang('fr')" data-lang="fr"><span>🇫🇷</span><span>Français</span></div>
+      <div class="lang-opt" onclick="setLang('de')" data-lang="de"><span>🇩🇪</span><span>Deutsch</span></div>
+      <div class="lang-opt" onclick="setLang('pt')" data-lang="pt"><span>🇵🇹</span><span>Português</span></div>
+      <div class="lang-opt" onclick="setLang('tr')" data-lang="tr"><span>🇹🇷</span><span>Türkçe</span></div>
+    </div>
+  </div>
+
+  <div class="st-grid" id="st-grid">
+
+    <!-- ═══════════════════ LEFT: order details ═══════════════════ -->
+    <div class="st-side st-left" id="st-left">
+      <div class="cancel-inline">
+        <button class="cancel-top-btn" onclick="cancelPayment()" data-testid="st-cancel-top" aria-label="Cancel payment">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span id="txt-cancel-top">Cancel</span>
+        </button>
+      </div>
+      <div class="st-brand" data-testid="st-merchant-brand">
+        <div class="st-brand-logo" id="st-brand-logo">S</div>
+        <div class="st-brand-name" id="st-brand-name" data-testid="st-merchant-name">Store</div>
+      </div>
+
+      <div>
+        <div class="st-desc" id="st-desc-label" data-testid="st-order-label">Payment to <span id="st-desc-merchant">Store</span></div>
+        <div id="st-order-title" class="st-desc" style="color:var(--t1);font-size:1rem;font-weight:500;text-transform:none;letter-spacing:0;margin-top:4px" data-testid="st-order-title">—</div>
+        <div class="st-amount" id="st-amount" data-testid="st-amount">—</div>
+        <div class="st-amount-sub">FIRO</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+          <div id="st-usd-price" style="font-size:.78rem;color:var(--t3);font-family:var(--mono)"></div>
+          <div id="checkout-currency-mount"></div>
+        </div>
+      </div>
+
+      <div class="st-summary">
+        <div class="st-row" id="st-row-order">
+          <div class="k" id="txt-order-label">Order</div>
+          <div class="v" id="st-order-id" data-testid="st-order-id">—</div>
+        </div>
+        <div class="st-row">
+          <div class="k" id="txt-amount-label">Subtotal</div>
+          <div class="v mono" id="st-subtotal">—</div>
+        </div>
+        <div class="st-row">
+          <div class="k" id="txt-net-label">Network</div>
+          <div class="v" id="st-network">—</div>
+        </div>
+        <div class="st-row" style="padding-top:10px;border-top:1px solid var(--bw)">
+          <div class="k" style="color:var(--white);font-weight:600" id="txt-total-label">Total due</div>
+          <div class="v mono" id="st-total" style="color:var(--y);font-size:1rem">—</div>
+        </div>
+      </div>
+
+      <div class="st-foot" data-testid="st-secure-foot">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span id="txt-secure">Secure checkout</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ RIGHT: pay panel ═══════════════════ -->
+    <div class="st-side st-right" id="st-right">
+
+      <!-- Loading -->
+      <div id="step-loading" style="display:flex;align-items:center;justify-content:center;flex:1">
+        <div class="spin" style="width:28px;height:28px;border-width:3px"></div>
+      </div>
+
+      <!-- Email collection -->
+      <div id="step-email" style="display:none;max-width:420px;margin:0 auto;width:100%;align-self:center">
+        <h2 id="email-title" style="margin:0 0 6px 0;font-size:1.2rem;color:var(--white);font-weight:700">Your email</h2>
+        <p id="email-sub" style="color:var(--t3);font-size:.85rem;margin-bottom:20px">We'll send your receipt here.</p>
+        <div class="fg">
+          <input id="email-input" type="email" class="finput" placeholder="you@example.com" autocomplete="email" data-testid="st-email-input">
+        </div>
+        <div id="email-err" style="display:none" class="alert al-err mt2"></div>
+        <button id="email-btn" class="btn btn-y wf mt3" style="height:46px" onclick="submitEmail()" data-testid="st-email-continue">
+          <span id="txt-continue-btn">Continue to Payment</span>
+        </button>
+      </div>
+
+      <!-- Pay -->
+      <div id="step-payment" style="display:none">
+        <div class="st-head">
+          <h1 id="txt-send-title">Send FIRO</h1>
+          <div id="pay-status" class="st-status pending" data-testid="st-status">
+            <span class="dot"></span>
+            <span id="pay-status-txt">Waiting</span>
+          </div>
+        </div>
+
+        <div class="st-qr-card">
+          <div class="st-qr-box" id="qr-box">
+            <div id="qr-loading" class="spin" style="width:22px;height:22px;border-width:3px;color:#555"></div>
+            <img id="qr-image" src="" alt="Payment QR" style="display:none">
+          </div>
+          <div class="st-addr" onclick="copyAddr()" data-testid="st-addr">
+            <span class="st-addr-text mono" id="pay-addr-text">—</span>
+            <svg class="st-addr-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </div>
+          <div style="font-size:.72rem;color:var(--t3);text-align:center">
+            <span id="txt-exact-warn">Send the exact amount. Different amounts may not be detected.</span>
+          </div>
+        </div>
+
+        <div class="st-meta">
+          <div class="st-meta-cell">
+            <div class="st-meta-lbl" id="txt-time-left">Time left</div>
+            <div class="st-meta-val" id="pay-timer">20:00</div>
+          </div>
+          <div class="st-meta-cell">
+            <div class="st-meta-lbl" id="txt-confirmations">Confirmations</div>
+            <div class="st-meta-val" id="pay-confs">0/2</div>
+          </div>
+        </div>
+
+        <details class="st-help">
+          <summary><span id="txt-manual-title">Payment sent but not detected?</span></summary>
+          <p style="font-size:.78rem;color:var(--t2);margin:10px 0" id="txt-manual-desc">Paste your transaction hash (TX ID) for manual verification.</p>
+          <div class="fg">
+            <input type="text" id="txhash-input" class="finput" placeholder="TX hash (64 hex chars)" style="font-family:var(--mono);font-size:.74rem;direction:ltr" data-testid="st-txhash-input">
+          </div>
+          <div id="hash-result" style="display:none;margin-top:8px"></div>
+          <button id="hash-btn" class="btn btn-o btn-sm wf mt2" onclick="verifyHash()" data-testid="st-verify-tx">
+            <span id="txt-verify-btn">Verify transaction</span>
+          </button>
+        </details>
+
+      </div>
+
+      <!-- Expired -->
+      <div id="step-expired" style="display:none;align-self:center;width:100%;max-width:420px;margin:0 auto">
+        <div class="st-err-screen">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <h2 id="txt-expired-title" style="margin:0;color:var(--white);font-size:1.2rem">Payment expired</h2>
+          <p id="txt-expired-desc" style="color:var(--t3);font-size:.9rem;margin:0">This session has ended.</p>
+          <button id="extend-btn" class="btn btn-o" onclick="extendPayment()" data-testid="st-extend">+10 minutes</button>
+          <div id="extend-result" style="font-size:.78rem;color:var(--t3)"></div>
+          <a id="cancel-link-exp" href="#" style="font-size:.8rem;color:var(--t3);margin-top:8px" data-testid="st-return">Return to store</a>
+        </div>
+      </div>
+
+      <!-- Success (auto-redirect; no "Continue" button; no FiroGate branding) -->
+      <div id="step-ok" style="display:none" data-testid="st-ok">
+        <div class="st-ok-screen">
+          <div class="st-ok-check">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="st-ok-title" id="ok-title">Paid</div>
+          <div class="st-ok-sub" id="ok-sub"></div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="step-error" style="display:none;align-self:center;width:100%;max-width:420px;margin:0 auto">
+        <div class="st-err-screen">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <h2 id="txt-error-title" style="margin:0;color:var(--white);font-size:1.2rem">Something went wrong</h2>
+          <p id="error-msg" style="color:var(--t3);font-size:.9rem;margin:0">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+const PAYMENT_ID = "{{ payment_id }}";
+// HMAC token from URL — required for all public API calls
+const CHECKOUT_TOKEN = new URLSearchParams(window.location.search).get('t') || '';
+let pollInterval = null;
+let _pollPaused  = false;
+
+// Pause polling when tab is hidden — resumes when user returns
+document.addEventListener("visibilitychange", () => {
+  _pollPaused = document.hidden;
+  if (!_pollPaused && pollInterval) pollPayment();
+});
+
+// Stop polling when page is unloaded
+window.addEventListener("pagehide", () => {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+});
+let payData = null;
+let currentLang = 'en';
+
+function fmtFiro(val) {
+  if (val == null || val === '') return '0.00';
+  const n = parseFloat(val);
+  if (isNaN(n) || n === 0) return '0.00';
+  if (n >= 0.01) return n.toFixed(2);
+  if (n >= 0.0001) return n.toFixed(4);
+  return n.toFixed(8);
+}
+
+const T = {
+  en: { dir:'ltr', payTo:'Payment to', order:'Order', subtotal:'Subtotal', network:'Network', total:'Total due',
+        secure:'Secure checkout', emailTitle:'Your email', emailSub:"We'll send your receipt here.",
+        continueBtn:'Continue to Payment', sendTitle:'Send FIRO', waiting:'Waiting', confirming:'Confirming', paid:'Paid',
+        exactWarn:'Send the exact amount. Different amounts may not be detected.',
+        timeLeft:'Time left', confirmations:'Confirmations', manualTitle:'Payment sent but not detected?',
+        manualDesc:'Paste your transaction hash (TX ID) for manual verification.',
+        verifyBtn:'Verify transaction', expiredTitle:'Payment expired', expiredDesc:'This session has ended.',
+        returnBtn:'Return to store', errorTitle:'Something went wrong', cancel:'Cancel payment',
+        copyMsg:'Address copied', invalidEmail:'Please enter a valid email address.',
+        invalidHash:'Please enter a valid TX hash.', verifying:'Verifying…', saving:'Saving…',
+        okTitle:'Paid', okRedirect:'Redirecting you back…', okStay:'Your payment has been confirmed.' },
+  ar: { dir:'rtl', payTo:'دفع إلى', order:'الطلب', subtotal:'المجموع الفرعي', network:'الشبكة', total:'الإجمالي المستحق',
+        secure:'دفع آمن', emailTitle:'بريدك الإلكتروني', emailSub:'سنرسل الإيصال هنا.',
+        continueBtn:'متابعة للدفع', sendTitle:'إرسال FIRO', waiting:'في الانتظار', confirming:'قيد التأكيد', paid:'تم الدفع',
+        exactWarn:'أرسل المبلغ المحدد. المبالغ المختلفة قد لا يتم اكتشافها.',
+        timeLeft:'الوقت المتبقي', confirmations:'التأكيدات', manualTitle:'تم الدفع ولم يتم اكتشافه؟',
+        manualDesc:'ألصق رمز المعاملة (TX ID) للتحقق يدويًا.',
+        verifyBtn:'التحقق من المعاملة', expiredTitle:'انتهت صلاحية الدفع', expiredDesc:'انتهت هذه الجلسة.',
+        returnBtn:'العودة إلى المتجر', errorTitle:'حدث خطأ', cancel:'إلغاء الدفع',
+        copyMsg:'تم نسخ العنوان', invalidEmail:'يرجى إدخال بريد إلكتروني صحيح.',
+        invalidHash:'يرجى إدخال رمز معاملة صحيح.', verifying:'جاري التحقق…', saving:'جاري الحفظ…',
+        okTitle:'تم الدفع', okRedirect:'جاري إعادة التوجيه…', okStay:'تم تأكيد الدفع.' },
+  ru: { dir:'ltr', payTo:'Оплата', order:'Заказ', subtotal:'Промежуточный итог', network:'Сеть', total:'К оплате',
+        secure:'Безопасная оплата', emailTitle:'Ваш email', emailSub:'Мы пришлем сюда чек.',
+        continueBtn:'Перейти к оплате', sendTitle:'Отправить FIRO', waiting:'Ожидание', confirming:'Подтверждение', paid:'Оплачено',
+        exactWarn:'Отправьте точную сумму.',
+        timeLeft:'Осталось', confirmations:'Подтверждения', manualTitle:'Оплата отправлена, но не обнаружена?',
+        manualDesc:'Вставьте хэш транзакции.', verifyBtn:'Проверить', expiredTitle:'Время вышло',
+        expiredDesc:'Сессия завершена.', returnBtn:'В магазин', errorTitle:'Ошибка', cancel:'Отменить',
+        copyMsg:'Скопировано', invalidEmail:'Введите корректный email.',
+        invalidHash:'Введите корректный TX.', verifying:'Проверка…', saving:'Сохранение…',
+        okTitle:'Оплачено', okRedirect:'Перенаправление…', okStay:'Платёж подтверждён.' },
+  zh: { dir:'ltr', payTo:'付款至', order:'订单', subtotal:'小计', network:'网络', total:'应付',
+        secure:'安全支付', emailTitle:'您的邮箱', emailSub:'我们会将收据发送到这里。',
+        continueBtn:'继续支付', sendTitle:'发送 FIRO', waiting:'等待', confirming:'确认中', paid:'已支付',
+        exactWarn:'请发送精确金额。', timeLeft:'剩余时间', confirmations:'确认数',
+        manualTitle:'已发送但未检测到?', manualDesc:'粘贴交易哈希进行验证。',
+        verifyBtn:'验证', expiredTitle:'已过期', expiredDesc:'会话已结束。',
+        returnBtn:'返回商店', errorTitle:'出错了', cancel:'取消',
+        copyMsg:'已复制', invalidEmail:'请输入有效邮箱。',
+        invalidHash:'请输入有效的 TX。', verifying:'验证中…', saving:'保存中…',
+        okTitle:'已支付', okRedirect:'正在跳转…', okStay:'支付已确认。' },
+  ja: { dir:'ltr', payTo:'支払先', order:'注文', subtotal:'小計', network:'ネットワーク', total:'合計',
+        secure:'安全なチェックアウト', emailTitle:'メールアドレス', emailSub:'ここに領収書を送信します。',
+        continueBtn:'支払いへ進む', sendTitle:'FIRO を送信', waiting:'待機中', confirming:'確認中', paid:'支払い済み',
+        exactWarn:'正確な金額を送信してください。', timeLeft:'残り時間', confirmations:'確認',
+        manualTitle:'送金したが検出されない?', manualDesc:'TX ID を貼り付けて検証。',
+        verifyBtn:'検証', expiredTitle:'期限切れ', expiredDesc:'セッションが終了しました。',
+        returnBtn:'ストアへ戻る', errorTitle:'エラー', cancel:'キャンセル',
+        copyMsg:'コピーしました', invalidEmail:'有効なメールを入力してください。',
+        invalidHash:'有効な TX を入力してください。', verifying:'検証中…', saving:'保存中…',
+        okTitle:'支払い済み', okRedirect:'リダイレクト中…', okStay:'支払いが確認されました。' },
+  fr: { dir:'ltr', payTo:'Paiement à', order:'Commande', subtotal:'Sous-total', network:'Réseau', total:'Total dû',
+        secure:'Paiement sécurisé', emailTitle:'Votre email', emailSub:'Nous enverrons le reçu ici.',
+        continueBtn:'Continuer', sendTitle:'Envoyer FIRO', waiting:'En attente', confirming:'Confirmation', paid:'Payé',
+        exactWarn:'Envoyez le montant exact.', timeLeft:'Temps restant', confirmations:'Confirmations',
+        manualTitle:'Envoyé mais non détecté?', manualDesc:'Collez le hash TX.',
+        verifyBtn:'Vérifier', expiredTitle:'Expiré', expiredDesc:'Session terminée.',
+        returnBtn:'Retour', errorTitle:'Erreur', cancel:'Annuler',
+        copyMsg:'Copié', invalidEmail:'Email invalide.', invalidHash:'Hash invalide.',
+        verifying:'Vérification…', saving:'Enregistrement…',
+        okTitle:'Payé', okRedirect:'Redirection…', okStay:'Paiement confirmé.' },
+  de: { dir:'ltr', payTo:'Zahlung an', order:'Bestellung', subtotal:'Zwischensumme', network:'Netzwerk', total:'Zu zahlen',
+        secure:'Sicherer Checkout', emailTitle:'Ihre E-Mail', emailSub:'Wir senden die Quittung hierher.',
+        continueBtn:'Weiter zur Zahlung', sendTitle:'FIRO senden', waiting:'Warten', confirming:'Bestätigung', paid:'Bezahlt',
+        exactWarn:'Senden Sie den genauen Betrag.', timeLeft:'Restzeit', confirmations:'Bestätigungen',
+        manualTitle:'Gesendet, aber nicht erkannt?', manualDesc:'TX-Hash einfügen.',
+        verifyBtn:'Prüfen', expiredTitle:'Abgelaufen', expiredDesc:'Sitzung beendet.',
+        returnBtn:'Zurück', errorTitle:'Fehler', cancel:'Abbrechen',
+        copyMsg:'Kopiert', invalidEmail:'Ungültige E-Mail.', invalidHash:'Ungültiger Hash.',
+        verifying:'Prüfung…', saving:'Speichern…',
+        okTitle:'Bezahlt', okRedirect:'Weiterleiten…', okStay:'Zahlung bestätigt.' },
+  pt: { dir:'ltr', payTo:'Pagamento para', order:'Pedido', subtotal:'Subtotal', network:'Rede', total:'Total',
+        secure:'Checkout seguro', emailTitle:'Seu email', emailSub:'Enviaremos o recibo aqui.',
+        continueBtn:'Continuar', sendTitle:'Enviar FIRO', waiting:'Aguardando', confirming:'Confirmando', paid:'Pago',
+        exactWarn:'Envie o valor exato.', timeLeft:'Tempo restante', confirmations:'Confirmações',
+        manualTitle:'Enviado mas não detectado?', manualDesc:'Cole o hash TX.',
+        verifyBtn:'Verificar', expiredTitle:'Expirado', expiredDesc:'Sessão encerrada.',
+        returnBtn:'Voltar', errorTitle:'Erro', cancel:'Cancelar',
+        copyMsg:'Copiado', invalidEmail:'Email inválido.', invalidHash:'Hash inválido.',
+        verifying:'Verificando…', saving:'Salvando…',
+        okTitle:'Pago', okRedirect:'Redirecionando…', okStay:'Pagamento confirmado.' },
+  tr: { dir:'ltr', payTo:'Ödeme', order:'Sipariş', subtotal:'Ara toplam', network:'Ağ', total:'Toplam',
+        secure:'Güvenli ödeme', emailTitle:'E-postanız', emailSub:'Makbuzu buraya göndereceğiz.',
+        continueBtn:'Ödemeye devam', sendTitle:'FIRO gönder', waiting:'Bekleniyor', confirming:'Onaylanıyor', paid:'Ödendi',
+        exactWarn:'Tam tutarı gönderin.', timeLeft:'Kalan', confirmations:'Onay',
+        manualTitle:'Gönderildi ama algılanmadı?', manualDesc:'TX hash yapıştır.',
+        verifyBtn:'Doğrula', expiredTitle:'Süre doldu', expiredDesc:'Oturum sona erdi.',
+        returnBtn:'Geri dön', errorTitle:'Hata', cancel:'İptal',
+        copyMsg:'Kopyalandı', invalidEmail:'Geçersiz e-posta.', invalidHash:'Geçersiz hash.',
+        verifying:'Doğrulanıyor…', saving:'Kaydediliyor…',
+        okTitle:'Ödendi', okRedirect:'Yönlendiriliyor…', okStay:'Ödeme onaylandı.' },
+};
+
+function applyLang(lang) {
+  const t = T[lang] || T.en;
+  currentLang = lang;
+
+  // Apply dir to both html and body — ensures full RTL/LTR switch
+  document.documentElement.dir  = t.dir;
+  document.documentElement.lang = lang;
+  document.body.dir              = t.dir;
+  // Toggle RTL class
+  document.body.classList.toggle('rtl', t.dir === 'rtl');
+
+  const set = (id, txt) => { const el=document.getElementById(id); if(el) el.textContent = txt; };
+  set('txt-order-label', t.order);
+  set('txt-amount-label', t.subtotal);
+  set('txt-net-label', t.network);
+  set('txt-total-label', t.total);
+  set('txt-secure', t.secure);
+  set('email-title', t.emailTitle);
+  set('email-sub', t.emailSub);
+  set('txt-continue-btn', t.continueBtn);
+  set('txt-send-title', t.sendTitle);
+  set('txt-exact-warn', t.exactWarn);
+  set('txt-time-left', t.timeLeft);
+  set('txt-confirmations', t.confirmations);
+  set('txt-manual-title', t.manualTitle);
+  set('txt-manual-desc', t.manualDesc);
+  set('txt-verify-btn', t.verifyBtn);
+  set('txt-expired-title', t.expiredTitle);
+  set('txt-expired-desc', t.expiredDesc);
+  set('txt-error-title', t.errorTitle);
+  set('txt-cancel-top', t.cancel);
+
+  // "Payment to" label — rebuild safely since applyMerchantBranding may have modified it
+  const descLbl = document.getElementById('st-desc-label');
+  if (descLbl && descLbl.childNodes.length > 0) {
+    const firstNode = descLbl.childNodes[0];
+    // Only update text node (nodeType 3), not span elements
+    if (firstNode && firstNode.nodeType === 3) {
+      firstNode.nodeValue = t.payTo + ' ';
+    }
+  }
+
+  const txInput = document.getElementById('txhash-input');
+  if (txInput) txInput.placeholder = 'TX hash (64 hex chars)';
+
+  document.querySelectorAll('.lang-opt').forEach(o =>
+    o.classList.toggle('active', o.dataset.lang === lang));
+  const activeOpt = document.querySelector(`.lang-opt[data-lang="${lang}"]`);
+  if (activeOpt) {
+    const flagEl = activeOpt.querySelector('span');
+    if (flagEl && document.getElementById('cur-flag'))
+      document.getElementById('cur-flag').textContent = flagEl.textContent;
+    if (document.getElementById('cur-lang-name'))
+      document.getElementById('cur-lang-name').textContent = lang.toUpperCase();
+  }
+  if (payData) updateProgress(payData);
+  try { _setCookieLang(lang); } catch(e){}
+}
+
+function setLang(lang) { applyLang(lang); closeLangMenu(); }
+function toggleLangMenu() { document.getElementById('lang-wrap').classList.toggle('open'); }
+function closeLangMenu() { document.getElementById('lang-wrap').classList.remove('open'); }
+document.addEventListener('click', e => { if (!e.target.closest('#lang-wrap')) closeLangMenu(); });
+
+let initTimeout = null;
+async function init() {
+  // Read language from fg_lang cookie (same as i18n.js on main site)
+  // This keeps checkout in sync with main site language automatically
+  // No localStorage — cookies are scoped to domain and not accessible via XSS the same way
+  function _getCookieLang() {
+    try {
+      var m = document.cookie.match(/(?:^|; )fg_lang=([^;]*)/);
+      var val = m ? decodeURIComponent(m[1]) : '';
+      return (val && T[val]) ? val : null;
+    } catch(e) { return null; }
+  }
+  function _setCookieLang(lang) {
+    try {
+      var host = location.hostname;
+      var parts = host.split('.');
+      var dom = (parts.length >= 2 && host !== 'localhost' && !/^\d+\.\d+\.\d+\.\d+$/.test(host))
+        ? '; domain=.' + parts.slice(-2).join('.') : '';
+      var sec = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = 'fg_lang=' + encodeURIComponent(lang) +
+        '; Path=/; Max-Age=' + (365*86400) + '; SameSite=Lax' + sec + dom;
+    } catch(e) {}
+  }
+
+  // Detect lang: URL param → cookie → browser → English
+  var _initLang = 'en';
+  try {
+    var _qs = new URLSearchParams(location.search).get('lang');
+    if (_qs && T[_qs]) _initLang = _qs;
+    else {
+      var _ck = _getCookieLang();
+      if (_ck) _initLang = _ck;
+      else {
+        var _nav = (navigator.language || 'en').split('-')[0].toLowerCase();
+        if (T[_nav]) _initLang = _nav;
+      }
+    }
+  } catch(e) {}
+  applyLang(_initLang);
+
+  initTimeout = setTimeout(() => showError('Loading timed out. Please refresh.'), 15000);
+  try {
+    const r = await fetch(`/api/payments/public/${PAYMENT_ID}?t=${CHECKOUT_TOKEN}`);
+    clearTimeout(initTimeout);
+    if (!r.ok) {
+      if (r.status === 404) { showError('Payment not found or expired.'); return; }
+      if (r.status === 403) { showError('Invalid checkout link. Please use the original link from your merchant.'); return; }
+      const err = await r.json().catch(() => ({}));
+      showError(err.detail || 'Failed to load payment.'); return;
+    }
+    payData = await r.json();
+    applyMerchantBranding(payData);
+    applyOrderSummary(payData);
+
+    hide('step-loading');
+
+    if (payData.status === 'confirmed') { showConfirmed(payData); return; }
+    if (payData.status === 'expired')   { showExpired(payData);   return; }
+    if (payData.status === 'cancelled') { autoRedirectCancel(payData); return; }
+
+    if (payData.collect_email && !payData.email_collected) {
+      showEmailStep();
+    } else {
+      showPaymentStep();
+    }
+  } catch (e) {
+    clearTimeout(initTimeout);
+    console.error(e);
+    showError('Failed to load payment. Please check your connection.');
+  }
+}
+
+// ─ Safe helpers ─
+function safeHex(v) {
+  if (!v || typeof v !== 'string') return null;
+  v = v.trim();
+  return /^#[0-9A-Fa-f]{6}$/.test(v) ? v.toUpperCase() : null;
+}
+
+function applyMerchantBranding(d) {
+  // Strip HTML/script from any user-controlled string
+  function plainText(s) {
+    return (s || '').replace(/<[^>]*>/g, '').replace(/[<>&"'\\]/g, '').trim();
+  }
+
+  const rawName = plainText(d.merchant_app_name || '');
+  const name = (rawName && rawName !== 'Merchant')
+    ? rawName
+    : plainText(d.order_description || '') || 'Payment';
+
+  // Always textContent — never innerHTML with user data
+  document.getElementById('st-brand-name').textContent = name;
+  const initial = name[0] ? name[0].toUpperCase() : 'P';
+  document.getElementById('st-brand-logo').textContent = initial;
+  try { document.title = name.substring(0, 60) + ' — Payment'; } catch(e){}
+
+  const descLabel = document.getElementById('st-desc-label');
+  const descMer   = document.getElementById('st-desc-merchant');
+  if (descLabel) {
+    const orderId = (d.order_id || '').toLowerCase();
+    const isPlan  = d.is_plan_purchase || orderId.includes('plan-') || orderId.includes('plan_');
+    const isLink  = orderId.startsWith('link-') || (d.metadata_json || '').includes('link_id');
+
+    // Build DOM safely — no user data in innerHTML
+    descLabel.innerHTML = '';
+    const s = document.createElement('span');
+    if (isPlan) {
+      s.style.color = 'var(--t3)'; s.textContent = 'Plan Purchase';
+      descLabel.appendChild(s);
+    } else if (isLink) {
+      s.style.color = 'var(--t3)'; s.textContent = 'Payment Link';
+      descLabel.appendChild(s);
+    } else if (rawName && rawName !== 'Merchant') {
+      descLabel.appendChild(document.createTextNode('Payment to '));
+      s.id = 'st-desc-merchant'; s.textContent = name;
+      descLabel.appendChild(s);
+    } else {
+      s.style.color = 'var(--t3)'; s.textContent = 'Secure Payment';
+      descLabel.appendChild(s);
+    }
+  } else if (descMer) {
+    descMer.textContent = name;
+  }
+
+  // Apply full theme — uses new theme system, falls back to legacy brand colors
+  const root = document.documentElement;
+  if (d.theme && typeof d.theme === 'object') {
+    _applyThemeVars(d.theme);
+  } else {
+    const bp = safeHex(d.brand_primary);
+    const bb = safeHex(d.brand_bg);
+    const bt = safeHex(d.brand_text);
+    if (bp) { root.style.setProperty('--brand-primary', bp); root.style.setProperty('--y', bp); }
+    if (bb)  root.style.setProperty('--brand-bg', bb);
+    if (bt)  root.style.setProperty('--brand-text', bt);
+  }
+}
+
+function _applyThemeVars(t) {
+  const root = document.documentElement;
+
+  // Set --th-* vars globally (used by .st-wrap CSS)
+  const vars = {
+    '--th-accent':  safeHex(t.accent),
+    '--th-bg':      safeHex(t.bg),
+    '--th-surface': safeHex(t.surface),
+    '--th-text':    safeHex(t.text),
+    '--th-border':  safeHex(t.border),
+    '--th-success': safeHex(t.success),
+    '--th-error':   safeHex(t.error),
+  };
+  Object.entries(vars).forEach(function([k, v]) {
+    if (v) root.style.setProperty(k, v);
+  });
+
+  // Radius — digits only
+  var r = String(t.radius || '12').replace(/[^0-9]/g, '');
+  if (r) {
+    root.style.setProperty('--th-radius',     r + 'px');
+    root.style.setProperty('--th-radius-btn', String(t.radius_btn || r).replace(/[^0-9]/g,'') + 'px');
+    root.style.setProperty('--th-radius-sm',  String(t.radius_sm  || '8').replace(/[^0-9]/g,'') + 'px');
+  }
+
+  // Font stack — server validated
+  if (t.font_stack && /^[-a-zA-Z0-9 ,'"._]+$/.test(t.font_stack)) {
+    root.style.setProperty('--th-font', t.font_stack);
+  }
+
+  // Apply accent to --y for buttons/highlights
+  if (safeHex(t.accent)) root.style.setProperty('--y', safeHex(t.accent));
+
+  // ─ Apply theme ONLY to .st-wrap, not to lang/currency switcher ─
+  // We do NOT override --white, --t1, --t2, --bg1 globally because
+  // that would break the lang switcher UI which uses those vars.
+  // Instead we use inline styles on the .st-wrap container.
+  var stWrap = document.querySelector('.st-wrap');
+  if (!stWrap) return;
+
+  var bg      = safeHex(t.bg);
+  var surface = safeHex(t.surface);
+  var text    = safeHex(t.text);
+  var border  = safeHex(t.border);
+
+  if (bg)      stWrap.style.background = bg;
+  if (text)    stWrap.style.color      = text;
+
+  // Detect light/dark for text shades — scoped to st-wrap
+  if (bg) {
+    var bgR = parseInt(bg.slice(1,3),16);
+    var bgG = parseInt(bg.slice(3,5),16);
+    var bgB = parseInt(bg.slice(5,7),16);
+    var isLight = (bgR*299 + bgG*587 + bgB*114)/1000 > 128;
+    var textColor = text || (isLight ? '#111111' : '#FFFFFF');
+
+    // Set scoped CSS vars on .st-wrap element directly
+    stWrap.style.setProperty('--white', textColor);
+    stWrap.style.setProperty('--t1',    textColor);
+    stWrap.style.setProperty('--t2',    _hexAlpha(textColor, isLight ? 0.72 : 0.65));
+    stWrap.style.setProperty('--t3',    _hexAlpha(textColor, isLight ? 0.45 : 0.38));
+    stWrap.style.setProperty('--t4',    _hexAlpha(textColor, isLight ? 0.28 : 0.22));
+    stWrap.style.setProperty('--bw',    isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.07)');
+    stWrap.style.setProperty('--bg1',   bg);
+    stWrap.style.setProperty('--bg2',   surface || bg);
+    stWrap.style.setProperty('--bg3',   surface || bg);
+    stWrap.style.setProperty('--bg4',   _lightenHex(bg, isLight ? -8 : 8));
+  }
+}
+
+function _hexAlpha(hex, alpha) {
+  // Convert hex + alpha → rgba string
+  if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) return 'rgba(128,128,128,' + alpha + ')';
+  var r = parseInt(hex.slice(1,3),16);
+  var g = parseInt(hex.slice(3,5),16);
+  var b = parseInt(hex.slice(5,7),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+function _lightenHex(hex, amount) {
+  // Lighten/darken a hex color by amount (positive = lighter, negative = darker)
+  if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) return hex;
+  var r = Math.max(0, Math.min(255, parseInt(hex.slice(1,3),16) + amount));
+  var g = Math.max(0, Math.min(255, parseInt(hex.slice(3,5),16) + amount));
+  var b = Math.max(0, Math.min(255, parseInt(hex.slice(5,7),16) + amount));
+  return '#' + [r,g,b].map(function(v){ return v.toString(16).padStart(2,'0'); }).join('').toUpperCase();
+}
+
+function applyOrderSummary(d) {
+  const amt = fmtFiro(d.amount_firo);
+  document.getElementById('st-amount').textContent = amt;
+  document.getElementById('st-subtotal').textContent = amt + ' FIRO';
+  document.getElementById('st-total').textContent = amt + ' FIRO';
+  document.getElementById('st-network').textContent = d.is_testnet ? 'Testnet' : 'Firo';
+  document.getElementById('st-order-id').textContent = d.order_id || '—';
+  document.getElementById('st-order-title').textContent = d.order_description || (d.order_id || 'Payment');
+
+  // Show USD equivalent (fresh price, refreshes every 15s)
+  startPriceRefresh(d.amount_firo);
+}
+
+function showEmailStep() {
+  show('step-email');
+  const inp = document.getElementById('email-input');
+  inp.focus();
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
+}
+
+async function submitEmail() {
+  const t = T[currentLang];
+  const email = document.getElementById('email-input').value.trim();
+  const errEl = document.getElementById('email-err');
+  if (!email || !email.includes('@')) { show('email-err'); errEl.textContent = t.invalidEmail; return; }
+  hide('email-err');
+  const btn = document.getElementById('email-btn');
+  btn.disabled = true; document.getElementById('txt-continue-btn').textContent = t.saving;
+
+  const r = await fetch(`/api/payments/public/${PAYMENT_ID}/email?t=${CHECKOUT_TOKEN}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email }),
+  });
+  const data = await r.json();
+  if (!r.ok) {
+    show('email-err'); errEl.textContent = data.detail || t.invalidEmail;
+    btn.disabled = false; document.getElementById('txt-continue-btn').textContent = t.continueBtn;
+    return;
+  }
+  payData.customer_email = email;
+  hide('step-email');
+  showPaymentStep();
+}
+
+function showPaymentStep() {
+  const d = payData;
+  document.getElementById('pay-addr-text').textContent = d.receiving_address || '—';
+  document.getElementById('pay-confs').textContent = `${d.confirmations||0}/${d.required_confirmations||2}`;
+  updateProgress(d);
+  updateCancelButton(d.status);
+  startCountdown(d.expires_at, 'pay-timer');
+  show('step-payment');
+  loadQRCode();
+  // Start SSE stream — replaces polling
+  _startSSEStream();
+}
+
+var _sseStream = null;
+
+function _startSSEStream() {
+  if (_sseStream) { _sseStream.close(); _sseStream = null; }
+  if (!window.FGStream) {
+    // Fallback: SSE not available, use polling
+    pollInterval = setInterval(pollPayment, 12000);
+    return;
+  }
+  _sseStream = FGStream.payment(PAYMENT_ID, CHECKOUT_TOKEN, function(event) {
+    _handleSSEEvent(event);
+  }, function(reason) {
+    // Stream ended — one final REST poll as safety net
+    if (reason !== 'payment.confirmed' && reason !== 'payment.expired' && reason !== 'payment.cancelled') {
+      setTimeout(function() { pollPayment(); }, 500);
+    }
+  }, function(restData) {
+    // Reconnect revalidation: REST snapshot arrived — sync UI to DB truth
+    // Prevents stale UI after disconnect during pending→confirming→confirmed
+    if (!restData || !restData.status) return;
+    if (restData.status === 'confirmed') { showConfirmed(restData); return; }
+    if (restData.status === 'expired')   { showExpired(restData);   return; }
+    if (restData.status === 'cancelled') { autoRedirectCancel(restData); return; }
+    var req = (payData && payData.required_confirmations) || (restData.required_confirmations || 2);
+    var confs = restData.confirmations || 0;
+    var el = document.getElementById('pay-confs');
+    if (el) el.textContent = confs + '/' + req;
+    updateProgress(restData);
+    updateCancelButton(restData.status);
+    payData = restData;
+  });
+}
+
+function _handleSSEEvent(event) {
+  if (!event || !event.type) return;
+  var type = event.type;
+
+  if (type === 'payment.confirming') {
+    // TX found — update confirmations and progress bar
+    if (event.confirmations !== undefined) {
+      var req = (payData && payData.required_confirmations) || 2;
+      document.getElementById('pay-confs').textContent = event.confirmations + '/' + req;
+      if (payData) { payData.confirmations = event.confirmations; payData.status = 'confirming'; }
+      updateProgress({ status: 'confirming', confirmations: event.confirmations, required_confirmations: req });
+      updateCancelButton('confirming');
+    }
+    if (event.txid && payData) payData.txid = event.txid;
+  }
+  else if (type === 'payment.confirmed') {
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+    // Fetch full data then show confirmed
+    fetch('/api/payments/public/' + PAYMENT_ID + '?t=' + CHECKOUT_TOKEN)
+      .then(function(r){ return r.json(); })
+      .then(function(d){ payData = d; showConfirmed(d); })
+      .catch(function(){ showConfirmed(payData || event); });
+  }
+  else if (type === 'payment.expired') {
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+    showExpired(payData || event);
+  }
+  else if (type === 'payment.cancelled') {
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+    autoRedirectCancel(payData || event);
+  }
+}
+
+async function loadQRCode() {
+  const loading = document.getElementById('qr-loading');
+  const image   = document.getElementById('qr-image');
+  try {
+    const r = await fetch(`/api/payments/public/${PAYMENT_ID}/qr?t=${CHECKOUT_TOKEN}`);
+    if (!r.ok) throw 0;
+    const data = await r.json();
+    if (data.qr_data) {
+      image.src = data.qr_data;
+      image.style.display = 'block';
+      loading.style.display = 'none';
+    } else throw 0;
+  } catch { loading.style.display = 'none'; }
+}
+
+// ─ Multi-currency price display (checkout) ──
+var _priceRefreshInterval = null;
+
+async function fetchFreshPrice(firoAmount) {
+  if (document.hidden) return; // Don't waste CMC quota when tab hidden
+  try {
+    var r = await fetch('/api/price?fresh=true');
+    if (!r.ok) return;
+    var data = await r.json();
+    var price = data.price;
+    if (!price || !firoAmount) return;
+    var el = document.getElementById('st-usd-price');
+    if (!el) return;
+    if (window.FGCurrency && window.FGCurrency.isSelected()) {
+      var usdAmount = firoAmount * price;
+      el.textContent = '≈ ' + FGCurrency.format(FGCurrency.convert(usdAmount));
+    } else {
+      el.textContent = '≈ $' + (firoAmount * price).toFixed(2) + ' USD';
+    }
+  } catch(e) {}
+}
+
+document.addEventListener('fg:currency-changed', function() {
+  if (window._currentFiroAmount) fetchFreshPrice(window._currentFiroAmount);
+});
+
+function startPriceRefresh(firoAmount) {
+  window._currentFiroAmount = firoAmount;
+  if (_priceRefreshInterval) clearInterval(_priceRefreshInterval);
+  fetchFreshPrice(firoAmount);
+  // 3 minutes — price is display-only, FIRO amount is fixed
+  _priceRefreshInterval = setInterval(function() {
+    fetchFreshPrice(firoAmount);
+  }, 180000);
+}
+
+function stopPriceRefresh() {
+  if (_priceRefreshInterval) { clearInterval(_priceRefreshInterval); _priceRefreshInterval = null; }
+}
+
+// Pause when tab hidden, resume when visible
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    stopPriceRefresh();
+  } else if (window._currentFiroAmount) {
+    fetchFreshPrice(window._currentFiroAmount);
+    if (!_priceRefreshInterval)
+      _priceRefreshInterval = setInterval(function() {
+        fetchFreshPrice(window._currentFiroAmount);
+      }, 30000);
+  }
+});
+window.addEventListener('beforeunload', stopPriceRefresh);
+
+// Currency switcher in checkout
+document.addEventListener('DOMContentLoaded', function() {
+  var mount = document.getElementById('checkout-currency-mount');
+  if (mount && window.FGCurrency) FGCurrency.mount(mount, { variant: 'compact' });
+});
+
+async function pollPayment() {
+  // Fallback polling — used only when SSE is unavailable
+  if (_pollPaused) return;
+  try {
+    const r = await fetch(`/api/payments/public/${PAYMENT_ID}?t=${CHECKOUT_TOKEN}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    payData = d;
+    document.getElementById('pay-confs').textContent = `${d.confirmations||0}/${d.required_confirmations||2}`;
+    updateProgress(d);
+    updateCancelButton(d.status);
+    if (d.status === 'confirmed') { clearInterval(pollInterval); showConfirmed(d); }
+    if (d.status === 'expired')   { clearInterval(pollInterval); showExpired(d); }
+    if (d.status === 'cancelled') { clearInterval(pollInterval); autoRedirectCancel(d); }
+  } catch(e) {}
+}
+
+function updateProgress(d) {
+  const t = T[currentLang];
+  const box = document.getElementById('pay-status');
+  const txt = document.getElementById('pay-status-txt');
+  box.classList.remove('pending','confirming','ok');
+  if (d.status === 'confirmed') { box.classList.add('ok');         txt.textContent = t.paid; }
+  else if (d.status === 'confirming') { box.classList.add('confirming'); txt.textContent = t.confirming + ` ${d.confirmations||0}/${d.required_confirmations||2}`; }
+  else { box.classList.add('pending'); txt.textContent = t.waiting; }
+}
+
+// ─ Confirmed: auto-redirect to merchant success_url; else show "Paid ✓" ─
+function showConfirmed(d) {
+  hide('step-email'); hide('step-loading'); hide('step-payment'); hide('step-expired');
+  const t = T[currentLang];
+  const rightCol = document.getElementById('st-right');
+  // Hide header/help on the right — keep purely the success screen
+  show('step-ok');
+  document.getElementById('ok-title').textContent = t.okTitle;
+  const successUrl = (d.success_url || '').trim();
+  const sub = document.getElementById('ok-sub');
+
+  if (successUrl) {
+    sub.textContent = t.okRedirect;
+    const sep = successUrl.includes('?') ? '&' : '?';
+    const url = `${successUrl}${sep}payment_id=${encodeURIComponent(PAYMENT_ID)}&status=confirmed`;
+    // Immediate redirect per spec — no Continue button
+    setTimeout(() => { try { window.location.replace(url); } catch(e) { window.location.href = url; } }, 800);
+  } else {
+    sub.textContent = t.okStay;
+  }
+}
+
+function autoRedirectCancel(d) {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  if (window._sseStream) { _sseStream.close(); _sseStream = null; }
+  const t = T[currentLang];
+
+  // Show red X screen briefly then redirect
+  hide('step-payment'); hide('step-loading'); hide('step-email'); hide('step-expired');
+
+  // Swap the ok-screen icon to red X
+  const checkEl = document.querySelector('.st-ok-check');
+  if (checkEl) {
+    checkEl.style.background = 'rgba(239,68,68,.12)';
+    checkEl.style.borderColor = 'rgba(239,68,68,.35)';
+    checkEl.innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+  }
+  const titleEl = document.getElementById('ok-title');
+  const subEl   = document.getElementById('ok-sub');
+  if (titleEl) { titleEl.textContent = t.cancel || 'Payment Cancelled'; titleEl.style.color = '#ef4444'; }
+  if (subEl)   subEl.textContent = '';
+  show('step-ok');
+
+  const rawC = (d.cancel_url || '').trim();
+  if (rawC) {
+    // Redirect after 2s so user sees the cancellation screen
+    const sep = rawC.includes('?') ? '&' : '?';
+    const url = `${rawC}${sep}status=cancelled&payment_id=${encodeURIComponent(PAYMENT_ID)}`;
+    setTimeout(function() {
+      try { window.location.replace(url); } catch(e) { window.location.href = url; }
+    }, 2000);
+  }
+  // No cancel_url: just show the cancelled screen, no redirect needed
+}
+
+async function extendPayment() {
+  const btn = document.getElementById('extend-btn');
+  const result = document.getElementById('extend-result');
+  btn.disabled = true;
+  try {
+    const r = await fetch(`/api/payments/public/${PAYMENT_ID}/extend?t=${CHECKOUT_TOKEN}`, { method:'POST' });
+    const data = await r.json();
+    if (r.ok && data.extended) {
+      result.style.color = '#22c55e'; result.textContent = data.message;
+      if (data.extensions_left === 0) btn.style.display = 'none';
+      hide('step-expired'); show('step-loading'); init();
+    } else {
+      result.style.color = 'var(--red)'; result.textContent = data.detail || 'Cannot extend';
+      btn.disabled = false;
+    }
+  } catch {
+    result.style.color = 'var(--red)'; result.textContent = 'Network error';
+    btn.disabled = false;
+  }
+}
+
+function showExpired(d) {
+  hide('step-payment'); hide('step-email'); hide('step-loading'); hide('step-ok');
+  const link = document.getElementById('cancel-link-exp');
+  const raw = (d.cancel_url || '').trim();
+  if (link) {
+    if (raw) {
+      const sep = raw.includes('?') ? '&' : '?';
+      link.href = `${raw}${sep}status=expired&payment_id=${encodeURIComponent(PAYMENT_ID)}`;
+      link.style.display = '';
+    } else {
+      link.style.display = 'none';
+    }
+  }
+  show('step-expired');
+}
+
+function showError(msg) {
+  hide('step-loading');
+  document.getElementById('error-msg').textContent = msg;
+  show('step-error');
+}
+
+async function verifyHash() {
+  const t = T[currentLang];
+  const txhash = document.getElementById('txhash-input').value.trim();
+  const resEl  = document.getElementById('hash-result');
+  const btn    = document.getElementById('hash-btn');
+  if (!txhash || txhash.length < 32) {
+    resEl.innerHTML = alertHTML(t.invalidHash, 'err'); show('hash-result'); return;
+  }
+  btn.disabled = true;
+  document.getElementById('txt-verify-btn').textContent = t.verifying;
+
+  const r = await fetch(`/api/payments/public/${PAYMENT_ID}/verify-hash?t=${CHECKOUT_TOKEN}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ txhash }),
+  });
+  const data = await r.json();
+  btn.disabled = false;
+  document.getElementById('txt-verify-btn').textContent = t.verifyBtn;
+  const typeMap = { matched:'ok', already_confirmed:'ok', mismatch:'err', not_found:'warn', expired:'warn' };
+  resEl.innerHTML = alertHTML(data.message, typeMap[data.result] || 'info');
+  show('hash-result');
+  if (data.confirmed) {
+    setTimeout(() => pollPayment(), 800);
+  }
+}
+
+async function cancelPayment() {
+  // Top-left cancel button now lives inside the order panel. It's always
+  // visible while the payment is still actionable; hidden once the payment
+  // reaches a terminal state (see updateCancelButton).
+  const btn = document.querySelector('[data-testid="st-cancel-top"]');
+  if (!btn) return;
+  if (!confirm(T[currentLang].cancelConfirm || 'Cancel this payment?')) return;
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:11px;height:11px;border-width:2px;color:currentColor"></span> <span>' + (T[currentLang].cancelling || 'Cancelling…') + '</span>';
+  try {
+    const r = await fetch(`/api/payments/public/${PAYMENT_ID}/cancel?t=${CHECKOUT_TOKEN}`, { method:'POST', headers:{'Content-Type':'application/json'} });
+    const data = await r.json();
+    if (r.ok && data.cancelled) {
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  if (window._sseStream) { _sseStream.close(); _sseStream = null; }
+      window.location.href = data.redirect_url || '/';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = origHTML;
+      alert(data.detail || 'Cannot cancel');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
+
+function updateCancelButton(status) {
+  // Hide the inline top-left cancel when the payment reaches a terminal
+  // state. Keeps the UX clean — you can't cancel a paid / expired payment.
+  const wrap = document.querySelector('.cancel-inline');
+  if (!wrap) return;
+  wrap.style.display = ['confirmed','expired','cancelled','failed'].includes(status) ? 'none' : '';
+}
+
+function show(id) { const e=document.getElementById(id); if(e) e.style.display = 'block'; }
+function hide(id) { const e=document.getElementById(id); if(e) e.style.display = 'none'; }
+function copyAddr() {
+  copyText(document.getElementById('pay-addr-text').textContent, T[currentLang].copyMsg);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+{% endblock %}

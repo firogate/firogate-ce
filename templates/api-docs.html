@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FiroGate — API Documentation</title>
+<style>
+/* ─ Local fonts — no external requests ── */
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-300-normal.woff2') format('woff2');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-500-normal.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-600-normal.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/static/fonts/inter-latin-800-normal.woff2') format('woff2');
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/static/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/static/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/static/fonts/jetbrains-mono-latin-600-normal.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/static/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+/* Geist → Inter fallback (same visual style) */
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('/static/fonts/noto-sans-arabic-arabic-400-normal.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  src: url('/static/fonts/noto-sans-arabic-arabic-700-normal.woff2') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF;
+}
+</style>
+<style>
+:root{
+  --bg:#07070a;
+  --bg-grad-1:#0c0c12;
+  --bg2:#0e0e14;
+  --bg3:#13131b;
+  --bg4:#1a1a24;
+  --bg-card:#0f0f17;
+  --y:#F5C542;
+  --y-deep:#D9A91A;
+  --y-soft:rgba(245,197,66,.10);
+  --g:#22C55E;
+  --blue:#60A5FA;
+  --purple:#A78BFA;
+  --red:#EF4444;
+  --orange:#FB923C;
+  --t1:#EDEDF0;
+  --t2:#A1A1AA;
+  --t3:#6B6B75;
+  --t4:#3F3F46;
+  --bw:rgba(255,255,255,.06);
+  --bw-strong:rgba(255,255,255,.10);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.55),0 6px 16px rgba(0,0,0,.4);
+  --shadow-glow:0 0 0 1px rgba(245,197,66,.18),0 10px 40px -10px rgba(245,197,66,.15);
+  --font-sans:"Noto Sans Arabic","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Inter","Times New Roman",serif;
+  --mono:"JetBrains Mono","SF Mono",Monaco,"Cascadia Code","Roboto Mono",Consolas,monospace;
+}
+::selection{background:rgba(245,197,66,.30);color:#fff}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--t1);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-feature-settings:"ss01","cv11";
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%,rgba(245,197,66,.06),transparent 60%),
+    radial-gradient(900px 500px at -10% 30%,rgba(96,165,250,.045),transparent 55%),
+    linear-gradient(180deg,#08080c 0%,#07070a 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+}
+/* ─ Top Bar ── */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(10,10,14,.72);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--bw);
+}
+.topbar-inner{
+  display:flex;align-items:center;gap:18px;
+  padding:12px 28px;max-width:1480px;margin:0 auto;
+}
+.tb-brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.tb-brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,#F5C542 0%,#D9A91A 60%,#7C5B00 100%);
+  display:grid;place-items:center;
+  box-shadow:0 6px 18px -4px rgba(245,197,66,.45),inset 0 1px 0 rgba(255,255,255,.25);
+  position:relative;
+}
+.tb-brand-mark::after{content:"";position:absolute;inset:0;border-radius:9px;border:1px solid rgba(255,255,255,.15)}
+.tb-brand-name{font-weight:700;font-size:1rem;color:#fff;letter-spacing:-.01em}
+.tb-brand-name span{color:var(--y);font-weight:800}
+.tb-divider{width:1px;height:22px;background:var(--bw-strong);flex-shrink:0}
+.tb-version{
+  font-family:var(--mono);font-size:.7rem;color:var(--t2);
+  padding:4px 9px;background:var(--bg3);border:1px solid var(--bw);border-radius:6px;
+}
+.tb-search{
+  flex:1;max-width:520px;position:relative;
+}
+.tb-search input{
+  width:100%;padding:9px 14px 9px 38px;
+  background:var(--bg-card);border:1px solid var(--bw);
+  border-radius:9px;color:var(--t1);font-family:var(--font-sans);
+  font-size:.86rem;outline:none;transition:.2s;
+}
+.tb-search input:focus{border-color:rgba(245,197,66,.4);box-shadow:0 0 0 4px rgba(245,197,66,.08)}
+.tb-search input::placeholder{color:var(--t3)}
+.tb-search-icon{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--t3);pointer-events:none;
+}
+.tb-search-kbd{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);font-size:.65rem;color:var(--t3);
+  padding:2px 6px;background:var(--bg3);border:1px solid var(--bw);border-radius:4px;
+  pointer-events:none;
+}
+.tb-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.tb-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 13px;font-size:.78rem;font-weight:500;
+  color:var(--t1);text-decoration:none;
+  background:var(--bg-card);border:1px solid var(--bw);
+  border-radius:8px;transition:.2s;cursor:pointer;
+  font-family:inherit;
+}
+.tb-btn:hover{border-color:var(--bw-strong);background:var(--bg3);transform:translateY(-1px)}
+.tb-btn-primary{
+  color:#0a0a0a;background:linear-gradient(180deg,#F5C542,#E0AE28);
+  border-color:rgba(245,197,66,.4);font-weight:600;
+}
+.tb-btn-primary:hover{background:linear-gradient(180deg,#FFD157,#E8B72E);border-color:rgba(245,197,66,.6)}
+.tb-status{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:.78rem}
+.tb-status-dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* ─ Layout ─ */
+.layout{display:flex;max-width:1480px;margin:0 auto;align-items:flex-start;gap:0}
+.sidebar{
+  width:280px;background:transparent;
+  position:sticky;top:65px;height:calc(100vh - 65px);
+  overflow-y:auto;padding:24px 16px 40px;
+  flex-shrink:0;
+  scrollbar-width:thin;scrollbar-color:var(--bw-strong) transparent;
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--bw-strong);border-radius:3px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar-group{margin-bottom:6px}
+.sidebar-group h2{
+  font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--t3);font-weight:600;
+  padding:14px 14px 8px;margin:0;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+}
+.sidebar-group h2 .chev{
+  width:14px;height:14px;color:var(--t4);transition:transform .25s;
+}
+.sidebar-group.collapsed h2 .chev{transform:rotate(-90deg)}
+.sidebar-group-list{display:flex;flex-direction:column;gap:1px;overflow:hidden;transition:max-height .3s ease}
+.sidebar-group.collapsed .sidebar-group-list{max-height:0!important}
+.sidebar a{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 14px;font-size:.83rem;
+  color:var(--t2);text-decoration:none;
+  border-radius:7px;
+  position:relative;transition:color .15s,background .15s;
+}
+.sidebar a .si{width:14px;height:14px;color:var(--t4);flex-shrink:0;transition:color .15s}
+.sidebar a:hover{color:var(--t1);background:rgba(255,255,255,.03)}
+.sidebar a:hover .si{color:var(--t2)}
+.sidebar a.active{
+  color:var(--y);background:var(--y-soft);
+}
+.sidebar a.active .si{color:var(--y)}
+.sidebar a.active::before{
+  content:"";position:absolute;left:-16px;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;background:var(--y);border-radius:0 3px 3px 0;
+}
+.sidebar a.hidden{display:none}
+.sidebar-tag{
+  font-family:var(--mono);font-size:.58rem;font-weight:700;
+  padding:1px 5px;border-radius:3px;letter-spacing:.04em;
+  background:rgba(34,197,94,.15);color:#4ade80;margin-left:auto;
+}
+.sidebar-empty{
+  padding:20px 14px;font-size:.78rem;color:var(--t3);text-align:center;
+  display:none;
+}
+.sidebar-empty.show{display:block}
+
+/* ─ Content ── */
+.content{flex:1;max-width:920px;padding:48px 56px 120px;min-width:0;overflow-x:hidden}
+.page-hero{margin-bottom:36px}
+.page-hero .eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--y);
+  padding:5px 11px;background:var(--y-soft);
+  border:1px solid rgba(245,197,66,.2);border-radius:999px;
+  margin-bottom:18px;
+}
+.page-hero .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--y);box-shadow:0 0 8px var(--y)}
+h1{
+  font-size:2.6rem;font-weight:700;letter-spacing:-.025em;
+  margin-bottom:14px;color:#fff;line-height:1.1;
+}
+h1 .accent{font-family:var(--font-serif);font-style:italic;font-weight:400;color:var(--y)}
+.page-hero p.lead{font-size:1.05rem;color:var(--t2);max-width:620px;line-height:1.6}
+h2{
+  font-size:1.55rem;font-weight:700;color:#fff;
+  margin:64px 0 16px;padding-top:36px;
+  border-top:1px solid var(--bw);
+  letter-spacing:-.015em;
+  scroll-margin-top:90px;
+  display:flex;align-items:center;gap:12px;
+}
+h2:first-of-type{border-top:none;margin-top:0;padding-top:0}
+h2 .h2-num{
+  font-family:var(--mono);font-size:.72rem;font-weight:500;
+  color:var(--t3);background:var(--bg3);border:1px solid var(--bw);
+  padding:3px 8px;border-radius:6px;letter-spacing:.05em;
+}
+h3{
+  font-size:.95rem;font-weight:600;color:var(--y);
+  margin:28px 0 10px;letter-spacing:-.005em;
+  text-transform:uppercase;letter-spacing:.06em;font-size:.78rem;
+}
+p{color:var(--t2);margin-bottom:14px;font-size:.92rem}
+p strong{color:var(--t1);font-weight:600}
+a{color:var(--y);text-decoration:none;transition:color .15s}
+a:hover{color:#FFD460;text-decoration:underline;text-underline-offset:3px}
+code{
+  font-family:var(--mono);font-size:.84em;color:var(--y);
+  background:var(--y-soft);padding:2px 7px;border-radius:5px;
+  border:1px solid rgba(245,197,66,.12);
+}
+
+/* ─ Code Blocks ─ */
+.pre-wrap{position:relative;margin:16px 0}
+.pre-wrap pre{margin:0}
+.pre-wrap .copy-btn{
+  position:absolute;top:10px;right:10px;z-index:2;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 10px;font-size:.7rem;font-weight:500;
+  color:var(--t2);background:var(--bg3);
+  border:1px solid var(--bw-strong);border-radius:6px;
+  cursor:pointer;opacity:0;transition:.2s;
+  font-family:var(--font-sans);
+}
+.pre-wrap:hover .copy-btn{opacity:1}
+.pre-wrap .copy-btn:hover{background:var(--bg4);color:var(--t1);border-color:rgba(245,197,66,.3)}
+.pre-wrap .copy-btn.copied{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3);opacity:1}
+.pre-wrap .copy-btn svg{width:11px;height:11px}
+pre{
+  background:linear-gradient(180deg,#0c0c14 0%,#0a0a11 100%);
+  border:1px solid var(--bw);
+  border-radius:12px;padding:20px 22px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  font-family:var(--mono);font-size:.8rem;line-height:1.78;
+  white-space:pre;word-wrap:normal;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+  position:relative;
+}
+pre::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(245,197,66,.25),transparent);
+  opacity:.4;
+}
+pre .c{color:#5d5d6d;font-style:italic}
+pre .k{color:#7DD3FC}
+pre .s{color:#86EFAC}
+pre .n{color:#FBD466}
+pre .v{color:#C4B5FD}
+pre::-webkit-scrollbar{height:8px;width:8px}
+pre::-webkit-scrollbar-thumb{background:var(--bw-strong);border-radius:4px}
+pre::-webkit-scrollbar-track{background:transparent}
+
+/* ─ Method Badges ─ */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:4px 10px;border-radius:6px;
+  font-size:.68rem;font-weight:700;text-transform:uppercase;
+  font-family:var(--mono);letter-spacing:.06em;
+  border:1px solid transparent;
+}
+.get{background:rgba(96,165,250,.10);color:var(--blue);border-color:rgba(96,165,250,.28)}
+.post{background:rgba(34,197,94,.10);color:var(--g);border-color:rgba(34,197,94,.28)}
+.patch{background:rgba(245,197,66,.10);color:var(--y);border-color:rgba(245,197,66,.28)}
+.delete{background:rgba(239,68,68,.10);color:var(--red);border-color:rgba(239,68,68,.28)}
+
+/* ─ Endpoint Cards ─ */
+.endpoint{
+  background:linear-gradient(180deg,var(--bg-card) 0%,#0c0c13 100%);
+  border:1px solid var(--bw);border-radius:14px;
+  margin:14px 0;overflow:hidden;
+  transition:border-color .2s,transform .2s;
+}
+.endpoint:hover{border-color:var(--bw-strong)}
+.endpoint-header{
+  display:flex;align-items:center;gap:12px;
+  padding:18px 22px;cursor:pointer;user-select:none;
+  border-bottom:1px solid transparent;
+}
+.endpoint-header:hover{background:rgba(255,255,255,.012)}
+.endpoint.open .endpoint-header{border-bottom-color:var(--bw)}
+.endpoint-path{
+  font-family:var(--mono);font-size:.92rem;color:#fff;font-weight:500;
+  flex:1;min-width:0;word-break:break-all;
+}
+.endpoint-toggle{
+  margin-left:auto;color:var(--t3);transition:transform .25s;flex-shrink:0;
+}
+.endpoint.open .endpoint-toggle{transform:rotate(180deg)}
+.endpoint-body{padding:0 22px 20px;display:block}
+.endpoint-body > p:first-child{padding-top:18px;margin-top:0}
+
+/* ─ Tabs ─ */
+.tab-bar{
+  display:flex;gap:2px;
+  border-bottom:1px solid var(--bw);
+  margin-top:18px;
+}
+.tab-btn{
+  padding:10px 16px;font-size:.78rem;font-weight:500;
+  border:none;cursor:pointer;background:none;
+  color:var(--t3);border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:.18s;
+  font-family:var(--font-sans);
+}
+.tab-btn:hover{color:var(--t1)}
+.tab-btn.on{color:var(--y);border-bottom-color:var(--y)}
+.tab-content{
+  display:none;
+  border:1px solid var(--bw);border-top:none;
+  border-radius:0 0 12px 12px;overflow:hidden;
+}
+.tab-content.on{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+.tab-content pre{border:none;border-radius:0;margin:0}
+.tab-content .pre-wrap{margin:0}
+
+/* ─ Field Rows ─ */
+.field{
+  display:grid;
+  grid-template-columns:200px 110px 1fr;
+  gap:14px;padding:11px 0;
+  border-bottom:1px solid var(--bw);
+  font-size:.85rem;align-items:center;
+}
+.field:last-child{border-bottom:none}
+.field-name{
+  font-family:var(--mono);color:var(--y);font-weight:500;
+  font-size:.83rem;
+}
+.field-type{
+  color:var(--blue);font-family:var(--mono);font-size:.76rem;
+  padding:2px 8px;background:rgba(96,165,250,.08);
+  border:1px solid rgba(96,165,250,.18);border-radius:5px;
+  display:inline-block;width:max-content;
+}
+.field-desc{color:var(--t2);line-height:1.55}
+
+/* ─ Alerts ─ */
+.alert{
+  padding:14px 18px;border-radius:11px;
+  font-size:.85rem;margin:16px 0;
+  display:flex;gap:12px;align-items:flex-start;line-height:1.6;
+  position:relative;
+}
+.alert svg{flex-shrink:0;margin-top:2px}
+.alert code{font-size:.78em;word-break:break-all}
+.alert-ok{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.18);color:#86EFAC}
+.alert-ok strong{color:#bbf7d0}
+.alert-info{background:rgba(96,165,250,.05);border:1px solid rgba(96,165,250,.16);color:#bfdbfe}
+.alert-info strong{color:#dbeafe}
+.alert-info code{background:rgba(96,165,250,.12);color:#bfdbfe;border-color:rgba(96,165,250,.2)}
+.alert-warn{background:rgba(245,197,66,.05);border:1px solid rgba(245,197,66,.2);color:#FCD34D}
+.alert-warn strong{color:#fde68a}
+
+/* ─ URL Grid ─ */
+.url-grid{
+  display:grid;grid-template-columns:auto 1fr;
+  gap:8px 16px;margin-top:10px;font-size:.84rem;
+  padding:12px 14px;background:rgba(0,0,0,.25);
+  border-radius:8px;border:1px solid rgba(255,255,255,.04);
+}
+.url-label{
+  color:var(--t3);font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;font-size:.65rem;white-space:nowrap;padding-top:3px;
+}
+.url-val{font-family:var(--mono);color:#93c5fd;word-break:break-all;font-size:.82rem}
+
+/* ─ Footer ─ */
+.footer{
+  border-top:1px solid var(--bw);
+  margin-top:80px;padding:40px 0 32px;
+  background:rgba(0,0,0,.25);
+}
+.footer-inner{
+  max-width:1480px;margin:0 auto;padding:0 28px;
+  display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;
+}
+.footer-brand{flex:1;min-width:240px}
+.footer-brand h4{font-size:1rem;font-weight:700;color:#fff;margin-bottom:8px}
+.footer-brand p{color:var(--t3);font-size:.82rem;max-width:340px}
+.footer-cols{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col h5{
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--t3);margin-bottom:12px;font-weight:600;
+}
+.footer-col a{
+  display:block;color:var(--t2);font-size:.84rem;
+  padding:4px 0;text-decoration:none;transition:color .15s;
+}
+.footer-col a:hover{color:var(--y)}
+.footer-bottom{
+  max-width:1480px;margin:32px auto 0;padding:20px 28px 0;
+  border-top:1px solid var(--bw);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  color:var(--t3);font-size:.78rem;
+}
+
+/* ─ Status Indicators (status dot list) ─ */
+.status-dot{
+  width:8px;height:8px;border-radius:50%;
+  display:inline-block;box-shadow:0 0 8px currentColor;
+}
+
+/* ─ Scroll Progress ─ */
+.scroll-progress{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--y),#FFD460);
+  z-index:100;width:0;transition:width .1s;
+  box-shadow:0 0 10px rgba(245,197,66,.5);
+}
+
+/* ─ Loading bar ─ */
+.page-loader{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .4s;
+}
+.page-loader.gone{opacity:0;pointer-events:none}
+.page-loader-spin{
+  width:38px;height:38px;border-radius:50%;
+  border:2px solid var(--bw);border-top-color:var(--y);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─ Mobile responsive ── */
+@media(max-width:1024px){
+  .content{padding:40px 32px 100px;max-width:100%}
+  .sidebar{width:240px}
+}
+@media(max-width:860px){
+  .topbar-inner{padding:10px 16px;gap:10px}
+  .tb-search{max-width:none}
+  .tb-version,.tb-divider{display:none}
+  .tb-status{display:none}
+  .sidebar{
+    display:none;position:fixed;top:0;left:0;bottom:0;width:300px;z-index:100;
+    transform:translateX(-100%);transition:transform .3s cubic-bezier(.32,.72,.32,1);
+    background:#0a0a0f;height:100vh;padding-top:20px;
+    box-shadow:10px 0 40px rgba(0,0,0,.6);
+  }
+  .sidebar.open{display:flex;flex-direction:column;transform:translateX(0)}
+  .content{padding:24px 18px 80px;max-width:100%}
+  .docs-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99;backdrop-filter:blur(4px)}
+  .docs-overlay.open{display:block}
+  .mob-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--bw);position:sticky;top:0;z-index:50}
+  .mob-bar h1{font-size:.95rem;font-weight:700;color:var(--y);margin:0}
+  .mob-bar button{background:var(--bg3);border:1px solid var(--bw);border-radius:7px;padding:7px 12px;color:var(--t1);cursor:pointer;font-size:.75rem;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+  h1{font-size:1.85rem}
+  h2{font-size:1.25rem;margin:40px 0 12px;padding-top:28px}
+  h3{font-size:.72rem}
+  p{font-size:.86rem}
+  pre{font-size:.72rem;line-height:1.7;padding:14px;border-radius:10px;max-width:calc(100vw - 36px)}
+  code{font-size:.78em;padding:1px 5px}
+  .endpoint-header{padding:14px 16px;gap:9px;flex-wrap:wrap}
+  .endpoint-body{padding:0 16px 16px}
+  .endpoint-path{font-size:.78rem}
+  .field{grid-template-columns:1fr;gap:4px;padding:10px 0}
+  .field-name{font-size:.8rem}
+  .field-type{font-size:.7rem}
+  .field-desc{font-size:.8rem}
+  .tab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none}
+  .tab-bar::-webkit-scrollbar{display:none}
+  .tab-btn{padding:8px 12px;font-size:.72rem;white-space:nowrap;flex-shrink:0}
+  .alert{padding:12px 14px;font-size:.8rem;border-radius:9px}
+  .url-grid{grid-template-columns:1fr;font-size:.75rem}
+  .url-label{font-size:.6rem}
+  .url-val{font-size:.74rem}
+  .badge{font-size:.62rem;padding:3px 7px}
+  .topbar{display:none}
+  .footer-inner{padding:0 18px;gap:28px}
+  .footer-bottom{padding:18px 18px 0;font-size:.72rem}
+}
+@media(min-width:861px){
+  .mob-bar{display:none}
+  .docs-overlay{display:none !important}
+}
+@media(max-width:420px){
+  .content{padding:16px 12px 60px}
+  pre{font-size:.66rem;padding:12px}
+  h1{font-size:1.5rem}
+  .endpoint-path{font-size:.72rem}
+  .tab-btn{padding:7px 9px;font-size:.66rem}
+}
+/* ─ End of styles ── */
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scroll-progress"></div>
+<div class="page-loader" id="page-loader"><div class="page-loader-spin"></div></div>
+
+<!-- ─ Top Bar (desktop) ── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="{{ base_url }}" class="tb-brand">
+      <div class="tb-brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>
+        </svg>
+      </div>
+      <span class="tb-brand-name">Firo<span>Gate</span></span>
+    </a>
+    <span class="tb-version">v1.0</span>
+    <div class="tb-divider"></div>
+    <span style="color:var(--t3);font-size:.82rem;font-weight:500">API Documentation</span>
+
+    <div class="tb-search">
+      <svg class="tb-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="docs-search" type="text" placeholder="Search endpoints, languages, guides..." aria-label="Search documentation" />
+      <span class="tb-search-kbd">⌘K</span>
+    </div>
+
+    <div class="tb-actions">
+      <span class="tb-status"><span class="tb-status-dot"></span>All systems normal</span>
+      <a href="{{ base_url }}" class="tb-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+      <span id="docs-auth-btn"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ─ Mobile Bar ─ -->
+<div class="mob-bar">
+  <a href="{{ base_url }}" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+    <div class="tb-brand-mark" style="width:28px;height:28px;border-radius:7px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+    </div>
+    <h1>FiroGate <span style="font-weight:400;color:var(--t3);font-size:.7rem">/ API Docs</span></h1>
+  </a>
+  <div style="display:flex;gap:6px;align-items:center">
+    <span id="docs-auth-mob"></span>
+    <button onclick="toggleDocsSidebar()" aria-label="Open menu">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      Menu
+    </button>
+  </div>
+</div>
+
+<div class="docs-overlay" id="docs-overlay" onclick="closeDocsSidebar()"></div>
+<div class="layout">
+
+
+<nav class="sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+  <div class="sidebar-empty" id="sidebar-empty">No matching sections.</div>
+
+  <div class="sidebar-group" data-group="start">
+    <h2>
+      <span>Getting Started</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div class="sidebar-group-list">
+      <a href="#overview"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Overview</a>
+      <a href="#installation"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Installation</a>
+      <a href="#auth"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Authentication</a>
+      <a href="#errors"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Error Codes</a>
+    </div>
+  </div>
+
+  <div class="sidebar-group" data-group="endpoints">
+    <h2>
+      <span>Endpoints</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div class="sidebar-group-list">
+      <a href="#metadata"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Metadata<span class="sidebar-tag">NEW</span></a>
+      <a href="#create-payment"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Payment</a>
+      <a href="#get-payment"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Get Payment Status</a>
+      <a href="#list-payments"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>List Payments</a>
+      <a href="#cancel-payment"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel Payment</a>
+      <a href="#webhook"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"/><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1A4 4 0 0 1 14 3a4 4 0 0 1 1.83 7.55"/><path d="m20.5 5.5 1.5-3"/></svg>Webhooks</a>
+      <a href="#marketplace"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Marketplace</a>
+    </div>
+  </div>
+
+  <div class="sidebar-group" data-group="examples">
+    <h2>
+      <span>Integration Examples</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div class="sidebar-group-list">
+      <a href="#python"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Python</a>
+      <a href="#javascript"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>JavaScript / Node</a>
+      <a href="#java"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Java</a>
+      <a href="#csharp"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>C# / .NET</a>
+      <a href="#php"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>PHP</a>
+      <a href="#go"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Go</a>
+      <a href="#ruby"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Ruby</a>
+      <a href="#rust"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Rust</a>
+      <a href="#curl"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>cURL</a>
+    </div>
+  </div>
+
+  <div class="sidebar-group" data-group="guides">
+    <h2>
+      <span>Platform Guides</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div class="sidebar-group-list">
+      <a href="#telegram-bot"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.73 2.27 2.27 9.95l7.07 2.91 2.91 7.07L21.73 2.27z"/></svg>Telegram Bot</a>
+      <a href="#webhook-guide"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17"/><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1A4 4 0 0 1 14 3"/></svg>Webhook Guide</a>
+      <a href="#verify-webhook"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>Verify Signature</a>
+      <a href="#tor-onion"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Tor / Onion Access</a>
+    </div>
+  </div>
+
+  <div class="sidebar-group" data-group="quickstart">
+    <h2>
+      <span>Quick Start</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </h2>
+    <div class="sidebar-group-list">
+      <a href="#ai-prompt"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M5 18l.75 2.25L8 21l-2.25.75L5 24l-.75-2.25L2 21l2.25-.75z"/></svg>AI Agent Prompt</a>
+    </div>
+  </div>
+
+  <!-- GitHub link -->
+  <div style="padding:14px 16px;border-top:1px solid var(--bw);margin-top:4px">
+    <a href="https://github.com/firogate/firogate" target="_blank" rel="noopener"
+       style="display:flex;align-items:center;gap:7px;text-decoration:none;color:var(--t3);font-size:.75rem">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      Open Source on GitHub
+    </a>
+    <div style="font-size:.68rem;color:var(--t4);margin-top:5px">FiroGate API v1.0</div>
+  </div>
+
+</nav>
+
+
+<div class="content">
+
+<div class="page-hero">
+  <div class="eyebrow">FiroGate API · v1.0</div>
+  <h1>API <span class="accent">Documentation</span></h1>
+  <p class="lead">Accept FIRO cryptocurrency payments on your website, app, or bot. A single REST API, signed webhooks, and SDK examples in 9 languages. Open-source — run it on your own server.</p>
+</div>
+
+<div class="alert alert-info">
+  <svg width="17" height="17" viewBox="0 0 24 24"><path fill="currentColor" d="M9.25 5a.75.75 0 0 1 .11 1.492l-.11.008H7a3.5 3.5 0 0 0-.206 6.994L7 13.5h2.25a.75.75 0 0 1 .11 1.492L9.25 15H7a5 5 0 0 1-.25-9.994L7 5h2.25ZM17 5a5 5 0 0 1 4.43 7.322a6.496 6.496 0 0 0-1.294-.765a3.5 3.5 0 0 0-2.93-5.05L17 6.499h-2.25a.75.75 0 0 1-.11-1.492L14.75 5H17ZM7 9.25h10a.75.75 0 0 1 .102 1.493L17 10.75H7a.75.75 0 0 1-.102-1.493L7 9.25Zm16 8.25a5.5 5.5 0 1 0-11 0a5.5 5.5 0 0 0 11 0Zm-5 .5l.001 2.503a.5.5 0 1 1-1 0V18h-2.505a.5.5 0 0 1 0-1H17v-2.5a.5.5 0 1 1 1 0V17h2.497a.5.5 0 0 1 0 1H18Z"/></svg>
+  <div>
+    <strong>Platform URLs</strong>
+    <div class="url-grid">
+      <span class="url-label">API</span><span class="url-val">{{ api_url }}</span>
+      <span class="url-label">Dashboard</span><span class="url-val">{{ dashboard_url }}</span>
+      <span class="url-label">Checkout</span><span class="url-val">{{ checkout_url }}/invoice/{id}?t={token}</span>
+    </div>
+  </div>
+</div>
+
+
+<h2 id="overview">Overview</h2>
+
+<p>FiroGate is a <strong>hosted payment gateway</strong> for the Firo cryptocurrency. You register an account, integrate the REST API into your store, and FiroGate handles checkout pages, blockchain monitoring, webhook delivery, and withdrawals.</p>
+
+<div class="alert alert-info" style="margin:16px 0">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 0 1 1 1v5a1 1 0 0 1-2 0v-5a1 1 0 0 1 1-1z"/></svg>
+  <div><strong>Self-hosted deployment:</strong> FiroGate is open-source. You can run your own instance on your own server. See <a href="#installation" style="color:var(--y)">Installation</a> below.</div>
+</div>
+
+<h3>How It Works</h3>
+<p>1. Your store calls <strong>POST /api/payments/create</strong> with the amount and order info.</p>
+<p>2. FiroGate generates a unique Firo address and returns a <code>checkout_url</code> with an HMAC security token.</p>
+<p>3. Redirect your buyer to the checkout URL. They send FIRO to the displayed address.</p>
+<p>4. FiroGate monitors the Firo blockchain. After 2 confirmations (~3–5 min) it fires your webhook.</p>
+<p>5. Your webhook handler delivers the product or activates the service.</p>
+
+<h2 id="installation">Installation (Self-Hosted)</h2>
+
+<p>Run FiroGate on your own server. You need a Linux VPS and a synced Firo Core node.</p>
+
+<h3>Requirements</h3>
+<div class="field"><span class="field-name">Python</span><span class="field-type get">3.11+</span><span class="field-desc">Runtime</span></div>
+<div class="field"><span class="field-name">Firo Core</span><span class="field-type get">v0.14+</span><span class="field-desc">Full node, synced and running</span></div>
+<div class="field"><span class="field-name">OS</span><span class="field-type get">Linux / Windows</span><span class="field-desc">Any OS that runs Python and Firo Core</span></div>
+<div class="field"><span class="field-name">nginx</span><span class="field-type get">optional</span><span class="field-desc">Reverse proxy for production</span></div>
+
+<h3>1. Clone and install</h3>
+<pre><span class="c"># Clone the repository</span>
+<span class="k">git</span> clone https://github.com/firogate/firogate-ce.git
+<span class="k">cd</span> firogate
+
+<span class="c"># Create virtual environment</span>
+<span class="k">python3</span> -m venv venv
+<span class="k">source</span> venv/bin/activate
+
+<span class="c"># Install dependencies</span>
+<span class="k">pip</span> install -r requirements.txt</pre>
+
+<h3>2. Configure .env</h3>
+<pre><span class="c"># Copy the example config</span>
+<span class="k">cp</span> .env.example .env
+
+<span class="c"># Generate required secret keys</span>
+<span class="k">python3</span> -c <span class="s">"import secrets; print(secrets.token_hex(32))"</span>
+<span class="c"># → paste as SECRET_KEY in .env</span>
+
+<span class="k">python3</span> -c <span class="s">"import secrets,base64; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"</span>
+<span class="c"># → paste as FIELD_ENCRYPTION_KEY in .env</span></pre>
+
+<h3>3. Set required .env values</h3>
+<pre><span class="c"># .env — minimum required fields</span>
+<span class="n">SECRET_KEY</span>=<span class="s">your_generated_key</span>
+<span class="n">FIELD_ENCRYPTION_KEY</span>=<span class="s">your_generated_key</span>
+<span class="n">BASE_URL</span>=<span class="s">https://yourdomain.com</span>
+
+<span class="c"># Firo Core node (must match your firo.conf)</span>
+<span class="n">FIRO_RPC_USER</span>=<span class="s">your_rpc_user</span>
+<span class="n">FIRO_RPC_PASSWORD</span>=<span class="s">your_rpc_password</span>
+
+<span class="c"># Admin account email</span>
+<span class="n">ADMIN_EMAILS</span>=<span class="s">admin@yourdomain.com</span></pre>
+
+<h3>4. Start the server</h3>
+<pre><span class="c"># Start the server</span>
+<span class="k">uvicorn</span> app.main:app --host 127.0.0.1 --port 8000
+
+<span class="c"># For production (no auto-reload):</span>
+<span class="k">uvicorn</span> app.main:app --host 127.0.0.1 --port 8000 --workers 1</pre>
+
+<h3>5. Configure Firo Core (firo.conf)</h3>
+<pre><span class="c"># ~/.firo/firo.conf</span>
+<span class="n">rpcuser</span>=<span class="s">your_rpc_user</span>
+<span class="n">rpcpassword</span>=<span class="s">your_rpc_password</span>
+<span class="n">rpcallowip</span>=<span class="s">127.0.0.1</span>
+<span class="n">rpcport</span>=<span class="s">18888</span>
+<span class="n">server</span>=<span class="s">1</span>
+<span class="n">txindex</span>=<span class="s">1</span></pre>
+
+<div class="alert alert-info" style="margin:16px 0">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 0 1 1 1v5a1 1 0 0 1-2 0v-5a1 1 0 0 1 1-1z"/></svg>
+  <div>For nginx reverse proxy, Tor onion setup, and systemd service configuration — see the <code>docs/</code> folder in the repository.</div>
+</div>
+
+
+<h2 id="auth">Authentication</h2>
+<p>All API requests require your API key in the <code>X-API-Key</code> header.</p>
+<pre><span class="k">GET</span> /api/payments/
+<span class="n">X-API-Key:</span> <span class="s">fgate_your_api_key_here</span></pre>
+<p>Get your API key from the <strong>Dashboard → API & Webhooks</strong> tab.</p>
+
+
+<h2 id="errors">Error Codes</h2>
+<div class="field"><span class="field-name">200</span><span class="field-type get">OK</span><span class="field-desc">Success</span></div>
+<div class="field"><span class="field-name">201</span><span class="field-type get">Created</span><span class="field-desc">Payment created</span></div>
+<div class="field"><span class="field-name">400</span><span class="field-type" style="color:var(--red)">Bad Request</span><span class="field-desc">Invalid parameters</span></div>
+<div class="field"><span class="field-name">401</span><span class="field-type" style="color:var(--red)">Unauthorized</span><span class="field-desc">Missing or invalid API key</span></div>
+<div class="field"><span class="field-name">402</span><span class="field-type" style="color:var(--y)">Payment Required</span><span class="field-desc">API request limit reached</span></div>
+<div class="field"><span class="field-name">422</span><span class="field-type" style="color:var(--red)">Validation</span><span class="field-desc">Invalid field value</span></div>
+<div class="field"><span class="field-name">503</span><span class="field-type" style="color:var(--red)">Unavailable</span><span class="field-desc">Firo node unreachable</span></div>
+
+
+<h2 id="metadata">Metadata</h2>
+<div class="alert alert-ok"><svg width="14" height="14" viewBox="0 0 17 16"><path fill="currentColor" fill-rule="evenodd" d="M16.969 2c0-1.104-.894-2-1.996-2c-1.102 0-1.959.896-1.959 2c0 .723.408 1.332.986 1.683v3.338h-3.312C10.345 6.42 9.722 6 8.982 6c-.741 0-1.364.42-1.708 1.021H3a1 1 0 0 0-1 1v4.269c-.588.353-1.006.981-1.006 1.711a2 2 0 0 0 1.996 2a2 2 0 0 0 1.998-2c0-.719-.412-1.326-.988-1.678V8.938h3.252C7.59 9.562 8.225 10 8.982 10s1.391-.438 1.729-1.062H15a1 1 0 0 0 1-1V3.684c.574-.351.969-.961.969-1.684z"/></svg> <strong>New:</strong> Webhook events now include metadata (including retries).</div>
+<p>The <code>metadata</code> field accepts any JSON object. It is stored with the payment and returned unchanged in every webhook event. Use it for seller IDs, product references, commission data, any context your system needs.</p>
+<h3>Constraints</h3>
+<div class="field"><span class="field-name">Type</span><span class="field-type">object</span><span class="field-desc">JSON object (dict) not array or scalar</span></div>
+<div class="field"><span class="field-name">Max size</span><span class="field-type">string</span><span class="field-desc">Serialized JSON ≤ 4 KB</span></div>
+<div class="field"><span class="field-name">Value types</span><span class="field-type">any</span><span class="field-desc">string, number, boolean, null, nested object/array</span></div>
+<div class="field"><span class="field-name">If empty</span><span class="field-type">object</span><span class="field-desc">Returns <code>{}</code> in webhooks never <code>null</code></span></div>
+<div class="field"><span class="field-name">Returned in</span><span class="field-type">string</span><span class="field-desc">All webhook events: <code>payment.confirmed</code>, <code>payment.cancelled</code>, <code>plan.activated</code> and retries</span></div>
+
+<h2 id="create-payment">Create Payment</h2>
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge post">POST</span>
+    <span class="endpoint-path">/api/payments/create</span>
+  </div>
+  <p>Creates a new payment invoice. Returns a unique Firo address and checkout URL.</p>
+  <h3>Request Fields</h3>
+  <div class="field"><span class="field-name">amount_firo</span><span class="field-type">float*</span><span class="field-desc">Amount in FIRO the buyer must send</span></div>
+  <div class="field"><span class="field-name">order_id</span><span class="field-type">string</span><span class="field-desc">Your internal order identifier</span></div>
+  <div class="field"><span class="field-name">order_description</span><span class="field-type">string</span><span class="field-desc">Product/service description shown at checkout</span></div>
+  <div class="field"><span class="field-name">customer_email</span><span class="field-type">string</span><span class="field-desc">Pre-fill buyer email (skip email step)</span></div>
+  <div class="field"><span class="field-name">success_url</span><span class="field-type">string</span><span class="field-desc">Redirect URL after payment confirmed</span></div>
+  <div class="field"><span class="field-name">cancel_url</span><span class="field-type">string</span><span class="field-desc">Redirect URL if buyer cancels</span></div>
+  <div class="field"><span class="field-name">timeout_minutes</span><span class="field-type">int</span><span class="field-desc">Payment window in minutes (default: 20)</span></div>
+  <div class="field"><span class="field-name">collect_email</span><span class="field-type">bool</span><span class="field-desc">Show email step at checkout (default: true)</span></div>
+  <div class="field"><span class="field-name">required_confirmations</span><span class="field-type">int</span><span class="field-desc">Blockchain confirmations needed (default: 2)</span></div>
+  <div class="field"><span class="field-name">metadata</span><span class="field-type">object</span><span class="field-desc">Any JSON object stored with the payment, returned in webhooks and GET responses</span></div>
+</div>
+
+<h3>Request Example</h3>
+<pre>{
+  <span class="n">"amount_firo"</span>:            <span class="v">2.5</span>,
+  <span class="n">"order_id"</span>:               <span class="s">"ORD-1234"</span>,
+  <span class="n">"order_description"</span>:      <span class="s">"Premium Plan"</span>,
+  <span class="n">"success_url"</span>:            <span class="s">"https://yourstore.com/success"</span>,
+  <span class="n">"timeout_minutes"</span>:        <span class="v">20</span>,
+  <span class="n">"metadata"</span>: {
+    <span class="c">// optional — returned in all webhook events unchanged</span>
+    <span class="n">"seller_id"</span>:      <span class="s">"seller_42"</span>,
+    <span class="n">"product_id"</span>:     <span class="s">"prod_789"</span>,
+    <span class="n">"commission_pct"</span>: <span class="v">12</span>,
+    <span class="n">"buyer_id"</span>:       <span class="s">"user_99821"</span>
+  }
+}</pre>
+<h3>Response</h3>
+<pre>{
+  <span class="n">"payment_id"</span>:             <span class="s">"193d7d11-5ade-4993-9ad9-..."</span>,
+  <span class="n">"checkout_url"</span>:           <span class="s">"{{ checkout_url }}/invoice/193d7d11..."</span>,
+  <span class="n">"receiving_address"</span>:      <span class="s">"TRdhAfFoDhwYYLkDhchz..."</span>,
+  <span class="n">"amount_firo"</span>:            <span class="v">2.5</span>,
+  <span class="n">"order_id"</span>:              <span class="s">"ORD-1234"</span>,
+  <span class="n">"expires_at"</span>:            <span class="s">"2026-05-21T14:30:00Z"</span>,
+  <span class="n">"required_confirmations"</span>: <span class="v">2</span>,
+  <span class="n">"status"</span>:                <span class="s">"pending"</span>
+}</pre>
+
+<div class="alert alert-info" style="margin-bottom:14px">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 0 1 1 1v5a1 1 0 0 1-2 0v-5a1 1 0 0 1 1-1z"/></svg>
+  <div>The <code>checkout_url</code> includes a short HMAC token (<code>?t=...</code>) that protects the checkout from enumeration attacks. Always redirect your buyer to the full URL returned by the API — do not strip the token.</div>
+</div>
+<h3>Error Codes</h3>
+<div class="field"><span class="field-name">401</span><span class="field-type" style="color:var(--red)">Unauthorized</span><span class="field-desc">Missing or invalid API key</span></div>
+<div class="field"><span class="field-name">402</span><span class="field-type" style="color:var(--red)">Payment Required</span><span class="field-desc">Monthly quota reached upgrade your plan</span></div>
+<div class="field"><span class="field-name">422</span><span class="field-type" style="color:var(--red)">Validation Error</span><span class="field-desc">Invalid request data</span></div>
+<div class="field"><span class="field-name">503</span><span class="field-type" style="color:var(--red)">Service Unavailable</span><span class="field-desc">Temporary service interruption please try again shortly</span></div>
+
+
+<h2 id="get-payment">Get Payment Status</h2>
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge get">GET</span>
+    <span class="endpoint-path">/api/payments/{payment_id}</span>
+  </div>
+  <p>Check the status of a payment. Poll this every 10–30 seconds until status is <code>confirmed</code></p>
+</div>
+
+<h3>Payment Status Values</h3>
+<div class="field">
+  <span class="field-name">pending</span>
+  <span class="field-type" style="color:var(--y);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span>
+  <span class="field-desc">Awaiting payment</span>
+</div>
+<div class="field">
+  <span class="field-name">confirming</span>
+  <span class="field-type" style="color:var(--blue);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span>
+  <span class="field-desc">Payment is being verified</span>
+</div>
+<div class="field">
+  <span class="field-name">confirmed</span>
+  <span class="field-type" style="color:var(--g);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span>
+  <span class="field-desc">Payment completed successfully</span>
+</div>
+
+<div class="field">
+  <span class="field-name">expired</span>
+  <span class="field-type" style="color:var(--red);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span>
+  <span class="field-desc">Payment session expired</span>
+</div>
+
+<div class="field">
+  <span class="field-name">cancelled</span>
+  <span class="field-type" style="color:var(--t3);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span>
+  <span class="field-desc">Payment was cancelled</span>
+</div>
+
+<h2 id="list-payments">List Payments</h2>
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge get">GET</span>
+    <span class="endpoint-path">/api/payments/?limit=50&status=confirmed</span>
+  </div>
+  <p>Returns your recent payments.</p>
+  <h3>Query Parameters</h3>
+  <div class="field"><span class="field-name">limit</span><span class="field-type">int</span><span class="field-desc">Max results to return (default: 50, max: 200)</span></div>
+  <div class="field"><span class="field-name">offset</span><span class="field-type">int</span><span class="field-desc">Pagination offset (default: 0)</span></div>
+  <div class="field"><span class="field-name">status</span><span class="field-type">string</span><span class="field-desc">Filter by status: <code>pending</code> / <code>confirming</code> / <code>confirmed</code> / <code>expired</code> / <code>cancelled</code></span></div>
+</div>
+
+
+<h2 id="cancel-payment">Cancel Payment (Public)</h2>
+<div class="endpoint">
+  <div class="endpoint-header">
+    <span class="badge post">POST</span>
+    <span class="endpoint-path">/api/payments/public/{payment_id}/cancel</span>
+  </div>
+  <p>Cancel a pending or confirming payment. Only works before the payment is confirmed.</p>
+</div>
+
+<h3>Response</h3>
+<pre>{
+  <span class="n">"cancelled"</span>:    <span class="v">true</span>,
+  <span class="n">"redirect_url"</span>: <span class="s">"https://yourstore.com/cancel"</span>,
+  <span class="n">"message"</span>:      <span class="s">"Payment cancelled"</span>
+}</pre>
+
+
+<h2 id="webhook">Webhook Events</h2>
+<p>The gateway sends a signed POST request to your webhook URL for various events. Each webhook includes a <code>nonce</code> and <code>timestamp</code> for replay protection.</p>
+<div class="alert alert-warn">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><g fill="currentColor" stroke="curretColor"><path d="M9.15 7.831a2.976 2.976 0 1 1 5.701 0l-1.564 5.211c-.07.234-.105.351-.159.447a1 1 0 0 1-.654.487C12.366 14 12.244 14 12 14c-.244 0-.366 0-.474-.024a1 1 0 0 1-.654-.487c-.054-.096-.09-.213-.16-.447z"/><circle cx="12" cy="19" r="2"/></g></svg>Always <a href="#verify-webhook">Verify Signature</a> before processing.
+</div>
+
+<h3>Event Types</h3>
+<div class="field"><span class="field-name">payment.confirmed</span><span class="field-type" style="color:var(--g);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span><span class="field-desc">Payment received and confirmed on blockchain</span></div>
+<div class="field"><span class="field-name">payment.cancelled</span><span class="field-type" style="color:var(--red);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span><span class="field-desc">Payment cancelled by buyer before completion</span></div>
+
+<h3>payment.confirmed payload</h3>
+<div class="alert alert-ok" style="margin-bottom:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <code>metadata</code> is now included in all webhook events including retries.</div>
+<pre>{
+  <span class="n">"event"</span>:           <span class="s">"payment.confirmed"</span>,
+  <span class="n">"payment_id"</span>:      <span class="s">"193d7d11-5ade-4993..."</span>,
+  <span class="n">"order_id"</span>:        <span class="s">"ORD-1234"</span>,
+  <span class="n">"amount_firo"</span>:     <span class="v">2.5</span>,
+  <span class="n">"amount_received"</span>: <span class="v">2.5</span>,
+  <span class="n">"platform_fee"</span>:    <span class="v">0.0375</span>,
+  <span class="n">"merchant_net"</span>:    <span class="v">2.4625</span>,
+  <span class="n">"txid"</span>:            <span class="s">"a1b2c3d4e5f6..."</span>,
+  <span class="n">"confirmations"</span>:   <span class="v">2</span>,
+  <span class="n">"customer_email"</span>:  <span class="s">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7210070b170032170a131f021e175c111d1f">[email&#160;protected]</a>"</span>,
+  <span class="n">"confirmed_at"</span>:    <span class="s">"2026-05-21T14:35:00Z"</span>,
+  <span class="n" style="color:#4ade80">"metadata"</span>: {
+    <span class="c">// exactly what you passed at creation — {} if none</span>
+    <span class="n">"seller_id"</span>:      <span class="s">"seller_42"</span>,
+    <span class="n">"product_id"</span>:     <span class="s">"prod_789"</span>,
+    <span class="n">"commission_pct"</span>: <span class="v">12</span>
+  },
+  <span class="n">"nonce"</span>:           <span class="s">"7f8a9b0c1d2e3f4a..."</span>,
+  <span class="n">"timestamp"</span>:       <span class="v">1705312500</span>
+}</pre>
+
+<h3>payment.cancelled payload</h3>
+<pre>{
+  <span class="n">"event"</span>:        <span class="s">"payment.cancelled"</span>,
+  <span class="n">"payment_id"</span>:   <span class="s">"193d7d11-5ade-4993..."</span>,
+  <span class="n">"order_id"</span>:     <span class="s">"ORD-1234"</span>,
+  <span class="n">"amount_firo"</span>:  <span class="v">2.5</span>,
+  <span class="n">"status"</span>:       <span class="s">"cancelled"</span>,
+  <span class="n">"cancelled_at"</span>: <span class="s">"2026-05-21T14:20:00Z"</span>,
+  <span class="n" style="color:#4ade80">"metadata"</span>:    { <span class="n">"seller_id"</span>: <span class="s">"seller_42"</span> },
+  <span class="n">"nonce"</span>:        <span class="s">"9a8b7c6d5e4f3a2b..."</span>,
+  <span class="n">"timestamp"</span>:    <span class="v">1705311600</span>
+}</pre>
+
+
+<h2 id="marketplace">Marketplace &amp; Seller Tracking</h2>
+<p>Use the <code>metadata</code> field to track seller/vendor context through every payment and webhook. FiroGate stores whatever you send and echoes it back in all events — including retries.</p>
+<div class="alert alert-info"><svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M12 1.996a7.49 7.49 0 0 1 7.496 7.25l.004.25v4.097l1.38 3.156a1.249 1.249 0 0 1-1.145 1.75L15 18.502a3 3 0 0 1-5.995.177L9 18.499H4.275a1.251 1.251 0 0 1-1.147-1.747L4.5 13.594V9.496c0-4.155 3.352-7.5 7.5-7.5ZM13.5 18.5l-3 .002a1.5 1.5 0 0 0 2.993.145l.006-.147ZM12 3.496c-3.32 0-6 2.674-6 6v4.41L4.656 17h14.697L18 13.907V9.509l-.004-.225A5.988 5.988 0 0 0 12 3.496Zm9 4.754h2a.75.75 0 0 1 .102 1.493L23 9.75h-2a.75.75 0 0 1-.102-1.493L21 8.25Zm-20 0h2a.75.75 0 0 1 .102 1.493L3 9.75H1a.75.75 0 0 1-.102-1.493L1 8.25Zm21.6-5.7a.75.75 0 0 1-.066.977l-.084.073l-2 1.5a.75.75 0 0 1-.984-1.127l.084-.073l2-1.5a.75.75 0 0 1 1.05.15ZM2.45 2.4l2 1.5a.75.75 0 1 1-.9 1.2l-2-1.5a.75.75 0 1 1 .9-1.2Z"/></svg> FiroGate does not split payments automatically. Marketplace commission logic runs on your platform — metadata gives you the seller context to do it.</div>
+
+<h3>Step 1: Create payment with seller context</h3>
+<pre>{
+  <span class="n">"amount_firo"</span>:    <span class="v">5.0</span>,
+  <span class="n">"order_id"</span>:       <span class="s">"MP-2026-00789"</span>,
+  <span class="n">"metadata"</span>: {
+    <span class="n">"seller_id"</span>:       <span class="s">"seller_42"</span>,
+    <span class="n">"seller_name"</span>:     <span class="s">"Tech Accessories"</span>,
+    <span class="n">"commission_pct"</span>:  <span class="v">12</span>,
+    <span class="n">"product_id"</span>:      <span class="s">"prod_headphones_pro"</span>,
+    <span class="n">"buyer_id"</span>:        <span class="s">"user_99821"</span>
+  }
+}</pre>
+
+<h3>Step 2: Webhook arrives with seller context</h3>
+<pre>{
+  <span class="n">"event"</span>:        <span class="s">"payment.confirmed"</span>,
+  <span class="n">"order_id"</span>:     <span class="s">"MP-2026-00789"</span>,
+  <span class="n">"merchant_net"</span>: <span class="v">4.925</span>,
+  <span class="n">"metadata"</span>: {
+    <span class="n">"seller_id"</span>:      <span class="s">"seller_42"</span>,
+    <span class="n">"commission_pct"</span>: <span class="v">12</span>,
+    <span class="n">"product_id"</span>:     <span class="s">"prod_headphones_pro"</span>,
+    <span class="n">"buyer_id"</span>:       <span class="s">"user_99821"</span>
+  }
+}</pre>
+
+<h3>Step 3: Your webhook handler calculates commissions</h3>
+<pre><span class="k">def</span> <span class="v">handle_confirmed</span>(data):
+    meta        = data.get(<span class="s">"metadata"</span>, {})
+    seller_id   = meta.get(<span class="s">"seller_id"</span>)
+    comm_pct    = meta.get(<span class="s">"commission_pct"</span>, 0)
+    net_firo    = data[<span class="s">"merchant_net"</span>]
+
+    platform_cut  = net_firo * (comm_pct / 100)
+    seller_share  = net_firo - platform_cut
+
+    mark_order_paid(data[<span class="s">"order_id"</span>])
+    credit_seller(seller_id, seller_share)
+    credit_platform(platform_cut)</pre>
+
+<h2 id="python">Python </h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('py','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('py','status')">Check Status</button>
+  <button class="tab-btn" onclick="showTab('py','webhook')">Webhook Handler</button>
+</div>
+<div id="py-create" class="tab-content on"><pre><span class="k">import</span> requests
+
+GATEWAY_URL = <span class="s">"{{ api_url }}"</span>
+API_KEY     = <span class="s">"fgate_your_api_key"</span>
+
+<span class="k">def</span> <span class="v">create_payment</span>(amount_firo, order_id, success_url, metadata=<span class="v">None</span>):
+    response = requests.post(
+        <span class="s">f"{GATEWAY_URL}/api/payments/create"</span>,
+        json={
+            <span class="n">"amount_firo"</span>:       amount_firo,
+            <span class="n">"order_id"</span>:          order_id,
+            <span class="n">"order_description"</span>: <span class="s">"Premium Subscription"</span>,
+            <span class="n">"success_url"</span>:       success_url,
+            <span class="n">"cancel_url"</span>:        <span class="s">"https://yourstore.com/cancel"</span>,
+            <span class="n">"timeout_minutes"</span>:   20,
+        },
+        headers={<span class="s">"X-API-Key"</span>: API_KEY},
+    )
+    response.raise_for_status()
+    <span class="k">return</span> response.json()
+
+<span class="c"># Usage</span>
+payment = create_payment(2.5, <span class="s">"ORD-1234"</span>, <span class="s">"https://yourstore.com/success"</span>)
+print(<span class="s">f"Send buyer to: {payment['checkout_url']}"</span>)
+print(<span class="s">f"Payment ID:    {payment['payment_id']}"</span>)</pre></div>
+
+<div id="py-status" class="tab-content"><pre><span class="k">import</span> time, requests
+
+<span class="k">def</span> <span class="v">wait_for_payment</span>(payment_id, timeout=1200):
+    <span class="s">"""Poll every 10s until confirmed or expired."""</span>
+    start = time.time()
+    <span class="k">while</span> time.time() - start < timeout:
+        r = requests.get(
+            <span class="s">f"{GATEWAY_URL}/api/payments/{payment_id}"</span>,
+            headers={<span class="s">"X-API-Key"</span>: API_KEY},
+        )
+        data = r.json()
+        status = data[<span class="s">"status"</span>]
+
+        <span class="k">if</span> status == <span class="s">"confirmed"</span>:
+            print(<span class="s">f"✅ Paid! TX: {data['txid']}"</span>)
+            <span class="k">return</span> data
+        <span class="k">elif</span> status == <span class="s">"expired"</span>:
+            print(<span class="s">"❌ Payment expired"</span>)
+            <span class="k">return</span> None
+
+        print(<span class="s">f"Status: {status} ({data.get('confirmations',0)} confs)"</span>)
+        time.sleep(10)
+
+    <span class="k">return</span> None</pre></div>
+
+<div id="py-webhook" class="tab-content"><pre><span class="c"># Flask webhook handler with HMAC-SHA256 verification</span>
+<span class="k">from</span> flask <span class="k">import</span> Flask, request, jsonify
+<span class="k">import</span> hmac, hashlib, json, time
+
+app = Flask(__name__)
+WEBHOOK_SECRET = <span class="s">"your_webhook_secret_from_dashboard"</span>
+
+<span class="v">@app.route</span>(<span class="s">"/webhook/firo"</span>, methods=[<span class="s">"POST"</span>])
+<span class="k">def</span> <span class="v">firo_webhook</span>():
+    data = request.json
+    sig  = request.headers.get(<span class="s">"X-FiroGate-Signature"</span>, <span class="s">""</span>)
+
+    <span class="c"># 1. Verify HMAC-SHA256 (sort_keys + compact separators)</span>
+    canonical = json.dumps(data, sort_keys=<span class="k">True</span>, separators=(<span class="s">","</span>, <span class="s">":"</span>)).encode()
+    expected  = hmac.new(WEBHOOK_SECRET.encode(), canonical, hashlib.sha256).hexdigest()
+    <span class="k">if not</span> hmac.compare_digest(expected, sig):
+        <span class="k">return</span> jsonify({<span class="s">"error"</span>: <span class="s">"Invalid signature"</span>}), 401
+
+    <span class="c"># 2. Verify timestamp (reject if older than 5 min)</span>
+    ts = data.get(<span class="s">"timestamp"</span>, 0)
+    <span class="k">if</span> abs(time.time() - ts) > 300:
+        <span class="k">return</span> jsonify({<span class="s">"error"</span>: <span class="s">"Stale webhook"</span>}), 400
+
+    <span class="c"># 3. Check nonce (store in DB/Redis to prevent replays)</span>
+    nonce = data.get(<span class="s">"nonce"</span>)
+    <span class="c"># if is_nonce_used(nonce): return jsonify({"error": "Replay"}), 409</span>
+    <span class="c"># mark_nonce_used(nonce)</span>
+
+    <span class="c"># 4. Process event</span>
+    event    = data.get(<span class="s">"event"</span>)
+    metadata = data.get(<span class="s">"metadata"</span>, {})  <span class="c"># always dict</span>
+    <span class="k">if</span> event == <span class="s">"payment.confirmed"</span>:
+        seller_id = metadata.get(<span class="s">"seller_id"</span>)
+        activate_order(data[<span class="s">"order_id"</span>], data[<span class="s">"merchant_net"</span>], data[<span class="s">"txid"</span>], seller_id)
+
+    <span class="k">return</span> jsonify({<span class="s">"ok"</span>: <span class="k">True</span>})</pre></div>
+
+
+<h2 id="javascript">JavaScript / Node.js</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('js','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('js','webhook')">Express Webhook</button>
+  <button class="tab-btn" onclick="showTab('js','poll')">Poll Status</button>
+</div>
+<div id="js-create" class="tab-content on"><pre><span class="c">// Node.js — create payment</span>
+<span class="k">const</span> GATEWAY_URL = <span class="s">'{{ api_url }}'</span>;
+<span class="k">const</span> API_KEY     = <span class="s">'fgate_your_api_key'</span>;
+
+<span class="k">async function</span> <span class="v">createPayment</span>(amountFiro, orderId, successUrl) {
+  <span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">`${GATEWAY_URL}/api/payments/create`</span>, {
+    method: <span class="s">'POST'</span>,
+    headers: {
+      <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+      <span class="s">'X-API-Key'</span>: API_KEY,
+    },
+    body: JSON.stringify({
+      amount_firo:       amountFiro,
+      order_id:          orderId,
+      order_description: <span class="s">'Premium Plan'</span>,
+      success_url:       successUrl,
+      cancel_url:        <span class="s">'https://yourstore.com/cancel'</span>,
+      timeout_minutes:   20,
+    }),
+  });
+
+  <span class="k">if</span> (!res.ok) <span class="k">throw new</span> Error(<span class="s">`Gateway error: ${res.status}`</span>);
+  <span class="k">return</span> res.json();
+}
+
+<span class="c">// Usage</span>
+<span class="k">const</span> payment = <span class="k">await</span> createPayment(2.5, <span class="s">'ORD-1234'</span>, <span class="s">'https://yourstore.com/ok'</span>);
+console.log(<span class="s">`Checkout: ${payment.checkout_url}`</span>);</pre></div>
+
+<div id="js-webhook" class="tab-content"><pre><span class="c">// Express.js webhook handler with HMAC-SHA256 verification</span>
+<span class="k">const</span> express = require(<span class="s">'express'</span>);
+<span class="k">const</span> crypto  = require(<span class="s">'crypto'</span>);
+
+<span class="k">const</span> app    = express();
+<span class="k">const</span> SECRET = <span class="s">'your_webhook_secret'</span>;
+
+app.post(<span class="s">'/webhook/firo'</span>, express.json(), (req, res) => {
+  <span class="k">const</span> data = req.body;
+  <span class="k">const</span> sig  = req.headers[<span class="s">'x-firogate-signature'</span>] || <span class="s">''</span>;
+
+  <span class="c">// 1. Compute HMAC-SHA256 over sorted, compact JSON</span>
+  <span class="k">const</span> keys    = Object.keys(data).sort();
+  <span class="k">const</span> sorted  = {};
+  keys.forEach(k => sorted[k] = data[k]);
+  <span class="k">const</span> canonical = JSON.stringify(sorted);
+  <span class="k">const</span> expected  = crypto
+    .createHmac(<span class="s">'sha256'</span>, SECRET)
+    .update(canonical)
+    .digest(<span class="s">'hex'</span>);
+
+  <span class="k">if</span> (!crypto.timingSafeEqual(
+    Buffer.from(expected), Buffer.from(sig)
+  )) {
+    <span class="k">return</span> res.status(401).json({ error: <span class="s">'Bad signature'</span> });
+  }
+
+  <span class="c">// 2. Verify timestamp (reject if older than 5 min)</span>
+  <span class="k">const</span> ts = data.timestamp || 0;
+  <span class="k">if</span> (Math.abs(Date.now() / 1000 - ts) > 300) {
+    <span class="k">return</span> res.status(400).json({ error: <span class="s">'Stale webhook'</span> });
+  }
+
+  <span class="c">// 3. Process event</span>
+  <span class="k">const</span> { event, order_id, merchant_net, txid, metadata = {} } = data;
+  <span class="k">if</span> (event === <span class="s">'payment.confirmed'</span>) {
+    <span class="k">const</span> sellerId = metadata.seller_id; <span class="c">// your custom fields</span>
+    activateOrder(order_id, merchant_net, txid, sellerId);
+  }
+  res.json({ ok: <span class="k">true</span> });
+});</pre></div>
+
+<div id="js-poll" class="tab-content"><pre><span class="c">// Poll payment status until confirmed</span>
+<span class="k">async function</span> <span class="v">waitForPayment</span>(paymentId, intervalMs = 10000) {
+  <span class="k">return new</span> Promise((resolve, reject) => {
+    <span class="k">const</span> iv = setInterval(<span class="k">async</span> () => {
+      <span class="k">const</span> res = <span class="k">await</span> fetch(
+        <span class="s">`${GATEWAY_URL}/api/payments/${paymentId}`</span>,
+        { headers: { <span class="s">'X-API-Key'</span>: API_KEY } }
+      );
+      <span class="k">const</span> data = <span class="k">await</span> res.json();
+
+      <span class="k">if</span> (data.status === <span class="s">'confirmed'</span>) {
+        clearInterval(iv);
+        resolve(data);
+      } <span class="k">else if</span> (data.status === <span class="s">'expired'</span>) {
+        clearInterval(iv);
+        reject(<span class="k">new</span> Error(<span class="s">'Payment expired'</span>));
+      }
+    }, intervalMs);
+  });
+}</pre></div>
+
+
+<h2 id="java">Java</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('java','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('java','webhook')">Webhook Verify</button>
+</div>
+<div id="java-create" class="tab-content on"><pre><span class="k">import</span> java.net.URI;
+<span class="k">import</span> java.net.http.*;
+<span class="k">import</span> java.net.http.HttpResponse.BodyHandlers;
+
+<span class="k">public class</span> <span class="v">FiroGate</span> {
+    <span class="k">static final</span> String GATEWAY = <span class="s">"{{ api_url }}"</span>;
+    <span class="k">static final</span> String API_KEY = <span class="s">"fgate_your_api_key"</span>;
+
+    <span class="k">public static</span> String <span class="v">createPayment</span>(
+            <span class="v">double</span> amount, String orderId, String successUrl
+    ) <span class="k">throws</span> Exception {
+        String json = <span class="s">"""
+            {
+              "amount_firo": %s,
+              "order_id": "%s",
+              "success_url": "%s",
+              "timeout_minutes": 20
+            }"""</span>.formatted(amount, orderId, successUrl);
+
+        HttpRequest req = HttpRequest.newBuilder()
+            .uri(URI.create(GATEWAY + <span class="s">"/api/payments/create"</span>))
+            .header(<span class="s">"Content-Type"</span>, <span class="s">"application/json"</span>)
+            .header(<span class="s">"X-API-Key"</span>, API_KEY)
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse&lt;String&gt; res = HttpClient.newHttpClient()
+            .send(req, BodyHandlers.ofString());
+
+        System.out.println(<span class="s">"Status: "</span> + res.statusCode());
+        <span class="k">return</span> res.body();
+    }
+}</pre></div>
+<div id="java-webhook" class="tab-content"><pre><span class="k">import</span> javax.crypto.Mac;
+<span class="k">import</span> javax.crypto.spec.SecretKeySpec;
+<span class="k">import</span> java.util.*;
+<span class="k">import</span> com.google.gson.*;
+
+<span class="k">public class</span> <span class="v">WebhookVerifier</span> {
+    <span class="k">static final</span> String SECRET = <span class="s">"your_webhook_secret"</span>;
+
+    <span class="k">public static boolean</span> <span class="v">verify</span>(String jsonBody, String signature)
+            <span class="k">throws</span> Exception {
+        <span class="c">// Parse + sort keys for canonical JSON</span>
+        JsonObject obj = JsonParser.parseString(jsonBody).getAsJsonObject();
+        TreeMap&lt;String, JsonElement&gt; sorted = <span class="k">new</span> TreeMap&lt;&gt;();
+        obj.entrySet().forEach(e -> sorted.put(e.getKey(), e.getValue()));
+        String canonical = <span class="k">new</span> Gson().toJson(sorted);
+
+        <span class="c">// HMAC-SHA256</span>
+        Mac mac = Mac.getInstance(<span class="s">"HmacSHA256"</span>);
+        mac.init(<span class="k">new</span> SecretKeySpec(SECRET.getBytes(), <span class="s">"HmacSHA256"</span>));
+        <span class="k">byte</span>[] hash = mac.doFinal(canonical.getBytes());
+        StringBuilder hex = <span class="k">new</span> StringBuilder();
+        <span class="k">for</span> (<span class="k">byte</span> b : hash) hex.append(String.format(<span class="s">"%02x"</span>, b));
+
+        <span class="k">return</span> hex.toString().equals(signature);
+    }
+}
+
+<span class="c">// Spring Boot controller:</span>
+<span class="c">// String sig = request.getHeader("X-FiroGate-Signature");</span>
+<span class="c">// if (!WebhookVerifier.verify(body, sig)) return 401;</span></pre></div>
+
+
+<h2 id="csharp">C# / .NET</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('cs','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('cs','webhook')">Webhook Verify</button>
+</div>
+<div id="cs-create" class="tab-content on"><pre><span class="k">using</span> System.Net.Http;
+<span class="k">using</span> System.Text;
+<span class="k">using</span> System.Text.Json;
+
+<span class="k">var</span> client  = <span class="k">new</span> HttpClient();
+<span class="k">var</span> gateway = <span class="s">"{{ api_url }}"</span>;
+<span class="k">var</span> apiKey  = <span class="s">"fgate_your_api_key"</span>;
+
+<span class="k">async</span> Task&lt;string&gt; <span class="v">CreatePayment</span>(
+    <span class="v">double</span> amount, <span class="v">string</span> orderId, <span class="v">string</span> successUrl)
+{
+    <span class="k">var</span> payload = <span class="k">new</span> {
+        amount_firo       = amount,
+        order_id          = orderId,
+        order_description = <span class="s">"Product Purchase"</span>,
+        success_url       = successUrl,
+        timeout_minutes   = 20
+    };
+
+    <span class="k">var</span> json = JsonSerializer.Serialize(payload);
+    <span class="k">var</span> req  = <span class="k">new</span> HttpRequestMessage(HttpMethod.Post,
+                 $<span class="s">"{gateway}/api/payments/create"</span>);
+    req.Headers.Add(<span class="s">"X-API-Key"</span>, apiKey);
+    req.Content = <span class="k">new</span> StringContent(json, Encoding.UTF8,
+                      <span class="s">"application/json"</span>);
+
+    <span class="k">var</span> res = <span class="k">await</span> client.SendAsync(req);
+    <span class="k">return await</span> res.Content.ReadAsStringAsync();
+}
+
+<span class="k">var</span> result = <span class="k">await</span> CreatePayment(2.5, <span class="s">"ORD-1234"</span>,
+                 <span class="s">"https://yourstore.com/ok"</span>);
+Console.WriteLine(result);</pre></div>
+<div id="cs-webhook" class="tab-content"><pre><span class="k">using</span> System.Security.Cryptography;
+<span class="k">using</span> System.Text;
+<span class="k">using</span> System.Text.Json;
+
+<span class="k">static bool</span> <span class="v">VerifyWebhook</span>(
+    <span class="v">string</span> jsonBody, <span class="v">string</span> signature, <span class="v">string</span> secret)
+{
+    <span class="c">// Parse + sort keys for canonical JSON</span>
+    <span class="k">var</span> dict = JsonSerializer.Deserialize
+        &lt;SortedDictionary&lt;<span class="v">string</span>, JsonElement&gt;&gt;(jsonBody);
+    <span class="k">var</span> canonical = JsonSerializer.Serialize(dict);
+
+    <span class="c">// HMAC-SHA256</span>
+    <span class="k">using var</span> hmac = <span class="k">new</span> HMACSHA256(Encoding.UTF8.GetBytes(secret));
+    <span class="k">var</span> hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(canonical));
+    <span class="k">var</span> expected = Convert.ToHexString(hash).ToLower();
+
+    <span class="k">return</span> CryptographicOperations
+        .FixedTimeEquals(
+            Encoding.UTF8.GetBytes(expected),
+            Encoding.UTF8.GetBytes(signature));
+}
+
+<span class="c">// ASP.NET Core:</span>
+<span class="c">// var sig = Request.Headers["X-FiroGate-Signature"];</span>
+<span class="c">// if (!VerifyWebhook(body, sig, SECRET)) return Unauthorized();</span></pre></div>
+
+
+<h2 id="php">PHP</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('php','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('php','webhook')">Webhook Handler</button>
+</div>
+<div id="php-create" class="tab-content on"><pre><span class="v">&lt;?php</span>
+<span class="k">define</span>(<span class="s">'GATEWAY_URL'</span>, <span class="s">'{{ api_url }}'</span>);
+<span class="k">define</span>(<span class="s">'API_KEY'</span>,     <span class="s">'fgate_your_api_key'</span>);
+
+<span class="k">function</span> <span class="v">createPayment</span>(<span class="v">$amountFiro</span>, <span class="v">$orderId</span>, <span class="v">$successUrl</span>) {
+    <span class="v">$ch</span> = curl_init(GATEWAY_URL . <span class="s">'/api/payments/create'</span>);
+    curl_setopt_array(<span class="v">$ch</span>, [
+        CURLOPT_RETURNTRANSFER => <span class="k">true</span>,
+        CURLOPT_POST           => <span class="k">true</span>,
+        CURLOPT_HTTPHEADER     => [
+            <span class="s">'Content-Type: application/json'</span>,
+            <span class="s">'X-API-Key: '</span> . API_KEY,
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            <span class="s">'amount_firo'</span>       => <span class="v">$amountFiro</span>,
+            <span class="s">'order_id'</span>          => <span class="v">$orderId</span>,
+            <span class="s">'order_description'</span> => <span class="s">'Product Purchase'</span>,
+            <span class="s">'success_url'</span>       => <span class="v">$successUrl</span>,
+            <span class="s">'timeout_minutes'</span>   => 20,
+        ]),
+    ]);
+    <span class="v">$response</span> = curl_exec(<span class="v">$ch</span>);
+    curl_close(<span class="v">$ch</span>);
+    <span class="k">return</span> json_decode(<span class="v">$response</span>, <span class="k">true</span>);
+}
+
+<span class="v">$payment</span> = createPayment(2.5, <span class="s">'ORD-1234'</span>, <span class="s">'https://yourstore.com/ok'</span>);
+header(<span class="s">'Location: '</span> . <span class="v">$payment</span>[<span class="s">'checkout_url'</span>]);
+exit;</pre></div>
+
+<div id="php-webhook" class="tab-content"><pre><span class="v">&lt;?php</span>
+<span class="c">// webhook.php — HMAC-SHA256 verification</span>
+<span class="k">define</span>(<span class="s">'WEBHOOK_SECRET'</span>, <span class="s">'your_webhook_secret'</span>);
+
+<span class="v">$body</span> = file_get_contents(<span class="s">'php://input'</span>);
+<span class="v">$data</span> = json_decode(<span class="v">$body</span>, <span class="k">true</span>);
+<span class="v">$sig</span>  = <span class="v">$_SERVER</span>[<span class="s">'HTTP_X_FIROGATE_SIGNATURE'</span>] ?? <span class="s">''</span>;
+
+<span class="c">// Sort keys + compact JSON to match server-side signing</span>
+ksort(<span class="v">$data</span>);
+<span class="v">$canonical</span> = json_encode(<span class="v">$data</span>, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+<span class="v">$expected</span>  = hash_hmac(<span class="s">'sha256'</span>, <span class="v">$canonical</span>, WEBHOOK_SECRET);
+
+<span class="k">if</span> (!hash_equals(<span class="v">$expected</span>, <span class="v">$sig</span>)) {
+    http_response_code(401);
+    exit(<span class="s">'Bad signature'</span>);
+}
+
+<span class="c">// Verify timestamp</span>
+<span class="v">$ts</span> = <span class="v">$data</span>[<span class="s">'timestamp'</span>] ?? 0;
+<span class="k">if</span> (abs(time() - <span class="v">$ts</span>) > 300) {
+    http_response_code(400);
+    exit(<span class="s">'Stale webhook'</span>);
+}
+
+<span class="k">if</span> (<span class="v">$data</span>[<span class="s">'event'</span>] === <span class="s">'payment.confirmed'</span>) {
+    <span class="v">$orderId</span> = <span class="v">$data</span>[<span class="s">'order_id'</span>];
+    <span class="v">$netFiro</span> = <span class="v">$data</span>[<span class="s">'merchant_net'</span>];
+    activateOrder(<span class="v">$orderId</span>, <span class="v">$netFiro</span>);
+}
+
+echo json_encode([<span class="s">'ok'</span> => <span class="k">true</span>]);</pre></div>
+
+
+<h2 id="go">Go</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('go','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('go','webhook')">Webhook Handler</button>
+</div>
+<div id="go-create" class="tab-content on"><pre><span class="k">package</span> main
+
+<span class="k">import</span> (
+    <span class="s">"bytes"</span>
+    <span class="s">"encoding/json"</span>
+    <span class="s">"fmt"</span>
+    <span class="s">"net/http"</span>
+)
+
+<span class="k">const</span> (
+    GatewayURL = <span class="s">"{{ api_url }}"</span>
+    APIKey     = <span class="s">"fgate_your_api_key"</span>
+)
+
+<span class="k">type</span> PaymentRequest <span class="k">struct</span> {
+    AmountFiro       <span class="v">float64</span> <span class="s">`json:"amount_firo"`</span>
+    OrderID          <span class="v">string</span>  <span class="s">`json:"order_id"`</span>
+    OrderDescription <span class="v">string</span>  <span class="s">`json:"order_description"`</span>
+    SuccessURL        <span class="v">string</span>  <span class="s">`json:"success_url"`</span>
+    TimeoutMinutes   <span class="v">int</span>     <span class="s">`json:"timeout_minutes"`</span>
+}
+
+<span class="k">type</span> PaymentResponse <span class="k">struct</span> {
+    PaymentID   <span class="v">string</span> <span class="s">`json:"payment_id"`</span>
+    CheckoutURL <span class="v">string</span> <span class="s">`json:"checkout_url"`</span>
+    AmountFiro  <span class="v">float64</span> <span class="s">`json:"amount_firo"`</span>
+    Status      <span class="v">string</span> <span class="s">`json:"status"`</span>
+}
+
+<span class="k">func</span> <span class="v">CreatePayment</span>(req PaymentRequest) (*PaymentResponse, <span class="k">error</span>) {
+    body, _ := json.Marshal(req)
+    httpReq, _ := http.NewRequest(<span class="s">"POST"</span>,
+        GatewayURL+<span class="s">"/api/payments/create"</span>,
+        bytes.NewBuffer(body))
+    httpReq.Header.Set(<span class="s">"Content-Type"</span>, <span class="s">"application/json"</span>)
+    httpReq.Header.Set(<span class="s">"X-API-Key"</span>, APIKey)
+
+    resp, err := http.DefaultClient.Do(httpReq)
+    <span class="k">if</span> err != nil { <span class="k">return</span> nil, err }
+    <span class="k">defer</span> resp.Body.Close()
+
+    <span class="k">var</span> result PaymentResponse
+    json.NewDecoder(resp.Body).Decode(&amp;result)
+    <span class="k">return</span> &amp;result, nil
+}
+
+<span class="k">func</span> main() {
+    p, _ := CreatePayment(PaymentRequest{
+        AmountFiro: 2.5,
+        OrderID:    <span class="s">"ORD-1234"</span>,
+        SuccessURL: <span class="s">"https://yourstore.com/ok"</span>,
+        TimeoutMinutes: 20,
+    })
+    fmt.Println(<span class="s">"Checkout:"</span>, p.CheckoutURL)
+}</pre></div>
+
+<div id="go-webhook" class="tab-content"><pre><span class="k">package</span> main
+
+<span class="k">import</span> (
+    <span class="s">"crypto/hmac"</span>
+    <span class="s">"crypto/sha256"</span>
+    <span class="s">"encoding/hex"</span>
+    <span class="s">"encoding/json"</span>
+    <span class="s">"fmt"</span>
+    <span class="s">"io"</span>
+    <span class="s">"math"</span>
+    <span class="s">"net/http"</span>
+    <span class="s">"time"</span>
+)
+
+<span class="k">const</span> WebhookSecret = <span class="s">"your_webhook_secret"</span>
+
+<span class="k">func</span> <span class="v">webhookHandler</span>(w http.ResponseWriter, r *http.Request) {
+    body, _ := io.ReadAll(r.Body)
+    sig      := r.Header.Get(<span class="s">"X-FiroGate-Signature"</span>)
+
+    <span class="c">// Parse + re-marshal (Go sorts map keys by default)</span>
+    <span class="k">var</span> data <span class="k">map</span>[<span class="v">string</span>]<span class="k">interface</span>{}
+    json.Unmarshal(body, &amp;data)
+    canonical, _ := json.Marshal(data)
+
+    <span class="c">// Verify HMAC-SHA256</span>
+    mac := hmac.New(sha256.New, []<span class="k">byte</span>(WebhookSecret))
+    mac.Write(canonical)
+    expected := hex.EncodeToString(mac.Sum(nil))
+
+    <span class="k">if</span> !hmac.Equal([]<span class="k">byte</span>(expected), []<span class="k">byte</span>(sig)) {
+        http.Error(w, <span class="s">"Unauthorized"</span>, 401)
+        <span class="k">return</span>
+    }
+
+    <span class="c">// Verify timestamp</span>
+    ts, _ := data[<span class="s">"timestamp"</span>].(float64)
+    <span class="k">if</span> math.Abs(float64(time.Now().Unix())-ts) > 300 {
+        http.Error(w, <span class="s">"Stale"</span>, 400)
+        <span class="k">return</span>
+    }
+
+    <span class="k">if</span> data[<span class="s">"event"</span>] == <span class="s">"payment.confirmed"</span> {
+        fmt.Println(<span class="s">"Payment confirmed:"</span>, data[<span class="s">"order_id"</span>])
+    }
+    w.Header().Set(<span class="s">"Content-Type"</span>, <span class="s">"application/json"</span>)
+    w.Write([]<span class="k">byte</span>(<span class="s">`{"ok":true}`</span>))
+}</pre></div>
+
+
+<h2 id="ruby">Ruby</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('rb','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('rb','webhook')">Sinatra Webhook</button>
+</div>
+<div id="rb-create" class="tab-content on"><pre><span class="k">require</span> <span class="s">'net/http'</span>
+<span class="k">require</span> <span class="s">'json'</span>
+
+GATEWAY_URL = <span class="s">'{{ api_url }}'</span>
+API_KEY     = <span class="s">'fgate_your_api_key'</span>
+
+<span class="k">def</span> <span class="v">create_payment</span>(amount_firo, order_id, success_url)
+  uri  = URI(<span class="s">"#{GATEWAY_URL}/api/payments/create"</span>)
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = uri.scheme == <span class="s">'https'</span>
+
+  req = Net::HTTP::Post.new(uri)
+  req[<span class="s">'Content-Type'</span>] = <span class="s">'application/json'</span>
+  req[<span class="s">'X-API-Key'</span>]     = API_KEY
+  req.body = {
+    amount_firo:       amount_firo,
+    order_id:          order_id,
+    order_description: <span class="s">'Digital Product'</span>,
+    success_url:       success_url,
+    timeout_minutes:   20
+  }.to_json
+
+  response = http.request(req)
+  JSON.parse(response.body)
+<span class="k">end</span>
+
+payment = create_payment(2.5, <span class="s">'ORD-1234'</span>, <span class="s">'https://yourstore.com/ok'</span>)
+puts <span class="s">"Checkout: #{payment['checkout_url']}"</span></pre></div>
+
+<div id="rb-webhook" class="tab-content"><pre><span class="k">require</span> <span class="s">'sinatra'</span>
+<span class="k">require</span> <span class="s">'openssl'</span>
+<span class="k">require</span> <span class="s">'json'</span>
+
+WEBHOOK_SECRET = <span class="s">'your_webhook_secret'</span>
+
+post <span class="s">'/webhook/firo'</span> <span class="k">do</span>
+  body = request.body.read
+  data = JSON.parse(body)
+  sig  = request.env[<span class="s">'HTTP_X_FIROGATE_SIGNATURE'</span>]
+
+  <span class="c"># Sort keys + compact JSON to match server signing</span>
+  canonical = JSON.generate(data.sort.to_h)
+  expected  = OpenSSL::HMAC.hexdigest(<span class="s">'SHA256'</span>, WEBHOOK_SECRET, canonical)
+
+  halt 401 <span class="k">unless</span> Rack::Utils.secure_compare(expected, sig.to_s)
+
+  <span class="c"># Verify timestamp</span>
+  ts = data[<span class="s">'timestamp'</span>].to_i
+  halt 400 <span class="k">if</span> (Time.now.to_i - ts).abs > 300
+
+  <span class="k">if</span> data[<span class="s">'event'</span>] == <span class="s">'payment.confirmed'</span>
+    activate_order(data[<span class="s">'order_id'</span>], data[<span class="s">'merchant_net'</span>])
+  <span class="k">end</span>
+
+  {ok: <span class="k">true</span>}.to_json
+<span class="k">end</span></pre></div>
+
+
+<h2 id="rust">Rust</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('rs','create')">Create Payment</button>
+  <button class="tab-btn" onclick="showTab('rs','webhook')">Webhook Verify</button>
+</div>
+<div id="rs-create" class="tab-content on"><pre><span class="k">use</span> reqwest;
+<span class="k">use</span> serde_json::json;
+
+<span class="k">const</span> GATEWAY: &amp;str = <span class="s">"{{ api_url }}"</span>;
+<span class="k">const</span> API_KEY: &amp;str = <span class="s">"fgate_your_api_key"</span>;
+
+<span class="k">async fn</span> <span class="v">create_payment</span>(
+    amount: <span class="v">f64</span>, order_id: &amp;str, success_url: &amp;str,
+) -> reqwest::Result&lt;serde_json::Value&gt; {
+    <span class="k">let</span> client = reqwest::Client::new();
+    <span class="k">let</span> body = json!({
+        <span class="s">"amount_firo"</span>:       amount,
+        <span class="s">"order_id"</span>:          order_id,
+        <span class="s">"order_description"</span>: <span class="s">"Product Purchase"</span>,
+        <span class="s">"success_url"</span>:       success_url,
+        <span class="s">"timeout_minutes"</span>:   20
+    });
+
+    <span class="k">let</span> res = client.post(format!(<span class="s">"{}/api/payments/create"</span>, GATEWAY))
+        .header(<span class="s">"X-API-Key"</span>, API_KEY)
+        .json(&amp;body)
+        .send().<span class="k">await</span>?;
+
+    res.json().await
+}
+
+<span class="c">// Usage:</span>
+<span class="c">// let p = create_payment(2.5, "ORD-1234", "https://yourstore.com/ok").await?;</span>
+<span class="c">// println!("Checkout: {}", p["checkout_url"]);</span></pre></div>
+<div id="rs-webhook" class="tab-content"><pre><span class="k">use</span> hmac::{Hmac, Mac};
+<span class="k">use</span> sha2::Sha256;
+<span class="k">use</span> serde_json::Value;
+<span class="k">use</span> std::collections::BTreeMap;
+
+<span class="k">type</span> HmacSha256 = Hmac&lt;Sha256&gt;;
+
+<span class="k">fn</span> <span class="v">verify_webhook</span>(
+    json_body: &amp;str, signature: &amp;str, secret: &amp;str,
+) -> <span class="v">bool</span> {
+    <span class="c">// Parse + BTreeMap auto-sorts keys</span>
+    <span class="k">let</span> data: BTreeMap&lt;String, Value&gt; =
+        serde_json::from_str(json_body).unwrap();
+    <span class="k">let</span> canonical = serde_json::to_string(&amp;data).unwrap();
+
+    <span class="c">// HMAC-SHA256</span>
+    <span class="k">let mut</span> mac = HmacSha256::new_from_slice(
+        secret.as_bytes()).unwrap();
+    mac.update(canonical.as_bytes());
+    <span class="k">let</span> result = mac.finalize();
+    <span class="k">let</span> expected = hex::encode(result.into_bytes());
+
+    <span class="c">// Constant-time compare</span>
+    expected == signature
+}
+
+<span class="c">// Actix-web / Axum handler:</span>
+<span class="c">// let sig = req.headers().get("X-FiroGate-Signature");</span>
+<span class="c">// if !verify_webhook(&body, sig, SECRET) { return 401; }</span></pre></div>
+
+
+<h2 id="curl">cURL</h2>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('curl','create')">Create</button>
+  <button class="tab-btn" onclick="showTab('curl','status')">Status</button>
+  <button class="tab-btn" onclick="showTab('curl','list')">List</button>
+</div>
+<div id="curl-create" class="tab-content on"><pre><span class="k">curl</span> -X POST {{ api_url }}/api/payments/create \
+  -H <span class="s">"X-API-Key: fgate_your_api_key"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "amount_firo": 2.5,
+    "order_id": "ORD-1234",
+    "order_description": "Premium Plan",
+    "success_url": "https://yourstore.com/ok",
+    "timeout_minutes": 20,
+    "metadata": {
+      "seller_id": "seller_42",
+      "product_id": "prod_789"
+    }
+  }'</span></pre></div>
+<div id="curl-status" class="tab-content"><pre><span class="k">curl</span> {{ api_url }}/api/payments/PAYMENT_ID \
+  -H <span class="s">"X-API-Key: fgate_your_api_key"</span></pre></div>
+<div id="curl-list" class="tab-content"><pre><span class="k">curl</span> <span class="s">"{{ api_url }}/api/payments/?limit=10&status=confirmed"</span> \
+  -H <span class="s">"X-API-Key: fgate_your_api_key"</span></pre></div>
+
+
+<h2 id="telegram-bot">Telegram Bot Integration</h2>
+<p>Complete example: a Telegram bot that creates FIRO payment requests and notifies you when confirmed.</p>
+<div class="alert alert-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> This is a working bot — just fill in your tokens and run it.</div>
+<pre><span class="c"># pip install python-telegram-bot[job-queue] requests</span>
+
+<span class="k">import</span> asyncio, requests, time
+<span class="k">from</span> telegram <span class="k">import</span> Update, InlineKeyboardButton, InlineKeyboardMarkup
+<span class="k">from</span> telegram.ext <span class="k">import</span> Application, CommandHandler, ContextTypes
+
+GATEWAY_URL  = <span class="s">"{{ api_url }}"</span>
+API_KEY      = <span class="s">"fgate_your_api_key"</span>
+BOT_TOKEN    = <span class="s">"your_telegram_bot_token"</span>
+ADMIN_CHAT   = <span class="v">123456789</span>  <span class="c"># your Telegram user ID</span>
+
+<span class="k">def</span> <span class="v">gw_create</span>(amount, order_id):
+    r = requests.post(f<span class="s">"{GATEWAY_URL}/api/payments/create"</span>,
+        json={<span class="s">"amount_firo"</span>: amount, <span class="s">"order_id"</span>: order_id,
+              <span class="s">"timeout_minutes"</span>: 20},
+        headers={<span class="s">"X-API-Key"</span>: API_KEY}, timeout=15)
+    <span class="k">return</span> r.json() <span class="k">if</span> r.ok <span class="k">else</span> None
+
+<span class="k">async def</span> <span class="v">pay_cmd</span>(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    <span class="k">if</span> <span class="k">not</span> ctx.args:
+        <span class="k">await</span> update.message.reply_text(<span class="s">"Usage: /pay 2.5"</span>); <span class="k">return</span>
+    amount = <span class="k">float</span>(ctx.args[0])
+    order_id = <span class="s">f"TG-{int(time.time())}"</span>
+    r = gw_create(amount, order_id)
+    <span class="k">if not</span> r:
+        <span class="k">await</span> update.message.reply_text(<span class="s">"❌ Gateway error"</span>); <span class="k">return</span>
+    kb = [[InlineKeyboardButton(<span class="s">"Go to Checkout →"</span>, url=r[<span class="s">"checkout_url"</span>])]]
+    <span class="k">await</span> update.message.reply_text(
+        <span class="s">f"💳 Send *{amount:.4f} FIRO*\n"</span>
+        <span class="s">f"Order: `{order_id}`\n"</span>
+        <span class="s">f"Expires: 20 minutes"</span>,
+        parse_mode=<span class="s">"Markdown"</span>,
+        reply_markup=InlineKeyboardMarkup(kb),
+    )
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    app = Application.builder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler(<span class="s">"pay"</span>, pay_cmd))
+    app.run_polling()</pre>
+
+
+<h2 id="webhook-guide">Setting Up Webhooks</h2>
+<p>Configure your webhook URL in <strong>Dashboard → API & Webhooks</strong>.</p>
+<h3>Requirements for your webhook endpoint</h3>
+<div class="field"><span class="field-name">Method</span><span class="field-type">POST</span><span class="field-desc">Must accept POST requests</span></div>
+<div class="field"><span class="field-name">Response</span><span class="field-type">200 OK</span><span class="field-desc">Return 200 within 10 seconds</span></div>
+<div class="field"><span class="field-name">Content</span><span class="field-type">JSON</span><span class="field-desc">Response body: <code>{"ok": true}</code></span></div>
+<div class="field"><span class="field-name">HTTPS</span><span class="field-type">Recommended</span><span class="field-desc">Use HTTPS in production</span></div>
+
+<div class="alert alert-info">
+  <svg width="15" height="15" viewBox="0 0 14 14" fill="currentColor"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.933 13.092a56 56 0 0 0 2.016-.234a.99.99 0 0 0 .854-.861c.08-.643.159-1.312.223-1.997M4.068.908c-.69.067-1.365.149-2.016.234a.99.99 0 0 0-.854.861c-.08.643-.16 1.313-.224 1.997M9.933.908c.69.067 1.365.149 2.016.234a.99.99 0 0 1 .854.861A66 66 0 0 1 13.026 4m-8.958 9.092a59 59 0 0 1-2.016-.234a.99.99 0 0 1-.854-.861A66 66 0 0 1 .974 10m5.53-3.232l2.122-2.122a1 1 0 0 1 1.414 0l.687.687m-2.719-.072l1.207 1.207"/><path d="M5.114 10.078C6.32 10.078 7 9.4 7 8.192s-.679-1.886-1.886-1.886s-1.886.679-1.886 1.886s.679 1.886 1.886 1.886"/></g></svg>The gateway signs every webhook with <code>X-FiroGate-Signature</code> (HMAC-SHA256). Always verify before processing.
+</div>
+
+<h3>Webhook Headers</h3>
+<pre>POST /your-webhook-endpoint HTTP/1.1
+Content-Type: application/json
+X-FiroGate-Event: payment.confirmed
+X-FiroGate-Signature: a1b2c3d4e5f6...  &lt;-- HMAC-SHA256
+X-FiroGate-Nonce: 7f8a9b0c...          &lt;-- unique per request
+X-FiroGate-Timestamp: 1705312500       &lt;-- unix timestamp
+User-Agent: FiroGate/1.0</pre>
+
+<h3>Signature Algorithm</h3>
+<p>The signature is computed as <code>HMAC-SHA256(json_body, webhook_secret)</code> where the JSON body is serialized with <strong>sorted keys</strong> and <strong>compact separators</strong> (<code>,</code> and <code>:</code> with no spaces).</p>
+<pre><span class="c"># Python equivalent of how the server signs:</span>
+<span class="k">import</span> json, hmac, hashlib
+body = json.dumps(payload, sort_keys=<span class="k">True</span>, separators=(<span class="s">","</span>, <span class="s">":"</span>)).encode()
+sig  = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()</pre>
+
+<h3>Replay Protection</h3>
+<p>Every webhook includes a <code>nonce</code> (random hex string) and <code>timestamp</code> (unix seconds). Your handler should:</p>
+<p>1. <strong>Reject stale webhooks</strong> — if <code>abs(now - timestamp) > 300</code> (5 minutes)</p>
+<p>2. <strong>Reject replays</strong> — store seen nonces in Redis/DB and reject duplicates</p>
+
+
+<h2 id="verify-webhook">Verify Webhook Signature</h2>
+<p>The signature is <code>HMAC-SHA256(sorted_compact_json, webhook_secret)</code>. Keys are sorted alphabetically, separators are <code>,</code> and <code>:</code> with no spaces.</p>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('sig','py')">Python</button>
+  <button class="tab-btn" onclick="showTab('sig','js')">Node.js</button>
+  <button class="tab-btn" onclick="showTab('sig','php')">PHP</button>
+  <button class="tab-btn" onclick="showTab('sig','go')">Go</button>
+</div>
+<div id="sig-py" class="tab-content on"><pre><span class="k">import</span> hmac, hashlib, json, time
+
+<span class="k">def</span> <span class="v">verify_webhook</span>(payload: <span class="v">dict</span>, signature: <span class="v">str</span>, secret: <span class="v">str</span>) -> <span class="v">bool</span>:
+    <span class="c"># 1. Recompute signature (sorted keys, compact separators)</span>
+    canonical = json.dumps(payload, sort_keys=<span class="k">True</span>, separators=(<span class="s">","</span>, <span class="s">":"</span>)).encode()
+    expected  = hmac.new(secret.encode(), canonical, hashlib.sha256).hexdigest()
+    <span class="k">if not</span> hmac.compare_digest(expected, signature):
+        <span class="k">return False</span>
+    <span class="c"># 2. Check timestamp freshness</span>
+    ts = payload.get(<span class="s">"timestamp"</span>, 0)
+    <span class="k">if</span> abs(time.time() - ts) > 300:
+        <span class="k">return False</span>
+    <span class="k">return True</span>
+
+<span class="c"># Django example</span>
+<span class="k">def</span> <span class="v">webhook_view</span>(request):
+    data = json.loads(request.body)
+    sig  = request.headers.get(<span class="s">'X-FiroGate-Signature'</span>, <span class="s">''</span>)
+    <span class="k">if not</span> verify_webhook(data, sig, WEBHOOK_SECRET):
+        <span class="k">return</span> HttpResponse(status=401)
+    <span class="c"># process event...</span></pre></div>
+<div id="sig-js" class="tab-content"><pre><span class="k">const</span> crypto = require(<span class="s">'crypto'</span>);
+
+<span class="k">function</span> <span class="v">verifyWebhook</span>(payload, signature, secret) {
+  <span class="c">// Sort keys + compact JSON to match server signing</span>
+  <span class="k">const</span> keys   = Object.keys(payload).sort();
+  <span class="k">const</span> sorted = {};
+  keys.forEach(k => sorted[k] = payload[k]);
+  <span class="k">const</span> canonical = JSON.stringify(sorted);
+
+  <span class="k">const</span> expected = crypto
+    .createHmac(<span class="s">'sha256'</span>, secret)
+    .update(canonical)
+    .digest(<span class="s">'hex'</span>);
+  <span class="k">try</span> {
+    <span class="k">return</span> crypto.timingSafeEqual(
+      Buffer.from(expected), Buffer.from(signature)
+    );
+  } <span class="k">catch</span> { <span class="k">return false</span>; }
+}
+
+<span class="c">// Usage in Express:</span>
+<span class="k">const</span> sig = req.headers[<span class="s">'x-firogate-signature'</span>];
+<span class="k">if</span> (!verifyWebhook(req.body, sig, SECRET)) { ... }</pre></div>
+<div id="sig-php" class="tab-content"><pre><span class="k">function</span> <span class="v">verifyWebhook</span>(<span class="v">$data</span>, <span class="v">$signature</span>, <span class="v">$secret</span>): <span class="v">bool</span> {
+    <span class="c">// Sort keys + compact JSON</span>
+    ksort(<span class="v">$data</span>);
+    <span class="v">$canonical</span> = json_encode(<span class="v">$data</span>, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    <span class="v">$expected</span>  = hash_hmac(<span class="s">'sha256'</span>, <span class="v">$canonical</span>, <span class="v">$secret</span>);
+    <span class="k">return</span> hash_equals(<span class="v">$expected</span>, <span class="v">$signature</span>);
+}
+
+<span class="c">// Usage</span>
+<span class="v">$body</span> = file_get_contents(<span class="s">'php://input'</span>);
+<span class="v">$data</span> = json_decode(<span class="v">$body</span>, <span class="k">true</span>);
+<span class="v">$sig</span>  = <span class="v">$_SERVER</span>[<span class="s">'HTTP_X_FIROGATE_SIGNATURE'</span>] ?? <span class="s">''</span>;
+<span class="k">if</span> (!verifyWebhook(<span class="v">$data</span>, <span class="v">$sig</span>, WEBHOOK_SECRET)) {
+    http_response_code(401); exit;
+}</pre></div>
+<div id="sig-go" class="tab-content"><pre><span class="k">import</span> (
+    <span class="s">"crypto/hmac"</span>
+    <span class="s">"crypto/sha256"</span>
+    <span class="s">"encoding/hex"</span>
+    <span class="s">"encoding/json"</span>
+    <span class="s">"sort"</span>
+)
+
+<span class="k">func</span> <span class="v">verifyWebhook</span>(data <span class="k">map</span>[<span class="v">string</span>]<span class="k">interface</span>{}, signature, secret <span class="v">string</span>) <span class="v">bool</span> {
+    <span class="c">// json.Marshal sorts keys by default in Go</span>
+    canonical, _ := json.Marshal(data)
+    mac := hmac.New(sha256.New, []<span class="k">byte</span>(secret))
+    mac.Write(canonical)
+    expected := hex.EncodeToString(mac.Sum(nil))
+    <span class="k">return</span> hmac.Equal([]<span class="k">byte</span>(expected), []<span class="k">byte</span>(signature))
+}
+
+<span class="c">// Usage: sig = r.Header.Get("X-FiroGate-Signature")</span></pre></div>
+
+
+<h2 id="tor-onion">Tor / Onion Access</h2>
+<p>FiroGate supports a .onion hidden service. One onion address serves the API, checkout, and dashboard — no subdomain routing needed.</p>
+
+<div class="alert alert-info">
+  <div><strong>Same API, different base URL.</strong> Replace <code>{{ api_url }}</code> with your <code>.onion</code> address. Every endpoint, header, and response is identical.</div>
+</div>
+
+<h3>Environment Variables</h3>
+<div class="field"><span class="field-name">ONION_URL</span><span class="field-type">string</span><span class="field-desc">Full .onion base URL — e.g. <code>http://yourxxx.onion</code></span></div>
+<div class="field"><span class="field-name">TOR_ENABLED</span><span class="field-type">bool</span><span class="field-desc">Route outbound .onion webhook calls through the local SOCKS5 proxy</span></div>
+<div class="field"><span class="field-name">TOR_SOCKS_PORT</span><span class="field-type">int</span><span class="field-desc">Local SOCKS5 proxy port (default: <code>9050</code>)</span></div>
+<div class="field"><span class="field-name">TOR_ALL_TRAFFIC</span><span class="field-type">bool</span><span class="field-desc">Route ALL outbound HTTP through Tor — not just .onion URLs</span></div>
+
+<h3>Tor Hidden Service (torrc)</h3>
+<p>Point <code>HiddenServicePort</code> to your backend. The generated <code>hostname</code> file is your ONION_URL value.</p>
+<pre>HiddenServiceDir /var/lib/tor/firogate/
+HiddenServicePort 80 127.0.0.1:8000</pre>
+
+<h3>Making API Calls Over Tor</h3>
+<div class="tab-bar">
+  <button class="tab-btn on" onclick="showTab('tor','curl')">cURL</button>
+  <button class="tab-btn" onclick="showTab('tor','py')">Python</button>
+  <button class="tab-btn" onclick="showTab('tor','js')">Node.js</button>
+</div>
+<div id="tor-curl" class="tab-content on"><pre><span class="c"># --socks5-hostname routes DNS resolution through Tor</span>
+<span class="k">curl</span> --socks5-hostname 127.0.0.1:9050 \
+  -X POST <span class="s">http://yourxxx.onion/api/payments/create</span> \
+  -H <span class="s">"X-API-Key: fgate_your_api_key"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"amount_firo":2.5,"order_id":"ORD-1234","timeout_minutes":20}'</span></pre></div>
+
+<div id="tor-py" class="tab-content"><pre><span class="c"># pip install requests[socks]</span>
+<span class="k">import</span> requests
+
+ONION_URL = <span class="s">"http://yourxxx.onion"</span>
+API_KEY   = <span class="s">"fgate_your_api_key"</span>
+
+proxies = {
+    <span class="s">"http"</span>:  <span class="s">"socks5h://127.0.0.1:9050"</span>,
+    <span class="s">"https"</span>: <span class="s">"socks5h://127.0.0.1:9050"</span>,
+}
+
+r = requests.post(
+    <span class="s">f"{ONION_URL}/api/payments/create"</span>,
+    json={
+        <span class="n">"amount_firo"</span>:     2.5,
+        <span class="n">"order_id"</span>:        <span class="s">"ORD-1234"</span>,
+        <span class="n">"timeout_minutes"</span>: 20,
+    },
+    headers={<span class="s">"X-API-Key"</span>: API_KEY},
+    proxies=proxies,
+    timeout=30,
+)
+payment = r.json()
+print(<span class="s">f"Checkout: {payment['checkout_url']}"</span>)</pre></div>
+
+<div id="tor-js" class="tab-content"><pre><span class="c">// npm install socks-proxy-agent node-fetch</span>
+<span class="k">const</span> { SocksProxyAgent } = require(<span class="s">'socks-proxy-agent'</span>);
+<span class="k">const</span> fetch = require(<span class="s">'node-fetch'</span>);
+
+<span class="k">const</span> ONION_URL = <span class="s">'http://yourxxx.onion'</span>;
+<span class="k">const</span> API_KEY   = <span class="s">'fgate_your_api_key'</span>;
+<span class="k">const</span> agent     = <span class="k">new</span> SocksProxyAgent(<span class="s">'socks5h://127.0.0.1:9050'</span>);
+
+<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">`${ONION_URL}/api/payments/create`</span>, {
+  method: <span class="s">'POST'</span>,
+  headers: {
+    <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+    <span class="s">'X-API-Key'</span>: API_KEY,
+  },
+  body: JSON.stringify({
+    amount_firo: 2.5, order_id: <span class="s">'ORD-1234'</span>, timeout_minutes: 20,
+  }),
+  agent,
+});
+<span class="k">const</span> payment = <span class="k">await</span> res.json();
+console.log(<span class="s">`Checkout: ${payment.checkout_url}`</span>);</pre></div>
+
+<div class="alert alert-warn" style="margin-top:14px">
+  Use <code>socks5h://</code> (not <code>socks5://</code>)
+</div>
+
+
+<h2 id="ai-prompt">AI Agent Integration Prompt</h2>
+<p>Copy the message below and provide it to your AI coding agent to generate a complete payment integration.</p>
+
+<div class="alert alert-warn" style="margin-bottom:14px">
+  <span>
+    <strong>Do NOT share your real API Key or Webhook Secret with any AI agent.</strong>
+    Use the placeholder values below. Replace them only in your backend code, and always store them securely in environment variables.
+  </span>
+</div>
+
+<div style="position:relative;margin:16px 0">
+  <button id="copy-ai-prompt" onclick="copyAiPrompt()" style="
+    position:absolute;top:10px;right:10px;z-index:2;
+    background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.3);
+    color:var(--y);font-size:.7rem;font-weight:600;padding:5px 12px;
+    border-radius:6px;cursor:pointer;font-family:var(--font-sans);
+    transition:background .2s,transform .15s;
+  " onmouseover="this.style.background='rgba(245,197,66,.22)'" onmouseout="this.style.background='rgba(245,197,66,.12)'">Copy</button>
+
+  <pre id="ai-prompt-text" style="padding-right:80px;white-space:pre-wrap;word-wrap:break-word;line-height:1.8"><span class="c">## Payment Gateway Integration — AI Agent Instructions</span>
+
+Your task is to integrate a FIRO cryptocurrency payment gateway into my website or backend service.
+Tell him what is your service and what to add or in which place tell him exactly after payment confirmed what to do and how to make the users use your service or your product don't mis anything we just confirming the paymets then fire to your webhok Mr. or Ms user 
+Follow all instructions carefully.
+
+<span class="n">─ API Base URL ─</span>
+<span class="s">{{ api_url }}</span>
+
+<span class="n">─ Authentication ─</span>
+All API requests require the header:
+  <span class="k">X-API-Key:</span> <span class="s">&lt;API_KEY&gt;</span>
+
+IMPORTANT:
+- The API key shown above is a placeholder.
+- NEVER hardcode the API key in source code.
+- ALWAYS load it from a secure backend environment variable.
+
+Example:
+  export FIROGATE_API_KEY="your_real_api_key"
+
+<span class="n">─ Create Payment ─</span>
+Send a POST request to create a payment:
+
+  <span class="k">POST</span> <span class="s">/api/payments/create</span>
+
+  Headers:
+    Content-Type: application/json
+    X-API-Key: (read from environment variable)
+
+  Body:
+    {
+      "amount_firo": 2.5,
+      "order_id": "ORD-1234",
+      "order_description": "Product Name",
+      "success_url": "https://yoursite.com/success",
+      "cancel_url": "https://yoursite.com/cancel",
+      "timeout_minutes": 20
+    }
+
+Response:
+- The response will include <span class="k">checkout_url</span>
+- Redirect the buyer to this URL to complete the payment
+
+<span class="n">─ Webhook Handler ─</span>
+After payment confirmation, FiroGate sends a POST request to your webhook endpoint.
+
+Headers:
+  X-FiroGate-Event:     payment.confirmed
+  X-FiroGate-Signature: &lt;hmac_sha256_hex&gt;
+  X-FiroGate-Nonce:     &lt;unique_per_request&gt;
+  X-FiroGate-Timestamp: &lt;unix_seconds&gt;
+
+<span class="n">─ Webhook Secret ─</span>
+Store your webhook secret securely:
+
+  export FIROGATE_WEBHOOK_SECRET="your_real_secret"
+
+NEVER expose this secret in frontend code or public repositories.
+
+<span class="n">─ Verify Webhook Signature ─</span>
+To validate incoming webhooks:
+
+1. Parse the JSON payload
+2. Sort keys alphabetically
+3. Serialize using compact JSON (no spaces)
+4. Compute: HMAC-SHA256(sorted_json, webhook_secret)
+5. Compare with X-FiroGate-Signature
+6. Reject if timestamp is older than 5 minutes
+7. Reject if nonce was already used (prevent replay attacks)
+
+Python example:
+
+  import os, json, hmac, hashlib, time
+
+  secret = os.environ["FIROGATE_WEBHOOK_SECRET"]
+
+  def verify_webhook(payload, signature):
+      canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+      expected = hmac.new(secret.encode(), canonical, hashlib.sha256).hexdigest()
+
+      if not hmac.compare_digest(expected, signature):
+          return False
+
+      if abs(time.time() - payload.get("timestamp", 0)) &gt; 300:
+          return False
+
+      return True
+
+<span class="n">─ Security Rules (Critical) ─</span>
+- NEVER hardcode API keys or secrets
+- NEVER expose secrets to the frontend
+- NEVER send secrets to any AI tool or third-party service
+- ALWAYS validate webhook signatures before processing
+- ALWAYS enforce timestamp validation (max 5 minutes)
+- ALWAYS track nonces to prevent replay attacks
+- ALWAYS use HTTPS
+
+<span class="n">─ Expected Integration Flow ─</span>
+1. User clicks "Pay with FIRO"
+2. Backend creates payment using API key (from env)
+3. Backend returns checkout_url
+4. User is redirected to checkout page
+5. User completes payment
+6. Webhook is sent to backend
+7. Backend verifies signature and timestamp
+8. Order is marked as paid
+9. User is redirected to success page
+
+<span class="n">─ Final Notes ─</span>
+- All sensitive operations must happen on the backend only
+- The frontend should only handle UI and redirects
+- Treat all webhook data as untrusted until verified
+</pre>
+</div>
+
+<div class="alert alert-ok" style="background:rgba(34,197,94,.06);border:1px solid rgba(247, 42, 15, 0.18);color:#4ADE80">
+  <span>Copy this prompt and paste it into your AI agent. All keys in the prompt are fake placeholders, replace them with your real keys <strong>only</strong> in your server environment variables.</span>
+</div>
+
+</div>
+</div>
+
+<!-- ─ Footer ─ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="tb-brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </div>
+        <h4>FiroGate</h4>
+      </div>
+      <p>Self-hosted FIRO payment gateway with signed webhooks, marketplace metadata, and Tor support.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h5>Docs</h5>
+        <a href="#overview">Overview</a>
+        <a href="#auth">Authentication</a>
+        <a href="#errors">Error Codes</a>
+        <a href="#webhook">Webhooks</a>
+      </div>
+      <div class="footer-col">
+        <h5>Endpoints</h5>
+        <a href="#create-payment">Create Payment</a>
+        <a href="#get-payment">Payment Status</a>
+        <a href="#list-payments">List Payments</a>
+        <a href="#cancel-payment">Cancel Payment</a>
+      </div>
+      <div class="footer-col">
+        <h5>SDKs</h5>
+        <a href="#python">Python</a>
+        <a href="#javascript">JavaScript</a>
+        <a href="#go">Go</a>
+        <a href="#curl">cURL</a>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="{{ base_url }}">Home</a>
+        <a href="{{ dashboard_url }}">Dashboard</a>
+        <a href="#tor-onion">Tor / Onion</a>
+        <a href="#ai-prompt">AI Prompt</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© FiroGate · API v1.0</span>
+    <span style="display:flex;align-items:center;gap:6px"><span class="tb-status-dot" style="width:6px;height:6px"></span>All systems operational</span>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Copy AI prompt to clipboard
+function copyAiPrompt() {
+  var el = document.getElementById('ai-prompt-text');
+  if (!el) return;
+  // Extract plain text (strip HTML tags)
+  var text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copy-ai-prompt');
+    if (btn) {
+      btn.textContent = 'Copied!';
+      btn.style.background = 'rgba(34,197,94,.2)';
+      btn.style.color = '#4ADE80';
+      btn.style.borderColor = 'rgba(34,197,94,.4)';
+      setTimeout(function() {
+        btn.textContent = 'Copy';
+        btn.style.background = 'rgba(245,197,66,.12)';
+        btn.style.color = '';
+        btn.style.borderColor = '';
+      }, 2000);
+    }
+  }).catch(function() {
+    // Fallback: select text
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+
+function showTab(group, name) {
+  // Hide all content in group
+  document.querySelectorAll(`[id^="${group}-"]`).forEach(el => {
+    el.classList.remove('on');
+  });
+  // Deactivate all buttons in that tab-bar
+  const target = document.getElementById(`${group}-${name}`);
+  if (!target) return;
+  const bar = target.previousElementSibling;
+  // Find parent tab-bar
+  let el = target;
+  while (el && !el.classList.contains('tab-bar')) el = el.previousElementSibling;
+  if (el) el.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  // Activate clicked
+  target.classList.add('on');
+  event.target.classList.add('on');
+}
+
+// Sidebar active link (mobile close on click)
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', function() {
+    closeDocsSidebar();
+  });
+});
+
+// Mobile sidebar
+function toggleDocsSidebar() {
+  var sb = document.getElementById('docs-sidebar');
+  var ov = document.getElementById('docs-overlay');
+  if (sb.classList.contains('open')) { closeDocsSidebar(); }
+  else { sb.classList.add('open'); ov.classList.add('open'); }
+}
+function closeDocsSidebar() {
+  var sb = document.getElementById('docs-sidebar');
+  var ov = document.getElementById('docs-overlay');
+  sb.classList.remove('open');
+  ov.classList.remove('open');
+}
+
+// Auth-aware buttons
+(function() {
+  var dashUrl = {{ dashboard_url | tojson }};
+  var loginUrl = {{ login_url | tojson }};
+  var authBtn = document.getElementById('docs-auth-btn');
+  var mobBtn  = document.getElementById('docs-auth-mob');
+
+  // Start as "Sign In" so the page never shows a blank button while we check.
+  function render(isLoggedIn) {
+    var btnHtml, mobHtml;
+    if (isLoggedIn) {
+      btnHtml = '<a href="' + dashUrl + '" class="tb-btn tb-btn-primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</a>';
+      mobHtml = '<a href="' + dashUrl + '" style="padding:5px 11px;font-size:.72rem;color:#0a0a0a;background:linear-gradient(180deg,#F5C542,#E0AE28);border-radius:6px;text-decoration:none;font-weight:600">Dashboard</a>';
+    } else {
+      btnHtml = '<a href="' + loginUrl + '" class="tb-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Sign In</a>';
+      mobHtml = '<a href="' + loginUrl + '" style="padding:5px 11px;font-size:.72rem;color:var(--y);border:1px solid rgba(245,197,66,.3);border-radius:6px;text-decoration:none">Sign In</a>';
+    }
+    if (authBtn) authBtn.innerHTML = btnHtml;
+    if (mobBtn)  mobBtn.innerHTML  = mobHtml;
+  }
+  render(false);
+
+  // Ask the server — httponly session cookie can't be read from JS.
+  fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(me){ render(!!(me && me.id)); })
+    .catch(function(){ /* stay as guest */ });
+})();
+// ─ ?q=<term> search integration ─
+// The landing-nav search bar sends users here with ?q=<term>. We do a
+// plain-text, case-insensitive scan of every sidebar link + its target
+// section and auto-scroll to the first match. Highlighting uses class
+// toggling — no innerHTML / eval / unsafe DOM writes with the query.
+(function handleSearchQuery() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var q = (params.get('q') || '').trim().toLowerCase().slice(0, 120);
+    if (!q) return;
+
+    // Find the first sidebar link whose text OR target heading contains q.
+    var best = null;
+    document.querySelectorAll('.sidebar a').forEach(function(a) {
+      if (best) return;
+      var linkText = (a.textContent || '').toLowerCase();
+      var href = a.getAttribute('href') || '';
+      var id = href.startsWith('#') ? href.slice(1) : '';
+      var targetEl = id ? document.getElementById(id) : null;
+      var sectionText = targetEl ? (targetEl.textContent || '').toLowerCase().slice(0, 500) : '';
+      if (linkText.indexOf(q) !== -1 || sectionText.indexOf(q) !== -1) {
+        best = { link: a, el: targetEl };
+      }
+    });
+
+    if (best) {
+      document.querySelectorAll('.sidebar a').forEach(function(x){ x.classList.remove('active'); });
+      best.link.classList.add('active');
+      if (best.el) {
+        best.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        best.el.style.transition = 'background-color .6s ease';
+        best.el.style.backgroundColor = 'rgba(245,197,66,.08)';
+        setTimeout(function(){ best.el.style.backgroundColor = ''; }, 2000);
+      }
+    }
+  } catch (_) { /* swallow — search is a nice-to-have */ }
+})();
+
+// ─ Loader fadeout ─
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var l = document.getElementById('page-loader');
+    if (l) l.classList.add('gone');
+  }, 150);
+});
+
+// ─ Scroll progress bar ─
+(function() {
+  var bar = document.getElementById('scroll-progress');
+  if (!bar) return;
+  function update() {
+    var h = document.documentElement;
+    var scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    bar.style.width = Math.min(100, Math.max(0, scrolled * 100)) + '%';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+// ─ Auto-inject copy buttons on every <pre> ─
+(function() {
+  document.querySelectorAll('pre').forEach(function(pre) {
+    if (pre.parentElement && pre.parentElement.classList.contains('pre-wrap')) return;
+    if (pre.id === 'ai-prompt-text') return; // already has its own button
+    var wrap = document.createElement('div');
+    wrap.className = 'pre-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Copy code');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>';
+    btn.addEventListener('click', function() {
+      var text = pre.innerText || pre.textContent || '';
+      navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.querySelector('span').textContent = 'Copied';
+        setTimeout(function() {
+          btn.classList.remove('copied');
+          btn.querySelector('span').textContent = 'Copy';
+        }, 1600);
+      }).catch(function() {
+        btn.querySelector('span').textContent = 'Failed';
+        setTimeout(function() { btn.querySelector('span').textContent = 'Copy'; }, 1600);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+})();
+
+// ─ Collapsible endpoint cards ──
+(function() {
+  document.querySelectorAll('.endpoint').forEach(function(ep) {
+    ep.classList.add('open');
+    var header = ep.querySelector('.endpoint-header');
+    if (!header) return;
+    // Wrap inner content (everything after header) into .endpoint-body
+    var children = Array.from(ep.children);
+    var body = document.createElement('div');
+    body.className = 'endpoint-body';
+    children.forEach(function(c) { if (c !== header) body.appendChild(c); });
+    ep.appendChild(body);
+    // Add chevron toggle
+    var toggle = document.createElement('span');
+    toggle.className = 'endpoint-toggle';
+    toggle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    header.appendChild(toggle);
+    header.addEventListener('click', function(e) {
+      // ignore clicks on the path text selecting
+      ep.classList.toggle('open');
+      body.style.display = ep.classList.contains('open') ? 'block' : 'none';
+    });
+  });
+})();
+
+// ─ Collapsible sidebar groups ──
+(function() {
+  document.querySelectorAll('.sidebar-group > h2').forEach(function(h2) {
+    h2.addEventListener('click', function() {
+      var grp = h2.parentElement;
+      var list = grp.querySelector('.sidebar-group-list');
+      if (!list) return;
+      if (grp.classList.contains('collapsed')) {
+        grp.classList.remove('collapsed');
+        list.style.maxHeight = list.scrollHeight + 'px';
+        setTimeout(function() { list.style.maxHeight = ''; }, 320);
+      } else {
+        list.style.maxHeight = list.scrollHeight + 'px';
+        requestAnimationFrame(function() {
+          list.style.maxHeight = '0px';
+          grp.classList.add('collapsed');
+        });
+      }
+    });
+  });
+})();
+
+// ─ Docs Search: sidebar filter + full-page highlight + ?q= URL support ─
+(function() {
+  var input = document.getElementById('docs-search');
+  var empty = document.getElementById('sidebar-empty');
+  if (!input) return;
+
+  // ─ Sidebar filter ─
+  function filterSidebar(q) {
+    var ql = (q || '').trim().toLowerCase();
+    var any = false;
+    document.querySelectorAll('.sidebar-group').forEach(function(grp) {
+      var has = false;
+      grp.querySelectorAll('a').forEach(function(a) {
+        var match = !ql || (a.textContent || '').toLowerCase().indexOf(ql) !== -1;
+        a.classList.toggle('hidden', !match);
+        if (match) { has = true; any = true; }
+      });
+      grp.style.display = (has || !ql) ? '' : 'none';
+    });
+    if (empty) empty.classList.toggle('show', !!ql && !any);
+  }
+
+  // ─ Highlight all occurrences in main content ─
+  var _mainEl   = document.querySelector('.content') || document.querySelector('main') || document.body;
+  var _origHTML = null;   // saved once before first highlight
+
+  function escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function clearHighlight() {
+    // Remove all <mark> elements — unwrap them back to plain text
+    _mainEl.querySelectorAll('mark').forEach(function(m) {
+      var parent = m.parentNode;
+      if (!parent) return;
+      var text = document.createTextNode(m.textContent);
+      parent.replaceChild(text, m);
+      parent.normalize(); // merge adjacent text nodes
+    });
+    // Also clean up wrapper <span> added by old walk()
+    _mainEl.querySelectorAll('span[data-hl]').forEach(function(s) {
+      var parent = s.parentNode;
+      while (s.firstChild) parent.insertBefore(s.firstChild, s);
+      parent.removeChild(s);
+      parent.normalize();
+    });
+  }
+
+  function highlightText(q) {
+    // Always clear old marks first
+    clearHighlight();
+
+    if (!q || q.length < 2) return;
+
+    var re = new RegExp('(' + escapeRe(q) + ')', 'gi');
+
+    // Walk text nodes only — skip script/style/pre content/mark
+    function walk(node) {
+      if (!node) return;
+      if (node.nodeType === 3) {
+        // Text node — test and replace
+        re.lastIndex = 0;
+        if (re.test(node.nodeValue)) {
+          re.lastIndex = 0;
+          var frag = document.createDocumentFragment();
+          var parts = node.nodeValue.split(re);
+          parts.forEach(function(part) {
+            if (re.test(part)) {
+              re.lastIndex = 0;
+              var mark = document.createElement('mark');
+              mark.style.cssText = 'background:#F5C542;color:#111;border-radius:3px;padding:0 2px';
+              mark.textContent = part;
+              frag.appendChild(mark);
+            } else {
+              frag.appendChild(document.createTextNode(part));
+            }
+          });
+          node.parentNode.replaceChild(frag, node);
+        }
+      } else if (node.nodeType === 1) {
+        var tag = (node.tagName || '').toLowerCase();
+        // Skip script, style, existing marks, pre (code blocks)
+        if (tag === 'script' || tag === 'style' || tag === 'mark' || tag === 'pre') return;
+        // Process children — snapshot first to avoid live NodeList mutation
+        Array.from(node.childNodes).forEach(walk);
+      }
+    }
+    walk(_mainEl);
+  }
+
+  // ─ Scroll to first match and cycle through matches ─
+  var _markIndex = 0;
+
+  function scrollToFirstMark(reset) {
+    var marks = Array.from(_mainEl.querySelectorAll('mark'));
+    if (!marks.length) return;
+    if (reset) _markIndex = 0;
+    var target = marks[_markIndex % marks.length];
+    // Remove outline from all
+    marks.forEach(function(m) { m.style.outline = ''; m.style.outlineOffset = ''; });
+    // Highlight current
+    target.style.outline = '2px solid #F5C542';
+    target.style.outlineOffset = '2px';
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ─ Process ?q= from URL (nav search redirect) ─
+  (function handleUrlQuery() {
+    var params = new URLSearchParams(window.location.search);
+    var q = (params.get('q') || '').trim().slice(0, 120);
+    if (!q) return;
+    // Sanitize — plain text only, no HTML
+    q = q.replace(/<[^>]*>/g, '').replace(/[<>&"']/g, '');
+    if (!q) return;
+    input.value = q;
+    filterSidebar(q);
+    // Wait for DOM to be ready then highlight
+    requestAnimationFrame(function() {
+      highlightText(q);
+      setTimeout(scrollToFirstMark, 100);
+    });
+    // Clean URL (no reload)
+    var clean = window.location.pathname + (window.location.hash || '');
+    window.history.replaceState({}, '', clean);
+  })();
+
+  // ─ Live input ─
+  var _debounce;
+  input.addEventListener('input', function() {
+    var q = input.value.trim();
+    filterSidebar(q);
+    clearTimeout(_debounce);
+    _markIndex = 0;
+    if (!q) { clearHighlight(); return; }
+    _debounce = setTimeout(function() {
+      highlightText(q);
+      scrollToFirstMark(true);
+    }, 250);
+  });
+
+  // ─ Enter key — cycle through matches (or jump to first on new search) ─
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var q = input.value.trim();
+      if (q.length < 2) return;
+      var existing = _mainEl.querySelectorAll('mark');
+      if (existing.length === 0) {
+        // First Enter — highlight
+        highlightText(q);
+        scrollToFirstMark(true);
+      } else {
+        // Subsequent Enter — cycle to next match
+        _markIndex++;
+        scrollToFirstMark(false);
+      }
+    }
+    // Escape — clear everything
+    if (e.key === 'Escape') {
+      input.value = '';
+      filterSidebar('');
+      clearHighlight();
+      _markIndex = 0;
+      input.blur();
+    }
+  });
+
+  // ─ ⌘K / Ctrl+K global shortcut ─
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      input.focus();
+      input.select();
+    }
+  });
+})();
+
+// ─ Scrollspy (active sidebar link) ─
+(function() {
+  var links = Array.from(document.querySelectorAll('.sidebar a[href^="#"]'));
+  if (!links.length) return;
+  var sections = links.map(function(a) {
+    var id = a.getAttribute('href').slice(1);
+    return { id: id, el: document.getElementById(id), link: a };
+  }).filter(function(s) { return s.el; });
+
+  function onScroll() {
+    var fromTop = window.scrollY + 110;
+    var current = sections[0];
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].el.offsetTop <= fromTop) current = sections[i];
+    }
+    links.forEach(function(l) { l.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9fc3b3984dc864b8',t:'MTc3ODg2NDQ1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

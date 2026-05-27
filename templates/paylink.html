@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% block title %}{{ link_title }} — Pay with Firo{% endblock %}
+
+{% block extra_css %}
+<style>
+#site-footer { display: none !important; }
+
+.pl-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--bg1);
+}
+
+.pl-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg2);
+  border: 1px solid var(--bw);
+  border-radius: 18px 6px 14px 8px;
+  overflow: visible;
+  position: relative;
+}
+
+/* ─ Switcher bar — lang RIGHT only on mobile, both on desktop ─ */
+.pl-switchers {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 14px 0;
+  gap: 8px;
+}
+.pl-switchers-left  {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+}
+.pl-switchers-right { display: flex; align-items: center; }
+
+/* Hide currency from top bar on mobile — it's in the amount area */
+@media (max-width: 480px) {
+  .pl-switchers-left { display: none; }
+}
+
+/* ─ Header ─ */
+.pl-header {
+  background: linear-gradient(135deg, rgba(245,197,66,.07) 0%, transparent 60%);
+  border-bottom: 1px solid var(--bw);
+  border-radius: 18px 6px 0 0;
+  padding: 20px 28px 24px;
+  text-align: center;
+}
+.pl-icon {
+  width: 52px; height: 52px;
+  background: rgba(245,197,66,.12);
+  border: 1px solid rgba(245,197,66,.25);
+  border-radius: 14px 5px 12px 6px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+}
+
+/* ─ Amount block ─ */
+.pl-amount-block {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 16px 0 8px;
+}
+.pl-amount-firo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--y);
+  font-family: var(--mono);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.pl-amount-firo-label {
+  font-size: .72rem;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 8px;
+}
+/* Currency equivalent row */
+.pl-amount-equiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pl-equiv-price {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--white);
+  font-family: var(--mono);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  padding: 4px 12px;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  transition: all .2s;
+}
+.pl-equiv-price.loading {
+  color: var(--t4);
+  font-size: .75rem;
+}
+.pl-equiv-currency-mount {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pl-body { padding: 16px 28px 24px; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .pl-card  { border-radius: 14px 4px 12px 6px; }
+  .pl-body  { padding: 16px 18px 20px; }
+  .pl-header { padding: 16px 18px 20px; }
+  .pl-switchers { padding: 8px 10px 0; }
+  .pl-amount-firo { font-size: 1.8rem; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="pl-wrap">
+  <div class="pl-card">
+
+    <!-- Switchers bar: currency LEFT — lang RIGHT -->
+    <div class="pl-switchers">
+      <div class="pl-switchers-left">
+        <div data-currency-switcher="compact" id="pl-currency-mount"></div>
+      </div>
+      <div class="pl-switchers-right">
+        <div class="fg-i18n-mount" data-i18n-switcher="compact"></div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="pl-header">
+      <div class="pl-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2">
+          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <h2 style="margin:0 0 6px;font-size:1.15rem">{{ link_title }}</h2>
+      {% if link_description %}
+      <p style="margin:0;font-size:.84rem;color:var(--t2);line-height:1.55">{{ link_description }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Body -->
+    <div class="pl-body">
+      <div id="pl-alert" style="margin-bottom:12px"></div>
+      <div id="pl-form">
+
+        <!-- Fixed amount display -->
+        {% if link_fixed and link_amount %}
+        <div class="pl-amount-block">
+          <div class="pl-amount-firo">{{ link_amount }} FIRO</div>
+          <div class="pl-amount-firo-label">Fixed amount</div>
+          <!-- Currency equivalent row -->
+          <div class="pl-amount-equiv">
+            <span class="pl-equiv-price loading" id="pl-equiv-price">Loading price…</span>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Custom amount input -->
+        <div class="fg" style="margin-bottom:16px">
+          <label class="flabel">Amount (FIRO)</label>
+          <input type="number" id="pl-custom-amount" class="finput"
+            placeholder="Enter amount" step="0.01" min="0.01"
+            style="font-size:1.3rem;font-family:var(--mono);text-align:center;padding:14px"
+            oninput="updateEquiv()">
+          <span class="fhint">Minimum 1.0 FIRO</span>
+        </div>
+        <!-- Currency equivalent row for custom amount -->
+        <div class="pl-amount-equiv" style="margin-bottom:14px">
+          <span class="pl-equiv-price" id="pl-equiv-price" style="display:none"></span>
+        </div>
+        {% endif %}
+
+        {% if link_collect_email %}
+        <div class="fg" style="margin-bottom:16px">
+          <label class="flabel">Your Email</label>
+          <input type="email" id="pl-email" class="finput"
+            placeholder="you@example.com" autocomplete="email">
+          <span class="fhint">You'll receive a confirmation after payment.</span>
+        </div>
+        {% endif %}
+
+        <button id="pl-btn" class="btn btn-y wf" style="height:48px;font-size:.95rem"
+          onclick="startPLPayment()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+          Pay with Firo
+        </button>
+
+        <p style="text-align:center;font-size:.72rem;color:var(--t4);margin-top:12px">
+          You'll be taken to a secure Firo payment page.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+var LINK_SLUG    = {{ link_slug | tojson }};
+var LINK_FIXED   = {{ 'true' if link_fixed else 'false' }};
+var LINK_AMOUNT  = {{ (link_amount | float) if link_amount else 'null' }};
+var COLLECT_EMAIL= {{ 'true' if link_collect_email else 'false' }};
+
+var SESSION_KEY  = 'pl_cancelled_' + LINK_SLUG;
+var PAY_BTN_HTML =
+  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+  '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Pay with Firo';
+
+function _t(s) { return (window.t && window.t(s) !== s) ? window.t(s) : s; }
+
+// ─ Price display ──
+var _plPrice  = null;   // FIRO/USD
+var _priceInt = null;
+
+function updateEquiv() {
+  var el = document.getElementById('pl-equiv-price');
+  if (!el) return;
+  var firoAmt;
+  if (LINK_FIXED) {
+    firoAmt = LINK_AMOUNT;
+  } else {
+    var _rv = ((document.getElementById('pl-custom-amount') || {}).value || '').trim().replace(/,/g,'.').replace(/[^0-9.]/g,'');
+    firoAmt = parseFloat(_rv) || 0;
+  }
+  if (!firoAmt || firoAmt <= 0 || !_plPrice) { el.style.display = 'none'; return; }
+  var display;
+  if (window.FGCurrency && window.FGCurrency.isSelected()) {
+    display = '≈ ' + window.FGCurrency.format(window.FGCurrency.convert(firoAmt * _plPrice));
+  } else {
+    display = '≈ $' + (firoAmt * _plPrice).toFixed(2) + ' USD';
+  }
+  el.textContent = display;
+  el.style.display = '';
+  el.classList.remove('loading');
+}
+
+async function loadPrice() {
+  if (document.hidden) return; // Don't waste CMC quota when tab is hidden
+  try {
+    var r = await fetch('/api/price?fresh=true');
+    if (!r.ok) return;
+    var d = await r.json();
+    if (d.price) { _plPrice = parseFloat(d.price); updateEquiv(); }
+  } catch(_) {}
+}
+
+function startPriceLoop() {
+  loadPrice();
+  _priceInt = setInterval(loadPrice, 180000); // 30s — saves CMC calls
+}
+
+function stopPriceLoop() {
+  if (_priceInt) { clearInterval(_priceInt); _priceInt = null; }
+}
+
+// Pause when tab hidden, resume when visible
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) { stopPriceLoop(); }
+  else { loadPrice(); if (!_priceInt) _priceInt = setInterval(loadPrice, 180000); }
+});
+window.addEventListener('beforeunload', stopPriceLoop);
+
+document.addEventListener('fg:currency-changed', function() { updateEquiv(); });
+
+// ─ Alert helpers ──
+function alertHTML(msg, type, icon) {
+  var c = {
+    err:     ['rgba(239,68,68,.12)','#ef4444','rgba(239,68,68,.3)'],
+    warn:    ['rgba(245,197,66,.1)','#F5C542','rgba(245,197,66,.3)'],
+    ok:      ['rgba(74,222,128,.1)','#4ade80','rgba(74,222,128,.3)'],
+    neutral: ['var(--bg3)','var(--t2)','var(--bw)'],
+  }[type] || ['var(--bg3)','var(--t2)','var(--bw)'];
+  var ico = icon ? '<span style="margin-right:6px">' + icon + '</span>' : '';
+  return '<div style="background:' + c[0] + ';color:' + c[1] + ';border:1px solid ' + c[2] +
+    ';border-radius:10px;padding:12px 16px;font-size:.84rem;line-height:1.55">' + ico + msg + '</div>';
+}
+
+// ─ Cancel states ──
+function _cancelUI(showForm) {
+  var ab   = document.getElementById('pl-alert');
+  var form = document.getElementById('pl-form');
+  var body =
+    '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 16px">' +
+      '<div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);display:flex;align-items:center;justify-content:center;margin-bottom:12px">' +
+        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5">' +
+        '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' +
+      '</div>' +
+      '<div style="font-weight:700;font-size:.95rem;color:var(--white);margin-bottom:6px">' + _t('Payment cancelled') + '</div>' +
+      '<div style="font-size:.82rem;color:var(--t2);margin-bottom:14px">' +
+        (showForm
+          ? _t('Changed your mind? You can start a new payment below.')
+          : _t('You cancelled this payment. Open a new tab to start fresh.')) +
+      '</div>' +
+      '<button onclick="tryAgain()" class="btn btn-o btn-sm" style="font-size:.82rem">' + _t('Try Again') + '</button>' +
+    '</div>';
+  if (ab) ab.innerHTML = body;
+  if (!showForm && form) form.style.display = 'none';
+}
+
+function showCancelledState() {
+  _cancelUI(true);
+  if (window.history && window.history.replaceState)
+    window.history.replaceState({}, '', window.location.pathname);
+}
+function showBlockedState() { _cancelUI(false); }
+
+function tryAgain() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch(_) {}
+  var ab = document.getElementById('pl-alert'), form = document.getElementById('pl-form');
+  if (ab)   ab.innerHTML = '';
+  if (form) form.style.display = '';
+  var btn = document.getElementById('pl-btn');
+  if (btn) { btn.disabled = false; btn.innerHTML = PAY_BTN_HTML; }
+  updateEquiv();
+}
+
+// ─ Session check ──
+(function checkSession() {
+  var params = new URLSearchParams(window.location.search);
+  function doCheck() {
+    if (params.get('cancelled') === '1') {
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(_) {}
+      showCancelledState(); return;
+    }
+    var was = false;
+    try { was = sessionStorage.getItem(SESSION_KEY) === '1'; } catch(_) {}
+    if (was) showBlockedState();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('i18n:ready', doCheck, { once: true });
+      setTimeout(doCheck, 400);
+    });
+  } else {
+    document.addEventListener('i18n:ready', doCheck, { once: true });
+    setTimeout(doCheck, 400);
+  }
+})();
+
+// ─ Payment ─
+async function startPLPayment() {
+  var btn = document.getElementById('pl-btn');
+  var ab  = document.getElementById('pl-alert');
+  ab.innerHTML = '';
+
+  var amount;
+  if (LINK_FIXED) {
+    amount = LINK_AMOUNT;
+  } else {
+    var rawVal = ((document.getElementById('pl-custom-amount') || {}).value || '').trim();
+    // Normalize: replace comma decimal separator (Arabic/EU locale) with dot
+    rawVal = rawVal.replace(/,/g, '.');
+    // Remove any non-numeric chars except dot and minus
+    rawVal = rawVal.replace(/[^0-9.]/g, '');
+    amount = parseFloat(rawVal);
+  }
+
+  var MIN_AMOUNT = 0.01;
+  if (!amount || isNaN(amount) || amount < MIN_AMOUNT) {
+    ab.innerHTML = alertHTML(_t('Please enter a valid amount (min 0.01 FIRO).'), 'err');
+    var inp = document.getElementById('pl-custom-amount');
+    if (inp) { inp.focus(); inp.style.borderColor = 'var(--red)'; setTimeout(function(){ inp.style.borderColor = ''; }, 2000); }
+    return;
+  }
+  var emailEl = document.getElementById('pl-email');
+  var email   = emailEl ? emailEl.value.trim() : '';
+  if (COLLECT_EMAIL && !email) {
+    ab.innerHTML = alertHTML(_t('Please enter your email address.'), 'err'); return;
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    ab.innerHTML = alertHTML(_t('Please enter a valid email address.'), 'err'); return;
+  }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spin" style="width:16px;height:16px;border-width:2px;color:currentColor;display:inline-block"></span> ' + _t('Processing…');
+
+  try {
+    var res  = await fetch('/api/payment-links/public/' + LINK_SLUG + '/checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount_firo: amount, customer_email: email || null }),
+    });
+    var data = await res.json().catch(function(){ return {}; });
+    if (!res.ok) {
+      ab.innerHTML = alertHTML(data.detail || _t('Failed to create payment. Please try again.'),
+        res.status === 410 ? 'neutral' : 'err', res.status === 410 ? '🔒' : '');
+      btn.disabled = false; btn.innerHTML = PAY_BTN_HTML; return;
+    }
+    // Validate URL before redirect — prevent javascript:/data: injection
+    var _cu = (data.checkout_url || '').trim();
+    if (_cu && /^https?:\/\//.test(_cu)) {
+      window.location.href = _cu;
+    } else {
+      ab.innerHTML = alertHTML(_t('Invalid checkout URL received.'), 'err');
+      btn.disabled = false; btn.innerHTML = PAY_BTN_HTML;
+    }
+  } catch(e) {
+    ab.innerHTML = alertHTML(_t('Network error. Please try again.'), 'err');
+    btn.disabled = false; btn.innerHTML = PAY_BTN_HTML;
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var form = document.getElementById('pl-form');
+    if (form && form.style.display !== 'none') startPLPayment();
+  }
+});
+
+// ─ Boot ─
+document.addEventListener('DOMContentLoaded', function() {
+  // Mount currency switcher
+  var mount = document.getElementById('pl-currency-mount');
+  if (mount && window.FGCurrency) window.FGCurrency.mount(mount, { variant: 'compact' });
+  startPriceLoop();
+});
+</script>
+{% endblock %}
