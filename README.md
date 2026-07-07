@@ -17,7 +17,7 @@
 
 ---
 
-Accept **FIRO** payments on your website or app. Runs entirely on your own server — you control the keys, the data, and the infrastructure.
+Accept **FIRO** payments on your website. Runs entirely on your own server — you control the keys, the data, and the infrastructure.
 
 > ⚠️ **Legal Notice:** FiroGate is a payment processing tool. Users are solely responsible for complying with all applicable laws and regulations in their jurisdiction. The developers are not responsible for any illegal or unauthorized use of this software. See [LEGAL.md](LEGAL.md) for full terms.
 
