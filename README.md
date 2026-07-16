@@ -159,7 +159,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 An Enterprise Edition is available for managed deployments.
 
-Contact: enterprise@firogate.com
+Contact: team@firogate.com
 
 ---
 
@@ -269,31 +269,4 @@ To back up:
 
 ```bash
 docker cp firogate:/app/data/gateway.db ./backup-$(date +%Y%m%d).db
-```
-
-### Production with nginx
-
-FiroGate only listens on `127.0.0.1:8000`. Put nginx in front for HTTPS:
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name pay.yourdomain.com;
-
-    location / {
-        proxy_pass         http://127.0.0.1:8000;
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-    }
-
-    # SSE — disable buffering for realtime updates
-    location /api/events/ {
-        proxy_pass         http://127.0.0.1:8000;
-        proxy_buffering    off;
-        proxy_cache        off;
-        proxy_read_timeout 1800s;
-        add_header         X-Accel-Buffering no;
-    }
-}
 ```
