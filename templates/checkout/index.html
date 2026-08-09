@@ -2693,7 +2693,11 @@ function fmtFiro(val) {
   if (s.indexOf('.') !== -1) {
     s = s.replace(/0+$/, '').replace(/\.$/, '');
   }
-  return s.indexOf('.') === -1 ? s + '.00' : s;
+  const dot = s.indexOf('.');
+  const dec = dot === -1 ? 0 : s.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  if (dot === -1) return s + '.' + '0'.repeat(want);
+  return dec < want ? s + '0'.repeat(want - dec) : s;
 }
 
 const T = {
@@ -3550,7 +3554,7 @@ window._updateAltLayout = function(d) {
     var total = d.amount_firo || 0;
     var remain = Math.max(0, total - recv);
     state = 'c1';
-    fxText = 'Partially paid · ' + recv.toFixed(8) + ' / ' + total.toFixed(8) + ' FIRO (remaining ' + remain.toFixed(8) + ')';
+    fxText = 'Partially paid · ' + fmtFiro(recv) + ' / ' + fmtFiro(total) + ' FIRO (remaining ' + fmtFiro(remain) + ')';
   }
   sec.dataset.state = state;
   sec.querySelectorAll('.fx').forEach(function(el){ el.textContent = fxText; });
@@ -3911,9 +3915,9 @@ function updatePartialBlock(d) {
     const totalEl = document.getElementById('pay-amt-total');
     const recvEl  = document.getElementById('pay-amt-received');
     const remEl   = document.getElementById('pay-amt-remaining');
-    if (totalEl) totalEl.textContent = total.toFixed(8) + ' FIRO';
-    if (recvEl)  recvEl.textContent  = received.toFixed(8) + ' FIRO';
-    if (remEl)   remEl.textContent   = remaining.toFixed(8) + ' FIRO';
+    if (totalEl) totalEl.textContent = fmtFiro(total) + ' FIRO';
+    if (recvEl)  recvEl.textContent  = fmtFiro(received) + ' FIRO';
+    if (remEl)   remEl.textContent   = fmtFiro(remaining) + ' FIRO';
   } else {
     block.style.display = 'none';
   }

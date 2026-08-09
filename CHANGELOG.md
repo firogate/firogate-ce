@@ -10,7 +10,8 @@ Current: **API v1.0** · **App 0.0.7**
 _No API changes._
 
 ### App
-_Nothing yet._
+#### Fixed
+- FIRO amounts showing 8 trailing decimal zeros (e.g. "0.05500000") on the checkout page's partially-paid summary
 
 ---
 

@@ -174,7 +174,11 @@ function fmtFiro(v){
   if (isNaN(n)) return '0.00';
   let s = n.toFixed(8);
   if (s.indexOf('.') !== -1) s = s.replace(/0+$/, '').replace(/\.$/, '');
-  return s.indexOf('.') === -1 ? s + '.00' : s;
+  const dot = s.indexOf('.');
+  const dec = dot === -1 ? 0 : s.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  if (dot === -1) return s + '.' + '0'.repeat(want);
+  return dec < want ? s + '0'.repeat(want - dec) : s;
 }
 function _safe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function _getPayAmt(){ return fmtFiro(payData.amount_firo); }

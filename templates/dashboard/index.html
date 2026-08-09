@@ -1767,13 +1767,24 @@ try {
 
 let profile = null;
 let planPollIv = null;
+let _accountNumberCache = null;
 
 function _profileIdentLine(p) {
   if (p && p.email) return p.email;
   if (p && p.auth_provider === 'telegram')       return '✓ ' + (window.t ? window.t('Verified with Telegram') : 'Verified with Telegram');
   if (p && p.auth_provider === 'wallet')         return '✓ ' + (window.t ? window.t('Wallet account') : 'Wallet account');
-  if (p && p.auth_provider === 'account_number') return window.t ? window.t('Account number login') : 'Account number login';
+  if (p && p.auth_provider === 'account_number') return _accountNumberCache || (window.t ? window.t('Account number login') : 'Account number login');
   return '—';
+}
+
+async function _loadAccountNumberIfNeeded() {
+  if (!profile || profile.auth_provider !== 'account_number' || _accountNumberCache) return;
+  var r = await API.get('/api/users/account-number');
+  if (!r.error && r.account_number) {
+    _accountNumberCache = r.account_number;
+    var popupMail = document.getElementById('sb-popup-mail');
+    if (popupMail) popupMail.textContent = _accountNumberCache;
+  }
 }
 function sbProfileClose() {
   var popup = document.getElementById('sb-profile-popup');
@@ -1789,6 +1800,7 @@ function sbProfileToggle(e) {
   var popupMail  = document.getElementById('sb-popup-mail');
   if (uname && popupUname) popupUname.textContent = uname.textContent;
   if (popupMail) popupMail.textContent = _profileIdentLine(profile);
+  _loadAccountNumberIfNeeded();
   var btn = document.getElementById('sb-profile-btn');
   var r   = btn.getBoundingClientRect();
   var pw  = Math.min(Math.max(240, r.width), window.innerWidth - 16);
@@ -1837,7 +1849,13 @@ function fmtFiro(val) {
   if (num === 0 || Math.abs(num) < 0.00000001) {
     return '0.00';
   }
-  return num.toFixed(8).replace(/\.?0+$/, '');
+  let out = num.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+  const dot = out.indexOf('.');
+  const dec = dot === -1 ? 0 : out.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  if (dot === -1) out += '.' + '0'.repeat(want);
+  else if (dec < want) out += '0'.repeat(want - dec);
+  return out;
 }
 
 function fmtOrderId(id) {
@@ -3674,11 +3692,10 @@ function fmtFiro(val, opts) {
   if (out.indexOf('.') !== -1) {
     out = out.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
     const dot = out.indexOf('.');
-    if (dot === -1) out += '.00';
-    else {
-      const dec = out.length - dot - 1;
-      if (dec < 2) out += '0'.repeat(2 - dec);
-    }
+    const dec = dot === -1 ? 0 : out.length - dot - 1;
+    const want = Math.max(2, dec + 1);
+    if (dot === -1) out += '.' + '0'.repeat(want);
+    else if (dec < want) out += '0'.repeat(want - dec);
   }
   return out;
 }
@@ -3690,9 +3707,10 @@ function fmtFiroPrecise(val) {
   const s = n.toFixed(8);
   const trimmed = s.replace(/0+$/, '').replace(/\.$/, '');
   const dot = trimmed.indexOf('.');
-  if (dot === -1) return trimmed + '.00';
-  const decimals = trimmed.length - dot - 1;
-  return decimals < 2 ? trimmed + '0'.repeat(2 - decimals) : trimmed;
+  const dec = dot === -1 ? 0 : trimmed.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  if (dot === -1) return trimmed + '.' + '0'.repeat(want);
+  return dec < want ? trimmed + '0'.repeat(want - dec) : trimmed;
 }
 
 var _currentRange  = '7d';
