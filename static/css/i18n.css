@@ -1,13 +1,3 @@
-/* Local fonts only (Inter + Arabic + system CJK fallback).
-   No Google Fonts CDN.
-   Provides:
-     1. @font-face declarations for each language family
-     2. Per-language root font-family swaps (html.lang-*)
-     3. Polished RTL flips for Arabic (html.is-rtl  /  [dir="rtl"])
-     4. Styling for the language switcher dropdown (works in both
-        public navbar + dashboard sidebar variants) ─ */
-
-
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -59,7 +49,6 @@
        url('/static/fonts/Inter-Light.woff')  format('woff');
 }
 
-/* JetBrains Mono — code blocks */
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
@@ -68,7 +57,6 @@
   src: url('/static/fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
 }
 
-/* Arabic — packaged locally */
 @font-face {
   font-family: 'FG Arabic';
   font-style: normal;
@@ -78,8 +66,6 @@
   unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
 }
 
-/* Chinese Simplified — packaged locally (system-stack fallback chain
-   below covers any host that lacks a bundled CJK file). */
 @font-face {
   font-family: 'FG CJK SC';
   font-style: normal;
@@ -99,10 +85,7 @@
 }
 
 
-/* ─ 2. Per-language root font swaps ─ */
-
 :root {
-  /* Default — Latin/Cyrillic */
   --fg-font-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
                   'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --fg-font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code',
@@ -113,19 +96,14 @@ html, body {
   font-family: var(--fg-font-base);
 }
 
-/* Arabic — uses FG Arabic for Arabic glyphs, falls through to Inter for Latin */
 html.lang-ar, html.lang-ar body {
   font-family: 'FG Arabic', 'Inter', system-ui, sans-serif;
 }
 
-/* Russian — Inter has full Cyrillic, just bump line-height slightly */
 html.lang-ru, html.lang-ru body { font-family: 'Inter', system-ui, sans-serif; }
 
-/* German — Inter handles ß, ä, ö, ü natively */
 html.lang-de, html.lang-de body { font-family: 'Inter', system-ui, sans-serif; }
 
-/* Chinese — CJK font stack (uses locally-installed CJK fonts; falls back
-   to system fonts). Slightly tighter letter-spacing reads better in zh. */
 html.lang-zh, html.lang-zh body {
   font-family: 'FG CJK SC', 'PingFang SC', 'Microsoft YaHei',
                'Noto Sans CJK SC', 'Noto Sans SC', 'Hiragino Sans GB',
@@ -134,14 +112,11 @@ html.lang-zh, html.lang-zh body {
 }
 
 
-/* ─ 3. RTL — polished native flip for Arabic ─ */
-
 html[dir="rtl"], html.is-rtl {
   direction: rtl;
 }
 html[dir="rtl"] body { text-align: right; }
 
-/* Logos, icons-in-buttons, numbers, code, math etc. always stay LTR */
 html[dir="rtl"] .ltr,
 html[dir="rtl"] .mono,
 html[dir="rtl"] code,
@@ -160,7 +135,6 @@ html[dir="rtl"] .sb-logo {
   unicode-bidi: isolate;
 }
 
-/* Inputs: keep numeric/email LTR with right-anchored placeholder for RTL pages */
 html[dir="rtl"] input,
 html[dir="rtl"] textarea,
 html[dir="rtl"] select {
@@ -175,13 +149,9 @@ html[dir="rtl"] input[type="password"] {
   direction: ltr;
 }
 
-/* Public landing — nav flip */
 html[dir="rtl"] .lp-nav .lp-navi { direction: rtl; }
 html[dir="rtl"] .lp-nav .logo    { margin-right: 0; margin-left: 8px; }
-html[dir="rtl"] #lp-nav-mobile.nav-links { right: auto; left: 24px; }
-@media (max-width: 640px) {
-  html[dir="rtl"] #lp-nav-mobile.nav-links { left: 0; right: 0; }
-}
+html[dir="rtl"] #lp-nav-mobile.nav-links { right: auto; left: 12px; }
 html[dir="rtl"] .s-body  { text-align: right; }
 html[dir="rtl"] .s-h1, html[dir="rtl"] .s-p, html[dir="rtl"] .s-btns { text-align: right; }
 html[dir="rtl"] .s-tag, html[dir="rtl"] .s-h1, html[dir="rtl"] .s-p, html[dir="rtl"] .s-btns {
@@ -214,24 +184,14 @@ html[dir="rtl"] .sb-foot .ni {
   flex-direction: row-reverse;
   text-align: right;
 }
-html[dir="rtl"] .sb-nav .ni > svg,
-html[dir="rtl"] .sb-foot .ni > svg {
-  /* No need for margin tricks — flex gap handles spacing. Keep icons
-     facing the same direction (don't mirror tab icons). */
-}
 
-/* Mobile bottom-nav (if it exists) stays LTR for icon order consistency */
 html[dir="rtl"] .mob-nav { direction: ltr; }
 
-/* Generic flip helpers — any `.flip-rtl` element mirrors horizontally
-   (great for arrow icons in buttons). */
 html[dir="rtl"] .flip-rtl { transform: scaleX(-1); }
 
-/* Generic margin/padding swaps used across the codebase */
 html[dir="rtl"] .ml-auto { margin-left: 0 !important; margin-right: auto !important; }
 html[dir="rtl"] .mr-auto { margin-right: 0 !important; margin-left: auto !important; }
 
-/* Cards / dropdowns / modals — flip text alignment but keep numbers LTR */
 html[dir="rtl"] .card,
 html[dir="rtl"] .modal,
 html[dir="rtl"] .menu,
@@ -240,26 +200,22 @@ html[dir="rtl"] .toast {
   text-align: right;
 }
 
-/* Footer — flip stacking direction for RTL on desktop */
 html[dir="rtl"] .footer-inner { flex-direction: row-reverse; }
 @media (max-width: 640px) {
   html[dir="rtl"] .footer-inner { flex-direction: column; }
 }
 
-/* Toast / notification anchoring */
 html[dir="rtl"] #tc,
 html[dir="rtl"] .toast-container { right: auto; left: 16px; }
 
-
-/* ─ 4. Language switcher ─ */
 
 .fg-i18n-switcher {
   position: relative;
   display: inline-block;
   font-family: var(--fg-font-base);
-  --fg-i18n-bg: rgba(255,255,255,0.04);
-  --fg-i18n-bd: rgba(245, 197, 66, 0.18);
-  --fg-i18n-fg: #fff;
+  --fg-i18n-bg: var(--bg2);
+  --fg-i18n-bd: var(--bw);
+  --fg-i18n-fg: var(--white);
 }
 .fg-i18n-toggle {
   display: inline-flex;
@@ -269,7 +225,6 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
   gap: 7px;
   height: 32px;
 
-  /* Prevent expanding */
   width: auto;
   max-width: 160px;
   min-width: 0;
@@ -279,7 +234,7 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
 
   background: var(--fg-i18n-bg);
   border: 1px solid var(--fg-i18n-bd);
-  border-radius: 10px 3px 10px 3px;
+  border-radius: 0;
 
   color: var(--fg-i18n-fg);
   font-size: 12.5px;
@@ -299,18 +254,9 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
 }
 
 .fg-i18n-toggle:hover {
-  background: rgba(245, 197, 66, 0.10);
-  border-color: rgba(245, 197, 66, 0.45);
-  color: #F5C542;
-}
-
-.fg-i18n-toggle .fg-i18n-globe {
-  flex-shrink: 0;
-  opacity: .7;
-}
-
-.fg-i18n-toggle:hover .fg-i18n-globe {
-  opacity: 1;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
 
 .fg-i18n-toggle .fg-i18n-cur-flag {
@@ -323,7 +269,6 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
   flex: 1;
   min-width: 0;
 
-  /* Keep text aligned naturally */
   text-align: start;
 
   overflow: hidden;
@@ -345,18 +290,15 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
   right: 0;
   left: auto;
 
-  /* Prevent overflow on mobile */
   width: max-content;
   min-width: 180px;
   max-width: calc(100vw - 16px);
   box-sizing: border-box;
 
-  background: rgba(6, 4, 2, 0.97);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border: 1px solid rgba(245, 197, 66, 0.18);
-  border-radius: 12px 4px 12px 4px;
-  box-shadow: 0 14px 44px rgba(0,0,0,.75), 0 2px 8px rgba(0,0,0,.45);
+  background: var(--bg2);
+  border: 1px solid var(--bw);
+  border-radius: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
   padding: 6px;
   z-index: 9999;
   display: none;
@@ -366,12 +308,21 @@ html[dir="rtl"] .toast-container { right: auto; left: 16px; }
   max-height: min(70vh, 360px);
   overflow-y: auto;
 
-  /* Prevent horizontal overflow */
   overflow-x: hidden;
 }
-.fg-i18n-switcher.is-open .fg-i18n-menu { display: flex; }
+.fg-i18n-switcher.is-open .fg-i18n-menu {
+  display: flex;
+  animation: fg-menu-down .28s cubic-bezier(.2,1.1,.3,1);
+}
+@keyframes fg-menu-down {
+  from { opacity: 0; transform: translateY(-8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fg-menu-up {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
 
-/* RTL: open the menu on the LEFT edge so it stays inside the viewport */
 html[dir="rtl"] .fg-i18n-menu { right: auto; left: 0; }
 
 .fg-i18n-item {
@@ -380,9 +331,9 @@ html[dir="rtl"] .fg-i18n-menu { right: auto; left: 0; }
   gap: 10px;
   background: none;
   border: none;
-  color: rgba(235, 228, 215, 0.92);
+  color: var(--t1);
   padding: 9px 11px;
-  border-radius: 9px 3px 9px 3px;
+  border-radius: 0;
   font-family: inherit;
   font-size: 13px;
   text-align: left;
@@ -392,12 +343,12 @@ html[dir="rtl"] .fg-i18n-menu { right: auto; left: 0; }
 }
 html[dir="rtl"] .fg-i18n-item { text-align: right; }
 .fg-i18n-item:hover {
-  background: rgba(245, 197, 66, 0.08);
-  color: #fff;
+  background: var(--bg3);
+  color: var(--white);
 }
 .fg-i18n-item.is-active {
-  background: rgba(245, 197, 66, 0.10);
-  color: #F5C542;
+  background: var(--y);
+  color: #fff;
   font-weight: 700;
 }
 .fg-i18n-item .fg-i18n-flag {
@@ -410,57 +361,63 @@ html[dir="rtl"] .fg-i18n-item { text-align: right; }
 .fg-i18n-item .fg-i18n-name {
   margin-left: auto;
   font-size: 11px;
-  color: rgba(255,255,255,.42);
+  color: var(--t3);
   letter-spacing: .04em;
   text-transform: uppercase;
 }
 html[dir="rtl"] .fg-i18n-item .fg-i18n-name { margin-left: 0; margin-right: auto; }
 .fg-i18n-item .fg-i18n-check {
-  flex-shrink: 0; color: #F5C542; margin-left: auto;
+  flex-shrink: 0; color: var(--y); margin-left: auto;
 }
+.fg-i18n-item.is-active .fg-i18n-check,
+.fg-i18n-item.is-active .fg-i18n-name { color: #fff; }
 html[dir="rtl"] .fg-i18n-item .fg-i18n-check { margin-left: 0; margin-right: auto; }
 
-/* "Mobile" variant — full-width pill button used inside the public nav drawer */
 .fg-i18n-mobile {
   display: block;
   width: 100%;
 }
 .fg-i18n-mobile .fg-i18n-toggle {
   width: 100%;
-  height: 44px;
+  height: 38px;
+  font-size: 12.5px;
   justify-content: space-between;
-  border-radius: 10px 3px 10px 3px;
-  background: rgba(245, 197, 66, 0.06);
-  border-color: rgba(245, 197, 66, 0.22);
+  border-radius: 0;
+  background: var(--bg3);
+  border-color: var(--bw);
 }
 .fg-i18n-mobile .fg-i18n-menu {
-  position: static;
-  width: 100%;
-  margin-top: 6px;
-  box-shadow: none;
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,.08);
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: auto;
+  width: max-content;
+  min-width: 196px;
+  max-width: calc(100vw - 32px);
+  max-height: min(45vh, 300px);
+  background: var(--bg2);
+  border-color: var(--bw);
+  z-index: 300;
 }
+html[dir="rtl"] .fg-i18n-mobile .fg-i18n-menu { left: auto; right: 0; }
 
-/* "Sidebar" variant — used inside the dashboard sidebar footer */
 .fg-i18n-sidebar { width: 100%; }
 .fg-i18n-sidebar .fg-i18n-toggle {
   width: 100%;
   height: 38px;
   justify-content: flex-start;
-  border-radius: 8px 3px 8px 3px;
-  background: rgba(255,255,255,0.025);
-  border-color: rgba(255,255,255,0.06);
-  color: rgba(235,228,215,0.78);
+  border-radius: 0;
+  background: var(--bg2);
+  border-color: var(--bw);
+  color: var(--t2);
   font-weight: 500;
 }
 .fg-i18n-sidebar .fg-i18n-toggle:hover {
-  background: rgba(245, 197, 66, 0.07);
-  border-color: rgba(245, 197, 66, 0.22);
-  color: #F5C542;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
 .fg-i18n-sidebar .fg-i18n-menu {
-  /* Open UPWARD so the dropdown isn't clipped by the sidebar footer */
   top: auto;
   bottom: calc(100% + 6px);
   right: auto;
@@ -469,21 +426,18 @@ html[dir="rtl"] .fg-i18n-item .fg-i18n-check { margin-left: 0; margin-right: aut
 }
 html[dir="rtl"] .fg-i18n-sidebar .fg-i18n-menu { left: auto; right: 0; }
 
-/* "Inline" variant — sleek pill for the public landing nav (desktop).
-   No globe icon, no English fallback name — just flag + native label.
-   Stays subtle until hover for a "cool" minimal feel. */
 .fg-i18n-inline .fg-i18n-toggle {
   height: 30px;
   padding: 0 11px;
   font-size: 12px;
   background: transparent;
-  border-color: rgba(255,255,255,0.10);
-  color: rgba(235, 228, 215, 0.85);
+  border-color: var(--bw);
+  color: var(--t1);
 }
 .fg-i18n-inline .fg-i18n-toggle:hover {
-  background: rgba(245, 197, 66, 0.08);
-  border-color: rgba(245, 197, 66, 0.32);
-  color: #F5C542;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
 .fg-i18n-inline .fg-i18n-cur-flag { font-size: 13px; }
 .fg-i18n-inline .fg-i18n-cur-label {
@@ -493,51 +447,33 @@ html[dir="rtl"] .fg-i18n-sidebar .fg-i18n-menu { left: auto; right: 0; }
 }
 .fg-i18n-inline .fg-i18n-chev { width: 9px; height: 9px; }
 
-/* Hide the legacy "English fallback name" pillar everywhere — the item
-   now only renders flag + native label. (Kept the rule as a safety net
-   in case a custom render still injects .fg-i18n-name in the future.) */
 .fg-i18n-name { display: none !important; }
 
-/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .fg-i18n-toggle, .fg-i18n-item, .fg-i18n-chev { transition: none !important; }
 }
 
-/* ─ 5. Dropup variant — opens UPWARD (used in footer) ─ */
 .fg-i18n-dropup .fg-i18n-menu {
   top: auto;
   bottom: calc(100% + 6px);
   left: auto;
   right: 0;
+  border-radius: 0;
 }
+.fg-i18n-dropup.is-open .fg-i18n-menu,
+.fg-i18n-sidebar.is-open .fg-i18n-menu {
+  animation: fg-menu-up .28s cubic-bezier(.2,1.1,.3,1);
+}
+.fg-i18n-sidebar .fg-i18n-menu { border-radius: 0; }
 html[dir="rtl"] .fg-i18n-dropup .fg-i18n-menu { right: auto; left: 0; }
 
-/* ─ 6. Hide public-landing drawer switcher on PC width ─
-   The mobile drawer (#lp-nav-mobile) is opened via the hamburger button.
-   On wide screens the hamburger isn't needed and the nav links are
-   already inline, so the in-drawer language switcher is redundant.
-   Hide it from 769px+ — keep it on real mobile widths.                */
-@media (min-width: 769px) {
-  #lp-nav-mobile .fg-i18n-mount,
-  #lp-nav-mobile [data-i18n-switcher],
-  #lp-nav-mobile .fg-i18n-switcher {
-    display: none !important;
-  }
-}
 
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Currency Switcher v2 — Professional Design
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* ─ Wrap ─ */
 .fg-curr-wrap {
   display: inline-block;
   position: relative;
   font-family: var(--fg-font-base, inherit);
 }
 
-/* ─ Toggle button ─ */
 .fg-curr-toggle {
   display: inline-flex;
   align-items: center;
@@ -545,10 +481,10 @@ html[dir="rtl"] .fg-i18n-dropup .fg-i18n-menu { right: auto; left: 0; }
   height: 30px;
   padding: 0 10px;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 10px 3px 10px 3px;
+  border: 1px solid var(--bw);
+  border-radius: 0;
   cursor: pointer;
-  color: rgba(235,228,215,0.80);
+  color: var(--t1);
   font-size: 12px;
   font-weight: 600;
   font-family: inherit;
@@ -558,9 +494,9 @@ html[dir="rtl"] .fg-i18n-dropup .fg-i18n-menu { right: auto; left: 0; }
   user-select: none;
 }
 .fg-curr-toggle:hover {
-  background: rgba(245,197,66,0.07);
-  border-color: rgba(245,197,66,0.30);
-  color: #F5C542;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
 .fg-curr-globe   { opacity: .55; flex-shrink: 0; }
 .fg-curr-label   { font-size: 11.5px; font-weight: 600; letter-spacing: .02em; }
@@ -573,12 +509,11 @@ html[dir="rtl"] .fg-i18n-dropup .fg-i18n-menu { right: auto; left: 0; }
 }
 .fg-curr-wrap.open .fg-curr-chevron { transform: rotate(180deg); opacity: .9; }
 .fg-curr-wrap.open .fg-curr-toggle  {
-  background: rgba(245,197,66,0.08);
-  border-color: rgba(245,197,66,0.35);
-  color: #F5C542;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
 
-/* ─ Dropdown ─ */
 .fg-curr-menu {
   display: none;
   flex-direction: column;
@@ -586,75 +521,51 @@ html[dir="rtl"] .fg-i18n-dropup .fg-i18n-menu { right: auto; left: 0; }
   top: calc(100% + 8px);
   right: 0;
   width: 260px;
-  background: rgba(6,4,2,0.98);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(245,197,66,0.15);
-  border-radius: 14px 4px 14px 4px;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.8),
-    0 4px 16px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.04);
+  background: var(--bg2);
+  border: 1px solid var(--bw);
+  border-radius: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
   padding: 10px;
   z-index: 9999;
-  animation: fg-curr-in .14s ease;
+  animation: fg-curr-in .28s cubic-bezier(.2,1.1,.3,1);
 }
 .fg-curr-wrap.open .fg-curr-menu { display: flex; }
 html[dir="rtl"] .fg-curr-menu   { right: auto; left: 0; }
 
 @keyframes fg-curr-in {
-  from { opacity: 0; transform: translateY(-6px) scale(.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(-8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fg-curr-in-up {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+  to   { opacity: 1; transform: none; }
 }
 
-/* ─ Search ─ */
-.fg-curr-search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  padding: 7px 10px;
-  margin-bottom: 8px;
-  color: rgba(255,255,255,0.35);
-}
-.fg-curr-search-wrap svg { flex-shrink: 0; }
-.fg-curr-search {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: rgba(235,228,215,0.92);
-  font-size: 12.5px;
-  font-family: inherit;
-  padding: 0;
-  min-width: 0;
-}
-.fg-curr-search::placeholder { color: rgba(255,255,255,0.28); }
-
-/* ─ Live price line ─ */
 .fg-curr-price-line {
   font-size: 11px;
-  color: rgba(245,197,66,0.65);
+  color: var(--white, #fff);
+  opacity: .85;
   font-family: var(--fg-font-mono, monospace);
   text-align: center;
   padding: 5px 8px;
-  background: rgba(245,197,66,0.04);
-  border-radius: 6px;
-  border: 1px solid rgba(245,197,66,0.10);
+  background: var(--bg3);
+  border-radius: 0;
+  border: 1px solid var(--bw, rgba(255,255,255,.1));
   margin-bottom: 8px;
   letter-spacing: .02em;
 }
+html[data-theme="light"] .fg-curr-price-line {
+  color: #111;
+  background: var(--bg3);
+  border-color: rgba(0,0,0,.12);
+}
 
-/* ─ Divider ─ */
 .fg-curr-divider {
   height: 1px;
-  background: rgba(255,255,255,0.05);
+  background: var(--bg2);
   margin: 0 -4px 8px;
 }
 
-/* ─ Items list ─ */
 .fg-curr-list {
   display: flex;
   flex-direction: column;
@@ -663,32 +574,33 @@ html[dir="rtl"] .fg-curr-menu   { right: auto; left: 0; }
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(245,197,66,0.2) transparent;
+  scrollbar-color: rgba(141,27,40,.2) transparent;
 }
 .fg-curr-list::-webkit-scrollbar       { width: 3px; }
 .fg-curr-list::-webkit-scrollbar-track { background: transparent; }
-.fg-curr-list::-webkit-scrollbar-thumb { background: rgba(245,197,66,0.2); border-radius: 2px; }
+.fg-curr-list::-webkit-scrollbar-thumb { background: rgba(141,27,40,.2); border-radius: 2px; }
 
-/* ─ Item ─ */
 .fg-curr-item {
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  padding: 8px 9px;
+  padding: 9px 14px;
   background: none;
   border: none;
-  border-radius: 8px 3px 8px 3px;
+  border-radius: 0;
   cursor: pointer;
-  color: rgba(235,228,215,0.85);
+  color: var(--t1);
   font-family: inherit;
   text-align: left;
   transition: background .12s, color .12s;
+  box-sizing: border-box;
 }
-.fg-curr-item:hover  { background: rgba(245,197,66,0.07); color: #fff; }
+.fg-curr-item:hover  { background: var(--bg3); color: var(--white); }
 .fg-curr-item.active {
-  background: rgba(245,197,66,0.10);
-  color: #F5C542;
+  background: var(--y);
+  color: #fff;
 }
 html[dir="rtl"] .fg-curr-item { text-align: right; flex-direction: row-reverse; }
 
@@ -697,29 +609,43 @@ html[dir="rtl"] .fg-curr-item { text-align: right; flex-direction: row-reverse; 
   width: 22px; text-align: center; flex-shrink: 0;
 }
 .fg-curr-item-info {
-  flex: 1; min-width: 0;
-  display: flex; flex-direction: column; gap: 1px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
-.fg-curr-item-name { font-size: 12.5px; font-weight: 600; line-height: 1.2; }
-.fg-curr-item-code {
-  font-size: 10px; opacity: .45;
-  letter-spacing: .06em; font-weight: 500;
+.fg-curr-item-name {
+  font-size: 12.5px; font-weight: 600; line-height: 1.2;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fg-curr-item-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 8px;
 }
 .fg-curr-item-rate {
   font-size: 10.5px;
-  color: rgba(245,197,66,0.5);
+  color: var(--white, #fff);
+  opacity: .85;
   font-family: var(--fg-font-mono, monospace);
   flex-shrink: 0;
   letter-spacing: .01em;
+  white-space: nowrap;
 }
-.fg-curr-item.active .fg-curr-item-rate { color: rgba(245,197,66,0.8); }
+.fg-curr-item.active .fg-curr-item-rate { opacity: 1; color: #fff; }
+html[data-theme="light"] .fg-curr-item-rate { color: #111; }
+html[data-theme="light"] .fg-curr-item.active .fg-curr-item-rate { color: #fff; }
 .fg-curr-item-check {
   width: 13px; height: 13px;
-  color: #F5C542; opacity: 0; flex-shrink: 0;
+  color: var(--y); opacity: 0; flex-shrink: 0;
 }
-.fg-curr-item.active .fg-curr-item-check { opacity: 1; }
+.fg-curr-item.active .fg-curr-item-check { opacity: 1; color: #fff; }
 
-/* ─ No results ─ */
 .fg-curr-no-results {
   text-align: center;
   padding: 16px;
@@ -727,14 +653,13 @@ html[dir="rtl"] .fg-curr-item { text-align: right; flex-direction: row-reverse; 
   font-size: 12px;
 }
 
-/* ─ Mobile variant ─ */
 .fg-curr-mobile .fg-curr-toggle {
   width: 100%;
   height: 44px;
   justify-content: space-between;
-  border-radius: 10px 3px 10px 3px;
-  background: rgba(245,197,66,0.05);
-  border-color: rgba(245,197,66,0.18);
+  border-radius: 0;
+  background: var(--bg2);
+  border-color: var(--bw);
   padding: 0 14px;
 }
 .fg-curr-mobile .fg-curr-label { font-size: 12.5px; }
@@ -743,77 +668,81 @@ html[dir="rtl"] .fg-curr-item { text-align: right; flex-direction: row-reverse; 
   width: 100%;
   margin-top: 6px;
   box-shadow: none;
-  background: rgba(255,255,255,0.025);
-  border-color: rgba(255,255,255,.06);
+  background: var(--bg2);
+  border-color: var(--bw);
   animation: none;
 }
 
-/* ─ Hide on PC in mobile nav — lives in header ─ */
 @media (min-width: 769px) {
   #lp-nav-mobile [data-currency-switcher],
   #lp-nav-mobile .fg-curr-wrap { display: none !important; }
 }
 
 
-/* ─ sidebar-inline variant: side-by-side with lang in mobile drawer ─ */
 .fg-curr-sidebar-inline {
   display: block;
   width: 100%;
 }
 .fg-curr-sidebar-inline .fg-curr-toggle {
   width: 100%;
-  height: 44px;
+  height: 38px;
   justify-content: space-between;
-  border-radius: 10px 3px 10px 3px;
-  background: rgba(245,197,66,0.05);
-  border-color: rgba(245,197,66,0.18);
-  color: rgba(235,228,215,0.88);
+  border-radius: 0;
+  background: var(--bg2);
+  border-color: var(--bw);
+  color: var(--t1);
   padding: 0 12px;
   font-size: 12px;
 }
 .fg-curr-sidebar-inline .fg-curr-toggle:hover {
-  background: rgba(245,197,66,0.09);
-  border-color: rgba(245,197,66,0.32);
-  color: #F5C542;
+  background: var(--y);
+  border-color: var(--y);
+  color: #fff;
 }
-/* Dropdown opens below, full-width, static so it doesn't push content */
 .fg-curr-sidebar-inline .fg-curr-menu {
   position: static;
   width: 100%;
   margin-top: 6px;
   box-shadow: none;
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,.07);
+  background: var(--bg2);
+  border-color: var(--bw);
   animation: none;
-  border-radius: 10px 3px 10px 3px;
+  border-radius: 0;
 }
-/* When sidebar-inline is open, bump up in stacking so it overlaps links below */
 .fg-curr-sidebar-inline.open {
   position: relative;
   z-index: 200;
 }
 .fg-curr-sidebar-inline.open .fg-curr-menu {
   position: absolute;
-  width: calc(100% - 8px);
-  left: 0;
+  width: max-content;
+  min-width: 196px;
+  max-width: calc(100vw - 32px);
+  max-height: min(45vh, 300px);
+  overflow-y: auto;
+  left: auto;
+  right: 0;
   top: calc(100% + 4px);
   z-index: 300;
-  box-shadow: 0 12px 40px rgba(0,0,0,.7);
-  background: rgba(6,4,2,0.98);
-  border-color: rgba(245,197,66,0.15);
-  animation: fg-curr-in .14s ease;
+  border: 1px solid var(--bw);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  background: var(--bg2);
+  animation: fg-curr-in .28s cubic-bezier(.2,1.1,.3,1);
+}
+html[dir="rtl"] .fg-curr-sidebar-inline.open .fg-curr-menu { right: auto; left: 0; }
+html[data-theme="light"] .fg-curr-sidebar-inline.open .fg-curr-menu {
+  background: #fff;
+  border-color: var(--bw);
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
 }
 
-/* ─ Reduce motion ─ */
 @media (prefers-reduced-motion: reduce) {
   .fg-curr-toggle, .fg-curr-item, .fg-curr-chevron,
   .fg-curr-menu { transition: none !important; animation: none !important; }
 }
 
-/* ─ Desktop-only currency switcher in header ─ */
-/* Hidden by default (set inline), shown only on PC (≥769px) */
 @media (min-width: 769px) {
-  .lp-curr-desktop-only {
+  .lp-curr-desktop-only:not([style*="display:none"]) {
     display: inline-block !important;
   }
 }
@@ -821,4 +750,82 @@ html[dir="rtl"] .fg-curr-item { text-align: right; flex-direction: row-reverse; 
   .lp-curr-desktop-only {
     display: none !important;
   }
+}
+
+@media (max-width: 600px) {
+  .fg-curr-item { padding: 9px 14px; gap: 12px; }
+  .fg-curr-item-info { gap: 6px; }
+  .fg-curr-item-flag { font-size: 15px; width: 20px; }
+  .fg-curr-item-rate { font-size: 10px; }
+  .fg-curr-menu { min-width: 200px; }
+}
+html[data-theme="light"] .fg-i18n-toggle {
+  background: var(--bg2) !important;
+  border-color: var(--bw) !important;
+  color: var(--t1) !important;
+}
+html[data-theme="light"] .fg-i18n-toggle:hover {
+  background: var(--y) !important;
+  border-color: var(--y) !important;
+  color: #fff !important;
+}
+html[data-theme="light"] .fg-i18n-toggle .fg-i18n-cur-label,
+html[data-theme="light"] .fg-i18n-toggle .fg-i18n-chev {
+  color: inherit !important;
+}
+html[data-theme="light"] .fg-i18n-trigger,
+html[data-theme="light"] .fg-i18n-panel,
+html[data-theme="light"] .fg-i18n-dropdown,
+html[data-theme="light"] [data-currency-switcher],
+html[data-theme="light"] .fg-curr-trigger,
+html[data-theme="light"] .fg-curr-panel {
+  background: var(--bg2) !important;
+  border-color: var(--bw) !important;
+  color: var(--t1) !important;
+}
+html[data-theme="light"] .fg-i18n-item,
+html[data-theme="light"] .fg-curr-item { color: var(--t1) !important; }
+html[data-theme="light"] .fg-i18n-item:hover,
+html[data-theme="light"] .fg-curr-item:hover { background: var(--bg3) !important; color: var(--white) !important; }
+html[data-theme="light"] .fg-i18n-item.is-active,
+html[data-theme="light"] .fg-curr-item.is-active { background: var(--y) !important; color: #fff !important; }
+html[data-theme="light"] .fg-i18n-item.is-active .fg-i18n-check,
+html[data-theme="light"] .fg-i18n-item.is-active .fg-i18n-name,
+html[data-theme="light"] .fg-curr-item.active .fg-curr-item-check,
+html[data-theme="light"] .fg-curr-item.active .fg-curr-item-rate { color: #fff !important; }
+html[data-theme="light"] .fg-i18n-native { color: var(--t2) !important; }
+html[data-theme="light"] .fg-i18n-name,
+html[data-theme="light"] .fg-curr-code { color: var(--t1) !important; }
+
+html[data-theme="light"] .fg-i18n-menu,
+html[data-theme="light"] .fg-curr-menu {
+  background: #fff;
+  border: 1px solid var(--bw);
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+
+#lp-nav-mobile .fg-i18n-menu,
+#lp-nav-mobile .fg-curr-menu {
+  background: var(--bg2);
+  border-color: var(--bw);
+}
+html[data-theme="light"] #lp-nav-mobile .fg-i18n-menu,
+html[data-theme="light"] #lp-nav-mobile .fg-curr-menu {
+  background: #f3f3f3;
+  border-color: var(--bw);
+}
+
+#lp-nav-mobile .fg-i18n-mobile .fg-i18n-toggle,
+#lp-nav-mobile .fg-curr-sidebar-inline .fg-curr-toggle { color: #fff; }
+html[data-theme="light"] .fg-i18n-mobile .fg-i18n-toggle,
+html[data-theme="light"] .fg-curr-sidebar-inline .fg-curr-toggle {
+  background: #f3f3f3 !important;
+  border-color: var(--bw) !important;
+  color: #1a1a1a !important;
+}
+
+html[data-theme="light"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle {
+  background: none !important;
+  border-color: transparent !important;
+  color: var(--t2) !important;
 }

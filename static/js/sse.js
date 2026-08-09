@@ -1,34 +1,11 @@
-/**
- * FiroGate SSE Client — production-hardened.
- *
- * Reconnect revalidation:
- *   On every reconnect the server sends a fresh DB snapshot.
- *   The client also makes one REST call to sync UI on reconnect.
- *   This prevents stale UI after missed events.
- *
- * Browser SSE limits:
- *   HTTP/1.1: 6 connections/domain. We use one stream per page.
- *   HTTP/2 (default via nginx): multiplexed — no practical limit.
- *
- * Lifecycle:
- *   open → live dot (green, fades after 2.5s)
- *   error/retry → sync dot (amber pulse)
- *   terminal/closed → dot hidden
- *
- * Mobile:
- *   visibilitychange → pause on hide, reconnect on show (with 300ms delay)
- *   pagehide → hard close (covers iOS Safari app switch)
- *   beforeunload → hard close
- */
 (function(global) {
   'use strict';
 
-  var BACKOFF_BASE = 1000;   // ms
-  var BACKOFF_MAX  = 30000;  // ms cap
+  var BACKOFF_BASE = 1000;
+  var BACKOFF_MAX  = 30000;
   var MAX_RETRIES  = 15;
-  var FALLBACK_MS  = 15000;  // polling interval when EventSource unavailable
+  var FALLBACK_MS  = 15000;
 
-  // ─ Status dot ─
   var _dot = null, _dotTimer = null;
 
   function _getDot() {
@@ -68,30 +45,29 @@
     }
   }
 
-  // ─ Reconnect revalidation helper ──
-  // Called by payment stream on reconnect to sync UI with DB truth
-  function _revalidate(restUrl, onData) {
+  function _revalidate(restUrl, onData, restToken) {
     if (!restUrl) return;
-    fetch(restUrl, { credentials: 'include' })
+    var headers = restToken ? { 'X-Checkout-Token': restToken } : {};
+    fetch(restUrl, { credentials: 'include', headers: headers })
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) { if (d) onData(d); })
       .catch(function() {});
   }
 
-  // ─ SSEStream ─
   function SSEStream(opts) {
     this.url         = opts.url;
-    this.restUrl     = opts.restUrl || null;   // for reconnect revalidation
+    this.restUrl     = opts.restUrl || null;
+    this.restToken   = opts.restToken || null;
     this.onEvent     = opts.onEvent  || function() {};
     this.onClose     = opts.onClose  || function() {};
-    this.onReconnect = opts.onReconnect || null; // optional hook
+    this.onReconnect = opts.onReconnect || null;
     this._es         = null;
     this._retries    = 0;
     this._closed     = false;
     this._paused     = false;
     this._timer      = null;
     this._fallback   = null;
-    this._isFirst    = true;   // tracks first vs reconnect
+    this._isFirst    = true;
 
     this._registerHandlers();
     this._connect();
@@ -99,7 +75,6 @@
 
   SSEStream.prototype._registerHandlers = function() {
     var self = this;
-    // Mobile: iOS pagehide fires when switching apps
     window.addEventListener('pagehide',     function() { self.close(); });
     window.addEventListener('beforeunload', function() { self.close(); });
     document.addEventListener('visibilitychange', function() {
@@ -110,7 +85,6 @@
         _dotState('off');
       } else {
         self._paused = false;
-        // Brief delay: lets network restore after device sleep
         clearTimeout(self._timer);
         self._timer = setTimeout(function() { self._connect(); }, 300);
       }
@@ -131,9 +105,8 @@
 
     _dotState('sync');
 
-    // On reconnect: call REST to sync UI with DB truth (before SSE snapshot arrives)
     if (isReconnect && this.restUrl && this.onReconnect) {
-      _revalidate(this.restUrl, this.onReconnect);
+      _revalidate(this.restUrl, this.onReconnect, this.restToken);
     }
 
     try {
@@ -142,10 +115,6 @@
       this._es.onopen = function() {
         self._retries = 0;
         _dotState('live');
-        if (isReconnect) {
-          // Server also sends fresh DB snapshot on reconnect — handle it
-          // via onEvent which checks for "payment.status" / "dashboard.snapshot"
-        }
       };
 
       this._es.onmessage = function(e) {
@@ -191,14 +160,13 @@
     }, base + jitter);
   };
 
-  // Polling fallback when EventSource unavailable
   SSEStream.prototype._startFallback = function() {
     if (this._fallback || this._closed || !this.restUrl) return;
     var self = this;
     this._fallback = setInterval(function() {
       if (self._closed) { clearInterval(self._fallback); return; }
       if (document.hidden) return;
-      _revalidate(self.restUrl, self.onEvent);
+      _revalidate(self.restUrl, self.onEvent, self.restToken);
     }, FALLBACK_MS);
   };
 
@@ -217,39 +185,21 @@
     ].indexOf(type) !== -1;
   }
 
-  // ─ Public API ─
   global.FGStream = {
-    /**
-     * Checkout page payment stream.
-     *
-     * @param {string}   paymentId
-     * @param {string}   token      — HMAC checkout token
-     * @param {function} onEvent    — called with each parsed event
-     * @param {function} onClose    — called when stream ends
-     * @param {function} onReconnect — called on reconnect with REST data (optional)
-     * @returns {SSEStream}
-     */
     payment: function(paymentId, token, onEvent, onClose, onReconnect) {
-      var t   = token ? '?t=' + encodeURIComponent(token) : '';
-      var url = '/api/events/payment/' + encodeURIComponent(paymentId) + t;
-      var rest = '/api/payments/public/' + encodeURIComponent(paymentId) + t;
+      var t    = token ? '?t=' + encodeURIComponent(token) : '';
+      var url  = '/api/events/payment/' + encodeURIComponent(paymentId) + t;
+      var rest = '/api/payments/public/' + encodeURIComponent(paymentId);
       return new SSEStream({
-        url: url, restUrl: rest,
+        url: url, restUrl: rest, restToken: token,
         onEvent: onEvent, onClose: onClose, onReconnect: onReconnect,
       });
     },
 
-    /**
-     * Dashboard merchant stream (authenticated).
-     *
-     * @param {function} onEvent
-     * @param {function} onClose
-     * @returns {SSEStream}
-     */
     merchant: function(onEvent, onClose) {
       return new SSEStream({
         url: '/api/events/merchant',
-        restUrl: null,   // dashboard REST sync handled by onEvent snapshot
+        restUrl: null,
         onEvent: onEvent, onClose: onClose,
       });
     },

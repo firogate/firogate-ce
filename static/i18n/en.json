@@ -1,7 +1,0 @@
-{
-  "_meta": {
-    "language": "English",
-    "code": "en",
-    "note": "Source/reference bundle. The client engine treats the key as the value when the active language is 'en'. This file exists so the structure is documented for translators."
-  }
-}
