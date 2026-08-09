@@ -1,11 +1,10 @@
 """
-Payment Links API — /api/payment-links
+Payment Links API /api/payment-links
 Merchants create reusable checkout links from the dashboard without any API knowledge.
 """
 import secrets, string
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,12 +12,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.security import verify_access_token
 from app.core.validators import validate_amount, sanitize_str, validate_url
-from app.models.models import User, PaymentLink, Payment, PaymentStatus
+from app.models.models import User, PaymentLink, Payment
+from app.models.spark import SparkWalletConnection
 
 router = APIRouter(prefix="/api/payment-links", tags=["payment-links"])
 
 
-# ─ Auth helper ─
 async def _merchant(request: Request, db: AsyncSession = Depends(get_db)) -> User:
     token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
     if not token:
@@ -31,6 +30,21 @@ async def _merchant(request: Request, db: AsyncSession = Depends(get_db)) -> Use
     if not u or not u.is_active:
         raise HTTPException(401, "Account inactive")
     return u
+
+
+async def _require_wallet(
+    db: AsyncSession = Depends(get_db),
+    merchant: User = Depends(_merchant),
+) -> User:
+    res = await db.execute(
+        select(SparkWalletConnection).where(
+            SparkWalletConnection.merchant_id == merchant.id,
+            SparkWalletConnection.is_active == True,
+        )
+    )
+    if res.scalar_one_or_none() is None:
+        raise HTTPException(409, "Connect your wallet before creating payment links.")
+    return merchant
 
 
 def _slug() -> str:
@@ -60,7 +74,6 @@ def _link_dict(lnk: PaymentLink, base_url: str) -> dict:
     }
 
 
-# ─ List ─
 @router.get("/")
 async def list_links(
     request: Request,
@@ -78,7 +91,6 @@ async def list_links(
     return {"links": [_link_dict(lnk, base) for lnk in links]}
 
 
-# ─ Create ──
 class CreateLinkIn(BaseModel):
     title:         str
     description:   str | None = None
@@ -89,7 +101,7 @@ class CreateLinkIn(BaseModel):
     cancel_url:    str | None = None
     max_uses:      int | None = None
     expires_at:    str | None = None   # ISO 8601
-    custom_slug:   str | None = None   # paid plans only
+    custom_slug:   str | None = None
 
 
 @router.post("/", status_code=201)
@@ -97,7 +109,7 @@ async def create_link(
     body: CreateLinkIn,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    merchant: User = Depends(_merchant),
+    merchant: User = Depends(_require_wallet),
 ):
     title = sanitize_str(body.title, max_len=128)
     if not title:
@@ -111,8 +123,6 @@ async def create_link(
     if body.cancel_url:
         validate_url(body.cancel_url)
 
-    # ─ Custom slug — paid plans only ─
-    # Community Edition — all users can use custom slugs
     custom_slug_val = None
     if body.custom_slug:
         raw = body.custom_slug.strip().lower()
@@ -120,13 +130,11 @@ async def create_link(
         import re as _re
         if not _re.match(r'^[a-z0-9][a-z0-9\-]{1,30}[a-z0-9]$', raw) and not _re.match(r'^[a-z0-9]{3,32}$', raw):
             raise HTTPException(422, "Custom slug must be 3–32 characters: letters, digits, hyphens only. Cannot start or end with a hyphen.")
-        # Check availability
         existing = await db.execute(select(PaymentLink).where(PaymentLink.slug == raw))
         if existing.scalar_one_or_none():
             raise HTTPException(409, f"The slug '{raw}' is already taken. Please choose a different name.")
         custom_slug_val = raw
 
-    # Unique slug with collision retry
     if custom_slug_val:
         slug = custom_slug_val
     else:
@@ -166,7 +174,6 @@ async def create_link(
     return _link_dict(lnk, base)
 
 
-# ─ Toggle active ──
 @router.patch("/{link_id}/toggle")
 async def toggle_link(
     link_id: str,
@@ -185,7 +192,6 @@ async def toggle_link(
     return {"id": lnk.id, "is_active": lnk.is_active}
 
 
-# ─ Delete ──
 @router.delete("/{link_id}", status_code=204)
 async def delete_link(
     link_id: str,
@@ -202,7 +208,6 @@ async def delete_link(
     await db.commit()
 
 
-# ─ Public: open a payment link → generate a Payment ─
 @router.get("/public/{slug}")
 async def get_public_link(slug: str, db: AsyncSession = Depends(get_db)):
     """Returns link metadata for the payment link landing page."""
@@ -236,6 +241,12 @@ async def checkout_from_link(
     from datetime import timedelta
     import json as _json
 
+    # Anonymous endpoint that consumes a pre-derived address from the
+    # merchant's wallet pool per call - without a limit, one attacker with
+    # the public link URL can drain the whole pool and block real buyers.
+    from app.core.rate_limit import rate_limit_check
+    await rate_limit_check(request, max_requests=8, window_seconds=60, key_prefix="linkco")
+
     res = await db.execute(select(PaymentLink).where(PaymentLink.slug == slug))
     lnk = res.scalar_one_or_none()
     if not lnk or not lnk.is_active:
@@ -246,8 +257,8 @@ async def checkout_from_link(
         exp = lnk.expires_at if lnk.expires_at.tzinfo else lnk.expires_at.replace(tzinfo=timezone.utc)
         if exp < now:
             raise HTTPException(410, "Payment link has expired")
-    # Check max_uses against confirmed payments only (not attempts)
-    # This prevents false "Usage limit reached" when user hits back and retries
+    # Check max_uses against confirmed payments only (not attempts) - this
+    # prevents a false "usage limit reached" when a user hits back and retries.
     if lnk.max_uses:
         from sqlalchemy import text as _text
         count_res = await db.execute(
@@ -258,39 +269,52 @@ async def checkout_from_link(
         if confirmed_count >= lnk.max_uses:
             raise HTTPException(410, "This payment link has reached its usage limit.")
 
-    # Parse body
     try:
         body = await request.json()
     except Exception:
         body = {}
 
-    amount = float(body.get("amount_firo") or lnk.amount_firo or 0)
+    # Fixed-price links (the default) always charge the merchant-configured
+    # amount - a client-supplied amount_firo must NEVER override it, or an
+    # attacker could pay an arbitrary (near-zero) amount for a set-price item.
+    # Only "open amount" links (fixed_amount=False, no amount_firo set) allow
+    # the customer to choose how much to pay (e.g. donations/tips).
+    if lnk.fixed_amount and lnk.amount_firo:
+        amount = float(lnk.amount_firo)
+    else:
+        amount = float(body.get("amount_firo") or lnk.amount_firo or 0)
     if amount <= 0:
         raise HTTPException(422, "amount_firo required")
 
     customer_email = (body.get("customer_email") or body.get("email") or "").strip() or None
 
-    # Get merchant
+    # Optional payer note, merchant-visible only, never rendered as HTML
+    # anywhere (dashboard always inserts it via textContent/escHtml).
+    # sanitize_str only strips control chars / truncates; that's sufficient
+    # here since it's never interpreted as markup or executed.
+    _raw_note = body.get("note")
+    payer_note = sanitize_str(_raw_note.strip(), max_len=280) if isinstance(_raw_note, str) else None
+    payer_note = payer_note or None
+
     res2 = await db.execute(select(User).where(User.id == lnk.merchant_id))
     merchant = res2.scalar_one_or_none()
     if not merchant or not merchant.is_active:
         raise HTTPException(503, "Merchant unavailable")
 
-    # Check quota
-    # Community Edition — no quota limits
+    from app.services.firo_rpc import node_is_online
+    if not await node_is_online():
+        raise HTTPException(503, "Payment processor is under maintenance. Please try again shortly.")
 
-    # Get HD address from Firo node
-    from app.services.firo_rpc import get_rpc
     from app.core.config import get_settings
     settings = get_settings()
-    rpc = get_rpc()
-    address = await rpc.get_new_address()
+
+    from app.core.payment_policy import resolve_required_confirmations
+    required_confirmations = await resolve_required_confirmations(db, merchant)
 
     payment = Payment(
         merchant_id            = merchant.id,
-        receiving_address      = address,
+        receiving_address      = "",
         amount_firo            = amount,
-        platform_fee_pct       = settings.PLATFORM_FEE_PCT,
         order_id               = f"LINK-{lnk.slug}",
         order_description      = lnk.title,
         customer_email         = customer_email,
@@ -298,18 +322,21 @@ async def checkout_from_link(
         collect_email          = lnk.collect_email,
         success_url            = lnk.success_url,
         cancel_url             = lnk.cancel_url,
-        required_confirmations = 2,
+        required_confirmations = required_confirmations,
         expires_at             = now + timedelta(minutes=30),
-        metadata_json          = _json.dumps({"link_id": str(lnk.id), "slug": lnk.slug}),
+        metadata_json          = _json.dumps({"link_id": str(lnk.id), "slug": lnk.slug, "note": payer_note}),
     )
     db.add(payment)
+    await db.flush()
 
-    # uses_count is a display counter — increment on each attempt (not for blocking)
+    from app.api.spark_connect_helpers import get_next_spark_address
+    address = await get_next_spark_address(db, merchant.id, payment)
+    payment.address_type = "spark"
+    payment.receiving_address = address
+
+    # uses_count is a display counter, incremented on each attempt (not used for blocking)
     lnk.uses_count = (lnk.uses_count or 0) + 1
     db.add(lnk)
-
-    # Increment merchant quota usage
-    # Community Edition — no request counting
     db.add(merchant)
 
     await db.commit()
@@ -327,7 +354,6 @@ async def checkout_from_link(
     }
 
 
-# ─ CSV Export ─
 @router.get("/export/csv")
 async def export_payments_csv(
     request: Request,
@@ -347,7 +373,7 @@ async def export_payments_csv(
     writer = csv.writer(buf)
     writer.writerow([
         "Payment ID", "Order ID", "Order Description",
-        "Amount FIRO", "Fee FIRO", "Net FIRO",
+        "Amount FIRO", "Amount Received FIRO",
         "Status", "Customer Email", "TXID",
         "Created At", "Confirmed At",
     ])
@@ -357,8 +383,7 @@ async def export_payments_csv(
             p.order_id or "",
             p.order_description or "",
             f"{p.amount_firo:.8f}" if p.amount_firo else "",
-            f"{p.platform_fee_firo:.8f}" if p.platform_fee_firo else "",
-            f"{p.merchant_net_firo:.8f}" if p.merchant_net_firo else "",
+            f"{p.amount_received:.8f}" if p.amount_received else "",
             p.status.value if p.status else "",
             p.customer_email or "",
             p.txid or "",
@@ -376,14 +401,12 @@ async def export_payments_csv(
     )
 
 
-# ─ Notification settings ─
 @router.get("/notifications/settings")
 async def get_notification_settings(
     merchant: User = Depends(_merchant),
 ):
     return {
         "notify_on_payment": getattr(merchant, "notify_on_payment", True),
-        "notify_email":      getattr(merchant, "notify_email", None) or merchant.email,
     }
 
 
@@ -396,9 +419,6 @@ async def update_notification_settings(
     body = await request.json()
     if "notify_on_payment" in body:
         merchant.notify_on_payment = bool(body["notify_on_payment"])
-    if "notify_email" in body:
-        email = str(body["notify_email"] or "").strip()
-        merchant.notify_email = email if email else None
     db.add(merchant)
     await db.commit()
     return {"ok": True}

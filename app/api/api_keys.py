@@ -2,7 +2,7 @@
 Multi-key API Key management.
 
 Security model:
-  - Raw key shown ONCE (on creation) — never stored
+  - Raw key shown ONCE (on creation) never stored
   - Only SHA-256 hash stored in DB
   - Key format: fg_live_{16-char-random}_{16-char-random}
   - Prefix (first 16 chars) stored for display
@@ -18,7 +18,7 @@ Endpoints:
 import hashlib, secrets, string
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,7 +32,6 @@ router = APIRouter(prefix="/api/keys", tags=["api-keys"])
 MAX_KEYS_PER_MERCHANT = 10
 
 
-# ─ Helpers ──
 def _generate_raw_key() -> str:
     """Generate fg_live_{32 random alphanum chars}"""
     alphabet = string.ascii_letters + string.digits
@@ -62,32 +61,42 @@ def _fmt(k: ApiKey) -> dict:
     }
 
 
-# ─ List keys ─
 @router.get("")
 async def list_keys(
     user: User = Depends(get_current_user),
     db:   AsyncSession = Depends(get_db),
 ):
+    # "Wallet connection" keys are created automatically when a wallet connects
+    # (used internally for refills). They are not user-facing API keys, so
+    # hide them from this list to keep it clean - they still work in the backend.
     res = await db.execute(
         select(ApiKey)
-        .where(ApiKey.merchant_id == user.id)
+        .where(
+            ApiKey.merchant_id == user.id,
+            ApiKey.name != "Wallet connection",
+        )
         .order_by(ApiKey.created_at.desc())
     )
     keys = res.scalars().all()
     return {"keys": [_fmt(k) for k in keys]}
 
 
-# ─ Create key ─
 class CreateKeyBody(BaseModel):
-    name: str = "Default"
+    name:        str       = "Default"
+    permissions: list[str] = []   # granular permissions; empty = wildcard legacy key
+
 
 @router.post("", status_code=201)
 async def create_key(
-    body: CreateKeyBody,
-    user: User = Depends(get_current_user),
-    db:   AsyncSession = Depends(get_db),
+    body:    CreateKeyBody,
+    request: Request,
+    user:    User = Depends(get_current_user),
+    db:      AsyncSession = Depends(get_db),
 ):
-    # Cap per merchant
+    from app.core.api_permissions import PERMISSION_CHOICES
+
+    perms = [p for p in (body.permissions or []) if p in PERMISSION_CHOICES]
+
     count_res = await db.execute(
         select(ApiKey).where(
             ApiKey.merchant_id == user.id,
@@ -97,15 +106,15 @@ async def create_key(
     if len(count_res.scalars().all()) >= MAX_KEYS_PER_MERCHANT:
         raise HTTPException(400, f"Maximum {MAX_KEYS_PER_MERCHANT} active keys allowed")
 
-    # Sanitize name
     name = (body.name or "Default").strip()[:64]
     if not name:
         name = "Default"
 
-    # Generate key
     raw_key = _generate_raw_key()
     key_hash = _hash_key(raw_key)
     prefix   = _prefix_from_key(raw_key)
+
+    scopes = "*" if not perms else ",".join(sorted(perms))
 
     key = ApiKey(
         merchant_id = str(user.id),
@@ -113,24 +122,24 @@ async def create_key(
         prefix      = prefix,
         key_hash    = key_hash,
         status      = "active",
+        scopes      = scopes,
     )
     db.add(key)
     await db.commit()
     await db.refresh(key)
 
     return {
-        "id":      key.id,
-        "name":    key.name,
-        "prefix":  key.prefix,
-        "status":  key.status,
-        "created_at": key.created_at.isoformat(),
-        # Raw key returned ONCE — never available again
-        "key": raw_key,
-        "warning": "This key will only be shown once. Copy it now.",
+        "id":          key.id,
+        "name":        key.name,
+        "prefix":      key.prefix,
+        "status":      key.status,
+        "permissions": perms if perms else ["*"],
+        "created_at":  key.created_at.isoformat(),
+        "key":         raw_key,
+        "warning":     "This key will only be shown once. Copy it now.",
     }
 
 
-# ─ Rename key ─
 class RenameKeyBody(BaseModel):
     name: str
 
@@ -153,7 +162,6 @@ async def rename_key(
     return {"ok": True, "name": key.name}
 
 
-# ─ Revoke key ─
 @router.delete("/{key_id}", status_code=200)
 async def revoke_key(
     key_id: str,
@@ -176,17 +184,15 @@ async def revoke_key(
     return {"ok": True, "id": key_id, "status": "revoked"}
 
 
-# ─ Auth helper — used by payments.py ─
-async def get_merchant_by_api_key(raw_key: str, db: AsyncSession) -> User | None:
+async def get_merchant_by_api_key_full(raw_key: str, db: AsyncSession) -> tuple[User, ApiKey] | None:
     """
-    Look up merchant by API key.
-    Checks both new api_keys table AND legacy user.api_key field.
+    Look up merchant by API key, returning (User, ApiKey) so the caller can
+    store the key row for permission checks. Legacy keys return (User, None).
     Updates last_used timestamp.
     """
     if not raw_key or len(raw_key) < 10:
         return None
 
-    # 1. Check new multi-key table
     key_hash = _hash_key(raw_key)
     res = await db.execute(
         select(ApiKey).where(ApiKey.key_hash == key_hash, ApiKey.status == "active")
@@ -194,22 +200,19 @@ async def get_merchant_by_api_key(raw_key: str, db: AsyncSession) -> User | None
     api_key_row = res.scalar_one_or_none()
 
     if api_key_row:
-        # Update last_used (non-blocking)
         api_key_row.last_used = datetime.now(timezone.utc)
         db.add(api_key_row)
-        # Get merchant
-        user_res = await db.execute(
-            select(User).where(User.id == api_key_row.merchant_id)
-        )
+        user_res = await db.execute(select(User).where(User.id == api_key_row.merchant_id))
         user = user_res.scalar_one_or_none()
         try:
             await db.commit()
         except Exception:
             pass
-        return user
+        return (user, api_key_row) if user else None
 
-    # 2. Legacy fallback — old single api_key field on User
+    # Legacy fallback: no ApiKey row, no permission enforcement
     legacy_res = await db.execute(
         select(User).where(User.api_key == raw_key, User.api_key_active == True)
     )
-    return legacy_res.scalar_one_or_none()
+    user = legacy_res.scalar_one_or_none()
+    return (user, None) if user else None

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Changelog FiroGate{% endblock %}
+{% block body %}
+<style>
+#legal-wrap { min-height: 100vh; padding: 40px 20px 60px; background: var(--bg0); }
+.legal-container { max-width: 720px; margin: 0 auto; }
+.legal-header { text-align: center; margin-bottom: 10px; }
+.cl-versions { display: flex; justify-content: center; gap: 10px; margin-bottom: 32px; flex-wrap: wrap; }
+.cl-badge { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; color: var(--t1); background: var(--bg2); border: 1px solid var(--bw); padding: 6px 12px; }
+.cl-badge b { color: var(--y); font-family: var(--font-mono); }
+.cl-release { padding: 26px 0; border-bottom: 1px solid var(--bw); }
+.cl-release:last-child { border-bottom: none; }
+.cl-release-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
+.cl-release-head h2 { font-size: 1.05rem; font-weight: 800; color: var(--white); margin: 0 }
+.cl-release-date { font-size: .78rem; color: var(--t3) }
+.cl-track { margin-bottom: 14px }
+.cl-track:last-child { margin-bottom: 0 }
+.cl-track-label { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--t3); margin: 0 0 8px }
+.cl-group { margin-bottom: 10px }
+.cl-group:last-child { margin-bottom: 0 }
+.cl-group-label { font-size: .82rem; font-weight: 700; color: var(--t1); margin: 0 0 4px }
+.cl-group ul { margin: 0; margin-inline-start: 20px; padding: 0 }
+.cl-group li { font-size: .85rem; color: var(--t1); line-height: 1.7; margin-bottom: 5px }
+.cl-nochange { font-size: .82rem; color: var(--t3); font-style: italic }
+code { font-family: var(--font-mono); font-size: .82em; background: var(--bg2); padding: 1px 5px; }
+</style>
+
+<div id="legal-wrap">
+  <div class="legal-container">
+
+    <div class="legal-header">
+      <h1 style="font-size:1.4rem;font-weight:800;color:var(--white);margin:0 0 6px">Changelog</h1>
+      <p style="font-size:.85rem;color:var(--t1);margin:0">What changed, release by release</p>
+    </div>
+
+    <div class="cl-versions">
+      <span class="cl-badge">API <b>v{{ api_version }}</b></span>
+      <span class="cl-badge">App <b>{{ app_version }}</b></span>
+    </div>
+
+    {% for rel in releases %}
+    <div class="cl-release">
+      <div class="cl-release-head">
+        <h2>{{ rel.version }}</h2>
+        {% if rel.date %}<span class="cl-release-date">{{ rel.date }}</span>{% endif %}
+        {% if rel.api_version %}<span class="cl-badge">API v{{ rel.api_version }}</span>{% endif %}
+        {% if rel.app_version %}<span class="cl-badge">App {{ rel.app_version }}</span>{% endif %}
+      </div>
+
+      {% for track_name, groups in rel.tracks.items() %}
+        {% if groups %}
+        <div class="cl-track">
+          <div class="cl-track-label">{{ track_name }}</div>
+          {% for g in groups %}
+            {% if g.note %}
+            <p class="cl-nochange">{{ g.note }}</p>
+            {% else %}
+            <div class="cl-group">
+              <div class="cl-group-label">{{ g.label }}</div>
+              <ul>
+                {% for item in g.items %}
+                <li>{{ item | safe }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+
+    <div style="text-align:center;margin-top:24px">
+      <a href="/docs" style="display:inline-flex;align-items:center;gap:8px;color:var(--y);font-size:.85rem;font-weight:600;text-decoration:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to API Docs
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 """
-FiroGate Event Bus — production-hardened with future distributed support.
+FiroGate Event Bus production-hardened with future distributed support.
 
 Current mode: in-process asyncio (single uvicorn worker).
 
@@ -21,9 +21,6 @@ from dataclasses import dataclass, field
 from loguru import logger
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Event type
-# ═══════════════════════════════════════════════════════════════════════════════
 class Event(dict):
     pass
 
@@ -32,20 +29,17 @@ def make_event(event_type: str, **data) -> Event:
     return Event(type=event_type, ts=int(time.time()), **data)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Internal metrics — lightweight counters for production visibility
-# ═══════════════════════════════════════════════════════════════════════════════
 @dataclass
 class _Metrics:
-    connections_total:   int   = 0   # all-time connects
-    disconnections_total: int  = 0   # all-time disconnects
-    events_published:    int   = 0   # all-time events published
-    events_delivered:    int   = 0   # all-time successful deliveries
-    events_dropped:      int   = 0   # queue-full drops
-    queue_overflows:     int   = 0   # times QueueFull was raised
-    reconnect_storms:    int   = 0   # times IP rate limit was hit
-    gc_pruned_total:     int   = 0   # zombie entries pruned by GC
-    errors_total:        int   = 0   # unexpected errors in bus
+    connections_total:   int   = 0
+    disconnections_total: int  = 0
+    events_published:    int   = 0
+    events_delivered:    int   = 0
+    events_dropped:      int   = 0
+    queue_overflows:     int   = 0
+    reconnect_storms:    int   = 0
+    gc_pruned_total:     int   = 0
+    errors_total:        int   = 0
     started_at:          float = field(default_factory=time.time)
 
     def snapshot(self) -> dict:
@@ -68,9 +62,6 @@ class _Metrics:
         }
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Backend abstraction — enables future distributed swap
-# ═══════════════════════════════════════════════════════════════════════════════
 class _BackendBase:
     """
     Interface for event bus backends.
@@ -87,7 +78,7 @@ class _BackendBase:
             async def publish(self, channel: str, event: Event) -> int: ...
 
     Note: When using multiple Gunicorn workers, you MUST use a distributed
-    backend — in-process asyncio queues are NOT shared between OS processes.
+    backend in-process asyncio queues are NOT shared between OS processes.
     """
     async def subscribe(self, channel: str) -> "_Entry":
         raise NotImplementedError
@@ -102,9 +93,6 @@ class _BackendBase:
         return {}
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Subscriber entry
-# ═══════════════════════════════════════════════════════════════════════════════
 class _Entry:
     """
     Represents one SSE subscriber connection.
@@ -120,9 +108,6 @@ class _Entry:
         self.alive       = True
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# In-process asyncio backend (default — single worker)
-# ═══════════════════════════════════════════════════════════════════════════════
 class _LocalBackend(_BackendBase):
     """
     Pure asyncio in-process pub/sub.
@@ -241,7 +226,7 @@ class _LocalBackend(_BackendBase):
             except asyncio.QueueFull:
                 self._m.queue_overflows += 1
                 self._m.events_dropped  += 1
-                logger.warning(f"[bus] queue full on {channel} — client too slow")
+                logger.warning(f"[bus] queue full on {channel} client too slow")
 
         if dead:
             async with self._lock:
@@ -265,23 +250,19 @@ class _LocalBackend(_BackendBase):
         }
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Public EventBus façade
-# ═══════════════════════════════════════════════════════════════════════════════
 class _EventBus:
     """
     Public interface. Delegates to pluggable backend.
 
     Scale path:
-      Single worker (now):  _LocalBackend   — zero config
-      Multiple workers:     _RedisBackend   — set REDIS_URL in .env
-      Microservices:        _NatsBackend    — set NATS_URL in .env
+      Single worker (now):  _LocalBackend   zero config
+      Multiple workers:     _RedisBackend   set REDIS_URL in .env
+      Microservices:        _NatsBackend    set NATS_URL in .env
     """
     def __init__(self, backend: _BackendBase | None = None):
         self._metrics = _Metrics()
         self._backend = backend or _LocalBackend(self._metrics)
 
-    # ─ Core operations ──
     async def subscribe(self, channel: str) -> _Entry:
         return await self._backend.subscribe(channel)
 
@@ -291,14 +272,24 @@ class _EventBus:
     async def publish(self, channel: str, event: Event) -> int:
         return await self._backend.publish(channel, event)
 
-    # ─ Shortcuts ─
     async def publish_payment(self, payment_id: str, event: Event) -> None:
         await self.publish(f"payment:{payment_id}", event)
 
     async def publish_merchant(self, merchant_id: str, event: Event) -> None:
         await self.publish(f"merchant:{str(merchant_id)}", event)
 
-    # ─ Observability ─
+    async def publish_broadcast(self, event: Event) -> int:
+        """Publish to all active merchant:* channels (for operator broadcasts)."""
+        backend = self._backend
+        if not hasattr(backend, "_channels"):
+            return 0
+        async with backend._lock:
+            channels = [ch for ch in backend._channels if ch.startswith("merchant:")]
+        total = 0
+        for ch in channels:
+            total += await self.publish(ch, event)
+        return total
+
     def metrics(self) -> dict:
         return {**self._metrics.snapshot(), **self._backend.stats()}
 
@@ -324,9 +315,6 @@ class _EventBus:
 EventBus = _EventBus()
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Migration guide (read before scaling)
-# ═══════════════════════════════════════════════════════════════════════════════
 """
 HOW TO MIGRATE TO REDIS PUB/SUB (when you need multiple workers):
 

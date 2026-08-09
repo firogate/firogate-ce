@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout Layout Preview FiroGate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;700&family=Archivo+Black&family=Space+Grotesk:wght@300;400;600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@200;300;400;600;700;800&family=Baloo+2:wght@500;700;800&family=Inter:wght@300;400;600;700;800&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:#0d0c0e;min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:inherit}
+
+.simbar{
+  position:fixed;bottom:18px;left:0;right:0;margin:0 auto;
+  width:max-content;max-width:calc(100% - 24px);z-index:60;
+  display:flex;gap:8px;align-items:center;padding:8px 10px;
+  background:rgba(20,19,18,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid #2c2a29;border-radius:999px;box-shadow:0 14px 34px -10px rgba(0,0,0,.7);
+}
+.simbar .lbl{font:600 10px 'JetBrains Mono';letter-spacing:2px;color:#5a5754;padding:0 6px;text-transform:uppercase;white-space:nowrap}
+.simbar button{
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  background:#232120;border:1px solid #2c2a29;color:#f0edea;
+  font:600 12px 'Space Grotesk';padding:8px 15px;border-radius:999px;transition:all .2s;
+}
+.simbar button:hover{border-color:#8C8C8C;background:#2c2a29}
+.simbar button.go{background:linear-gradient(140deg,#B82334,#8D1B28);border-color:transparent}
+.simbar button.go:hover{filter:brightness(1.15)}
+.simbar .sep{width:1px;height:22px;background:#2c2a29;flex-shrink:0}
+
+.done{
+  position:absolute;inset:0;z-index:8;display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;text-align:center;padding:20px;
+}
+.theme-wrap.paid .done{display:flex;animation:tIn .4s cubic-bezier(.2,.9,.3,1)}
+@keyframes tIn{from{opacity:0}to{opacity:1}}
+
+.dcheck{width:96px;height:96px}
+.dcheck circle{fill:none;stroke:currentColor;stroke-width:3;stroke-dasharray:320;stroke-dashoffset:320;
+  transform:rotate(-90deg);transform-origin:60px 60px}
+.dcheck path{fill:none;stroke:currentColor;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:66;stroke-dashoffset:67.5}
+.theme-wrap.paid .dcheck circle{animation:ddraw .8s cubic-bezier(.5,0,.3,1) forwards .1s}
+.theme-wrap.paid .dcheck path{animation:dtick .45s cubic-bezier(.4,0,.2,1) forwards .75s}
+@keyframes ddraw{to{stroke-dashoffset:0}}
+@keyframes dtick{to{stroke-dashoffset:0}}
+.done .dt1{font-size:19px;font-weight:700;margin-top:8px;opacity:0;transform:translateY(8px)}
+.done .dt2{font-size:11.5px;opacity:0;transform:translateY(8px)}
+.theme-wrap.paid .done .dt1{animation:drise .5s cubic-bezier(.2,.9,.3,1) forwards 1.05s}
+.theme-wrap.paid .done .dt2{animation:drise .5s cubic-bezier(.2,.9,.3,1) forwards 1.2s}
+@keyframes drise{to{opacity:1;transform:none}}
+
+.co-term .done{background:#050b07;color:#33ff88;font-family:'JetBrains Mono',monospace}
+.co-term .done .dcheck{filter:drop-shadow(0 0 14px rgba(51,255,136,.55))}
+.co-term .done .dt1{font-size:15px;letter-spacing:2px;text-shadow:0 0 10px rgba(51,255,136,.6)}
+.co-term .done .dt2{color:#1f8f52;font-size:11px}
+.co-rcpt .done{background:#fbfaf6;color:#232323;font-family:'JetBrains Mono',monospace}
+.co-rcpt .done .dcheck{color:#1c7a3d}
+.co-rcpt .done .dt1{font-size:16px;letter-spacing:3px}
+.co-rcpt .done .rstamp{border:3px solid #1c7a3d;color:#1c7a3d;font:700 13px 'JetBrains Mono';padding:5px 14px;letter-spacing:3px;border-radius:4px;transform:rotate(-9deg);opacity:0}
+.theme-wrap.paid .co-rcpt .done .rstamp{animation:stampIn .45s cubic-bezier(.3,1.5,.5,1) forwards 1.3s}
+@keyframes stampIn{0%{opacity:0;transform:rotate(-9deg) scale(2.2)}100%{opacity:.85;transform:rotate(-9deg) scale(1)}}
+.co-glass .done{background:rgba(20,18,26,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:#fff;border-radius:26px;font-family:'Outfit',sans-serif}
+.co-glass .done .dcheck{filter:drop-shadow(0 0 22px rgba(124,255,178,.5));color:#7CFFB2}
+.co-glass .done .dt1{font-weight:300;font-size:24px}
+.co-glass .done .dt1 b{font-weight:700}
+.co-brut .done{background:#f4f1ea;color:#111;font-family:'Space Grotesk',sans-serif}
+.co-brut .done .dbox{width:104px;height:104px;background:#111;display:grid;place-items:center;box-shadow:8px 8px 0 #B82334;opacity:0;transform:scale(.5)}
+.theme-wrap.paid .co-brut .done .dbox{animation:brutPop .4s cubic-bezier(.3,1.4,.5,1) forwards .15s}
+@keyframes brutPop{to{opacity:1;transform:scale(1)}}
+.co-brut .done .dbox svg{width:60px;height:60px}
+.co-brut .done .dbox path{fill:none;stroke:#f4f1ea;stroke-width:8;stroke-linecap:square;stroke-dasharray:84;stroke-dashoffset:85.5}
+.theme-wrap.paid .co-brut .done .dbox path{animation:dtick .4s cubic-bezier(.4,0,.2,1) forwards .6s}
+.co-brut .done .dt1{font-family:'Archivo Black';font-size:34px;text-transform:uppercase}
+.co-brut .done .dt1 i{font-style:normal;color:#B82334}
+.co-brut .done .dt2{font:700 11px 'JetBrains Mono';color:#444}
+.co-lux .done{background:linear-gradient(170deg,#131110,#0b0a09);color:#b39a63;font-family:'Jost',sans-serif}
+.co-lux .done .dcheck{width:104px;height:104px}
+.co-lux .done .dcheck circle{stroke-width:1.5}
+.co-lux .done .dcheck path{stroke-width:3.5;color:#e9d9ae}
+.co-lux .done .dt1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;color:#f4ecd9}
+.co-lux .done .dt2{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#8d8676}
+.co-play .done{background:#fff7ec;color:#3c2a21;font-family:'Baloo 2',cursive;border-radius:30px}
+.co-play .done .pc{width:104px;height:104px;border-radius:50%;background:#fff;border:3px solid #3c2a21;box-shadow:0 6px 0 #3c2a21;display:grid;place-items:center;opacity:0;transform:scale(.4)}
+.theme-wrap.paid .co-play .done .pc{animation:brutPop .45s cubic-bezier(.3,1.6,.4,1) forwards .1s}
+.co-play .done .pc svg{width:56px;height:56px}
+.co-play .done .pc path{fill:none;stroke:#3c2a21;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:78;stroke-dashoffset:79.5}
+.theme-wrap.paid .co-play .done .pc path{animation:dtick .4s cubic-bezier(.4,0,.2,1) forwards .55s}
+.co-play .done .dt1{font-weight:800;font-size:24px}
+.co-play .done .dt1 span{color:#B82334}
+.co-play .done .dots{display:flex;gap:7px;margin-top:6px}
+.co-play .done .dots i{width:10px;height:10px;border-radius:50%;background:#B82334;border:2px solid #3c2a21}
+.theme-wrap.paid .co-play .done .dots i{animation:bob 1.1s ease-in-out infinite}
+.co-play .done .dots i:nth-child(2){background:#ffd166;animation-delay:.15s!important}
+.co-play .done .dots i:nth-child(3){background:#7cc9a0;animation-delay:.3s!important}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.co-news .done{background:#fbf8f0;color:#1c1a17;font-family:'Cormorant Garamond',serif}
+.co-news .done .press{background:#1c1a17;color:#fbf8f0;font:700 10px 'JetBrains Mono';letter-spacing:4px;padding:5px 16px;margin-bottom:10px}
+.co-news .done .dcheck{width:88px;height:88px}
+.co-news .done .dcheck circle{stroke-width:2}
+.co-news .done .dt1{font-size:32px;font-weight:700;border-top:2.5px solid #1c1a17;border-bottom:2.5px solid #1c1a17;padding:8px 18px;margin-top:10px}
+.co-news .done .dt2{font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c}
+.co-cyber .done{background:rgba(10,6,22,.94);color:#0ff;font-family:'Orbitron',sans-serif;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px))}
+.co-cyber .done .dcheck{filter:drop-shadow(0 0 20px rgba(0,229,255,.7))}
+.co-cyber .done .dcheck path{stroke:#f0f;filter:drop-shadow(0 0 8px #f0f)}
+.co-cyber .done .dt1{font-size:20px;font-weight:900;letter-spacing:4px;text-transform:uppercase;text-shadow:0 0 16px rgba(0,229,255,.8)}
+.co-cyber .done .dt2{color:#8ab3c2;font-size:9px;letter-spacing:3px}
+.co-swiss .done{background:#fff;color:#111;font-family:'Inter',sans-serif}
+.co-swiss .done .dcheck{color:#111}
+.co-swiss .done .dcheck circle{stroke-width:2}
+.co-swiss .done .dcheck path{stroke-width:5}
+.co-swiss .done .dt1{font-size:40px;font-weight:800;letter-spacing:-2px}
+.co-swiss .done .dt1 i{font-style:normal;color:#B82334}
+.co-swiss .done .dt2{color:#8a8a8a;font-weight:300;font-size:13px}
+.co-pix .done{background:#1b1f3a;color:#7cffb2;font-family:'Press Start 2P',monospace}
+.co-pix .done .pixcheck{width:98px;height:84px;shape-rendering:crispEdges}
+.co-pix .done .pixcheck rect{fill:#7cffb2;opacity:0;transform:scale(0);transform-box:fill-box;transform-origin:center}
+.theme-wrap.paid .co-pix .done .pixcheck rect{animation:pixIn .18s steps(1) forwards}
+@keyframes pixIn{to{opacity:1;transform:scale(1)}}
+.co-pix .done .dt1{font-size:12px;line-height:1.8;text-shadow:2px 2px 0 #0e1126;color:#ffd166}
+.co-pix .done .dt2{font-size:7.5px;color:#9aa3d8;line-height:1.8}
+.co-pass .done{background:#f7f9ff;color:#182236;font-family:'Space Grotesk',sans-serif;border-radius:18px}
+.co-pass .done .dcheck{color:#182236}
+.co-pass .done .arr-stamp{border:3px solid #1c7a3d;color:#1c7a3d;font:800 14px 'Space Grotesk';letter-spacing:3px;text-transform:uppercase;padding:5px 16px;border-radius:6px;transform:rotate(-8deg);opacity:0;margin-bottom:6px}
+.theme-wrap.paid .co-pass .done .arr-stamp{animation:stampIn .45s cubic-bezier(.3,1.5,.5,1) forwards 1.25s}
+.co-pass .done .dt2{color:#7181a3;font:600 10px 'JetBrains Mono';letter-spacing:1px}
+.co-zen .done{background:#efe9df;color:#3f3a32;font-family:'Jost',sans-serif}
+.co-zen .done .zenso{width:120px;height:120px}
+.co-zen .done .zenso circle{fill:none;stroke:#3f3a32;stroke-width:6;stroke-linecap:round;stroke-dasharray:340;stroke-dashoffset:340;transform:rotate(-70deg);transform-origin:60px 60px;opacity:.9}
+.theme-wrap.paid .co-zen .done .zenso circle{animation:ddraw 1.2s cubic-bezier(.5,0,.3,1) forwards .1s}
+.co-zen .done .zenso path{fill:none;stroke:#b0432f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:66;stroke-dashoffset:67.5}
+.theme-wrap.paid .co-zen .done .zenso path{animation:dtick .5s cubic-bezier(.4,0,.2,1) forwards 1.15s}
+.co-zen .done .dt1{font-weight:200;font-size:24px;letter-spacing:2px;color:#2f2a23}
+.co-zen .done .dt2{font-weight:300;font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:#9a8f80}
+
+.co-pix .done .pixcheck rect:nth-child(1){animation-delay:.00s!important}
+.co-pix .done .pixcheck rect:nth-child(2){animation-delay:.06s!important}
+.co-pix .done .pixcheck rect:nth-child(3){animation-delay:.12s!important}
+.co-pix .done .pixcheck rect:nth-child(4){animation-delay:.18s!important}
+.co-pix .done .pixcheck rect:nth-child(5){animation-delay:.24s!important}
+.co-pix .done .pixcheck rect:nth-child(6){animation-delay:.30s!important}
+.co-pix .done .pixcheck rect:nth-child(7){animation-delay:.36s!important}
+.co-pix .done .pixcheck rect:nth-child(8){animation-delay:.42s!important}
+</style>
+</head>
+<body>
+
+<div id="layout-root"></div>
+
+<div class="simbar">
+  <span class="lbl" id="lbl-layout">Preview</span>
+  <div class="sep"></div>
+  <button onclick="simulatePaid()" class="go">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    Simulate payment
+  </button>
+  <button onclick="window.close()">Close</button>
+</div>
+
+<script>
+var payData = {
+  amount_firo: 4.275,
+  address: 'TWqcXieYcoAYCr1BiUYMBUKfBBt3rLD9gJ',
+  merchant_app_name: 'Fen Digital Store',
+  order_id: 'FG-2481-DEMO',
+  is_testnet: false,
+  status: 'pending',
+};
+
+function fmtFiro(v){
+  const n = parseFloat(v);
+  if (isNaN(n)) return '0.00';
+  let s = n.toFixed(8);
+  if (s.indexOf('.') !== -1) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s.indexOf('.') === -1 ? s + '.00' : s;
+}
+function _safe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _getPayAmt(){ return fmtFiro(payData.amount_firo); }
+function _getAddr()  { return payData.address; }
+function _getMerchant(){ return payData.merchant_app_name; }
+function _getOrderId(){ return payData.order_id; }
+
+var _layout = (new URLSearchParams(location.search)).get('layout') || 'terminal';
+
+var _timerIntervals = [];
+function _layoutStartTimer(timerId, barId, totalSec) {
+  var remaining = totalSec;
+  var el = document.getElementById(timerId);
+  var bar = barId ? document.getElementById(barId) : null;
+  function tick(){
+    if(!el) return;
+    var m = Math.floor(remaining/60), s = remaining%60;
+    el.textContent = m+':'+(s<10?'0':'')+s;
+    if(bar) bar.style.transform = 'scaleX('+(remaining/totalSec)+')';
+    if(remaining > 0) remaining--;
+  }
+  tick();
+  _timerIntervals.push(setInterval(tick, 1000));
+}
+
+function _layoutFakeQr(svgId, dark, light) {
+  var svg = document.getElementById(svgId);
+  if (!svg) return;
+  dark = dark || '#000'; light = light || '#fff';
+  var pat = [
+    [1,1,1,1,1,1,1,0,1,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0],
+    [1,0,0,0,0,0,1,0,1,1,0,1,1,0,1,0,0,0,0,0,1,0,0,1,0],
+    [1,0,1,1,1,0,1,0,0,1,1,0,0,0,1,0,1,1,1,0,1,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,0,1,1,0,0,1,0,1,1,1,0,1,0,0,1,1],
+    [1,0,1,1,1,0,1,0,0,0,1,0,1,0,1,0,1,1,1,0,1,1,0,0,0],
+    [1,0,0,0,0,0,1,0,1,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,1],
+    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+    [0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0],
+    [1,0,1,1,0,1,1,1,0,0,1,0,0,1,1,0,1,1,0,1,0,1,0,0,1],
+    [0,1,0,0,1,0,0,1,1,0,1,1,0,0,0,1,0,0,1,1,0,0,1,0,1],
+    [1,1,0,1,0,1,1,0,1,1,0,0,1,1,1,0,1,0,1,0,1,1,0,1,0],
+    [0,0,1,0,1,1,0,1,0,0,1,0,0,1,0,1,0,1,0,0,1,0,1,1,0],
+    [1,0,0,1,0,0,1,1,1,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,1],
+    [0,0,0,0,0,0,0,0,1,0,1,1,0,1,0,0,0,1,1,0,1,0,0,1,0],
+    [1,1,1,1,1,1,1,0,0,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,1,0,1,0,0,0,0,1,0,1,1,0,1,0,1,0,0],
+    [1,0,1,1,1,0,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,0,0,1,1],
+    [1,0,1,1,1,0,1,0,0,0,1,0,0,0,0,1,1,0,1,0,1,1,0,0,0],
+    [1,0,1,1,1,0,1,1,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0],
+    [1,0,0,0,0,0,1,0,0,1,1,0,1,0,0,1,0,0,1,0,1,0,0,1,1],
+    [1,1,1,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,0,0,1,0,0],
+    [0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,1,0,0,1,1,0,1,0,1,0],
+    [1,0,1,1,0,0,1,0,0,1,1,0,1,1,0,0,1,0,0,0,1,1,0,0,1],
+    [0,1,1,0,1,0,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,0],
+    [0,0,0,1,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1,0,1,1,0,1,0],
+  ];
+  var size = 25;
+  var html = '';
+  for (var r = 0; r < size; r++) {
+    for (var c = 0; c < size; c++) {
+      if (pat[r][c]) html += '<rect x="'+c+'" y="'+r+'" width="1" height="1" fill="'+dark+'"/>';
+    }
+  }
+  svg.style.background = light;
+  svg.innerHTML = html;
+}
+
+function _layoutCopyAddr(btn) {
+  var addr = _getAddr();
+  try { navigator.clipboard.writeText(addr); } catch(e){}
+  var old = btn.textContent;
+  btn.textContent = '✓ Copied';
+  setTimeout(function(){ btn.textContent = old; }, 1500);
+}
+
+var _doneHTML = {
+  terminal: '<div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  receipt:  '<div class="done"><div class="rstamp">PAID</div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  glass:    '<div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  brutalist:'<div class="done"><div class="dbox"><svg viewBox="0 0 80 80"><path d="M20 42l14 14 28-32"/></svg></div><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  luxury:   '<div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  playful:  '<div class="done"><div class="pc"><svg viewBox="0 0 80 80"><path d="M20 42l14 14 28-32"/></svg></div><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div><div class="dots"><i></i><i></i><i></i></div></div>',
+  newspaper:'<div class="done"><div class="press">— PRESS —</div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  cyberpunk:'<div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  swiss:    '<div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  pixel:    '<div class="done"><svg class="pixcheck" viewBox="0 0 14 12"><rect x="0" y="8" width="2" height="2"/><rect x="2" y="10" width="2" height="2"/><rect x="4" y="8" width="2" height="2"/><rect x="6" y="6" width="2" height="2"/><rect x="8" y="4" width="2" height="2"/><rect x="10" y="2" width="2" height="2"/><rect x="12" y="0" width="2" height="2"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  boarding_pass: '<div class="done"><div class="arr-stamp">BOARDED</div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+  zen:      '<div class="done"><svg class="zenso" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>',
+};
+
+var _doneContainerSel = {
+  terminal: '.co-term .crt',
+  receipt:  '.co-rcpt .paper',
+  glass:    '.co-glass .glass',
+  brutalist:'.co-brut .sheet',
+  luxury:   '.co-lux .frame',
+  playful:  '.co-play .bub',
+  newspaper:'.co-news .page',
+  cyberpunk:'.co-cyber .rig',
+  swiss:    '.co-swiss .sheet',
+  pixel:    '.co-pix .cart',
+  boarding_pass: '.co-pass .ticket',
+  zen:      '.co-zen .room',
+};
+
+function simulatePaid() {
+  var wrap = document.querySelector('.theme-wrap');
+  if (!wrap) return;
+  wrap.classList.add('paid');
+  var sel = _doneContainerSel[_layout];
+  if (sel) {
+    var card = wrap.querySelector(sel);
+    if (card && !card.querySelector('.done')) {
+      card.style.position = 'relative';
+      card.insertAdjacentHTML('beforeend', _doneHTML[_layout] || '');
+    }
+  }
+}
+</script>
+
+<script>
+function buildLayout(layout, wrap) {
+  wrap.innerHTML = '';
+  wrap.className = 'theme-wrap';
+  var inner = document.createElement('div');
+  wrap.appendChild(inner);
+
+  if      (layout === 'terminal')     _buildTerminalLayout(inner);
+  else if (layout === 'receipt')      _buildReceiptLayout(inner);
+  else if (layout === 'glass')        _buildGlassLayout(inner);
+  else if (layout === 'brutalist')    _buildBrutalistLayout(inner);
+  else if (layout === 'luxury')       _buildLuxuryLayout(inner);
+  else if (layout === 'playful')      _buildPlayfulLayout(inner);
+  else if (layout === 'newspaper')    _buildNewspaperLayout(inner);
+  else if (layout === 'cyberpunk')    _buildCyberpunkLayout(inner);
+  else if (layout === 'swiss')        _buildSwissLayout(inner);
+  else if (layout === 'pixel')        _buildPixelLayout(inner);
+  else if (layout === 'boarding_pass')_buildBoardingPassLayout(inner);
+  else if (layout === 'zen')          _buildZenLayout(inner);
+}
+
+function _buildTerminalLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-term{font-family:'JetBrains Mono',monospace;color:#33ff88;min-height:100vh;display:grid;place-items:center;padding:20px;background:#050b07}
+.co-term .crt{background:#050b07;border:1px solid #1c4a2f;border-radius:8px;padding:24px 22px 20px;max-width:520px;width:100%;box-shadow:0 0 40px rgba(51,255,136,.07) inset,0 20px 60px -20px #000;position:relative;overflow:hidden}
+.co-term .crt::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.22) 2px 4px)}
+.co-term .hd{color:#1f8f52;font-size:11px;letter-spacing:1px;margin-bottom:14px}
+.co-term .hd b{color:#33ff88}
+.co-term .ln{font-size:12.5px;line-height:2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.co-term .ln .k{color:#1f8f52}.co-term .ln .ok{color:#33ff88}.co-term .ln .warn{color:#ffd166}
+.co-term .amt{font-size:28px;font-weight:700;margin:12px 0 4px;text-shadow:0 0 12px rgba(51,255,136,.5)}
+.co-term .bar{margin:10px 0;font-size:13px;letter-spacing:1px}
+.co-term .addr-box{border:1px dashed #1c4a2f;padding:9px 10px;margin:12px 0;font-size:11px;word-break:break-all;color:#7bffb5;display:flex;gap:8px;align-items:center}
+.co-term .cp-btn{background:none;border:1px solid #1f8f52;color:#33ff88;font:700 10px 'JetBrains Mono';padding:5px 9px;flex-shrink:0;cursor:pointer}
+.co-term .cp-btn:hover{background:#0b2416}
+.co-term .cur{display:inline-block;width:8px;height:14px;background:#33ff88;vertical-align:-2px;animation:coBlink .8s steps(1) infinite}
+@keyframes coBlink{50%{opacity:0}}
+.co-term .tprog{letter-spacing:0}
+</style>
+<div class="co-term"><div class="crt">
+  <div class="hd">┌─[ <b>PAYMENT</b> ]── non-custodial checkout ─┐</div>
+  <div class="ln"><span class="k">merchant.....</span> ${_safe(_getMerchant())}</div>
+  <div class="ln"><span class="k">invoice......</span> ${_safe(_getOrderId())}</div>
+  <div class="ln"><span class="k">network......</span> <span class="ok">firo mainnet ● synced</span></div>
+  <div class="ln"><span class="k">status.......</span> <span class="warn">AWAITING_PAYMENT</span><span class="cur"></span></div>
+  <div class="amt">${_safe(_getPayAmt())} FIRO</div>
+  <div class="bar">[<span class="tprog" id="co-t-prog">████████████████████</span>] <span id="co-t-timer">20:00</span></div>
+  <div class="addr-box"><span style="flex:1">${_safe(_getAddr())}</span><button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY</button></div>
+  <div class="ln"><span class="k">$</span> watching mempool for incoming tx<span class="cur"></span></div>
+</div></div>`;
+  _layoutStartTimer('co-t-timer','co-t-prog',20*60);
+}
+
+function _buildReceiptLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-rcpt{min-height:100vh;display:grid;place-items:center;padding:30px 14px;background:#1a1917}
+.co-rcpt .paper{font-family:'JetBrains Mono',monospace;color:#232323;background:#fbfaf6;padding:26px 20px 30px;position:relative;--zz:12px;filter:drop-shadow(0 22px 30px rgba(0,0,0,.5));max-width:330px;width:100%;
+  clip-path:polygon(0 8px,var(--zz) 0,calc(var(--zz)*2) 8px,calc(var(--zz)*3) 0,calc(var(--zz)*4) 8px,calc(var(--zz)*5) 0,calc(var(--zz)*6) 8px,calc(var(--zz)*7) 0,calc(var(--zz)*8) 8px,calc(var(--zz)*9) 0,calc(var(--zz)*10) 8px,calc(var(--zz)*11) 0,calc(var(--zz)*12) 8px,calc(var(--zz)*13) 0,calc(var(--zz)*14) 8px,calc(var(--zz)*15) 0,calc(var(--zz)*16) 8px,calc(var(--zz)*17) 0,calc(var(--zz)*18) 8px,calc(var(--zz)*19) 0,calc(var(--zz)*20) 8px,100% 0,100% calc(100% - 8px),calc(100% - var(--zz)) 100%,calc(100% - var(--zz)*2) calc(100% - 8px),calc(100% - var(--zz)*3) 100%,calc(100% - var(--zz)*4) calc(100% - 8px),calc(100% - var(--zz)*5) 100%,calc(100% - var(--zz)*6) calc(100% - 8px),calc(100% - var(--zz)*7) 100%,calc(100% - var(--zz)*8) calc(100% - 8px),calc(100% - var(--zz)*9) 100%,calc(100% - var(--zz)*10) calc(100% - 8px),calc(100% - var(--zz)*11) 100%,calc(100% - var(--zz)*12) calc(100% - 8px),calc(100% - var(--zz)*13) 100%,calc(100% - var(--zz)*14) calc(100% - 8px),calc(100% - var(--zz)*15) 100%,0 calc(100% - 8px))}
+.co-rcpt .c{text-align:center}.co-rcpt .logo{font-size:17px;font-weight:700;letter-spacing:3px}
+.co-rcpt .tag{font-size:9.5px;color:#8a8a86;margin-top:2px;letter-spacing:1px}
+.co-rcpt .sep{border:none;border-top:1.5px dashed #c9c7c0;margin:13px 0}
+.co-rcpt .row{display:flex;justify-content:space-between;font-size:11px;line-height:2}
+.co-rcpt .row b{font-weight:700}.co-rcpt .total{font-size:15px;font-weight:700}
+.co-rcpt .addr{font-size:9.5px;word-break:break-all;text-align:center;line-height:1.7;margin:6px 0}
+.co-rcpt .qrbox{width:120px;height:120px;margin:10px auto;background:#fff;border:1.5px solid #232323;padding:8px}
+.co-rcpt .cp-btn{background:none;border:1px solid #232323;font:700 9px 'JetBrains Mono';padding:3px 8px;cursor:pointer;margin-left:4px}
+</style>
+<div class="co-rcpt"><div class="paper">
+  <div class="c logo">${_safe(_getMerchant().toUpperCase())}</div>
+  <div class="c tag">POWERED BY FIROGATE · NON-CUSTODIAL</div>
+  <hr class="sep">
+  <div class="row"><span>Invoice</span><b>${_safe(_getOrderId())}</b></div>
+  <hr class="sep">
+  <div class="row total"><span>TOTAL</span><span>${_safe(_getPayAmt())} FIRO</span></div>
+  <hr class="sep">
+  <div class="c" style="font-size:10px;letter-spacing:1px">SEND EXACTLY TO</div>
+  <div class="addr">${_safe(_getAddr())}<button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY</button></div>
+  <div class="qrbox"><svg id="co-r-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+  <div class="c" style="font-size:10px">expires in <b id="co-r-timer">20:00</b></div>
+</div></div>`;
+  _layoutStartTimer('co-r-timer',null,20*60);
+  _layoutFakeQr('co-r-qr');
+}
+
+function _buildGlassLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-glass{min-height:100vh;display:grid;place-items:center;padding:28px 14px;position:relative;overflow:hidden;background:#14121a;font-family:'Outfit',sans-serif;color:#e8e2ff}
+.co-glass .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;pointer-events:none}
+.co-glass .glass{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:26px;backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);padding:28px 26px 24px;max-width:480px;width:100%;position:relative;overflow:hidden;box-shadow:0 32px 60px -20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.18)}
+.co-glass .hd{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:rgba(232,226,255,.55);margin-bottom:18px}
+.co-glass .amt{font-size:42px;font-weight:300;letter-spacing:-1px;line-height:1}
+.co-glass .amt b{font-weight:700}
+.co-glass .sub{font-size:11px;color:rgba(232,226,255,.5);margin:4px 0 18px;letter-spacing:.5px}
+.co-glass .qrrow{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+.co-glass .qr-box{width:110px;height:110px;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:8px;backdrop-filter:blur(4px)}
+.co-glass .addr{font-size:11px;font-family:'JetBrains Mono';word-break:break-all;color:rgba(232,226,255,.7);line-height:1.7}
+.co-glass .tm{font-size:12px;color:rgba(232,226,255,.55);margin-top:6px}
+.co-glass .cp-btn{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#e8e2ff;font:600 10px 'Outfit';padding:5px 11px;margin-top:6px;cursor:pointer}
+.co-glass .paybtn{width:100%;margin-top:14px;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;font:700 14px 'Outfit';letter-spacing:.5px;cursor:pointer}
+.co-glass .paybtn:hover{filter:brightness(1.1)}
+</style>
+<div class="co-glass">
+  <div class="blob" style="width:320px;height:320px;top:-80px;right:-80px;background:radial-gradient(circle,#7c3aed,transparent)"></div>
+  <div class="blob" style="width:260px;height:260px;bottom:-60px;left:-60px;background:radial-gradient(circle,#4f46e5,transparent)"></div>
+  <div class="glass">
+    <div class="hd">${_safe(_getMerchant())} · ${_safe(_getOrderId())}</div>
+    <div class="amt"><b>${_safe(_getPayAmt())}</b> FIRO</div>
+    <div class="sub">Non-custodial · direct to merchant</div>
+    <div class="qrrow">
+      <div class="qr-box"><svg id="co-g-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+      <div>
+        <div class="addr">${_safe(_getAddr())}</div>
+        <button class="cp-btn" onclick="_layoutCopyAddr(this)">Copy address</button>
+        <div class="tm">⏱ <span id="co-g-timer">20:00</span></div>
+      </div>
+    </div>
+    <button class="paybtn">Open Wallet</button>
+  </div>
+</div>`;
+  _layoutStartTimer('co-g-timer',null,20*60);
+  _layoutFakeQr('co-g-qr','#c4b5fd','rgba(255,255,255,.06)');
+}
+
+function _buildBrutalistLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-brut{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#f4f1ea;font-family:'Space Grotesk',sans-serif}
+.co-brut .sheet{background:#f4f1ea;border:3px solid #111;padding:28px 24px;max-width:490px;width:100%;box-shadow:10px 10px 0 #111;position:relative;overflow:hidden}
+.co-brut .shd{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:16px}
+.co-brut h1{font-family:'Archivo Black';font-size:36px;line-height:1;text-transform:uppercase;margin-bottom:6px}
+.co-brut h1 i{font-style:normal;color:#B82334}
+.co-brut .sub{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:#555;border-bottom:1px solid #111;padding-bottom:12px;margin-bottom:16px}
+.co-brut .row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #111;padding:10px 0;font-size:12px}
+.co-brut .row b{font-size:15px;font-weight:700}
+.co-brut .amt{font-size:42px;font-weight:900;margin:14px 0;font-family:'Archivo Black'}
+.co-brut .addr{font:700 9px 'JetBrains Mono';word-break:break-all;background:#111;color:#f4f1ea;padding:10px;margin:14px 0;display:flex;gap:10px;align-items:center}
+.co-brut .cp-btn{flex-shrink:0;background:#B82334;color:#fff;border:none;font:700 9px 'JetBrains Mono';padding:7px 11px;cursor:pointer}
+.co-brut .paybtn{width:100%;border:3px solid #111;background:#111;color:#f4f1ea;font:700 13px 'Space Grotesk';letter-spacing:2px;text-transform:uppercase;padding:15px;box-shadow:5px 5px 0 #B82334;transition:all .1s;cursor:pointer}
+.co-brut .paybtn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 #B82334}
+.co-brut .tm{font-size:10px;text-align:right;margin-top:10px;letter-spacing:1px}
+</style>
+<div class="co-brut"><div class="sheet">
+  <div class="shd">checkout · non-custodial · direct</div>
+  <h1>PAY <i>NOW</i></h1>
+  <div class="sub">${_safe(_getMerchant())} ${_safe(_getOrderId())}</div>
+  <div class="amt">${_safe(_getPayAmt())}</div>
+  <div class="addr"><span style="flex:1">${_safe(_getAddr())}</span><button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY</button></div>
+  <button class="paybtn">Open Wallet &amp; Send</button>
+  <div class="tm">Expires in <b id="co-b-timer">20:00</b></div>
+</div></div>`;
+  _layoutStartTimer('co-b-timer',null,20*60);
+}
+
+function _buildLuxuryLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-lux{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#0a0806;font-family:'Jost',sans-serif;color:#c9b887}
+.co-lux .frame{background:linear-gradient(165deg,#161210,#0d0b09);border:1px solid #2a221a;padding:34px 30px 28px;max-width:470px;width:100%;position:relative;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.8)}
+.co-lux .frame::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(185,154,99,.06),transparent);pointer-events:none}
+.co-lux .crown{font-size:28px;text-align:center;margin-bottom:16px;display:block}
+.co-lux .mch{text-align:center;font:300 10px 'Jost';letter-spacing:5px;text-transform:uppercase;color:#7a6a4a;margin-bottom:4px}
+.co-lux .ttl{text-align:center;font:600 28px 'Cormorant Garamond';color:#e9d9ae;margin-bottom:16px}
+.co-lux .sep{height:1px;background:linear-gradient(90deg,transparent,#2a221a,transparent);margin:14px 0}
+.co-lux .kv{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid #1e1812}
+.co-lux .kv .k{font-weight:300;color:#7a6a4a;letter-spacing:1px;text-transform:uppercase;font-size:9.5px}
+.co-lux .kv .v{font-weight:600;color:#d4c096}
+.co-lux .amt{text-align:center;font:300 52px 'Cormorant Garamond';color:#f4ecd9;line-height:1;margin:18px 0 4px}
+.co-lux .amt small{font-size:16px;font-weight:400;color:#7a6a4a}
+.co-lux .qr-box{width:110px;height:110px;margin:16px auto;background:#0a0806;border:1px solid #2a221a;padding:8px}
+.co-lux .addr{font:400 9.5px 'JetBrains Mono';word-break:break-all;text-align:center;color:#7a6a4a;line-height:1.7}
+.co-lux .cp-btn{display:block;margin:8px auto;background:none;border:1px solid #2a221a;color:#c9b887;font:500 9.5px 'Jost';letter-spacing:2px;padding:5px 14px;text-transform:uppercase;cursor:pointer}
+.co-lux .paybtn{width:100%;margin-top:16px;padding:15px;border:1px solid #c9b887;background:none;color:#c9b887;font:500 11px 'Jost';letter-spacing:4px;text-transform:uppercase;transition:all .3s;cursor:pointer}
+.co-lux .paybtn:hover{background:#c9b887;color:#0a0806}
+.co-lux .tm{text-align:center;font:300 9.5px 'Jost';letter-spacing:2px;color:#4a3d28;margin-top:12px;text-transform:uppercase}
+</style>
+<div class="co-lux"><div class="frame">
+  <span class="crown">♛</span>
+  <div class="mch">${_safe(_getMerchant())}</div>
+  <div class="ttl">Payment Request</div>
+  <div class="sep"></div>
+  <div class="kv"><span class="k">Invoice</span><span class="v">${_safe(_getOrderId())}</span></div>
+  <div class="kv"><span class="k">Network</span><span class="v">Firo Mainnet</span></div>
+  <div class="kv"><span class="k">Custody</span><span class="v">Non-custodial</span></div>
+  <div class="amt">${_safe(_getPayAmt())}<small> FIRO</small></div>
+  <div class="qr-box"><svg id="co-l-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+  <div class="addr">${_safe(_getAddr())}</div>
+  <button class="cp-btn" onclick="_layoutCopyAddr(this)">Copy Address</button>
+  <button class="paybtn">Open Wallet</button>
+  <div class="tm">Expires in <span id="co-l-timer">20:00</span></div>
+</div></div>`;
+  _layoutStartTimer('co-l-timer',null,20*60);
+  _layoutFakeQr('co-l-qr','#c9b887','#0a0806');
+}
+
+function _buildPlayfulLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-play{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:linear-gradient(145deg,#fde68a 0%,#fca5a5 50%,#a5f3fc 100%);font-family:'Baloo 2',cursive}
+.co-play .bub{background:#fff;border-radius:30px;border:3px solid #3c2a21;box-shadow:0 8px 0 #3c2a21;padding:26px 22px 22px;max-width:400px;width:100%;position:relative;overflow:hidden}
+.co-play .emoji{text-align:center;font-size:36px;margin-bottom:6px}
+.co-play h1{text-align:center;font-weight:800;font-size:24px;color:#3c2a21;margin-bottom:4px}
+.co-play .sub{text-align:center;font-size:11px;font-weight:500;color:#8b6c56;margin-bottom:16px}
+.co-play .chip{display:inline-flex;align-items:center;gap:5px;background:#fff7ed;border:2px solid #3c2a21;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;color:#3c2a21;margin-bottom:12px}
+.co-play .amt{text-align:center;font-size:38px;font-weight:800;color:#3c2a21;margin:8px 0}
+.co-play .qrbox{width:130px;height:130px;margin:0 auto 14px;background:#f9f5ff;border:3px solid #3c2a21;border-radius:18px;padding:8px}
+.co-play .addr{font-size:9.5px;font-family:'JetBrains Mono';word-break:break-all;text-align:center;color:#8b6c56;line-height:1.7}
+.co-play .cp-btn{display:block;margin:8px auto;background:#fde68a;border:2px solid #3c2a21;border-radius:999px;font:700 11px 'Baloo 2';padding:5px 14px;box-shadow:0 4px 0 #3c2a21;color:#3c2a21;cursor:pointer}
+.co-play .cp-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #3c2a21}
+.co-play .tm{text-align:center;font-size:12px;font-weight:600;color:#8b6c56;margin-bottom:10px}
+.co-play .paybtn{width:100%;background:#B82334;color:#fff;border:3px solid #3c2a21;border-radius:18px;font:800 14px 'Baloo 2';padding:14px;box-shadow:0 6px 0 #3c2a21;transition:all .1s;cursor:pointer}
+.co-play .paybtn:active{transform:translateY(4px);box-shadow:0 2px 0 #3c2a21}
+</style>
+<div class="co-play"><div class="bub">
+  <div class="emoji">🎉</div>
+  <h1>Pay ${_safe(_getMerchant())}!</h1>
+  <div class="sub">Invoice ${_safe(_getOrderId())} · non-custodial · direct</div>
+  <div style="text-align:center"><div class="chip">🪙 ${_safe(_getPayAmt())} FIRO</div></div>
+  <div class="qrbox"><svg id="co-p-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+  <div class="addr">${_safe(_getAddr())}</div>
+  <button class="cp-btn" onclick="_layoutCopyAddr(this)">📋 Copy address</button>
+  <div class="tm">⏱ <span id="co-p-timer">20:00</span></div>
+  <button class="paybtn">🚀 Open Wallet &amp; Pay!</button>
+</div></div>`;
+  _layoutStartTimer('co-p-timer',null,20*60);
+  _layoutFakeQr('co-p-qr','#3c2a21','#f9f5ff');
+}
+
+function _buildNewspaperLayout(wrap) {
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  wrap.innerHTML = `<style>
+.co-news{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#1a1917;font-family:'Cormorant Garamond',serif;color:#1c1a17}
+.co-news .page{background:#fbf8f0;padding:24px 22px 20px;box-shadow:0 24px 50px -18px rgba(0,0,0,.55);max-width:520px;width:100%;position:relative;overflow:hidden}
+.co-news .mast{display:flex;justify-content:space-between;align-items:baseline;font:600 9.5px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase;flex-wrap:wrap;gap:4px}
+.co-news .title{font-weight:700;font-size:34px;text-align:center;letter-spacing:1px;border-top:2.5px solid #1c1a17;border-bottom:1px solid #1c1a17;padding:7px 0 5px;margin:8px 0 3px}
+.co-news .title i{color:#B82334;font-style:normal}
+.co-news .under{border-bottom:2.5px solid #1c1a17;text-align:center;font:600 9px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:5px;margin-bottom:14px;color:#6b665c}
+.co-news .head{font-size:30px;font-weight:700;line-height:1.05;text-align:center}
+.co-news .deck{text-align:center;font-style:italic;font-size:13px;color:#59544a;margin:7px auto 14px;max-width:380px}
+.co-news .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;border-top:1px solid #c9c3b4;padding-top:12px}
+.co-news .story{font-size:12px;line-height:1.65;text-align:justify;color:#33302a}
+.co-news .story .mono{font:700 9.5px 'JetBrains Mono';word-break:break-all;background:#efe9d8;padding:1px 3px}
+.co-news .adbox{border:2px solid #1c1a17;padding:10px;text-align:center}
+.co-news .adbox .ttl{font:700 8.5px 'JetBrains Mono';letter-spacing:2px;margin-bottom:8px;color:#1c1a17}
+.co-news .qr-box{width:104px;height:104px;margin:0 auto;background:#fff;border:1px solid #1c1a17;padding:7px}
+.co-news .adbox .tm{font:700 11px 'JetBrains Mono';margin-top:8px;color:#1c1a17}
+.co-news .cp-btn{background:none;border:1px solid #1c1a17;font:700 8.5px 'JetBrains Mono';padding:2px 7px;cursor:pointer;margin-top:5px}
+.co-news .paybtn{width:100%;margin-top:14px;background:#1c1a17;color:#fbf8f0;border:none;font:600 12px 'Cormorant Garamond';letter-spacing:3px;text-transform:uppercase;padding:12px;cursor:pointer}
+.co-news .paybtn:hover{background:#B82334}
+@media(max-width:440px){.co-news .cols{grid-template-columns:1fr}}
+</style>
+<div class="co-news"><div class="page">
+  <div class="mast"><span>Checkout</span><span>${_safe(dateStr)}</span><span>Non-Custodial</span></div>
+  <div class="title">CHECKOUT</div>
+  <div class="under">Invoice Awaits Payment</div>
+  <div class="head">Invoice from ${_safe(_getMerchant())}</div>
+  <div class="deck">Invoice № ${_safe(_getOrderId())} funds travel directly to merchant.</div>
+  <div class="cols">
+    <div class="story">Payment of exactly <b>${_safe(_getPayAmt())} FIRO</b> is due to: <span class="mono">${_safe(_getAddr())}</span><br><button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY</button></div>
+    <div class="adbox">
+      <div class="ttl">— SCAN TO PAY —</div>
+      <div class="qr-box"><svg id="co-nw-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+      <div class="tm">⏱ <span id="co-nw-timer">20:00</span></div>
+    </div>
+  </div>
+  <button class="paybtn">Open Wallet &amp; Settle</button>
+</div></div>`;
+  _layoutStartTimer('co-nw-timer',null,20*60);
+  _layoutFakeQr('co-nw-qr','#1c1a17','#ffffff');
+}
+
+function _buildCyberpunkLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-cyber{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#07040f;font-family:'Orbitron',sans-serif;color:#d9faff}
+.co-cyber .rig{position:relative;background:linear-gradient(160deg,#0a0616,#120a24 60%,#0a0616);border:1px solid #00e5ff55;padding:24px 22px 20px;
+  clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px));
+  box-shadow:0 0 34px rgba(0,229,255,.12),inset 0 0 60px rgba(240,0,255,.05);max-width:470px;width:100%;overflow:hidden}
+.co-cyber .rig::after{content:"";position:absolute;left:0;right:0;bottom:0;height:110px;pointer-events:none;opacity:.35;
+  background:repeating-linear-gradient(90deg,rgba(0,229,255,.25) 0 1px,transparent 1px 34px),repeating-linear-gradient(0deg,rgba(0,229,255,.2) 0 1px,transparent 1px 22px);
+  transform:perspective(200px) rotateX(38deg);transform-origin:bottom}
+.co-cyber .sys{font-size:9px;letter-spacing:3px;color:#00e5ff;display:flex;justify-content:space-between;margin-bottom:14px}
+.co-cyber .sys .r{color:#f0f}
+.co-cyber h1{font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#fff;text-shadow:0 0 14px rgba(0,229,255,.7)}
+.co-cyber .sub{font-size:9.5px;letter-spacing:2px;color:#8ab3c2;margin:5px 0 16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.co-cyber .core{display:flex;gap:16px;align-items:center;position:relative;z-index:1}
+.co-cyber .qr-box{width:118px;height:118px;flex-shrink:0;background:#060312;border:1px solid #00e5ff;padding:8px;box-shadow:0 0 18px rgba(0,229,255,.35);
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.co-cyber .amt{font-size:24px;font-weight:900;color:#0ff;text-shadow:0 0 12px rgba(0,229,255,.8)}
+.co-cyber .amt small{font-size:10px;color:#f0f}
+.co-cyber .tbar{height:7px;background:#120a24;border:1px solid #00e5ff44;position:relative;overflow:hidden}
+.co-cyber .tbar i{position:absolute;inset:0;background:linear-gradient(90deg,#0ff,#f0f);width:100%;transform-origin:left}
+.co-cyber .tm{font-size:9px;letter-spacing:2px;color:#0ff;margin-top:6px}
+.co-cyber .addr-row{position:relative;z-index:1;margin:14px 0 12px;font:600 9.5px 'JetBrains Mono';color:#9fefff;word-break:break-all;border:1px dashed #f0f5;padding:9px 10px;display:flex;gap:8px;align-items:center}
+.co-cyber .cp-btn{flex-shrink:0;background:#f0f;border:none;color:#0a0616;font:700 8.5px 'Orbitron';padding:6px 9px;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));cursor:pointer}
+.co-cyber .paybtn{position:relative;z-index:1;width:100%;padding:14px;border:none;background:linear-gradient(100deg,#00e5ff,#f0f);color:#08040f;font:900 12px 'Orbitron';letter-spacing:3px;text-transform:uppercase;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));cursor:pointer}
+@media(max-width:440px){.co-cyber .core{flex-direction:column}}
+</style>
+<div class="co-cyber"><div class="rig">
+  <div class="sys"><span>SYS://CHECKOUT.PAY</span><span class="r">NODE_SYNCED ▮</span></div>
+  <h1>Payment Uplink</h1>
+  <div class="sub">${_safe(_getMerchant().toUpperCase())} // INV ${_safe(_getOrderId())} // NON-CUSTODIAL</div>
+  <div class="core">
+    <div class="qr-box"><svg id="co-cy-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+    <div style="flex:1;min-width:0">
+      <div class="amt">${_safe(_getPayAmt())} <small>FIRO</small></div>
+      <div style="font-size:9.5px;color:#8ab3c2;letter-spacing:1px;margin:4px 0 10px">Secure · Non-custodial</div>
+      <div class="tbar"><i id="co-cy-bar"></i></div>
+      <div class="tm">WINDOW CLOSES <span id="co-cy-timer">20:00</span></div>
+    </div>
+  </div>
+  <div class="addr-row"><span style="flex:1">${_safe(_getAddr())}</span><button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY</button></div>
+  <button class="paybtn">Jack In → Wallet</button>
+</div></div>`;
+  _layoutStartTimer('co-cy-timer',null,20*60);
+  _layoutFakeQr('co-cy-qr','#00e5ff','#060312');
+}
+
+function _buildSwissLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-swiss{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#e8e8e8;font-family:'Inter',sans-serif;color:#111}
+.co-swiss .sheet{background:#fff;padding:34px 32px 28px;box-shadow:0 26px 60px -22px rgba(0,0,0,.45);max-width:500px;width:100%;position:relative;overflow:hidden}
+.co-swiss .r1{display:flex;justify-content:space-between;font:600 11px 'Inter';letter-spacing:.5px;flex-wrap:wrap;gap:4px}
+.co-swiss .r1 span:last-child{color:#8a8a8a;font-weight:400}
+.co-swiss .redline{height:3px;background:#B82334;margin:14px 0 28px;width:56px}
+.co-swiss .amt{font-size:58px;font-weight:800;letter-spacing:-3px;line-height:.95}
+.co-swiss .amt small{font-size:16px;font-weight:400;letter-spacing:0;color:#8a8a8a;margin-left:6px}
+.co-swiss .fiat{font-size:12px;font-weight:300;color:#8a8a8a;margin:8px 0 28px}
+.co-swiss .gridd{display:grid;grid-template-columns:1fr 128px;gap:22px;align-items:start;border-top:1px solid #e6e6e6;padding-top:20px}
+.co-swiss dl{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:11.5px}
+.co-swiss dt{color:#8a8a8a;font-weight:400}
+.co-swiss dd{font-weight:600;word-break:break-all}
+.co-swiss dd.mono{font-family:'JetBrains Mono';font-weight:400;font-size:10px}
+.co-swiss .qr-box{width:128px;height:128px;border:1px solid #e6e6e6;padding:8px}
+.co-swiss .cp-btn{background:none;border:none;color:#B82334;font:600 10.5px 'Inter';padding:0;margin-top:5px;border-bottom:1px solid #B82334;cursor:pointer}
+.co-swiss .paybtn{width:100%;margin-top:26px;background:#111;color:#fff;border:none;font:600 13px 'Inter';letter-spacing:.3px;padding:15px;cursor:pointer}
+.co-swiss .paybtn:hover{background:#B82334}
+@media(max-width:440px){.co-swiss .gridd{grid-template-columns:1fr}}
+</style>
+<div class="co-swiss"><div class="sheet">
+  <div class="r1"><span>${_safe(_getMerchant())}</span><span>Invoice ${_safe(_getOrderId())}</span></div>
+  <div class="redline"></div>
+  <div class="amt">${_safe(_getPayAmt())}<small>FIRO</small></div>
+  <div class="fiat">Secure payment · non-custodial · direct to merchant</div>
+  <div class="gridd">
+    <dl>
+      <dt>Network</dt><dd>Firo mainnet</dd>
+      <dt>Custody</dt><dd>Non-custodial</dd>
+      <dt>Expires</dt><dd><span id="co-sw-timer">20:00</span></dd>
+      <dt>Address</dt><dd class="mono">${_safe(_getAddr())}</dd>
+      <dt></dt><dd><button class="cp-btn" onclick="_layoutCopyAddr(this)">Copy address</button></dd>
+    </dl>
+    <div class="qr-box"><svg id="co-sw-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+  </div>
+  <button class="paybtn">Open wallet</button>
+</div></div>`;
+  _layoutStartTimer('co-sw-timer',null,20*60);
+  _layoutFakeQr('co-sw-qr','#111111','#ffffff');
+}
+
+function _buildPixelLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-pix{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#0e1126;font-family:'Press Start 2P',monospace;color:#e8f6e8}
+.co-pix .cart{background:#1b1f3a;padding:22px 18px 18px;position:relative;box-shadow:0 0 0 4px #0e1126,0 0 0 8px #4a5296,0 0 0 12px #0e1126,0 18px 40px -8px #000;max-width:460px;width:100%;overflow:hidden}
+.co-pix .hud{display:flex;justify-content:space-between;font-size:7.5px;color:#ffd166;margin-bottom:14px;flex-wrap:wrap;gap:4px}
+.co-pix h1{font-size:12px;color:#7cffb2;text-align:center;line-height:1.7}
+.co-pix .amt{font-size:18px;color:#fff;text-align:center;margin:10px 0 3px;text-shadow:3px 3px 0 #B82334}
+.co-pix .hp{margin-bottom:4px;font-size:7px;color:#9aa3d8;display:flex;justify-content:space-between}
+.co-pix .hpbar{height:14px;background:#0e1126;box-shadow:inset 0 0 0 3px #4a5296;padding:3px}
+.co-pix .hpbar i{display:block;height:100%;background:repeating-linear-gradient(90deg,#7cffb2 0 8px,#5bd48e 8px 16px);transform-origin:left;width:100%}
+.co-pix .qrrow{display:flex;gap:12px;margin:14px 0;align-items:center}
+.co-pix .qr-box{width:110px;height:110px;flex-shrink:0;background:#fff;padding:7px;box-shadow:0 0 0 4px #0e1126}
+.co-pix .addr{font-size:6.5px;line-height:2;word-break:break-all;color:#c7cdf2}
+.co-pix .cp-btn{display:block;margin-top:8px;background:#ffd166;border:none;color:#1b1f3a;font:400 7px 'Press Start 2P';padding:7px 9px;box-shadow:0 4px 0 #a8842c;cursor:pointer}
+.co-pix .paybtn{width:100%;background:#B82334;color:#fff;border:none;font:400 9px 'Press Start 2P';padding:14px;box-shadow:0 6px 0 #6d1019;animation:pixBlink 1.6s steps(1) infinite;cursor:pointer;margin-top:10px}
+@keyframes pixBlink{0%,60%,100%{color:#fff}70%,90%{color:#ffd166}}
+</style>
+<div class="co-pix"><div class="cart">
+  <div class="hud"><span>${_safe(_getMerchant().substring(0,12).toUpperCase())}</span><span>${_safe(_getOrderId())}</span></div>
+  <h1>★ PAYMENT QUEST ★</h1>
+  <div class="amt">${_safe(_getPayAmt())} FIRO</div>
+  <div style="font-size:7px;color:#9aa3d8;text-align:center;margin-bottom:14px">Secure non-custodial payment</div>
+  <div class="hp"><span>TIME LEFT</span><span id="co-px-timer">20:00</span></div>
+  <div class="hpbar"><i id="co-px-bar"></i></div>
+  <div class="qrrow">
+    <div class="qr-box"><svg id="co-px-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+    <div>
+      <div class="addr">${_safe(_getAddr())}</div>
+      <button class="cp-btn" onclick="_layoutCopyAddr(this)">COPY ADDR</button>
+    </div>
+  </div>
+  <button class="paybtn">▶ PRESS TO PAY</button>
+</div></div>`;
+  _layoutStartTimer('co-px-timer',null,20*60);
+  _layoutFakeQr('co-px-qr','#1b1f3a','#ffffff');
+}
+
+function _buildBoardingPassLayout(wrap) {
+  var merch = _getMerchant();
+  var code = merch.replace(/[^A-Za-z]/g,'').substring(0,3).toUpperCase() || 'MRC';
+  wrap.innerHTML = `<style>
+.co-pass{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#1a1917;font-family:'Space Grotesk',sans-serif;color:#182236}
+.co-pass .ticket{display:flex;border-radius:18px;overflow:hidden;max-width:520px;width:100%;filter:drop-shadow(0 22px 34px rgba(0,0,0,.55))}
+.co-pass .main{flex:1;background:#f7f9ff;padding:20px 20px 18px;position:relative;background-image:radial-gradient(circle at right center,transparent 9px,#f7f9ff 9.5px)}
+.co-pass .stub{width:150px;background:#B82334;color:#fff;padding:18px 14px;position:relative;background-image:radial-gradient(circle at left center,transparent 9px,#B82334 9.5px);border-left:2.5px dashed rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;gap:8px}
+.co-pass .air{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:12px;letter-spacing:1px;margin-bottom:12px}
+.co-pass .air span:last-child{font:600 9px 'JetBrains Mono';color:#7181a3;letter-spacing:2px}
+.co-pass .route{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.co-pass .port b{display:block;font-size:22px;font-weight:700;letter-spacing:1px}
+.co-pass .port small{font-size:8.5px;color:#7181a3;text-transform:uppercase;letter-spacing:1px}
+.co-pass .plane{flex:1;border-top:2px dashed #b9c4dd;position:relative;height:0}
+.co-pass .plane::after{content:"◆";position:absolute;top:-9px;left:50%;transform:translateX(-50%);color:#B82334;font-size:11px}
+.co-pass .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid #dfe6f4;padding-top:10px}
+.co-pass .facts .k{font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:#7181a3}
+.co-pass .facts .v{font:700 12px 'Space Grotesk';margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.co-pass .addr{margin-top:10px;font:600 8.5px 'JetBrains Mono';color:#42527a;word-break:break-all;line-height:1.7}
+.co-pass .cp-btn{background:#182236;color:#fff;border:none;border-radius:7px;font:700 9px 'Space Grotesk';padding:5px 10px;margin-top:6px;cursor:pointer}
+.co-pass .stub .k{font-size:7.5px;letter-spacing:2px;opacity:.8;text-transform:uppercase}
+.co-pass .qr-box{width:98px;height:98px;background:#fff;border-radius:10px;padding:7px}
+.co-pass .stub .tm{font:700 14px 'JetBrains Mono'}
+.co-pass .paybtn{width:100%;border:none;background:#fff;color:#B82334;border-radius:9px;font:800 10px 'Space Grotesk';letter-spacing:1px;padding:9px;text-transform:uppercase;cursor:pointer}
+@media(max-width:480px){.co-pass .ticket{flex-direction:column}.co-pass .stub{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center;border-left:none;border-top:2.5px dashed rgba(255,255,255,.55)}}
+</style>
+<div class="co-pass"><div class="ticket">
+  <div class="main">
+    <div class="air"><span>CHECKOUT PASS</span><span>BOARDING PASS</span></div>
+    <div class="route">
+      <div class="port"><b>YOU</b><small>Your wallet</small></div>
+      <div class="plane"></div>
+      <div class="port" style="text-align:right"><b>${_safe(code)}</b><small>${_safe(merch.substring(0,10))}</small></div>
+    </div>
+    <div class="facts">
+      <div><div class="k">Amount</div><div class="v">${_safe(_getPayAmt())}</div></div>
+      <div><div class="k">Flight</div><div class="v">${_safe(_getOrderId())}</div></div>
+      <div><div class="k">Class</div><div class="v">MAINNET</div></div>
+    </div>
+    <div class="addr">GATE: ${_safe(_getAddr())}</div>
+    <button class="cp-btn" onclick="_layoutCopyAddr(this)">Copy gate address</button>
+  </div>
+  <div class="stub">
+    <div class="k">Scan to board</div>
+    <div class="qr-box"><svg id="co-bp-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+    <div class="k">Departs in</div>
+    <div class="tm" id="co-bp-timer">20:00</div>
+    <button class="paybtn">Board now</button>
+  </div>
+</div></div>`;
+  _layoutStartTimer('co-bp-timer',null,20*60);
+  _layoutFakeQr('co-bp-qr','#182236','#ffffff');
+}
+
+function _buildZenLayout(wrap) {
+  wrap.innerHTML = `<style>
+.co-zen{min-height:100vh;display:grid;place-items:center;padding:28px 14px;background:#2d2820;font-family:'Jost',sans-serif;color:#4a4238}
+.co-zen .room{background:#efe9df;padding:44px 34px 32px;text-align:center;box-shadow:0 28px 60px -24px rgba(0,0,0,.55);max-width:430px;width:100%;position:relative;overflow:hidden}
+.co-zen .who{font-weight:300;font-size:11.5px;letter-spacing:4px;text-transform:uppercase;color:#9a8f80}
+.co-zen .ensowrap{position:relative;width:190px;height:190px;margin:16px auto 6px}
+.co-zen .enso{position:absolute;inset:0;width:100%;height:100%}
+.co-zen .enso circle{fill:none;stroke:#3f3a32;stroke-width:7;stroke-linecap:round;opacity:.85;stroke-dasharray:565;stroke-dashoffset:52;transform:rotate(-64deg);transform-origin:center}
+.co-zen .amt-wrap{position:absolute;inset:0;display:grid;place-items:center;font-weight:200;font-size:26px;letter-spacing:-1px;color:#2f2a23}
+.co-zen .amt-wrap span{display:block;font-size:11px;font-weight:400;letter-spacing:3px;color:#b0432f;text-align:center}
+.co-zen .fiat{font-weight:300;font-size:11.5px;color:#9a8f80;letter-spacing:1px;margin-bottom:20px}
+.co-zen .qr-box{width:110px;height:110px;margin:0 auto 16px;background:#faf7f1;padding:9px;box-shadow:0 3px 14px -5px rgba(0,0,0,.25)}
+.co-zen .addr{font-weight:300;font-size:10px;letter-spacing:.5px;color:#6f6455;word-break:break-all;line-height:1.9;max-width:290px;margin:0 auto}
+.co-zen .cp-btn{background:none;border:none;font:400 10px 'Jost';letter-spacing:3px;text-transform:uppercase;color:#b0432f;margin:8px 0 18px;border-bottom:1px solid #b0432f;padding-bottom:2px;cursor:pointer}
+.co-zen .paybtn{background:#3f3a32;color:#efe9df;border:none;border-radius:999px;font:400 12px 'Jost';letter-spacing:3px;text-transform:uppercase;padding:13px 40px;cursor:pointer}
+.co-zen .paybtn:hover{background:#b0432f}
+.co-zen .tm{margin-top:14px;font-size:9.5px;font-weight:300;letter-spacing:2px;color:#9a8f80}
+.co-zen .tm b{color:#4a4238;font-weight:600}
+</style>
+<div class="co-zen"><div class="room">
+  <div class="who">${_safe(_getMerchant())} · ${_safe(_getOrderId())}</div>
+  <div class="ensowrap">
+    <svg class="enso" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90"/></svg>
+    <div class="amt-wrap"><span>${_safe(_getPayAmt())}</span><span>FIRO</span></div>
+  </div>
+  <div class="fiat">one payment, directly to the maker</div>
+  <div class="qr-box"><svg id="co-zn-qr" viewBox="0 0 25 25" width="100%" height="100%"></svg></div>
+  <div class="addr">${_safe(_getAddr())}</div>
+  <button class="cp-btn" onclick="_layoutCopyAddr(this)">Copy Address</button>
+  <button class="paybtn">Open Wallet</button>
+  <div class="tm">THE WINDOW CLOSES IN <b id="co-zn-timer">20:00</b></div>
+</div></div>`;
+  _layoutStartTimer('co-zn-timer',null,20*60);
+  _layoutFakeQr('co-zn-qr','#3f3a32','#faf7f1');
+}
+
+(function(){
+  var labels = {
+    terminal:'Terminal',receipt:'Receipt',glass:'Glass',brutalist:'Brutalist',
+    luxury:'Luxury',playful:'Playful',newspaper:'Newspaper',cyberpunk:'Cyberpunk',
+    swiss:'Swiss',pixel:'Pixel',boarding_pass:'Boarding Pass',zen:'Zen'
+  };
+  document.getElementById('lbl-layout').textContent = (labels[_layout] || _layout) + ' preview';
+  var root = document.getElementById('layout-root');
+  buildLayout(_layout, root);
+})();
+</script>
+</body>
+</html>

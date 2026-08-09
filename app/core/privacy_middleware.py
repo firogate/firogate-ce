@@ -31,33 +31,29 @@ class PrivacyMiddleware(BaseHTTPMiddleware):
     """
     
     async def dispatch(self, request: Request, call_next) -> Response:
-        # Detect if this is a Tor/onion request
         is_onion = is_onion_request(request)
-        
-        # Set initial privacy state (will be updated with user info after auth)
+
+        # user_privacy_mode/user_created_via_onion are set to False here and
+        # updated later by update_privacy_state_for_user() once auth runs.
         set_session_privacy_state(
             request,
             is_onion=is_onion,
-            user_privacy_mode=False,  # Will be updated after auth
+            user_privacy_mode=False,
             user_created_via_onion=False
         )
-        
-        # Log minimally for onion requests
+
         if is_onion:
             logger.debug(f"[privacy] Onion request: {request.method} {request.url.path}")
-        
-        # Process the request
+
         response = await call_next(request)
-        
-        # Add privacy indicator header (useful for frontend)
+
         state = get_session_privacy_state(request)
         if state.get("is_onion"):
             response.headers["X-Privacy-Mode"] = "onion"
-        
-        # Add access warning header if applicable
+
         if state.get("access_warning"):
             response.headers["X-Privacy-Warning"] = state["access_warning"]
-        
+
         return response
 
 

@@ -7,43 +7,25 @@ import sys
 
 class Settings(BaseSettings):
     APP_NAME:               str   = "FiroGate"
-
-    # REQUIRED in production — must be set in .env
-    # Generate: python -c "import secrets; print(secrets.token_hex(32))"
-    # WARNING: if empty, a random key is generated per-restart which
-    # invalidates all JWT tokens and HMAC checkout tokens on every restart.
     SECRET_KEY:             str   = ""
 
     BASE_URL:               str   = "http://localhost:8000"
-    # Cookie domain for cross-subdomain sessions. When the app is served from
-    # firogate.com + dashboard.firogate.com + checkout.firogate.com, set this
-    # to '.firogate.com' (leading dot) so the access_token cookie is shared
-    # across every subdomain. Leave empty for single-host / local dev.
     COOKIE_DOMAIN:          str   = ""
-
-    # ─ Subdomain URLs (leave empty to fall back to BASE_URL paths) ─
-    # Set these in .env to enable subdomain routing:
-    #   DASHBOARD_URL=https://dashboard.firogate.com
-    #   CHECKOUT_URL=https://checkout.firogate.com
-    #   PLAN_URL=https://plan.firogate.com
-    #   API_URL=https://api.firogate.com
     DASHBOARD_URL:          str   = ""
     CHECKOUT_URL:           str   = ""
-    PLAN_URL:               str   = ""
     API_URL:                str   = ""
-    # Auth action subdomain — hosts /auth/action (verify email + reset password
-    # entry point). Example: AUTH_URL=https://dashboard.firogate.com so the
-    # links in verification + password-reset emails point at your own
-    # dashboard subdomain. Falls back to BASE_URL when left blank.
     AUTH_URL:               str   = ""
 
     ONION_URL:              str   = ""
     DEBUG:                  bool  = False
     DATABASE_URL:           str   = "sqlite+aiosqlite:///./data/gateway.db"
+    DB_POOL_SIZE:           int   = 20
+    DB_MAX_OVERFLOW:        int   = 10
     FIELD_ENCRYPTION_KEY:   str   = ""
 
 
     FIELD_ENCRYPTION_KEY_OLD: str = ""
+    FIELD_ENCRYPTION_SALT:    str = ""
 
 
     FIRO_RPC_HOST:          str   = "127.0.0.1"
@@ -51,81 +33,27 @@ class Settings(BaseSettings):
     FIRO_RPC_USER:          str   = ""
     FIRO_RPC_PASSWORD:      str   = ""
 
+    CMC_API_KEY:            str   = ""
+    PRICE_PROXY_URL:        str   = "http://127.0.0.1:8899/cmc/v1/cryptocurrency/quotes/latest"
+    PRICE_CACHE_SECONDS:    int   = 60    # dashboard/home cache TTL
+    PRICE_FRESH_SECONDS:    int   = 30    # checkout/paylink cache TTL (both stale-while-revalidate)
 
-    FEE_RATE_PCT:           float = 0.5
-    FEE_MIN_FIRO:           float = 0.05
-    FEE_MAX_FIRO:           float = 1.0   # withdrawal fee never exceeds this
-
-    # ─ Price feed (CoinMarketCap) ──
-    CMC_API_KEY:            str   = ""    # set in .env: CMC_API_KEY=your_key_here
-    PRICE_CACHE_SECONDS:    int   = 300   # 5 min cache for home/dashboard
-    PRICE_FRESH_SECONDS:    int   = 170   # ~3 min for checkout/paylink (slightly under client interval)
+    TIER_ENABLED:           bool  = False
 
 
-    PLATFORM_FEE_PCT:       float = 0.5
-    WITHDRAWAL_FEE_PCT:     float = 0.5
-    MIN_WITHDRAWAL_FIRO:    float = 1.0
+    ADMIN_USERNAME:         str   = ""   # legacy leave blank to disable default-operator seeding
+    ADMIN_PASSWORD:         str   = ""   # legacy leave blank (use OPERATOR_EMAILS instead)
+    ADMIN_EMAIL:            str   = ""   # legacy kept for backwards compat only
 
-
-    ADMIN_USERNAME:         str   = ""   # legacy — leave blank to disable default-admin seeding
-    ADMIN_PASSWORD:         str   = ""   # legacy — leave blank (use OPERATOR_EMAILS instead)
-    ADMIN_EMAIL:            str   = ""   # legacy — kept for backwards compat only
-    # OPERATOR_EMAILS — comma-separated list of email addresses with operator access.
-    # list of Gmail (or any email) addresses. Any user who registers or
-    # signs in with one of these emails is auto-promoted to role=admin.
-    # No admin user is pre-created in the DB — the admin creates their
-    # own account normally (email verify or Google sign-in) and the moment
-    # they log in they get admin access. Keep this list short.
-    # Example: OPERATOR_EMAILS=alice@gmail.com,bob@myco.com
-    OPERATOR_EMAILS:           str   = ""
-    ADMIN_ROUTE_PATH:       str   = ""
-
-
-    PANEL_ALLOWED_IPS:      str   = ""
-
-
-    PANEL_ACCESS_KEY:       str   = ""
-
+    OPERATOR_EMAILS:        str   = ""
+    OPERATOR_USERNAMES:     str   = ""
 
     PANEL_REQUIRE_2FA:      bool  = True
-
-
-    ADMIN_RATE_LIMIT:       int   = 20
-
-
-    PANEL_ONION_ONLY: bool = True
-
-
-    MAX_DAILY_WITHDRAWAL_FIRO: float = 100.0
-    MAX_WITHDRAWALS_PER_DAY:   int   = 3
-    MIN_BALANCE_HOLD_HOURS:    int   = 24
-    WITHDRAWAL_COOLDOWN_MIN:   int   = 10
-
-
-    AUTO_TIER_MAX_FIRO:        float = 50.0
-    SOFT_TIER_MAX_FIRO:        float = 200.0
-
-
-    WITHDRAWAL_DELAY_SECONDS:  int   = 45
-
-
-    REQUIRED_CONFIRMATIONS: int   = 2
+    REQUIRED_CONFIRMATIONS: int   = 1
     PAYMENT_TIMEOUT_MINUTES: int  = 20
-
-
-    WALLET_PASSPHRASE:      str   = ""
-
-    WALLET_UNLOCK_SECONDS:  int   = 60
-
-
-    SPARK_ENABLED:          bool  = False
-
-
-    SPARK_SOURCE_ADDRESS:   str   = ""
-
-
-    SPARK_MIN_CONFIRMATIONS: int  = 2
-
+    FORCE_AUTH_PAGES_VISIBLE: bool = False
+    DEFAULT_PAYMENT_TOLERANCE_FIRO: float = 0.001
+    BLOCKNOTIFY_SECRET: str = ""
 
     REDIS_URL:                  str   = ""
     REDIS_PASSWORD:             str   = ""
@@ -142,46 +70,28 @@ class Settings(BaseSettings):
 
     TRUST_PROXY_HEADERS:    bool  = False
 
-
-    PLATFORM_SPARK_ADDRESS:        str   = ""
-
-
-    SHOW_TESTNET_STORE:            bool  = True
-
-    PLATFORM_AUTO_WITHDRAW:        bool  = False
-
-
-    PLATFORM_AUTO_WITHDRAW_THRESHOLD: float = 10.0
-
-
-    PLATFORM_WITHDRAWAL_KEY:       str   = ""
-
-    # ─ Firebase (Server) ─
+    # Firebase (server)
     FIREBASE_PROJECT_ID:           str   = ""
     FIREBASE_CLIENT_EMAIL:         str   = ""
     FIREBASE_PRIVATE_KEY:          str   = ""
 
-    # ─ Firebase (Client / public — injected into templates) ─
+    # Firebase (client / public, injected into templates)
     FIREBASE_API_KEY:              str   = ""
     FIREBASE_AUTH_DOMAIN:          str   = ""
     FIREBASE_APP_ID:               str   = ""
 
-    # ─ Google Auth ─
     GOOGLE_CLIENT_ID:              str   = ""
 
-    # ─ Cloudflare Turnstile ─
-    TURNSTILE_SITE_KEY:            str   = ""
-    TURNSTILE_SECRET_KEY:          str   = ""
+    TELEGRAM_BOT_USERNAME:         str   = ""
+    TELEGRAM_BOT_TOKEN:            str   = ""
 
-    # ─ Email: SendGrid HTTP API (SMTP removed) ─
-    SENDGRID_API_KEY:              str   = ""
+    @property
+    def telegram_bot_enabled(self) -> bool:
+        return bool(self.TELEGRAM_BOT_TOKEN and self.TELEGRAM_BOT_USERNAME)
+
+    RESEND_API_KEY:                str   = ""
     FROM_EMAIL:                    str   = ""
     FROM_NAME:                     str   = "FiroGate"
-
-    # ─ Auth token expiry / cooldown ─
-    EMAIL_VERIFICATION_EXPIRE_SECONDS: int = 14400
-    PASSWORD_RESET_EXPIRE_SECONDS:     int = 7200
-    RESET_COOLDOWN_SECONDS:            int = 60
 
     class Config:
         env_file = ".env"
@@ -201,13 +111,11 @@ class Settings(BaseSettings):
             "127.0.0.1" in self.BASE_URL
         )
 
-        # SECRET_KEY
         if not self.SECRET_KEY:
             if is_local:
-                # Auto-generate for local dev with warning
                 object.__setattr__(self, "SECRET_KEY", secrets.token_hex(32))
                 print(
-                    "\n⚠️  WARNING: SECRET_KEY not set in .env — using a random key.\n"
+                    "\n⚠️  WARNING: SECRET_KEY not set in .env using a random key.\n"
                     "   All sessions and tokens will be invalidated on every restart.\n"
                     "   Set SECRET_KEY in .env for stable sessions.\n"
                     "   Generate: python -c \"import secrets; print(secrets.token_hex(32))\"\n",
@@ -220,7 +128,7 @@ class Settings(BaseSettings):
                     "   Then add: SECRET_KEY=<generated_value> to your .env file\n"
                 )
 
-        # FIELD_ENCRYPTION_KEY — warn but don't hard-fail (some deploys may not use encryption)
+        # Warn but don't hard-fail: some deploys may not use encryption at all.
         if not self.FIELD_ENCRYPTION_KEY:
             print(
                 "\n⚠️  WARNING: FIELD_ENCRYPTION_KEY not set in .env\n"
@@ -243,7 +151,7 @@ class Settings(BaseSettings):
     @property
     def is_testnet(self) -> bool:
         """
-        Automatic detection — no manual toggle needed.
+        Automatic detection no manual toggle needed.
         Testnet:  RPC port 18888 (Firo testnet default)
         Mainnet:  RPC port 8888  (Firo mainnet default)
         """
@@ -263,7 +171,7 @@ class Settings(BaseSettings):
     def network_warning(self) -> str | None:
         """Warning message shown globally when running on testnet."""
         if self.is_testnet:
-            return "Testnet Mode — No real funds. This is a testing environment only."
+            return "Testnet Mode No real funds. This is a testing environment only."
         return None
 
     @property
@@ -300,7 +208,7 @@ class Settings(BaseSettings):
     def login_url(self) -> str:
         """
         Canonical login page URL. Login is served on the dashboard subdomain
-        (DASHBOARD_URL) when configured — this keeps every Firebase+Turnstile
+        (DASHBOARD_URL) when configured this keeps every Firebase+Turnstile
         flow on ONE origin where the Turnstile widget is registered and the
         cookie scope matches. Falls back to BASE_URL/login for single-host.
         """
@@ -309,11 +217,11 @@ class Settings(BaseSettings):
         return self.BASE_URL.rstrip("/") + "/login"
 
     @property
-    def admin_email_set(self) -> set[str]:
+    def operator_email_set(self) -> set[str]:
         """
         Parsed set of lowercase operator emails from OPERATOR_EMAILS. Used by
-        login/register flows to auto-promote matching users to role=admin
-        and by `require_admin` to accept a fresh admin before the DB row
+        login/register flows to auto-promote matching users to role=operator
+        and by `require_operator` to accept a fresh operator before the DB row
         has been updated.
         """
         raw = (self.OPERATOR_EMAILS or "").strip()
@@ -324,20 +232,56 @@ class Settings(BaseSettings):
             return {legacy} if legacy else set()
         return {e.strip().lower() for e in raw.split(",") if e.strip()}
 
-    def is_admin_email(self, email: str) -> bool:
+    def is_operator_email(self, email: str) -> bool:
         if not email:
             return False
-        return email.strip().lower() in self.admin_email_set
+        return email.strip().lower() in self.operator_email_set
+
+    @property
+    def operator_username_set(self) -> set[str]:
+        raw = (self.OPERATOR_USERNAMES or "").strip()
+        if not raw:
+            return set()
+        return {u.strip().lower() for u in raw.split(",") if u.strip()}
+
+    def is_operator_username(self, username: str) -> bool:
+        if not username:
+            return False
+        return username.strip().lower() in self.operator_username_set
 
     @property
     def allowed_origins(self) -> list[str]:
         origins = [self.BASE_URL.rstrip("/")]
         if self.ONION_URL:
             origins.append(self.ONION_URL.rstrip("/"))
-        for url in [self.DASHBOARD_URL, self.CHECKOUT_URL, self.PLAN_URL, self.API_URL]:
+        for url in [self.DASHBOARD_URL, self.CHECKOUT_URL, self.API_URL]:
             if url:
                 origins.append(url.rstrip("/"))
         return list(dict.fromkeys(origins))  # deduplicate, preserve order
+
+    @property
+    def allowed_hosts(self) -> list[str]:
+        """Host names accepted by TrustedHostMiddleware (Host-header defense).
+        Derived from the configured URLs. Localhost is always allowed so local
+        dev and the Docker healthcheck keep working. Returns ['*'] only if the
+        deployment is still on the default localhost BASE_URL (dev mode)."""
+        from urllib.parse import urlparse
+        hosts: list[str] = []
+        for url in self.allowed_origins:
+            try:
+                h = urlparse(url).hostname
+                if h:
+                    hosts.append(h)
+            except Exception:
+                pass
+        # Always permit loopback for health checks / local access.
+        hosts += ["localhost", "127.0.0.1"]
+        hosts = list(dict.fromkeys(hosts))
+        # If only localhost is configured (untouched default), don't lock down.
+        non_local = [h for h in hosts if h not in ("localhost", "127.0.0.1")]
+        if not non_local:
+            return ["*"]
+        return hosts
 
     def should_use_tor_for_url(self, url: str) -> bool:
         if not self.TOR_ENABLED:

@@ -1,21 +1,10 @@
 """
-app/services/firo_rpc.py
-========================
-# === PRIVATE CORE ===
-# This module contains the Firo node RPC client.
-# It handles all wallet operations: address generation, balance checking,
-# transaction submission, and Spark shielding.
-# The public stub is available at public/stubs/firo_rpc.py
-# === END PRIVATE CORE ===
-
 Firo RPC client.
-Uses getnewaddress to generate unique addresses per payment.
-The node tracks all addresses it created — no importaddress needed.
-UTXO-aware: each (txid, vout) can only confirm ONE payment.
+Checkout addresses are derived offline from each merchant's Spark view key
+(see app/services/payment_engine.py) this client just talks to the node
+for chain state, price/balance reads, and manual tx-hash verification.
 """
 import httpx
-import hashlib
-import struct
 from loguru import logger
 from typing import Any, Optional
 from app.core.config import get_settings
@@ -41,19 +30,16 @@ class FiroRPC:
             "headers":  {"Content-Type": "application/json"},
         }
 
-        # Only route RPC through Tor if node is NOT on localhost.
-        # Tor cannot route to 127.0.0.1 / localhost — that's always direct.
+        # Tor cannot route to 127.0.0.1 / localhost, so only proxy remote nodes.
         _localhost = {"127.0.0.1", "::1", "localhost"}
         _rpc_is_local = settings.FIRO_RPC_HOST in _localhost
 
         if settings.TOR_ENABLED and not _rpc_is_local:
-            # Remote node behind Tor — route via SOCKS5
             kwargs["transport"] = httpx.AsyncHTTPTransport(
                 proxy=settings.tor_socks_url
             )
             logger.info(f"RPC via Tor SOCKS5 → {settings.tor_socks_url}")
         elif settings.TOR_ENABLED and _rpc_is_local:
-            # Local node — direct connection regardless of TOR_ENABLED
             logger.info("RPC → localhost (direct, Tor not used for local node)")
 
         self._client = httpx.AsyncClient(**kwargs)
@@ -81,39 +67,20 @@ class FiroRPC:
         except: return False
     async def get_blockchain_info(self) -> dict: return await self.call("getblockchaininfo")
     async def get_block_count(self) -> int:      return await self.call("getblockcount")
+
+    # Cached block height (10s TTL) avoids calling getblockcount once per
+    # payment in the monitor loop.
+    _bc_cache: dict = {"height": 0, "ts": 0.0}
+    async def get_block_count_cached(self, ttl: float = 10.0) -> int:
+        import time as _t
+        now = _t.time()
+        if now - self._bc_cache["ts"] < ttl and self._bc_cache["height"]:
+            return self._bc_cache["height"]
+        h = await self.get_block_count()
+        self._bc_cache = {"height": h, "ts": now}
+        return h
     async def get_network_info(self) -> dict:    return await self.call("getnetworkinfo")
 
-    # ─ Address generation ─
-    async def get_new_address(self, label: str = "") -> str:
-        """
-        Generate a fresh address from the node's HD wallet.
-        Node automatically watches and tracks this address.
-        No importaddress needed.
-        """
-        try:
-            # Firo Core: getnewaddress [label] [address_type]
-            addr = await self.call("getnewaddress", label, "legacy")
-            logger.info(f"New address generated: {addr[:20]}… label={label}")
-            return addr
-        except FiroRPCError as e:
-            # Try without address_type for older node versions
-            if e.code == -1 or "Invalid" in e.message:
-                addr = await self.call("getnewaddress", label)
-                logger.info(f"New address (v2): {addr[:20]}… label={label}")
-                return addr
-            raise
-
-    async def get_new_address_for_payment(self, payment_id: str) -> str:
-        """Generate address with payment ID as label for easy tracking."""
-        label = f"pay:{payment_id[:12]}"
-        return await self.get_new_address(label)
-
-    async def get_new_address_for_plan(self, order_id: str) -> str:
-        """Generate address for plan purchase."""
-        label = f"plan:{order_id[:12]}"
-        return await self.get_new_address(label)
-
-    # ─ Transaction list ─
     async def list_transactions(self, count: int = 500) -> list:
         try:
             return await self.call("listtransactions", "*", count, 0, True)
@@ -127,174 +94,27 @@ class FiroRPC:
     async def get_raw_transaction(self, txid: str) -> dict:
         return await self.call("getrawtransaction", txid, True)
 
-    async def get_confirmations(self, txid: str) -> int:
-        try:
-            tx = await self.get_transaction(txid)
-            return tx.get("confirmations", 0)
-        except: return 0
-
-    # ─ UTXO payment detection ─
-    async def find_utxo_for_address(
-        self,
-        address:      str,
-        amount:       float,
-        locked_utxos: set[tuple] | None = None,
-        tolerance:    float = 0.02,
-    ) -> tuple[str | None, int | None, float, int]:
-        """
-        Find a unique UTXO for the given address+amount.
-        The node knows about this address (it generated it).
-
-        Returns: (txid, vout, amount_received, confirmations)
-        """
-        if locked_utxos is None:
-            locked_utxos = set()
-
-        min_amount = amount * (1 - tolerance)
-        txs = await self.list_transactions(count=1000)
-
-        receives = [t for t in txs if t.get("category") == "receive"]
-        logger.info(
-            f"[UTXO] scan addr={address[:20]}… "
-            f"target={amount:.8f} receives={len(receives)}"
-        )
-
-        # ─ Fast path: getaddresstxids (Firo-specific, works with Spark) ──
-        try:
-            txids_for_addr = await self.call("getaddresstxids", {"addresses": [address]})
-            if txids_for_addr:
-                for txid in reversed(txids_for_addr):
-                    try:
-                        full = await self.get_transaction(txid)
-                        received = sum(
-                            float(d.get("amount", 0))
-                            for d in full.get("details", [])
-                            if d.get("category") == "receive"
-                            and d.get("address") == address
-                        )
-                        if received < min_amount:
-                            continue
-                        confs = full.get("confirmations", 0)
-                        vout  = await self._get_vout(txid, address, received)
-                        utxo  = (txid, vout)
-                        if utxo in locked_utxos:
-                            continue
-                        logger.info(
-                            f"[UTXO] ✅ (getaddresstxids) {txid[:16]}…:{vout} "
-                            f"amt={received:.8f} confs={confs}"
-                        )
-                        return txid, vout, received, confs
-                    except Exception:
-                        continue
-                logger.info(f"[UTXO] getaddresstxids: no match for {address[:20]}…")
-        except Exception as e:
-            logger.debug(f"[UTXO] getaddresstxids unavailable: {e}")
-
-        # ─ listtransactions loop (skip EMPTY-address TX to avoid RPC flood) ─
-        for tx in sorted(txs, key=lambda x: x.get("time", 0), reverse=True):
-            if tx.get("category") != "receive":
-                continue
-
-            txid      = tx.get("txid", "")
-            tx_amount = float(tx.get("amount", 0))
-            if tx_amount < min_amount:
-                continue
-
-            tx_addr = tx.get("address", "")
-            # If address is present and doesn't match → skip immediately
-            if tx_addr and tx_addr != address:
-                continue
-            # If address is EMPTY → skip (don't flood with gettransaction)
-            if not tx_addr:
-                continue
-
-            vout = await self._get_vout(txid, address, tx_amount)
-            utxo = (txid, vout)
-            if utxo in locked_utxos:
-                continue
-
-            confs = tx.get("confirmations", 0)
-            logger.info(
-                f"[UTXO] ✅ (listtransactions) {txid[:16]}…:{vout} "
-                f"amt={tx_amount:.8f} confs={confs}"
-            )
-            return txid, vout, tx_amount, confs
-
-        logger.info(f"[UTXO] No match in listtransactions for {address[:20]}…")
-
-        # ─ Fallback 1: listunspent (more reliable for fresh addresses) ─
-        try:
-            unspent = await self.call("listunspent", 0, 9999999, [address])
-            for u in unspent:
-                u_amount = float(u.get("amount", 0))
-                if u_amount < min_amount:
-                    continue
-                txid = u.get("txid", "")
-                vout = u.get("vout", 0)
-                utxo = (txid, vout)
-                if utxo in locked_utxos:
-                    continue
-                confs = u.get("confirmations", 0)
-                logger.info(
-                    f"[UTXO] ✅ (listunspent) {txid[:16]}…:{vout} "
-                    f"amt={u_amount:.8f} confs={confs}"
-                )
-                return txid, vout, u_amount, confs
-        except FiroRPCError as e:
-            logger.debug(f"[UTXO] listunspent fallback failed: {e}")
-
-        # ─ Fallback 2: listreceivedbyaddress (catches zero-conf too) ─
-        try:
-            # Note: this Firo node version takes only 3 args (no address filter)
-            # so we fetch all and filter in Python
-            received_all = await self.call("listreceivedbyaddress", 0, False, True)
-            for r in (received_all or []):
-                if r.get("address") != address:
-                    continue
-                r_amount = float(r.get("amount", 0))
-                if r_amount < min_amount:
-                    continue
-                txids = r.get("txids", [])
-                if not txids:
-                    continue
-                txid = txids[-1]
-                utxo = (txid, 0)
-                if utxo in locked_utxos:
-                    continue
-                confs = r.get("confirmations", 0)
-                vout  = await self._get_vout(txid, address, r_amount)
-                logger.info(
-                    f"[UTXO] ✅ (listreceivedbyaddress) {txid[:16]}…:{vout} "
-                    f"amt={r_amount:.8f} confs={confs}"
-                )
-                return txid, vout, r_amount, confs
-        except FiroRPCError as e:
-            logger.debug(f"[UTXO] listreceivedbyaddress fallback failed: {e}")
-
-        logger.info(f"[UTXO] No match for {address[:20]}… (all methods tried)")
-        return None, None, 0.0, 0
-
-    async def _get_vout(self, txid: str, address: str, amount: float) -> int:
-        try:
-            raw = await self.get_raw_transaction(txid)
-            for i, vout in enumerate(raw.get("vout", [])):
-                script = vout.get("scriptPubKey", {})
-                addrs  = script.get("addresses", [script.get("address", "")])
-                if address in addrs:
-                    if abs(float(vout.get("value", 0)) - amount) < 0.001:
-                        return i
-        except Exception:
-            pass
-        return 0
+    async def get_block_header(self, blockhash: str) -> dict:
+        return await self.call("getblockheader", blockhash, True)
 
     async def verify_utxo(
         self,
-        txid:    str,
-        vout:    int,
-        address: str,
-        amount:  float,
+        txid:      str,
+        vout:      int,
+        address:   str,
+        amount:    float,
+        tolerance: float = 0.0,
     ) -> tuple[bool, int, float]:
-        """Verify specific UTXO pays correct address+amount."""
+        """Verify a UTXO pays the correct address, within `tolerance` of
+        `amount`. `amount` is the invoice's remaining/expected amount, used
+        as an upper bound (plus tolerance) — not an exact-match target. This
+        lets a genuine partial payment (less than the remaining amount)
+        validate as a real receive rather than being rejected as a
+        mismatch; the caller decides partial-vs-complete by comparing the
+        returned `received` against the invoice total. A received amount
+        above `amount + tolerance` still rejects here, since that's more
+        likely an unrelated transaction to the same (possibly reused)
+        address than a legitimate overpayment of THIS remaining balance."""
         try:
             tx = await self.get_transaction(txid)
         except FiroRPCError:
@@ -304,12 +124,12 @@ class FiroRPC:
         for d in tx.get("details", []):
             if d.get("category") == "receive" and d.get("address") == address:
                 recv = float(d.get("amount", 0))
-                if recv >= amount * 0.98:
+                if recv > 0 and round(recv - amount, 8) <= tolerance:
                     return True, confs, recv
 
         # Spark fallback
         raw = float(tx.get("amount", 0))
-        if abs(raw - amount) <= amount * 0.02:
+        if raw > 0 and round(raw - amount, 8) <= tolerance:
             return True, confs, raw
 
         return False, confs, 0.0
@@ -353,31 +173,28 @@ class FiroRPC:
         unlock_secs = get_settings().WALLET_UNLOCK_SECONDS or 60
 
         if not passphrase:
-            return True  # wallet not encrypted — nothing to do
+            return True
 
         # Force walletlock first to clear any staking-only lock,
         # then re-unlock for full transaction access.
         try:
             await self.call("walletlock")
         except FiroRPCError:
-            pass  # already locked or not encrypted — ignore
+            pass
 
         try:
-            # walletpassphrase accepts 2 params: passphrase + timeout.
-            # This unlocks for full transaction access (send, spendspark).
-            # walletlock was called above to clear any staking-only state.
             await self.call("walletpassphrase", passphrase, unlock_secs)
             logger.debug(f"Wallet unlocked for {unlock_secs}s (full access)")
             return True
         except FiroRPCError as e:
             if e.code == -15:
-                # -15 = wallet is not encrypted — no unlock needed
+                # wallet is not encrypted, no unlock needed
                 return True
             if e.code == -14:
-                logger.error("Wrong wallet passphrase — check WALLET_PASSPHRASE in .env")
-                raise FiroRPCError(-4, "Wrong wallet passphrase — check WALLET_PASSPHRASE in .env")
+                logger.error("Wrong wallet passphrase check WALLET_PASSPHRASE in .env")
+                raise FiroRPCError(-4, "Wrong wallet passphrase check WALLET_PASSPHRASE in .env")
             if e.code == -17:
-                # -17 = wallet is already unlocked (some node versions)
+                # some node versions return this if already unlocked
                 logger.debug("Wallet already unlocked")
                 return True
             logger.error(f"Cannot unlock wallet (code={e.code}): {e.message}")
@@ -391,7 +208,7 @@ class FiroRPC:
             await self.call("walletlock")
             logger.debug("Wallet re-locked after operation")
         except FiroRPCError:
-            pass  # already locked or not encrypted — ignore
+            pass
 
     async def send_to_address(
         self,
@@ -413,23 +230,9 @@ class FiroRPC:
         finally:
             await self._wallet_lock()
 
-    # ─ Spark methods (Firo Spark RPC) ─
-    # Source: https://github.com/firoorg/firo/wiki/Spark-RPC-calls
-    #
-    # Spark address format:
-    #   Mainnet: sm...  (~144 chars)
-    #   Testnet: st...  (~144 chars)
-    #
-    # Key design decision:
-    #   Spark balance is PRIVATE — stored in wallet.dat.
-    #   We do NOT pre-check balance before spendspark.
-    #   wallet.dat handles signing; RPC error -6 means insufficient funds.
-    #
-    # Core commands used:
-    #   spendspark    — send from Spark balance (sync, returns txid directly)
-    #   getnewsparkaddress      — generate Spark address
-    #   getsparkdefaultaddress  — get default Spark address
-    #   automintspark           — shield transparent balance to Spark
+    # Spark balance is private, stored in wallet.dat. We do NOT pre-check
+    # balance before spendspark wallet.dat handles signing and RPC error
+    # -6 means insufficient funds.
 
     def is_spark_address(self, address: str) -> bool:
         """
@@ -447,7 +250,6 @@ class FiroRPC:
         """
         try:
             result = await self.call("getsparkbalance")
-            # Returns float directly or dict with 'balance' key
             if isinstance(result, dict):
                 return float(result.get("balance", 0.0))
             return float(result or 0.0)
@@ -505,15 +307,9 @@ class FiroRPC:
         Send from Spark private balance.
         RPC: spendspark {"address":{amount, subtractFee, memo}}
 
-        spendspark is SYNCHRONOUS — returns txid directly (not an operation ID).
-        Works for:
-          Spark to Spark address (sm.../st...)   — private send
-          Spark to t-address (personal wallet)   — deshield
-          Spark to exchange t-address            — NOT supported (exchanges only accept transparent sendtoaddress)
-
-        Per official Firo docs: "Not usable with exchange addresses as they
-        can only accept from a transparent balance."
-        If user wants to withdraw to an exchange, use sendtoaddress instead.
+        spendspark is synchronous, returns txid directly (not an operation ID).
+        Not usable with exchange addresses per official Firo docs, they only
+        accept from a transparent balance use sendtoaddress for those instead.
 
         Returns: txid string
         Raises: FiroRPCError on failure
@@ -532,8 +328,6 @@ class FiroRPC:
         import json as _json
         recipients_str = _json.dumps(recipients)
 
-        # Unlock wallet before calling spendspark.
-        # Duration comes from WALLET_UNLOCK_SECONDS in .env.
         await self._wallet_unlock()
         logger.info(f"spendspark → {to_address[:20]}… amount={amount:.8f}")
 
@@ -545,9 +339,9 @@ class FiroRPC:
             return str(txid)
         except FiroRPCError as e:
             if e.code == -4:
-                # Wallet re-locked between unlock and spendspark call (race / timeout).
-                # Unlock again and retry exactly once.
-                logger.warning("spendspark got -4 (wallet locked) — retrying with fresh unlock")
+                # Wallet re-locked between unlock and spendspark call (race / timeout);
+                # unlock again and retry exactly once.
+                logger.warning("spendspark got -4 (wallet locked) retrying with fresh unlock")
                 await self._wallet_unlock()
                 try:
                     txid = await self.call("spendspark", recipients_str)
@@ -585,7 +379,7 @@ class FiroRPC:
         RPC: automintspark
         Returns txid or empty string.
 
-        Requires wallet to be unlocked — calls _wallet_unlock() first.
+        Requires wallet to be unlocked calls _wallet_unlock() first.
         automintspark fails silently with -13 if wallet is locked.
         """
         try:
@@ -594,7 +388,7 @@ class FiroRPC:
             return str(result or "")
         except FiroRPCError as e:
             if e.code == -13:
-                logger.warning("[auto_mint_spark] wallet locked — check WALLET_PASSPHRASE in .env")
+                logger.warning("[auto_mint_spark] wallet locked check WALLET_PASSPHRASE in .env")
             elif e.code == -6:
                 logger.debug("[auto_mint_spark] nothing to shield (balance too low or already shielded)")
             else:
@@ -604,6 +398,26 @@ class FiroRPC:
             logger.warning(f"[auto_mint_spark] unexpected error: {e}")
             return ""
 
+    # Used by the view-key scanner (app/services/payment_engine.py) to detect
+    # payments without any spend authority the node's own wallet is never
+    # touched for this, unlike get_new_spark_address/spark_send above.
+
+    async def get_spark_latest_coin_id(self) -> int:
+        """RPC: getsparklatestcoinid current highest Spark coin group id."""
+        result = await self.call("getsparklatestcoinid")
+        return int(result)
+
+    async def get_spark_anonymity_set(
+        self, coin_group_id: int, start_block_hash: str = ""
+    ) -> dict:
+        """
+        RPC: getsparkanonymityset <coinGroupId> <startBlockHash>
+        Returns {"blockHash": ..., "setHash": ..., "coins": [[serializedCoin, txHash, context], ...]}
+        (all three coin fields are base64-encoded strings).
+        start_block_hash="" fetches the full set for that group from genesis.
+        """
+        return await self.call("getsparkanonymityset", str(coin_group_id), start_block_hash)
+
     async def validate_spark_address(self, address: str) -> bool:
         """
         Validate a Firo address (t-address or Spark sm/st address).
@@ -612,11 +426,7 @@ class FiroRPC:
         """
         addr = (address or "").strip()
         if self.is_spark_address(addr):
-            # Official Spark address validation:
-            # mainnet: starts with 'sm', length ~144 chars
-            # testnet: starts with 'st', length ~144 chars
             return len(addr) >= 100  # Spark addresses are long (~144 chars)
-        # t-address: use node validateaddress
         return await self.validate_address_rpc(address)
 
     async def validate_address_rpc(self, address: str) -> bool:
@@ -627,22 +437,42 @@ class FiroRPC:
         except Exception:
             return False
 
-    async def get_transaction_confirmations(self, txid: str) -> int:
-        """Return confirmation count for a txid, or -1 if not found."""
-        try:
-            tx = await self.call("gettransaction", txid, True)
-            return int(tx.get("confirmations", 0))
-        except FiroRPCError as e:
-            if e.code == -5:   # Invalid or non-wallet transaction id
-                return -1
-            return 0
-        except Exception:
-            return 0
-
-
 _rpc: Optional[FiroRPC] = None
 
 def get_rpc() -> FiroRPC:
     global _rpc
     if _rpc is None: _rpc = FiroRPC()
     return _rpc
+
+
+_NODE_HEALTH: dict = {"ok": None, "ts": 0.0}
+_NODE_HEALTH_TTL = 15.0
+_NODE_HEALTH_REFRESHING = False
+
+
+async def node_is_online(ttl: float = _NODE_HEALTH_TTL) -> bool:
+    import time as _t
+    global _NODE_HEALTH_REFRESHING
+    now = _t.time()
+    if now - _NODE_HEALTH["ts"] < ttl and _NODE_HEALTH["ok"] is not None:
+        return bool(_NODE_HEALTH["ok"])
+
+    if not _NODE_HEALTH_REFRESHING:
+        _NODE_HEALTH_REFRESHING = True
+
+        async def _refresh():
+            global _NODE_HEALTH_REFRESHING
+            try:
+                ok = await get_rpc().ping()
+                _NODE_HEALTH["ok"] = ok
+                _NODE_HEALTH["ts"] = _t.time()
+            finally:
+                _NODE_HEALTH_REFRESHING = False
+
+        import asyncio
+        asyncio.create_task(_refresh())
+
+    # Stale-but-known value is still more useful than blocking; if we've
+    # never checked at all, assume online so a cold cache never shows a
+    # false maintenance banner or stalls the first checkout load.
+    return bool(_NODE_HEALTH["ok"]) if _NODE_HEALTH["ok"] is not None else True

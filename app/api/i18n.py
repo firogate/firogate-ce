@@ -1,8 +1,8 @@
 """
-FiroGate — i18n API endpoints.
+FiroGate i18n API endpoints.
 
 Two routes:
-  • GET  /api/i18n/{lang}.json — serves the translation bundle (also
+  • GET  /api/i18n/{lang}.json serves the translation bundle (also
                                   available as a plain static file at
                                   /static/i18n/{lang}.json, which the
                                   client engine uses as the primary
@@ -10,18 +10,16 @@ Two routes:
                                   can be served with proper cache headers
                                   and so server-side flows can hot-reload
                                   it without a restart).
-  • POST /api/i18n/set         — sets the fg_lang cookie. Returns JSON
+  • POST /api/i18n/set         sets the fg_lang cookie. Returns JSON
                                   echoing the chosen language so the
                                   client can flip the UI without a reload.
 
-All bundles live on disk under static/i18n/ — no external service is ever
+All bundles live on disk under static/i18n/ no external service is ever
 contacted.
 """
 from __future__ import annotations
 
-import json
-
-from fastapi import APIRouter, Request, Response, HTTPException
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.core.i18n import (
@@ -50,7 +48,7 @@ def get_bundle(lang: str):
     if lang not in SUPPORTED_LANGS:
         raise HTTPException(status_code=404, detail="language not supported")
     data = load_bundle(lang)
-    # Translations don't contain secrets — long cache is fine; client also
+    # Translations don't contain secrets long cache is fine; client also
     # has its own in-memory cache keyed by lang code.
     return JSONResponse(
         content=data,
@@ -78,14 +76,14 @@ async def set_language(request: Request):
         raise HTTPException(status_code=400, detail="unsupported language")
 
     # Cookie scoped to the registrable domain so the choice carries
-    # across firogate.com + dashboard.firogate.com + checkout.firogate.com
+    # across example.com + dashboard.example.com + checkout.example.com
     resp = JSONResponse({
         "ok": True,
         "lang": code,
         "dir": "rtl" if is_rtl(code) else "ltr",
         **LANG_META.get(code, {}),
     })
-    # Derive parent domain (".firogate.com") when applicable; safe no-op
+    # Derive parent domain (".example.com") when applicable; safe no-op
     # on localhost / IPs (cookies stay host-only).
     host = (request.headers.get("host", "") or "").split(":")[0].lower()
     cookie_domain = ""

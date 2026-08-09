@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Support FiroGate{% endblock %}
+{% block body %}
+<style>
+.rp-wrap { max-width: 640px; margin: 0 auto; padding: 48px 22px 100px; }
+.rp-head { margin-bottom: 28px; }
+.rp-head h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+.rp-head p  { color: var(--t1); font-size: .9rem; line-height: 1.6; }
+.rp-card {
+  background: var(--bg2); border: 1px solid var(--bw);
+  border-radius: 16px; padding: 24px;
+}
+.rp-field { margin-bottom: 18px; }
+.rp-field label {
+  display: block; font-size: .8rem; font-weight: 600;
+  color: var(--t1); margin-bottom: 7px;
+}
+.rp-field input, .rp-field select, .rp-field textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--bw);
+  border-radius: 10px; padding: 11px 13px; color: var(--white);
+  font-size: .9rem; font-family: inherit; box-sizing: border-box;
+}
+.rp-field textarea { min-height: 130px; resize: vertical; line-height: 1.5; }
+.rp-field input:focus, .rp-field select:focus, .rp-field textarea:focus {
+  outline: none; border-color: var(--y);
+}
+.rp-hint { font-size: .72rem; color: var(--t3); margin-top: 5px; }
+.rp-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+.rp-alert { padding: 11px 14px; border-radius: 10px; font-size: .82rem; margin-bottom: 16px; }
+.rp-alert.ok  { background: rgba(34,197,94,.12);  color: #22c55e; border: 1px solid rgba(34,197,94,.3); }
+.rp-alert.err { background: rgba(239,68,68,.12);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+.rp-back { display:inline-flex; align-items:center; gap:6px; color: var(--t1); text-decoration:none; font-size:.82rem; margin-bottom: 22px; }
+.rp-back:hover { color: var(--white); }
+#rp-name-row { display: none; }
+</style>
+
+<div class="rp-wrap">
+  <a class="rp-back" href="{{ dashboard_url }}">← Back to dashboard</a>
+  <div class="rp-head">
+    <h1>Open a support ticket</h1>
+    <p>Tell us what's going on. We'll review your ticket and reply through your dashboard. You can track its status under <strong>My Reports</strong>.</p>
+  </div>
+
+  <div class="rp-card">
+    <div id="rp-alert"></div>
+
+    <div class="rp-field">
+      <label for="rp-type">What's this about?</label>
+      <select id="rp-type" onchange="rpTypeChange()">
+        <option value="technical">Technical issue</option>
+        <option value="change_app_name">Request a store-name change</option>
+        <option value="other">Something else</option>
+      </select>
+    </div>
+
+    <div class="rp-field" id="rp-name-row">
+      <label for="rp-reqname">Requested store name</label>
+      <input id="rp-reqname" type="text" maxlength="64" placeholder="The new name you'd like" data-i18n-placeholder="The new name you'd like">
+      <div class="rp-hint">2–40 characters: letters, numbers, spaces and ._-&'() only.</div>
+    </div>
+
+    <div class="rp-field" id="rp-email-row" style="display:none">
+      <label for="rp-email">Your email</label>
+      <input id="rp-email" type="email" maxlength="254" placeholder="you@example.com" data-i18n-placeholder="you@example.com">
+      <div class="rp-hint">So we can reach you about this ticket.</div>
+    </div>
+
+    <div class="rp-field">
+      <label for="rp-subject">Subject</label>
+      <input id="rp-subject" type="text" maxlength="160" placeholder="Short summary" data-i18n-placeholder="Short summary">
+    </div>
+
+    <div class="rp-field">
+      <label for="rp-message">Details</label>
+      <textarea id="rp-message" maxlength="4000" placeholder="Describe the issue in as much detail as you can…" data-i18n-placeholder="Describe the issue in as much detail as you can…"></textarea>
+      <div class="rp-hint"><span id="rp-count">0</span> / 4000</div>
+    </div>
+
+    <div class="rp-actions">
+      <button class="btn btn-y" id="rp-submit" onclick="rpSubmit()">Submit ticket</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var RP_AUTHED = {{ 'true' if is_authenticated|default(false) else 'false' }};
+
+function rpTypeChange() {
+  var t = document.getElementById('rp-type').value;
+  document.getElementById('rp-name-row').style.display = (t === 'change_app_name') ? 'block' : 'none';
+}
+function rpEsc(s){ return String(s||'').replace(/[<>&"']/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+document.getElementById('rp-message').addEventListener('input', function(e){
+  document.getElementById('rp-count').textContent = e.target.value.length;
+});
+
+(function () {
+  var qp = new URLSearchParams(window.location.search);
+  var disputePid = qp.get('payment_id');
+  var disputeTx  = qp.get('txid');
+  if (!disputePid || !disputeTx) return;
+  document.getElementById('rp-type').value = 'technical';
+  var subjEl = document.getElementById('rp-subject');
+  var msgEl  = document.getElementById('rp-message');
+  if (subjEl && !subjEl.value) subjEl.value = 'Payment not detected — TX ' + disputeTx.slice(0, 12) + '…';
+  if (msgEl && !msgEl.value) {
+    var lines = ['Payment ID: ' + disputePid, 'TX hash: ' + disputeTx];
+    var amt = qp.get('amount');
+    if (amt) lines.push('Amount expected: ' + amt + ' FIRO');
+    var result = qp.get('result');
+    if (result) lines.push('Checkout result: ' + result);
+    msgEl.value = lines.join('\n') + '\n\n';
+    document.getElementById('rp-count').textContent = msgEl.value.length;
+  }
+})();
+
+if (!RP_AUTHED) document.getElementById('rp-email-row').style.display = 'block';
+
+async function rpSubmit() {
+  var alert = document.getElementById('rp-alert');
+  var btn   = document.getElementById('rp-submit');
+  alert.innerHTML = '';
+  var type    = document.getElementById('rp-type').value;
+  var subject = document.getElementById('rp-subject').value.trim();
+  var message = document.getElementById('rp-message').value.trim();
+  var reqname = document.getElementById('rp-reqname').value.trim();
+  var email   = document.getElementById('rp-email').value.trim();
+
+  if (message.length < 5) {
+    alert.innerHTML = '<div class="rp-alert err">Please describe your issue (at least 5 characters).</div>';
+    return;
+  }
+  if (!RP_AUTHED && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    alert.innerHTML = '<div class="rp-alert err">Please enter a valid email so we can reply.</div>';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  var payload = { type: type, subject: subject, message: message };
+  if (type === 'change_app_name') payload.requested_app_name = reqname;
+  if (!RP_AUTHED) payload.email = email;
+
+  try {
+    var r = await API.post('/api/reports/', payload);
+    if (r && r.error) {
+      alert.innerHTML = '<div class="rp-alert err">' + rpEsc(r.error) + '</div>';
+      btn.disabled = false; btn.textContent = 'Submit ticket';
+      return;
+    }
+    alert.innerHTML = '<div class="rp-alert ok">Ticket submitted. We\u2019ll review it and reply through your dashboard.</div>';
+    document.getElementById('rp-subject').value = '';
+    document.getElementById('rp-message').value = '';
+    document.getElementById('rp-reqname').value = '';
+    document.getElementById('rp-count').textContent = '0';
+    btn.textContent = 'Submitted ✓';
+    setTimeout(function(){ btn.disabled = false; btn.textContent = 'Submit ticket'; }, 2500);
+  } catch (e) {
+    alert.innerHTML = '<div class="rp-alert err">Could not submit. Please try again.</div>';
+    btn.disabled = false; btn.textContent = 'Submit ticket';
+  }
+}
+</script>
+{% endblock %}

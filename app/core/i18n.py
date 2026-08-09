@@ -1,21 +1,21 @@
 """
-FiroGate — Internal i18n core (server-side helpers).
+FiroGate Internal i18n core (server-side helpers).
 
 Fully local. No external services, no CDN translation APIs.
 
 What it provides
 ──
-1.  `get_lang(request)`        — picks the active language from the
+1.  `get_lang(request)`        picks the active language from the
                                   `fg_lang` cookie, then `Accept-Language`,
                                   then DEFAULT_LANGUAGE.
-2.  `is_rtl(lang)`              — True for RTL languages (currently ar).
-3.  `register_jinja(templates)` — injects `lang`, `dir`, `is_rtl`,
+2.  `is_rtl(lang)`              True for RTL languages (currently ar).
+3.  `register_jinja(templates)` injects `lang`, `dir`, `is_rtl`,
                                   `SUPPORTED_LANGS` into every render
                                   and exposes a `t(key)` Jinja global so
                                   templates may use server-rendered text
                                   for the FIRST paint (the JS engine then
                                   keeps everything in sync after that).
-4.  `load_bundle(lang)`         — loads `static/i18n/{lang}.json` from disk
+4.  `load_bundle(lang)`         loads `static/i18n/{lang}.json` from disk
                                   with an in-process cache.
 
 The translation file format is a plain {English-source: Translated} map.
@@ -32,7 +32,6 @@ from typing import Dict
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
-# ─ Constants ─
 SUPPORTED_LANGS = ["en", "ar", "ru", "de", "zh"]
 RTL_LANGS = {"ar"}
 DEFAULT_LANGUAGE = os.environ.get("DEFAULT_LANGUAGE", "en")
@@ -48,7 +47,6 @@ LANG_META = {
 _BUNDLE_DIR = os.path.join("static", "i18n")
 
 
-# ─ Lang detection ─
 def _normalize(code: str) -> str:
     code = (code or "").lower().strip()
     if not code:
@@ -59,19 +57,18 @@ def _normalize(code: str) -> str:
 
 
 def get_lang(request: Request) -> str:
-    # 1. explicit ?lang= override (single-request preview)
+    # Priority: explicit ?lang= override (single-request preview), then
+    # the fg_lang cookie, then the Accept-Language header.
     q = request.query_params.get("lang")
     if q:
         n = _normalize(q)
         if n:
             return n
-    # 2. cookie
     c = request.cookies.get("fg_lang")
     if c:
         n = _normalize(c)
         if n:
             return n
-    # 3. accept-language header
     h = request.headers.get("accept-language", "")
     if h:
         for part in h.split(","):
@@ -85,7 +82,6 @@ def is_rtl(lang: str) -> bool:
     return lang in RTL_LANGS
 
 
-# ─ Bundle loading (disk-cached) ─
 @lru_cache(maxsize=16)
 def load_bundle(lang: str) -> Dict[str, str]:
     if lang not in SUPPORTED_LANGS:
@@ -116,7 +112,6 @@ def t(key: str, lang: str | None = None) -> str:
     return bundle.get(key, key)
 
 
-# ─ Jinja integration ──
 def register_jinja(templates: Jinja2Templates) -> None:
     """Expose i18n primitives to every template render. The actual `lang`
     and `dir` are injected by main.page() (it knows the request)."""

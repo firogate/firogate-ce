@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.core.config import get_settings
 
 settings = get_settings()
-from app.core.security import verify_access_token, generate_api_key, generate_webhook_secret, encrypt_field, decrypt_field, verify_password
+from app.core.security import verify_access_token, generate_api_key, generate_webhook_secret, encrypt_field, decrypt_field
 from app.core.validators import validate_url, validate_password, sanitize_str
 from app.models.models import User, UserRole, Payment, PaymentStatus
 
@@ -24,14 +24,15 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     u = res.scalar_one_or_none()
     if not u or not u.is_active: raise HTTPException(401)
 
-    # Admin-email auto-promotion: if this user's email is listed in the
+    # Operator-email auto-promotion: if this user's email is listed in the
     # OPERATOR_EMAILS env var but the DB still has them as a merchant, flip
-    # the role to admin once. Happens lazily on the next request (e.g.
-    # the dashboard's /profile call) so brand new admins don't need a
+    # the role to operator once. Happens lazily on the next request (e.g.
+    # the dashboard's /profile call) so brand new operators don't need a
     # restart or manual DB edit.
     from app.core.config import get_settings
-    if u.role != UserRole.admin and get_settings().is_admin_email(u.email):
-        u.role = UserRole.admin
+    _s = get_settings()
+    if u.role != UserRole.operator and (_s.is_operator_email(u.email) or _s.is_operator_username(u.username)):
+        u.role = UserRole.operator
         db.add(u)
         await db.commit()
         await db.refresh(u)
@@ -44,10 +45,16 @@ async def profile(request: Request, user: User = Depends(get_current_user)):
     
     is_onion = is_onion_request(request)
     
+    auth_provider = ("telegram" if getattr(user, "telegram_id", None)
+                     else "google" if getattr(user, "firebase_uid", None)
+                     else "wallet" if getattr(user, "wallet_address", None)
+                     else "account_number" if getattr(user, "account_number_hash", None)
+                     else "password")
     return {
         "id":               user.id,
         "username":         user.username,
         "email":            user.email,
+        "auth_provider":    auth_provider,
         "app_name":         user.app_name,
         "app_name_locked":  bool(user.app_name_locked),
         "app_name_change_allowed": bool(user.app_name_change_allowed),
@@ -55,28 +62,51 @@ async def profile(request: Request, user: User = Depends(get_current_user)):
         "requests_total":   user.requests_total,
         "requests_used":    user.requests_used,
         "requests_left":    max(0, (user.requests_total or 0) - (user.requests_used or 0)),
-        "balance_firo":     round(user.balance_firo or 0, 8),
-        "balance_pending":  round(user.balance_pending or 0, 8),
-        "balance_withdrawn": round(user.balance_withdrawn or 0, 8),
-        "total_earned":     round(user.total_earned_firo or 0, 8),
-        "total_fees_paid":  round(user.total_fees_firo or 0, 8),
+        "rollover_requests":   int(user.rollover_requests or 0),
+        "rollover_expires_at": user.rollover_expires_at.isoformat() if user.rollover_expires_at else None,
+        "cycle_start_at":      user.cycle_start_at.isoformat() if user.cycle_start_at else None,
+        # monthly_allowance = total available minus rolled-over portion
+        "monthly_allowance":   max(0, (user.requests_total or 0) - (user.rollover_requests or 0)),
+        "lifetime_gross_sales_firo":   round(user.lifetime_gross_sales_firo or 0, 8),
+        "lifetime_received_firo":      round(user.lifetime_received_firo or 0, 8),
+        "lifetime_confirmed_payments": int(user.lifetime_confirmed_payments or 0),
+        "lifetime_completed_orders":   int(user.lifetime_completed_orders or 0),
         "plan_expires_at":  user.plan_expires_at.isoformat() if user.plan_expires_at else None,
         "api_key":          user.api_key,
         "webhook_url":      user.webhook_url,
         "has_webhook_secret": bool(user.webhook_secret_enc),
+        "required_confirmations_policy": user.required_confirmations_policy,
+        "payment_tolerance_firo":        user.payment_tolerance_firo,
         "totp_enabled":     bool(user.totp_enabled),
         "role":               user.role.value if hasattr(user.role, "value") else str(user.role),
-        "is_admin":           user.role == UserRole.admin,
-        # Privacy mode info
+        "is_operator":           user.role == UserRole.operator,
         "privacy_mode":       user.privacy_mode,
         "created_via_onion":  user.created_via_onion,
         "is_onion_session":   is_onion,
-        # ─ Network info (auto-detected from RPC port) ─
+        "show_market_price":  bool(user.show_market_price),
+        "has_seen_onboarding": bool(user.has_seen_onboarding),
+        # Network info is auto-detected from the RPC port
         "is_testnet":         settings.is_testnet,
         "network":            settings.network_name,
         "network_label":      settings.network_label,
         "network_warning":    settings.network_warning,
     }
+
+
+@router.post("/onboarding/seen")
+async def mark_onboarding_seen(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    user.has_seen_onboarding = True
+    db.add(user)
+    await db.commit()
+    return {"ok": True}
+
+
+@router.post("/onboarding/restart")
+async def restart_onboarding(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    user.has_seen_onboarding = False
+    db.add(user)
+    await db.commit()
+    return {"ok": True}
 
 
 @router.get("/webhook-secret")
@@ -108,6 +138,32 @@ async def update_webhook(
     return {"message": "Webhook URL updated"}
 
 
+class PaymentPolicyUpdate(BaseModel):
+    required_confirmations_policy: int | None = None   # None = revert to instance default
+    payment_tolerance_firo:        float | None = None  # None = revert to default tolerance
+
+@router.patch("/payment-policy", dependencies=[Depends(rate_limit_moderate)])
+async def update_payment_policy(
+    body: PaymentPolicyUpdate,
+    user: User = Depends(get_current_user),
+    db:   AsyncSession = Depends(get_db),
+):
+    from app.core.payment_policy import VALID_CONFIRMATION_POLICIES
+    if body.required_confirmations_policy is not None and body.required_confirmations_policy not in VALID_CONFIRMATION_POLICIES:
+        raise HTTPException(422, "required_confirmations_policy must be one of 0, 1, 3, 6")
+    if body.payment_tolerance_firo is not None and not (0 <= body.payment_tolerance_firo <= 1):
+        raise HTTPException(422, "payment_tolerance_firo must be between 0 and 1 FIRO")
+    user.required_confirmations_policy = body.required_confirmations_policy
+    user.payment_tolerance_firo = body.payment_tolerance_firo
+    db.add(user)
+    await db.commit()
+    return {
+        "message": "Payment policy updated",
+        "required_confirmations_policy": user.required_confirmations_policy,
+        "payment_tolerance_firo": user.payment_tolerance_firo,
+    }
+
+
 @router.post("/regenerate-api-key", dependencies=[Depends(rate_limit_moderate)])
 async def regenerate_api_key(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     user.api_key = generate_api_key()
@@ -133,15 +189,12 @@ class PasswordChange(BaseModel):
 async def password_status(user: User = Depends(get_current_user)):
     """Tells the frontend whether this account has a local password set.
     Google-only / Firebase accounts created by registering with an unusable
-    local password will have has_password=False — the security page should
+    local password will have has_password=False the security page should
     show the 'Create password' variant in that case."""
-    from app.core.security import verify_password
-    # A local password is considered "set" if the user can authenticate with a
-    # well-known empty/random string AND hashed_password is non-empty.
-    # We have no direct flag, so infer it heuristically:
-    #   - Firebase-only accounts were created with a random unusable hash.
-    #   - Heuristic: treat any account with firebase_uid AND password_changed_at
-    #     is None AND the user was created via Firebase as "no local password".
+    # No direct "has local password" flag exists, so infer it: Firebase-only
+    # accounts were created with a random unusable hash, so an account with
+    # firebase_uid set and password_changed_at still None is treated as
+    # "no local password".
     has_password = not (
         user.firebase_uid
         and user.password_changed_at is None
@@ -169,7 +222,7 @@ async def change_password(
     When the user has a Firebase account, the password is also mirrored to
     Firebase so both backends stay in sync.
     """
-    from app.core.security import hash_password
+    from app.core.security import hash_password, verify_password
     from datetime import datetime, timezone
 
     has_password = not (user.firebase_uid and user.password_changed_at is None)
@@ -185,20 +238,19 @@ async def change_password(
     except ValueError as e:
         raise HTTPException(422, str(e))
 
-    # 1) local hash
     user.hashed_password     = hash_password(body.new_password)
     user.password_changed_at = datetime.now(timezone.utc)
     db.add(user)
     await db.commit()
 
-    # 2) mirror to Firebase if account is linked there
+    # Mirror to Firebase if the account is linked there, so both backends stay in sync
     if user.firebase_uid:
         try:
             from app.core import firebase_auth as _fb
             _fb.set_password(user.firebase_uid, body.new_password)
             _fb.revoke_refresh_tokens(user.firebase_uid)
         except Exception:
-            pass  # best-effort — local password still updated
+            pass  # best-effort local password still updated
 
     return {
         "message": "Password set." if not has_password else "Password changed successfully",
@@ -212,6 +264,29 @@ async def sales_summary(
     db:   AsyncSession = Depends(get_db),
     limit: int = 50,
 ):
+    from sqlalchemy import func as _func
+    agg = await db.execute(
+        select(
+            _func.count(Payment.id),
+            _func.sum(Payment.amount_firo),
+            _func.sum(Payment.amount_received),
+        ).where(
+            Payment.merchant_id == user.id,
+            Payment.status == PaymentStatus.confirmed,
+        )
+    )
+    agg_row = agg.one()
+    confirmed_count  = int(agg_row[0] or 0)
+    gross_sales_firo = round(float(agg_row[1] or 0), 8)
+    received_firo    = round(float(agg_row[2] or 0), 8)
+    avg_order_value  = round(gross_sales_firo / confirmed_count, 8) if confirmed_count else 0.0
+
+    total_res = await db.execute(
+        select(_func.count(Payment.id)).where(Payment.merchant_id == user.id)
+    )
+    total_count = int(total_res.scalar() or 0)
+    success_rate = round(confirmed_count / total_count * 100, 1) if total_count else 0.0
+
     res = await db.execute(
         select(Payment)
         .where(Payment.merchant_id == user.id, Payment.status == PaymentStatus.confirmed)
@@ -219,33 +294,29 @@ async def sales_summary(
         .limit(limit)
     )
     payments = res.scalars().all()
+
     return {
-        "summary": {
-            "balance_available": round(user.balance_firo or 0, 8),
-            "balance_pending":   round(user.balance_pending or 0, 8),
-            "total_earned":      round(user.total_earned_firo or 0, 8),
-            "total_fees_paid":   round(user.total_fees_firo or 0, 8),
-            "total_withdrawn":   round(user.balance_withdrawn or 0, 8),
-            "platform_fee_pct":  1.5,
+        "metrics": {
+            "total_confirmed_payments": confirmed_count,
+            "total_completed_orders":   confirmed_count,
+            "gross_sales_firo":         gross_sales_firo,
+            "received_firo":            received_firo,
+            "avg_order_value":          avg_order_value,
+            "payment_success_rate_pct": success_rate,
         },
         "sales": [
             {
-                "payment_id":  p.id,
-                "order_id":    p.order_id,
-                "amount_firo": p.amount_firo,
-                "fee_firo":    p.platform_fee_firo,
-                "net_firo":    p.merchant_net_firo,
-                "txid":        p.txid,
+                "payment_id":   p.id,
+                "order_id":     p.order_id,
+                "amount_firo":  p.amount_firo,
+                "amount_received": p.amount_received,
+                "txid":         p.txid,
                 "confirmed_at": p.confirmed_at.isoformat() if p.confirmed_at else None,
             }
             for p in payments
         ],
     }
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Privacy Mode Endpoints
-# ═══════════════════════════════════════════════════════════════════════════════
 
 @router.get("/privacy-status")
 async def get_privacy_status(request: Request, user: User = Depends(get_current_user)):
@@ -305,16 +376,98 @@ async def update_privacy_mode(
     }
 
 
+class MarketPriceUpdate(BaseModel):
+    show_market_price: bool
 
-# ─
-# Merchant branding — App Name
+
+@router.patch("/market-price-setting")
+async def update_market_price_setting(
+    body: MarketPriceUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Toggle the live FIRO market price widgets (dashboard stat, payment
+    link ticker). Off by default — when off, those widgets never fetch."""
+    user.show_market_price = body.show_market_price
+    await db.commit()
+    return {"show_market_price": user.show_market_price}
+
+
+# Telegram notifications (bot channel; independent of Telegram login)
+
+@router.get("/telegram-status")
+async def telegram_status(user: User = Depends(get_current_user)):
+    s = get_settings()
+    return {
+        "configured":      s.telegram_bot_enabled,
+        "bot_username":    s.TELEGRAM_BOT_USERNAME if s.telegram_bot_enabled else None,
+        "connected":       bool(user.telegram_chat_id),
+        "notify_telegram": bool(user.notify_telegram),
+        "notify_on_payment": bool(user.notify_on_payment),
+    }
+
+
+@router.post("/telegram-connect", dependencies=[Depends(rate_limit_moderate)])
+async def telegram_connect(user: User = Depends(get_current_user)):
+    s = get_settings()
+    if not s.telegram_bot_enabled:
+        raise HTTPException(503, "Telegram notifications are not configured on this server.")
+    from app.services import telegram_bot as tg
+    token = tg.new_connect_token(user.id)
+    return {"link": tg.connect_link(token), "expires_in": tg.CONNECT_TTL}
+
+
+@router.delete("/telegram-connect")
+async def telegram_disconnect(user: User = Depends(get_current_user),
+                              db: AsyncSession = Depends(get_db)):
+    chat_id = user.telegram_chat_id
+    user.telegram_chat_id = None
+    user.notify_telegram = False
+    db.add(user)
+    await db.commit()
+    if chat_id and get_settings().telegram_bot_enabled:
+        import asyncio as _asyncio
+        from app.services.telegram_bot import send_message as _tg_send
+        _asyncio.create_task(_tg_send(chat_id,
+            "🔌 This chat was disconnected from your FiroGate account via the "
+            "dashboard. You will no longer receive notifications here.\n\n"
+            "You can reconnect anytime from Security → Notifications."))
+    return {"message": "Telegram disconnected."}
+
+
+class TelegramNotifyUpdate(BaseModel):
+    enabled: bool
+
+
+@router.patch("/telegram-notify")
+async def telegram_notify_toggle(body: TelegramNotifyUpdate,
+                                 user: User = Depends(get_current_user),
+                                 db: AsyncSession = Depends(get_db)):
+    if body.enabled and not user.telegram_chat_id:
+        raise HTTPException(400, "Connect Telegram first.")
+    changed = bool(body.enabled) != bool(user.notify_telegram)
+    user.notify_telegram = bool(body.enabled)
+    db.add(user)
+    await db.commit()
+    if changed and user.telegram_chat_id and get_settings().telegram_bot_enabled:
+        import asyncio as _asyncio
+        from app.services.telegram_bot import send_message as _tg_send
+        _asyncio.create_task(_tg_send(user.telegram_chat_id,
+            "🔔 Payment notifications are <b>ON</b>. You'll receive alerts here "
+            "whenever a payment is confirmed."
+            if body.enabled else
+            "🔕 Payment notifications are <b>paused</b> from the dashboard. "
+            "This chat stays connected turn them back on anytime."))
+    return {"message": "Updated.", "notify_telegram": user.notify_telegram}
+
+
+# Merchant branding: App Name
 # Rules:
 #   * User sets it ONCE on first use (when app_name is empty).
-#   * After first set, app_name_locked flips to True — direct changes are refused.
-#   * To change later, user must submit a `change_app_name` report; admin
+#   * After first set, app_name_locked flips to True - direct changes are refused.
+#   * To change later, user must submit a `change_app_name` report; operator
 #     approves which sets app_name_change_allowed=True, which then permits
 #     exactly one further change (permission cleared after the change is saved).
-# ─
 
 import re as _re_app
 
@@ -325,17 +478,55 @@ class AppNameIn(BaseModel):
     app_name: str
 
 
+FREE_NAME_CHANGES = 3           # first 3 changes are instant
+NAME_CHANGE_COOLDOWN_DAYS = 14  # after that, one change per 14 days
+
+
+def _name_change_state(user: User):
+    """Return (can_change_now, seconds_remaining) for this merchant's name."""
+    from datetime import datetime, timezone, timedelta
+    count = int(user.app_name_change_count or 0)
+    if count < FREE_NAME_CHANGES:
+        return True, 0
+    last = user.app_name_last_changed_at
+    if not last:
+        return True, 0
+    if last.tzinfo is None:
+        last = last.replace(tzinfo=timezone.utc)
+    nxt = last + timedelta(days=NAME_CHANGE_COOLDOWN_DAYS)
+    now = datetime.now(timezone.utc)
+    if now >= nxt:
+        return True, 0
+    return False, int((nxt - now).total_seconds())
+
+
 @router.get("/app-name")
 async def get_app_name(user: User = Depends(get_current_user)):
     has_name = bool((user.app_name or "").strip())
-    can_change = (not has_name) or bool(user.app_name_change_allowed)
+    can_change, secs = _name_change_state(user)
+    count = int(user.app_name_change_count or 0)
     return {
-        "app_name":                user.app_name or None,
-        "has_app_name":            has_name,
-        "locked":                  bool(user.app_name_locked),
-        "change_allowed":          bool(user.app_name_change_allowed),
-        "can_set_now":             can_change,
+        "app_name":          user.app_name or None,
+        "has_app_name":      has_name,
+        "can_set_now":       (not has_name) or can_change,
+        "changes_used":      count,
+        "free_changes":      FREE_NAME_CHANGES,
+        "free_remaining":    max(0, FREE_NAME_CHANGES - count),
+        "cooldown_seconds":  secs,
+        "cooldown_days":     NAME_CHANGE_COOLDOWN_DAYS,
     }
+
+
+def clean_app_name(raw: str) -> str:
+    name = sanitize_str(raw, 40).strip() if raw else ""
+    import re as _re_name
+    name = _re_name.sub(r'<[^>]+>', '', name)
+    name = _re_name.sub(r'[<>&"\'\\/]', '', name)
+    name = _re_name.sub(r'javascript:|data:|vbscript:', '', name, flags=_re_name.IGNORECASE)
+    name = name.strip()
+    if not APP_NAME_RE.match(name):
+        raise HTTPException(422, "App name must be 2–40 characters: letters, numbers, spaces and ._-&'() only.")
+    return name
 
 
 @router.post("/app-name")
@@ -344,40 +535,179 @@ async def set_app_name(
     user: User = Depends(get_current_user),
     db:   AsyncSession = Depends(get_db),
 ):
-    name = sanitize_str(body.app_name, 40).strip() if body.app_name else ""
-    # Strip ALL HTML tags and dangerous characters from app_name
-    # app_name is rendered in checkout page — must be plain text only
-    import re as _re_name
-    name = _re_name.sub(r'<[^>]+>', '', name)          # strip HTML tags
-    name = _re_name.sub(r'[<>&"\'\\/]', '', name)       # strip dangerous chars
-    name = _re_name.sub(r'javascript:|data:|vbscript:', '', name, flags=_re_name.IGNORECASE)
-    name = name.strip()
-    if not APP_NAME_RE.match(name):
-        raise HTTPException(422, "App name must be 2–40 characters: letters, numbers, spaces and ._-&'() only.")
+    from datetime import datetime, timezone
+    name = clean_app_name(body.app_name)
 
     has_name = bool((user.app_name or "").strip())
 
-    if has_name and not user.app_name_change_allowed:
+    # Setting the name for the very first time is always allowed and is NOT counted as a "change"
+    if not has_name:
+        user.app_name = name
+        user.app_name_locked = True
+        db.add(user)
+        await db.commit()
+        return {"ok": True, "app_name": user.app_name, "message": "App name saved.",
+                "free_remaining": FREE_NAME_CHANGES}
+
+    if name == (user.app_name or "").strip():
+        return {"ok": True, "app_name": user.app_name, "message": "No change."}
+
+    can_change, secs = _name_change_state(user)
+    if not can_change:
+        days = (secs + 86399) // 86400
         raise HTTPException(
-            403,
-            "Your app name is locked. Please submit a report to request a change."
+            429,
+            f"You've used your {FREE_NAME_CHANGES} free name changes. "
+            f"You can change it again in about {days} day(s)."
         )
 
     user.app_name = name
     user.app_name_locked = True
-    # Consume the permission so the user can't rename again without another approval
-    user.app_name_change_allowed = False
+    user.app_name_change_count = int(user.app_name_change_count or 0) + 1
+    user.app_name_last_changed_at = datetime.now(timezone.utc)
     db.add(user)
     await db.commit()
+    _, secs_after = _name_change_state(user)
     return {
-        "ok":        True,
-        "app_name":  user.app_name,
-        "locked":    True,
-        "message":   "App name saved." if not has_name else "App name updated.",
+        "ok":            True,
+        "app_name":      user.app_name,
+        "message":       "App name updated.",
+        "changes_used":  user.app_name_change_count,
+        "free_remaining": max(0, FREE_NAME_CHANGES - user.app_name_change_count),
+        "cooldown_seconds": secs_after,
     }
 
 
-# ─ Brand Colors ─
+# Merchant Logo
+# Accepts up to 5 MB; auto-compressed server-side (Pillow re-encode, strips
+# EXIF/metadata). Stored as base64 data URI. Shown on the checkout page.
+_LOGO_MAX_INPUT  = 5 * 1024 * 1024    # 5 MB max raw upload
+_LOGO_MAX_OUTPUT = 400 * 1024         # 400 KB max after compression
+_LOGO_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
+# SVG is intentionally NOT accepted. It's an XML/script-capable format and a
+# denylist-based sanitizer (checking for <script>, on*= handlers, etc.) is
+# fundamentally bypassable (SMIL event attributes, entity/CDATA obfuscation,
+# nested <image href="data:...">, and browser-specific quirks). Every other
+# accepted type is re-encoded from scratch via Pillow, which strips any
+# embedded payload; there is no equivalent safe path for SVG without a
+# dedicated rasterizer, so it's rejected rather than shipped half-sanitized.
+_LOGO_RE = _re_app.compile(r'^data:(image/[a-z.+-]+);base64,([A-Za-z0-9+/=]+)$')
+
+
+def _sniff_image(b: bytes) -> str | None:
+    if b[:8] == b"\x89PNG\r\n\x1a\n":               return "image/png"
+    if b[:3] == b"\xff\xd8\xff":                     return "image/jpeg"
+    if b[:6] in (b"GIF87a", b"GIF89a"):              return "image/gif"
+    if b[:4] == b"RIFF" and b[8:12] == b"WEBP":      return "image/webp"
+    head = b[:512].lstrip().lower()
+    if head.startswith(b"<?xml") or head.startswith(b"<svg"): return "image/svg+xml"
+    return None
+
+
+def _compress_logo(data: bytes, mime: str) -> tuple[bytes, str]:
+    """
+    Resize to max 400×400 and re-encode with Pillow. Re-encoding from scratch
+    strips all EXIF metadata, ICC profiles, and any embedded payloads which
+    is stronger security than a magic-byte check alone. Returns (bytes, mime).
+    """
+    import io
+    from PIL import Image
+
+    try:
+        img = Image.open(io.BytesIO(data))
+        img.load()
+    except Exception:
+        raise ValueError("Cannot decode image")
+
+    img.thumbnail((400, 400), Image.LANCZOS)
+
+    out = io.BytesIO()
+    has_alpha = img.mode in ("RGBA", "LA", "PA")
+
+    if has_alpha:
+        img = img.convert("RGBA")
+        img.save(out, format="WEBP", quality=88, method=4)
+        result, out_mime = out.getvalue(), "image/webp"
+        if len(result) > _LOGO_MAX_OUTPUT:
+            out = io.BytesIO()
+            img.save(out, format="PNG", optimize=True, compress_level=9)
+            result, out_mime = out.getvalue(), "image/png"
+    elif mime == "image/gif":
+        img.save(out, format="GIF")
+        result, out_mime = out.getvalue(), "image/gif"
+    else:
+        img = img.convert("RGB")
+        img.save(out, format="WEBP", quality=88, method=4)
+        result, out_mime = out.getvalue(), "image/webp"
+
+    if len(result) > _LOGO_MAX_OUTPUT:
+        raise ValueError(f"Image too large after compression. Try a simpler logo.")
+    return result, out_mime
+
+
+class LogoIn(BaseModel):
+    logo: str   # full data URI: "data:image/png;base64,...."
+
+
+@router.get("/app-logo")
+async def get_app_logo(user: User = Depends(get_current_user)):
+    return {"app_logo": user.app_logo or None, "has_logo": bool(user.app_logo)}
+
+
+@router.post("/app-logo")
+async def set_app_logo(
+    body: LogoIn,
+    user: User = Depends(get_current_user),
+    db:   AsyncSession = Depends(get_db),
+):
+    import base64 as _b64
+    raw = (body.logo or "").strip()
+    if not raw:
+        raise HTTPException(422, "No image provided.")
+    m = _LOGO_RE.match(raw)
+    if not m:
+        raise HTTPException(422, "Invalid image. Use PNG, JPEG, WebP, or GIF.")
+    mime, b64data = m.group(1).lower(), m.group(2)
+    if mime not in _LOGO_TYPES:
+        raise HTTPException(422, "Unsupported image type.")
+    try:
+        decoded = _b64.b64decode(b64data, validate=True)
+    except Exception:
+        raise HTTPException(422, "Corrupt image data.")
+    if len(decoded) == 0:
+        raise HTTPException(422, "Empty image.")
+    if len(decoded) > _LOGO_MAX_INPUT:
+        raise HTTPException(422, f"Image too large. Max 5 MB.")
+
+    # Verify magic bytes - rejects executables/scripts renamed as images.
+    sniffed = _sniff_image(decoded)
+    if sniffed is None or sniffed != mime:
+        raise HTTPException(422, "File content does not match its declared type.")
+
+    try:
+        comp_bytes, out_mime = _compress_logo(decoded, mime)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    stored = f"data:{out_mime};base64,{_b64.b64encode(comp_bytes).decode()}"
+
+    user.app_logo = stored
+    db.add(user)
+    await db.commit()
+    return {"ok": True, "has_logo": True}
+
+
+@router.delete("/app-logo")
+async def delete_app_logo(
+    user: User = Depends(get_current_user),
+    db:   AsyncSession = Depends(get_db),
+):
+    user.app_logo = None
+    db.add(user)
+    await db.commit()
+    return {"ok": True, "has_logo": False}
+
+
+# Brand Colors
 import re as _re
 
 _HEX_RE = _re.compile(r'^#[0-9A-Fa-f]{6}$')
@@ -446,8 +776,18 @@ async def test_webhook(
     if not user.webhook_url:
         raise HTTPException(400, "No webhook URL configured. Set one first.")
 
-    import httpx, json, time, hmac, hashlib
+    import json, time, hmac, hashlib
     from app.core.security import decrypt_field
+    from app.core.validators import validate_url
+    from app.services.webhook import _build_client
+
+    # Re-validate at send time (not just at registration time) blocks
+    # DNS-rebinding, where a domain resolved to a public IP when the webhook
+    # URL was saved but now resolves to an internal/metadata address.
+    try:
+        safe_url = validate_url(user.webhook_url, "webhook_url")
+    except HTTPException:
+        raise HTTPException(400, "Webhook URL is no longer valid (points to a disallowed host).")
 
     payload = {
         "event":      "test",
@@ -455,7 +795,7 @@ async def test_webhook(
         "status":     "test",
         "amount":     0.0,
         "timestamp":  int(time.time()),
-        "message":    "FiroGate webhook test — your endpoint is working.",
+        "message":    "FiroGate webhook test your endpoint is working.",
     }
     body = json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
@@ -469,12 +809,12 @@ async def test_webhook(
             pass
 
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(user.webhook_url, content=body, headers=headers)
+        async with _build_client(safe_url) as client:
+            resp = await client.post(safe_url, content=body, headers=headers)
         return {
             "ok":          True,
             "status_code": resp.status_code,
-            "message":     f"Test delivered — HTTP {resp.status_code}",
+            "message":     f"Test delivered HTTP {resp.status_code}",
         }
     except Exception as e:
         return {"ok": False, "message": f"Delivery failed: {str(e)[:100]}"}

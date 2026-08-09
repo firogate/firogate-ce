@@ -1,42 +1,6 @@
-/*
- * FiroGate — Client-side i18n engine (fully internal, zero external deps).
- *
- * Responsibilities
- * ─
- * 1.  Loads a translation bundle from /static/i18n/{lang}.json on demand
- *     (lazy — only the active language is fetched).
- * 2.  Persists the active language in localStorage + the fg_lang cookie
- *     (cookie is also written by /api/i18n/set so it carries across
- *      subdomains for shared sessions).
- * 3.  Sets <html lang dir> + adds a `lang-<code>` class on <html> so CSS
- *     can swap fonts per language.
- * 4.  Translates the page using TWO complementary strategies:
- *       (a) Explicit  — any element with `data-i18n="key"` /
- *                       `data-i18n-placeholder` / `data-i18n-title` /
- *                       `data-i18n-aria-label` / `data-i18n-html`.
- *       (b) Implicit  — a text-node walker that translates by matching
- *                       the trimmed English source phrase against the
- *                       loaded bundle. This means templates do NOT need
- *                       to be rewritten line-by-line: any visible English
- *                       string with a translation entry gets replaced
- *                       automatically.
- *     A MutationObserver re-runs translation on dynamically inserted DOM
- *     (charts, AJAX results, dashboard tabs, etc.) so no untranslated
- *     English flashes through after switching.
- * 5.  Exposes `window.t(key)`, `window.i18n.changeLanguage(code)`,
- *     `window.i18n.lang`, and dispatches a `i18n:changed` CustomEvent.
- * 6.  Renders the language switcher into any element that has
- *     `data-i18n-switcher` (dropdown with native names + flags + RTL
- *     friendly).
- *
- * No external CDN. Everything is fetched from the same origin.
- */
 (function () {
   'use strict';
 
-  // ─ Supported languages ─
-  // Mirror of LANG_META on the server. Hard-coded so the switcher renders
-  // even before /api/i18n/langs has returned.
   var LANGS = [
     { code: 'en', name: 'English', native: 'English',  flag: '🇬🇧', dir: 'ltr' },
     { code: 'ar', name: 'Arabic',  native: 'العربية',   flag: '🇸🇦', dir: 'rtl' },
@@ -50,17 +14,15 @@
   var COOKIE = 'fg_lang';
   var BUNDLE_URL = function (l) { return '/static/i18n/' + l + '.json'; };
 
-  // ─ State ─
   var state = {
     lang: DEFAULT_LANG,
     bundle: {},
-    invertIndex: {},  // for reverse-lookup if we ever want to "un-translate"
-    loaded: { en: true },  // English is always available (source)
+    invertIndex: {},
+    loaded: { en: true },
     observerArmed: false,
-    walking: false        // re-entrancy guard for the DOM walker
+    walking: false
   };
 
-  // ─ Cookie helpers ─
   function cookieGet(name) {
     var m = document.cookie.match(new RegExp('(?:^|; )' +
       name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
@@ -78,7 +40,6 @@
       '; Path=/; Max-Age=' + (days * 86400) + '; SameSite=Lax' + sec + dom;
   }
 
-  // ─ Lang detection (matches server order) ─
   function detectInitialLang() {
     try {
       var qs = new URLSearchParams(location.search).get('lang');
@@ -89,7 +50,6 @@
     if (ls && supported(ls)) return ls;
     var ck = cookieGet(COOKIE);
     if (ck && supported(ck)) return ck;
-    // Browser language fallback (only if supported)
     var nav = (navigator.language || navigator.userLanguage || '').toLowerCase().split('-')[0];
     if (supported(nav)) return nav;
     return DEFAULT_LANG;
@@ -100,7 +60,6 @@
     return false;
   }
 
-  // ─ Bundle loader ─
   function loadBundle(lang) {
     if (lang === 'en') return Promise.resolve({});
     if (state.loaded[lang] && state.bundle && lang === state.lang) {
@@ -111,19 +70,16 @@
       .catch(function () { return {}; });
   }
 
-  // ─ Core: translate ──
   function t(key) {
     if (!key && key !== '') return key;
     if (state.lang === 'en') return key;
     var b = state.bundle || {};
     var direct = b[key];
     if (typeof direct === 'string' && direct.length) return direct;
-    // try trimmed match (templates often add whitespace)
     var trimmed = String(key).trim();
     if (trimmed !== key) {
       var t2 = b[trimmed];
       if (typeof t2 === 'string' && t2.length) {
-        // preserve leading/trailing whitespace
         var lead = key.match(/^\s*/)[0];
         var trail = key.match(/\s*$/)[0];
         return lead + t2 + trail;
@@ -132,8 +88,6 @@
     return key;
   }
 
-  // ─ DOM walker ─
-  // Elements with these tags or attributes are NEVER touched.
   var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, TEMPLATE: 1, CODE: 1, PRE: 1, KBD: 1, SAMP: 1, VAR: 1 };
   function shouldSkip(el) {
     if (!el || el.nodeType !== 1) return false;
@@ -148,7 +102,6 @@
 
   function translateAttribute(el, attr, key) {
     if (!el || !key) return;
-    // Stash original ONCE for clean restoration when language changes
     var origAttr = '__fgOrig_' + attr;
     if (el[origAttr] === undefined) {
       el[origAttr] = el.getAttribute(attr) || '';
@@ -158,7 +111,6 @@
     if (state.lang === 'en') {
       v = src;
     } else {
-      // Prefer the explicit key, fall back to the stashed original
       var lookup = (state.bundle || {})[key] || (state.bundle || {})[src];
       v = (typeof lookup === 'string' && lookup.length) ? lookup : src;
     }
@@ -166,7 +118,6 @@
   }
 
   function translateElementAttrs(el) {
-    // Standard data-i18n-* family — stash & resolve through __fgOrig_text
     var k;
     k = el.getAttribute('data-i18n');
     if (k) {
@@ -213,7 +164,6 @@
       var bundle = state.bundle || {};
       var isEnglish = state.lang === 'en';
 
-      // ─ 1) Explicit data-i18n attributes ─
       var withAttrs;
       try {
         withAttrs = root.querySelectorAll(
@@ -229,8 +179,6 @@
         translateElementAttrs(root);
       }
 
-      // ─ 2) Text-node walker: stash original on first sight, then either
-      //      translate (lang≠en) or restore (lang=en). ─
       var walker;
       try {
         walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -246,9 +194,6 @@
               cur = cur.parentNode;
             }
             if (root && shouldSkip(root)) return NodeFilter.FILTER_REJECT;
-            // Accept ANY node that has stashed __fgOrig (so we can restore
-            // it even if its current value is now in a non-English script
-            // and has no non-whitespace ASCII).
             if (node.__fgOrig !== undefined) return NodeFilter.FILTER_ACCEPT;
             var v = node.nodeValue;
             if (!v || !v.trim()) return NodeFilter.FILTER_REJECT;
@@ -261,7 +206,6 @@
         var node;
         var updates = [];
         while ((node = walker.nextNode())) {
-          // First time we see this node, stash its original English text.
           if (node.__fgOrig === undefined) {
             node.__fgOrig = node.nodeValue;
           }
@@ -273,15 +217,12 @@
 
           var nextValue;
           if (isEnglish) {
-            nextValue = orig;          // restore exactly
+            nextValue = orig;
           } else {
             var translated = bundle[trimmed];
             if (typeof translated === 'string' && translated.length) {
               nextValue = lead + translated + trail;
             } else {
-              // No translation entry → keep English source (also restores
-              // any node that was previously translated to a different
-              // language and now has no key in this language's bundle).
               nextValue = orig;
             }
           }
@@ -294,14 +235,10 @@
     }
   }
 
-  // Microtask-scheduled re-walk for mutation observer. Microtasks run BEFORE
-  // the next browser paint, so the user never sees an English flash on
-  // dynamically-injected dashboard content (tab switches, AJAX results).
   var pendingRoots = null;
   var pendingScheduled = false;
   function scheduleWalk(root) {
     if (!pendingRoots) pendingRoots = [];
-    // Deduplicate: skip if an ancestor is already queued.
     for (var i = 0; i < pendingRoots.length; i++) {
       if (pendingRoots[i].contains && pendingRoots[i].contains(root)) return;
     }
@@ -312,7 +249,6 @@
       pendingScheduled = false;
       var roots = pendingRoots || [];
       pendingRoots = null;
-      // Walk each root (or fall back to whole body if too many)
       if (roots.length > 12) {
         walkAndTranslate(document.body);
       } else {
@@ -348,12 +284,20 @@
     state.observerArmed = true;
   }
 
-  // ─ Apply lang: html attrs, font class, switcher state ──
+  function _cssStr(s) {
+    return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  }
+  function applyCssContentVars() {
+    var root = document.documentElement;
+    root.style.setProperty('--fg-i18n-lang-label', _cssStr(t('Language')));
+    root.style.setProperty('--fg-i18n-curr-label', _cssStr(t('Currency')));
+    root.style.setProperty('--fg-ds-type-to-search', _cssStr(t('Type to search payments…')));
+  }
+
   function applyLangAttrs(lang) {
     var html = document.documentElement;
     html.setAttribute('lang', lang);
     html.setAttribute('dir', RTL[lang] ? 'rtl' : 'ltr');
-    // Replace any old lang-* class
     var classes = (html.className || '').split(/\s+/).filter(function (c) {
       return c && c.indexOf('lang-') !== 0;
     });
@@ -363,7 +307,6 @@
     html.className = classes.join(' ').trim();
   }
 
-  // ─ Render language switchers ─
   function langItem(l, current) {
     return '<button type="button" class="fg-i18n-item' + (l.code === current ? ' is-active' : '') +
       '" data-lang="' + l.code + '" data-testid="i18n-lang-' + l.code + '">' +
@@ -384,24 +327,10 @@
     el.classList.add('fg-i18n-switcher');
     el.classList.add('fg-i18n-' + variant);
 
-    // Desktop inline variant: minimal — just flag + native label,
-    // no globe icon, no English fallback name. Other variants still
-    // show the globe so the affordance is clear in side menus.
-    var showGlobe = (variant !== 'inline');
-    var globeSVG = showGlobe
-      ? '<svg class="fg-i18n-globe" width="14" height="14" viewBox="0 0 24 24"' +
-        ' fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">' +
-          '<circle cx="12" cy="12" r="10"/>' +
-          '<line x1="2" y1="12" x2="22" y2="12"/>' +
-          '<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' +
-        '</svg>'
-      : '';
-
     el.innerHTML =
       '<button type="button" class="fg-i18n-toggle" aria-haspopup="listbox"' +
       ' aria-expanded="false" data-testid="i18n-switcher-toggle"' +
       ' aria-label="' + meta.native + '">' +
-        globeSVG +
         '<span class="fg-i18n-cur-flag" aria-hidden="true">' + meta.flag + '</span>' +
         '<span class="fg-i18n-cur-label">' + meta.native + '</span>' +
         '<svg class="fg-i18n-chev" width="11" height="11" viewBox="0 0 24 24"' +
@@ -461,12 +390,9 @@
     for (var i = 0; i < nodes.length; i++) renderSwitcher(nodes[i]);
   }
 
-  // ─ Public API: changeLanguage ─
   function persistLang(lang) {
     try { localStorage.setItem(LS_KEY, lang); } catch (_) {}
     cookieSet(COOKIE, lang, 365);
-    // Best-effort server-side persist (also so cookie is set Secure on https,
-    // and shared via parent-domain Domain attribute the server controls).
     try {
       fetch('/api/i18n/set?lang=' + encodeURIComponent(lang), {
         method: 'POST',
@@ -486,6 +412,7 @@
       applyLangAttrs(lang);
       persistLang(lang);
       walkAndTranslate(document.body);
+      applyCssContentVars();
       refreshAllSwitchers();
       try {
         document.dispatchEvent(new CustomEvent('i18n:changed', {
@@ -496,23 +423,23 @@
     });
   }
 
-  // ─ Init ─
   function init() {
     var lang = detectInitialLang();
-    applyLangAttrs(lang);    // FIRST so RTL/font swaps before paint races
+    applyLangAttrs(lang);
     state.lang = lang;
     mountSwitchers();
     armObserver();
 
     if (lang === 'en') {
-      // English source — still arm walker for any data-i18n-src/data-i18n entries
       walkAndTranslate(document.body || document.documentElement);
+      applyCssContentVars();
       return;
     }
     loadBundle(lang).then(function (b) {
       state.bundle = b || {};
       state.loaded[lang] = true;
       walkAndTranslate(document.body || document.documentElement);
+      applyCssContentVars();
       refreshAllSwitchers();
       try {
         document.dispatchEvent(new CustomEvent('i18n:ready', { detail: { lang: lang } }));
@@ -520,8 +447,6 @@
     });
   }
 
-  // Run as early as possible — set <html lang dir> BEFORE first paint to
-  // avoid an LTR/English flash. The translation walk happens after DOM ready.
   applyLangAttrs(detectInitialLang());
 
   if (document.readyState === 'loading') {
@@ -530,7 +455,6 @@
     init();
   }
 
-  // ─ Expose ──
   window.i18n = {
     get lang() { return state.lang; },
     get dir()  { return RTL[state.lang] ? 'rtl' : 'ltr'; },
@@ -543,6 +467,5 @@
     mountSwitchers: mountSwitchers,
     refreshSwitchers: refreshAllSwitchers
   };
-  // Convenience global — many existing scripts can use `t('Sign In')` directly.
   window.t = t;
 })();

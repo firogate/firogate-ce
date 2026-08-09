@@ -1,19 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Sign In — FiroGate{% endblock %}
+{% block title %}Sign In FiroGate{% endblock %}
 {% block extra_css %}
 <style>
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px 16px;border-radius:10px;background:#fff;color:#111;border:1px solid rgba(255,255,255,.12);font-weight:600;font-size:.9rem;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none}
 .gbtn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(255,255,255,.12)}
 .gbtn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-.divsep{display:flex;align-items:center;gap:10px;color:var(--t4);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;margin:14px 0}
-.divsep::before,.divsep::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08)}
+.fg-ai-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0 6px;text-align:center;animation:sd .22s ease}
+.fg-ai-label{font-size:.7rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.fg-ai-name{font-size:1.05rem;font-weight:700;color:var(--white)}
+.fg-ai-actions{display:flex;flex-direction:column;gap:7px;width:100%;margin-top:4px}
+.fg-ai-btn-dash{display:block;background:var(--y);color:#1a1510;font-weight:700;font-size:.9rem;padding:12px;border-radius:0;text-decoration:none;text-align:center;transition:opacity .15s}
+.fg-ai-btn-dash:hover{opacity:.88}
+.fg-ai-btn-switch{background:none;border:1px solid var(--bw2,rgba(255,255,255,.1));color:var(--t1);font-size:.82rem;font-weight:600;padding:10px;border-radius:10px;cursor:pointer;transition:border-color .15s,color .15s;width:100%;font-family:inherit}
+.fg-ai-btn-switch:hover{border-color:var(--y);color:var(--y)}
+html[data-theme="light"] .fg-ai-btn-switch{border-color:rgba(0,0,0,.14);color:rgba(26,26,26,.55)}
+html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a07800}
+
+.auth-split{width:100%;max-width:400px}
+.auth-right-panel{display:none}
+.auth-page-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px}
+@media (min-width:900px){
+  .auth-split{max-width:820px;display:flex;align-items:center;gap:56px}
+  .auth-split > .auth-left{flex:1;min-width:0;max-width:400px}
+  .auth-right-panel{
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    flex:1;min-width:0;max-width:360px;
+  }
+  .auth-left-brand{display:none}
+  .auth-page-wrap{align-items:center;padding:20px}
+}
+
+.finput-icon-wrap{position:relative}
+.finput-icon-wrap .finput{padding-left:40px}
+.finput-icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--t3);pointer-events:none;display:flex;
+}
+.finput-icon svg{width:100%;height:100%}
+
+.auth-mode-switch{display:flex;gap:6px;background:var(--bg3,rgba(255,255,255,.04));border:1px solid var(--bw2,rgba(255,255,255,.1));border-radius:10px;padding:4px;margin-bottom:18px}
+.auth-mode-btn{flex:1;padding:8px;border:none;border-radius:7px;background:none;color:var(--t3);font-size:.8rem;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s;font-family:inherit}
+.auth-mode-btn.on{background:var(--y);color:#1a1510}
+.finput-number{font-family:var(--mono);font-size:1.05rem;letter-spacing:.04em;text-align:center}
+
+#stars{display:none;position:fixed;inset:0;width:100%;height:100vh;z-index:0;pointer-events:none}
+@media (min-width:900px){ #stars{display:block} }
 </style>
 {% endblock %}
 {% block body %}
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,rgba(245,197,66,.06) 0%,transparent 55%)">
-  <div style="width:100%;max-width:400px">
+<canvas id="stars"></canvas>
+<div class="auth-page-wrap" style="position:relative;z-index:1;background:radial-gradient(ellipse at 50% 0%,rgba(245,197,66,.06) 0%,transparent 55%)">
+  <div class="auth-split">
+  <div class="auth-left">
 
-    <div style="text-align:center;margin-bottom:24px">
+    <div class="auth-left-brand" style="text-align:center;margin-bottom:24px">
       <a href="{{ base_url }}" data-testid="login-brand-link"
          style="display:inline-block;font-weight:800;font-size:1.45rem;letter-spacing:-.02em;color:var(--white);text-decoration:none;transition:color .18s">
         Firo<span style="color:var(--y)">Gate</span>
@@ -26,7 +66,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
-          <span style="font-size:.82rem;color:#4ade80">Tor Connection — Privacy Mode</span>
+          <span style="font-size:.82rem;color:#4ade80">Tor Connection Privacy Mode</span>
         </div>
       </div>
 
@@ -34,26 +74,49 @@
         <h3 style="margin-bottom:18px;text-align:center">Sign In</h3>
         <div id="login-alert"></div>
 
-        <div id="google-block" style="{% if not firebase_enabled %}display:none;{% endif %}margin-bottom:6px">
-          <button id="google-btn" class="gbtn" onclick="doGoogle()" type="button" data-testid="login-google-btn">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3A12 12 0 1 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 1 0 44 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a20 20 0 0 0 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 29l-6.6 5.1A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-3.5z"/></svg>
-            Sign in with Google
-          </button>
-          <div class="divsep">or</div>
+        <div id="mobile-social-wrap">
+          <div id="google-block" style="{% if not firebase_enabled %}display:none;{% endif %}margin-bottom:6px">
+            <button id="google-btn" class="gbtn" onclick="doGoogle()" type="button" data-testid="login-google-btn">
+              <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3A12 12 0 1 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 1 0 44 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a20 20 0 0 0 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 29l-6.6 5.1A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-3.5z"/></svg>
+              Sign in with Google
+            </button>
+          </div>
         </div>
 
         <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden" aria-hidden="true">
           <input type="text" id="hp-email" name="email_confirm" tabindex="-1" autocomplete="off">
         </div>
 
-        <form id="login-form" onsubmit="doLogin(event); return false;" autocomplete="on">
+        <div class="auth-mode-switch" role="tablist">
+          <button type="button" class="auth-mode-btn on" id="mode-btn-number" onclick="setLoginMode('number')" data-testid="login-mode-number-btn">Account Number</button>
+          <button type="button" class="auth-mode-btn" id="mode-btn-password" onclick="setLoginMode('password')" data-testid="login-mode-password-btn">Username &amp; Password</button>
+        </div>
+
+        <form id="login-number-form" onsubmit="doLoginNumber(event); return false;" autocomplete="on">
+          <div class="fg">
+            <label class="flabel">Account Number</label>
+            <div class="finput-icon-wrap">
+              <span class="finput-icon" id="ic-number"></span>
+              <input id="inp-number" name="account_number" type="text" class="finput finput-number" placeholder="0000 0000 0000 0000" inputmode="numeric" autocomplete="off" maxlength="19" data-testid="login-number-input">
+            </div>
+          </div>
+          <button id="login-number-btn" type="submit" class="btn btn-y wf mt3" style="height:44px" data-testid="login-number-submit-btn">
+            Sign In
+          </button>
+        </form>
+
+        <form id="login-form" style="display:none" onsubmit="doLogin(event); return false;" autocomplete="on">
         <div class="fg">
-          <label class="flabel"><span id="ident-label">Email</span></label>
-          <input id="inp-user" name="username" type="text" class="finput" placeholder="you@example.com" autocomplete="username email" data-testid="login-identifier-input">
+          <label class="flabel">Username</label>
+          <div class="finput-icon-wrap">
+            <span class="finput-icon" id="ic-user"></span>
+            <input id="inp-user" name="username" type="text" class="finput" placeholder="Your username" data-i18n-placeholder="Your username" autocomplete="username" data-testid="login-identifier-input">
+          </div>
         </div>
         <div class="fg mt2">
           <label class="flabel">Password</label>
-          <div style="position:relative">
+          <div class="finput-icon-wrap" style="position:relative">
+            <span class="finput-icon" id="ic-pass"></span>
             <input id="inp-pass" name="password" type="password" class="finput" placeholder="••••••••••" autocomplete="current-password" style="padding-right:42px" data-testid="login-password-input">
             <button type="button" onclick="togglePwd()" title="Show/hide password" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);width:20px;height:20px;padding:0;display:flex;align-items:center;justify-content:center">
               <span id="eye-ico" style="width:18px;height:18px;display:flex;align-items:center;justify-content:center"></span>
@@ -65,53 +128,33 @@
           Sign In
         </button>
         </form>
-        <div style="text-align:center;margin-top:14px">
-          <a href="#" onclick="showForgot();return false;" style="font-size:.82rem;color:var(--t2);font-weight:600;text-decoration:none" data-testid="login-forgot-link">Forgot password?</a>
-        </div>
         <div class="div"></div>
-        <p style="text-align:center;font-size:.875rem;color:var(--t3)">
+        <p style="text-align:center;font-size:.875rem;color:var(--t1)">
           No account? <a href="/register" style="color:var(--y);font-weight:700" data-testid="login-register-link">Register</a>
         </p>
-      </div>
-    </div>
-
-    <div id="step-forgot" style="display:none">
-      <div class="card glow-y" data-testid="forgot-card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <button onclick="showLogin()" style="background:none;border:none;cursor:pointer;color:var(--t3);padding:0" type="button" data-testid="forgot-back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M4.4 7.4L6.8 4h2.5L7.2 7h6.3a6.5 6.5 0 0 1 0 13H9l1-2h3.5a4.5 4.5 0 1 0 0-9H7.2l2.1 3H6.8L4.4 8.6L4 8z"/></svg>
-          </button>
-          <h3 style="margin:0">Forgot password</h3>
-        </div>
-        <div id="forgot-alert"></div>
-        <p style="font-size:.82rem;color:var(--t3);margin:4px 0 14px 0">Enter your email and we'll send you a link to reset your password.</p>
-        <div class="fg">
-          <label class="flabel">Email</label>
-          <input id="forgot-email" class="finput" type="email" placeholder="you@example.com" data-testid="forgot-email-input">
-        </div>
-        <div id="ts-slot-forgot" style="display:flex;justify-content:center;margin-top:14px" data-testid="forgot-turnstile"></div>
-        <button id="forgot-btn" class="btn btn-y wf mt3" style="height:44px" onclick="doForgot()" data-testid="forgot-submit-btn">
-          Send reset link
-        </button>
       </div>
     </div>
 
     <div id="step-2fa" style="display:none">
       <div class="card cy glow-y" data-testid="tfa-card">
         <div style="text-align:center;margin-bottom:18px">
-          <div style="width:52px;height:52px;background:var(--yg);border:1px solid var(--by);border-radius:14px 5px 12px 6px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2">
+          <div style="
+    width:52px;
+    height:52px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 12px"> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>
           </div>
-          <h3 style="margin-bottom:4px">Two-Factor Authentication</h3>
-          <p style="font-size:.82rem;color:var(--t2)">Open your authenticator app and enter the 6-digit code</p>
+          <h3 id="tfa-title" style="margin-bottom:4px">Two-Factor Authentication</h3>
+          <p id="tfa-desc" style="font-size:.82rem;color:var(--t1)">Open your authenticator app and enter the 6-digit code</p>
         </div>
         <div class="fg">
-          <label class="flabel">Authentication Code</label>
-          <input id="inp-totp" type="text" class="finput" placeholder="0 0 0 0 0 0" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="text-align:center;font-size:1.6rem;letter-spacing:.5em;font-family:var(--mono);padding:14px" data-testid="tfa-code-input">
-          <span class="fhint" style="text-align:center;display:block;margin-top:4px">Lost your device? Enter a backup code instead</span>
+          <input id="inp-totp" type="text" class="finput" placeholder="0 0 0 0 0 0" maxlength="6" inputmode="numeric" autocomplete="one-time-code" style="text-align:center;font-size:1.6rem;letter-spacing:.5em;font-family:var(--mono);padding:14px;direction:ltr" data-testid="tfa-code-input">
+          <a href="#" onclick="toggleBackupCode();return false;" class="fhint" style="text-align:center;display:block;margin-top:4px;text-decoration:underline;cursor:pointer" id="tfa-mode-toggle" data-testid="tfa-backup-toggle">Lost your device? Enter a backup code instead</a>
         </div>
         <div id="tfa-alert" style="margin-top:10px"></div>
         <button id="tfa-btn" class="btn btn-y wf mt3" style="height:44px" onclick="doVerify2FA()" data-testid="tfa-submit-btn">Verify &amp; Sign In</button>
@@ -123,6 +166,16 @@
     </div>
 
   </div>
+
+  <div class="auth-right-panel">
+    <a href="{{ base_url }}" data-testid="login-brand-link-desktop"
+       style="display:inline-block;font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--white);text-decoration:none;transition:color .18s;margin-bottom:8px">
+      Firo<span style="color:var(--y)">Gate</span>
+    </a>
+    <p style="color:var(--g3);font-size:1rem;margin:0 0 28px">Sign in to your account</p>
+    <div id="desktop-social-wrap" style="width:100%;max-width:320px"></div>
+  </div>
+  </div>
 </div>
 {% endblock %}
 {% block js %}
@@ -130,41 +183,33 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 {% endif %}
-{% if turnstile_site_key %}
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-{% endif %}
+<script>
+if (window.matchMedia('(min-width:900px)').matches) {
+  var _starsScript = document.createElement('script');
+  _starsScript.src = '/static/js/auth-stars.js';
+  document.body.appendChild(_starsScript);
+}
+</script>
 <script>
 const IS_ONION   = window.location.hostname.endsWith('.onion');
 const FB_ENABLED = {{ firebase_enabled|tojson }} && !IS_ONION;
-const TS_SITE_KEY= {{ (turnstile_site_key or '')|tojson }};
 const FB_CFG     = {{ firebase_config|tojson }};
 
-// ─ /login landing orchestrator ──
-// Runs exactly once on page load. Handles two scenarios in strict order
-// so they never race:
-//
-//   1. RETURNING FROM GOOGLE REDIRECT — finish the sign-in via
-//      getRedirectResult() → POST /api/auth/fb/google → new cookie.
-//      We do NOT auto-logout here; the redirect IS the sign-in.
-//
-//   2. FRESH VISIT WITH STALE COOKIE — user navigated to /login while
-//      already signed in. We silently call /api/auth/logout so the page
-//      shows a clean form, then broadcast the logout to other tabs.
-//
-// The ordering rule is what prevents the old race where a parallel
-// auto-logout could wipe a cookie that had just been issued by the
-// Google-redirect handler.
-// ─ /login landing orchestrator ──
-// Runs exactly once on page load. Two ordered phases:
-//
-//   1. If we are returning from a Google redirect, finish the sign-in
-//      (getRedirectResult → POST /api/auth/fb/google → cookie set).
-//
-//   2. Otherwise, expose a clean form. We DO NOT silently log out an
-//      already-signed-in user any more — that used to race with an
-//      active doLogin() call and wipe a freshly-issued cookie before
-//      the dashboard fetched it. If a stale session is detected we just
-//      surface a single "Switch account" button.
+(function _authSplitLayout(){
+  const mq = window.matchMedia('(min-width:900px)');
+  const socialWrap = document.getElementById('mobile-social-wrap');
+  const desktopWrap = document.getElementById('desktop-social-wrap');
+  if (!socialWrap || !desktopWrap) return;
+  const mobileParent = socialWrap.parentElement;
+  const mobileNext = socialWrap.nextSibling;
+  function apply(isDesktop) {
+    if (isDesktop) desktopWrap.appendChild(socialWrap);
+    else mobileParent.insertBefore(socialWrap, mobileNext);
+  }
+  apply(mq.matches);
+  mq.addEventListener('change', e => apply(e.matches));
+})();
+
 window._fgAlreadySignedIn = false;
 window._fgLandingDone = (async function _landLogin(){
   const consumed = await _consumeGoogleRedirect();
@@ -178,22 +223,45 @@ window._fgLandingDone = (async function _landLogin(){
     const data = await r.json().catch(() => ({}));
     const alertE = document.getElementById('login-alert');
     if (alertE) {
+      const uname = data.username || data.email || 'user';
+      function _aiEsc(s){ return String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])); }
+      const dashUrl = _aiEsc(window.DASHBOARD_URL || '/dashboard');
       alertE.innerHTML =
-        '<div class="alert al-info" data-testid="login-already-signedin">' +
-          'Already signed in <strong>' + (data.username || data.email || 'user') + '</strong>. ' +
-          '<a href="' + ((window.DASHBOARD_URL || '/dashboard')) + '" style="color:var(--y);font-weight:700">Back</a> · ' +
-          '<a href="#" id="login-switch-account" style="color:var(--y);font-weight:700">Switch account</a>' +
+        '<div class="fg-ai-wrap" data-testid="login-already-signedin">' +
+          '<div>' +
+            '<div class="fg-ai-label">Already signed in</div>' +
+            '<div class="fg-ai-name">' + _aiEsc(uname) + '</div>' +
+          '</div>' +
+          '<div class="fg-ai-actions">' +
+            '<a href="' + dashUrl + '" class="fg-ai-btn-dash">Back to Dashboard</a>' +
+            '<button class="fg-ai-btn-switch" id="login-switch-account">Switch account</button>' +
+          '</div>' +
         '</div>';
+
+      const _card = alertE.closest('.card') || alertE.parentElement;
+      const _hide = [
+        _card && _card.querySelector('h3'),
+        document.getElementById('google-block'),
+        document.querySelector('.auth-mode-switch'),
+        document.getElementById('login-number-form'),
+        document.getElementById('login-form'),
+        _card && _card.querySelector('.div'),
+        document.querySelector('[data-testid="login-register-link"]') && document.querySelector('[data-testid="login-register-link"]').parentElement,
+      ].filter(Boolean);
+      _hide.forEach(el=>{ el._aiWasHidden = el.style.display; el.style.display='none'; });
+
       const sw = document.getElementById('login-switch-account');
       if (sw) sw.addEventListener('click', async (ev) => {
         ev.preventDefault();
         sw.textContent = 'Signing out…';
+        sw.disabled = true;
         try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch(_){}
         try {
           if (typeof Auth !== 'undefined' && Auth._bc) Auth._bc.postMessage({ type: 'logout' });
         } catch(_){}
         window._fgAlreadySignedIn = false;
         if (alertE) alertE.innerHTML = '';
+        _hide.forEach(el=>{ el.style.display = el._aiWasHidden !== undefined ? el._aiWasHidden : ''; });
       });
     }
   } catch (_) {}
@@ -220,11 +288,6 @@ async function _consumeGoogleRedirect() {
   return true;
 }
 
-// Cross-tab auth broadcaster: if another tab signs out, we stop trying to
-// auto-redirect this login page to the dashboard — otherwise a "logged in"
-// snapshot from a previous page-load could kick a fresh /login visit
-// straight back to the dashboard, which then bounces back because the
-// cookie is gone. Listening here breaks that chain cleanly.
 try {
   if (typeof Auth !== 'undefined' && Auth._bc) {
     Auth._bc.addEventListener('message', (ev) => {
@@ -236,36 +299,9 @@ try {
 } catch(_){}
 
 let _fbAuth = null;
-let _tsWidgetLogin = null, _tsWidgetForgot = null;
-let _tsTokenLogin = '', _tsTokenForgot = '';
-let _tsPromiseLogin = null,  _tsResolveLogin = null;
-let _tsPromiseForgot = null, _tsResolveForgot = null;
-let _pendingIdToken = null;
-
-function _resetTsPromiseLogin() {
-  _tsTokenLogin = '';
-  _tsPromiseLogin = new Promise(r => { _tsResolveLogin = r; });
-}
-function _resetTsPromiseForgot() {
-  _tsTokenForgot = '';
-  _tsPromiseForgot = new Promise(r => { _tsResolveForgot = r; });
-}
-async function _awaitTsToken(which, timeoutMs = 20000) {
-  if (!TS_SITE_KEY || IS_ONION) return '';
-  const getToken = () => which === 'login' ? _tsTokenLogin : _tsTokenForgot;
-  if (getToken()) return getToken();
-  const p = which === 'login' ? _tsPromiseLogin : _tsPromiseForgot;
-  if (!p) return '';
-  const t = await Promise.race([
-    p,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs)),
-  ]);
-  return t || getToken();
-}
 
 if (IS_ONION) {
   document.getElementById('onion-indicator').style.display = 'block';
-  document.getElementById('ident-label').textContent = 'Username or Email';
   const gb = document.getElementById('google-block'); if (gb) gb.style.display = 'none';
 }
 
@@ -295,26 +331,106 @@ async function _initFirebase() {
 }
 _initFirebase();
 
-// _consumeGoogleRedirect() + auto-logout-when-visiting-/login are both
-// handled by the _landLogin() orchestrator above. Nothing else needs to
-// run at page-load time for authentication.
-
-if (TS_SITE_KEY && !IS_ONION) {
-  // Turnstile is intentionally NOT rendered on login — real users got stuck
-  // when the widget was slow/blocked. We only keep it for forgot-password
-  // (below) where bot abuse (password-reset flooding) is a real risk.
-}
-
+document.getElementById('ic-user').innerHTML = IC.user;
+document.getElementById('ic-pass').innerHTML = IC.lock;
+document.getElementById('ic-number').innerHTML = IC.hash;
 document.getElementById('eye-ico').innerHTML = IC.eye;
 let _eyeShown = false;
 function togglePwd(){ const i=document.getElementById('inp-pass'); _eyeShown=!_eyeShown; i.type=_eyeShown?'text':'password'; document.getElementById('eye-ico').innerHTML=_eyeShown?IC.eyeoff:IC.eye; }
 
+function setLoginMode(mode) {
+  const isNumber = mode === 'number';
+  document.getElementById('mode-btn-number').classList.toggle('on', isNumber);
+  document.getElementById('mode-btn-password').classList.toggle('on', !isNumber);
+  document.getElementById('login-number-form').style.display = isNumber ? 'block' : 'none';
+  document.getElementById('login-form').style.display = isNumber ? 'none' : 'block';
+  document.getElementById('login-alert').innerHTML = '';
+  if (isNumber) setTimeout(() => document.getElementById('inp-number').focus(), 50);
+  else setTimeout(() => document.getElementById('inp-user').focus(), 50);
+}
+
+document.getElementById('inp-number').addEventListener('input', function() {
+  const digits = this.value.replace(/\D/g, '').slice(0, 16);
+  this.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+});
+
+async function doLoginNumber(ev) {
+  try { if (ev && ev.preventDefault) ev.preventDefault(); } catch(_) {}
+  const btn = document.getElementById('login-number-btn');
+  const numberRaw = document.getElementById('inp-number').value;
+  const alertE = document.getElementById('login-alert');
+
+  if (numberRaw.replace(/\D/g, '').length !== 16) {
+    alertE.innerHTML = alertHTML('Enter your 16-digit account number.', 'err');
+    return;
+  }
+
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> ' + (window.t ? window.t('Signing in…') : 'Signing in…'); alertE.innerHTML = '';
+
+  try {
+    const r = await fetch('/api/auth/login-number', {
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account_number: numberRaw })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      alertE.innerHTML = alertHTML(data.detail || 'Invalid account number', 'err');
+      btn.disabled = false; btn.innerHTML = 'Sign In'; return;
+    }
+    Toast.success(data.is_operator ? 'Welcome, Operator!' : 'Welcome back!');
+    setTimeout(() => window.location.href = (window.DASHBOARD_URL || '/dashboard'), 400);
+  } catch (err) {
+    alertE.innerHTML = alertHTML('Network error.', 'err');
+    btn.disabled = false; btn.innerHTML = 'Sign In';
+  }
+}
+
+function _gbtnSpin(gbtn, text) {
+  gbtn.innerHTML = '<span class="spin"></span> ' + (window.t ? window.t(text) : text);
+}
+
+function _setBackupCodeMode(on) {
+  const input = document.getElementById('inp-totp');
+  const toggle = document.getElementById('tfa-mode-toggle');
+  const title = document.getElementById('tfa-title');
+  const desc = document.getElementById('tfa-desc');
+  const _tt = window.t ? window.t : function(x){ return x; };
+  input.value = '';
+  if (on) {
+    input.maxLength = 8;
+    input.setAttribute('inputmode', 'text');
+    input.setAttribute('autocapitalize', 'characters');
+    input.style.letterSpacing = '.3em';
+    input.style.fontSize = '1.25rem';
+    input.placeholder = 'XXXXXXXX';
+    title.textContent = _tt('Enter a backup code');
+    desc.textContent = _tt("Enter one of the backup codes you saved when you set up 2FA. Each code works once.");
+    toggle.textContent = _tt('Have your authenticator? Use a 6-digit code instead');
+  } else {
+    input.maxLength = 6;
+    input.setAttribute('inputmode', 'numeric');
+    input.removeAttribute('autocapitalize');
+    input.style.letterSpacing = '.5em';
+    input.style.fontSize = '1.6rem';
+    input.placeholder = '0 0 0 0 0 0';
+    title.textContent = _tt('Two-Factor Authentication');
+    desc.textContent = _tt('Open your authenticator app and enter the 6-digit code');
+    toggle.textContent = _tt('Lost your device? Enter a backup code instead');
+  }
+  input.focus();
+}
+
+function toggleBackupCode() {
+  const input = document.getElementById('inp-totp');
+  _setBackupCodeMode(input.maxLength !== 8);
+}
+
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
+  if (e.target && e.target.closest('form')) return;
   const tfa = document.getElementById('step-2fa');
-  const fgt = document.getElementById('step-forgot');
   if (tfa && tfa.style.display !== 'none') doVerify2FA();
-  else if (fgt && fgt.style.display !== 'none') doForgot();
+  else if (document.getElementById('login-number-form').style.display !== 'none') doLoginNumber();
   else doLogin();
 });
 
@@ -327,135 +443,63 @@ async function doLogin(ev) {
   const hp = document.getElementById('hp-email');
 
   if (hp && hp.value) {
-    btn.disabled=true; btn.innerHTML='<span class="spin"></span> Signing in…';
-    setTimeout(()=>{ alertE.innerHTML=alertHTML('Invalid credentials.','err'); btn.disabled=false; btn.textContent='Sign In'; },1500);
+    btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Signing in…') : 'Signing in…');
+    setTimeout(()=>{ alertE.innerHTML=alertHTML('Invalid credentials.','err'); btn.disabled=false; btn.textContent=window.t ? window.t('Sign In') : 'Sign In'; },1500);
     return;
   }
 
   if (!ident || !pass) { alertE.innerHTML=alertHTML('Please fill in all fields.','err'); return; }
 
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Signing in…'; alertE.innerHTML='';
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Signing in…') : 'Signing in…'); alertE.innerHTML='';
 
   try {
-    if (IS_ONION || !FB_ENABLED) {
-      const r = await fetch('/api/auth/login', {
-        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ username: ident, password: pass })
-      });
-      const data = await r.json().catch(()=>({}));
-      if (r.status === 403 || data.requires_2fa === true) {
-        _pendingIdToken = null;
-        window._legacyPending = { username: ident, password: pass };
-        document.getElementById('step-login').style.display='none';
-        document.getElementById('step-2fa').style.display='block';
-        setTimeout(()=>document.getElementById('inp-totp').focus(),100);
-        btn.disabled=false; btn.innerHTML='Sign In'; return;
-      }
-      if (!r.ok) {
-        if (/not found or inactive/i.test(data.detail||'')) {
-          alertE.innerHTML=alertHTML(data.detail,'warn');
-        } else {
-          alertE.innerHTML=alertHTML(data.detail||'Invalid credentials','err');
-        }
-        btn.disabled=false; btn.innerHTML='Sign In'; return;
-      }
-      Toast.success(data.is_admin?'Welcome, Admin!':'Welcome back!');
-      setTimeout(()=>window.location.href = data.is_admin?'/admin':(window.DASHBOARD_URL||'/dashboard'), 400);
-      return;
-    }
-
-    if (TS_SITE_KEY && !_tsTokenLogin) {
-      // Turnstile is opt-in for login. If the widget hasn't loaded yet we
-      // DO NOT block the user — the backend accepts the login either way.
-    }
-
-    if (!_fbAuth) {
-      btn.innerHTML = '<span class="spin"></span> Loading…';
-      const ok = await _initFirebase();
-      if (!ok) {
-        alertE.innerHTML = alertHTML('Firebase could not load. Your browser or an extension may be blocking <code>gstatic.com</code>. Disable ad/privacy blockers for this site and reload.','err');
-        btn.disabled=false; btn.innerHTML='Sign In';
-        return;
-      }
-    }
-
-    let userCred;
-    try {
-      userCred = await _fbAuth.signInWithEmailAndPassword(ident, pass);
-    } catch (e) {
-      const code = (e && e.code) || '';
-      let msg = 'Invalid credentials.';
-      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') msg = 'Invalid credentials.';
-      else if (code === 'auth/user-disabled') msg = 'Account disabled.';
-      else if (code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
-      else if (code === 'auth/invalid-email') msg = 'Please enter a valid email address (not a username).';
-      else if (code === 'auth/network-request-failed') msg = 'Network error — check your connection and try again.';
-      alertE.innerHTML = alertHTML(msg,'err');
-      btn.disabled=false; btn.innerHTML='Sign In';
-      if (TS_SITE_KEY && _tsWidgetLogin !== null) window.turnstile.reset(_tsWidgetLogin);
-      _tsTokenLogin='';
-      return;
-    }
-
-    const idToken = await userCred.user.getIdToken(true);
-    _pendingIdToken = idToken;
-
-    const r = await fetch('/api/auth/fb/login', {
+    const r = await fetch('/api/auth/login', {
       method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id_token: idToken, turnstile_token: _tsTokenLogin })
+      body: JSON.stringify({ username: ident, password: pass })
     });
     const data = await r.json().catch(()=>({}));
-
-    if (TS_SITE_KEY && _tsWidgetLogin !== null) { window.turnstile.reset(_tsWidgetLogin); _resetTsPromiseLogin(); }
-
-    if (r.status === 401 && /not found or inactive/i.test(data.detail||'')) {
-      alertE.innerHTML = alertHTML(data.detail, 'warn');
-      btn.disabled=false; btn.innerHTML='Sign In';
-      return;
-    }
-    if (r.status === 403 && /verify your email/i.test(data.detail||'')) {
-      alertE.innerHTML = alertHTML('Please verify your email first. Check your inbox for the verification link.','warn');
-      btn.disabled=false; btn.innerHTML='Sign In';
-      return;
-    }
-    if (r.status === 403 || /2fa code required/i.test(data.detail||'')) {
+    if (r.status === 403 || data.requires_2fa === true) {
+      window._legacyPending = { username: ident, password: pass };
       document.getElementById('step-login').style.display='none';
       document.getElementById('step-2fa').style.display='block';
       setTimeout(()=>document.getElementById('inp-totp').focus(),100);
-      btn.disabled=false; btn.innerHTML='Sign In';
-      return;
+      btn.disabled=false; btn.innerHTML='Sign In'; return;
     }
-    if (!r.ok) { alertE.innerHTML=alertHTML(data.detail||'Sign-in failed.','err'); btn.disabled=false; btn.innerHTML='Sign In'; return; }
-
-    Toast.success(data.is_admin?'Welcome, Admin!':'Welcome back!');
-    setTimeout(()=>window.location.href = data.is_admin?'/admin':(window.DASHBOARD_URL||'/dashboard'), 400);
+    if (!r.ok) {
+      if (/not found or inactive/i.test(data.detail||'')) {
+        alertE.innerHTML=alertHTML(data.detail,'warn');
+      } else {
+        alertE.innerHTML=alertHTML(data.detail||'Invalid credentials','err');
+      }
+      btn.disabled=false; btn.innerHTML='Sign In'; return;
+    }
+    Toast.success(data.is_operator?'Welcome, Operator!':'Welcome back!');
+    setTimeout(()=>window.location.href = (window.DASHBOARD_URL||'/dashboard'), 400);
   } catch(err) {
     alertE.innerHTML = alertHTML('Network error.','err');
     btn.disabled=false; btn.innerHTML='Sign In';
   }
 }
 
+
 async function doVerify2FA() {
-  const code = document.getElementById('inp-totp').value.trim().replace(/\s/g,'');
+  const totpInput = document.getElementById('inp-totp');
+  const code = totpInput.value.trim().replace(/\s/g,'');
   const btn  = document.getElementById('tfa-btn');
   const alertE = document.getElementById('tfa-alert');
-  if (!code) { alertE.innerHTML=alertHTML('Enter the 6-digit code.','err'); return; }
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Verifying…'; alertE.innerHTML='';
+  if (!code) {
+    const _msg = totpInput.maxLength === 8 ? 'Enter your backup code.' : 'Enter the 6-digit code.';
+    alertE.innerHTML=alertHTML(_msg,'err');
+    return;
+  }
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Verifying…') : 'Verifying…'); alertE.innerHTML='';
 
   try {
-    let resp;
-    if (_pendingIdToken) {
-      resp = await fetch('/api/auth/fb/login', {
-        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ id_token: _pendingIdToken, turnstile_token: _tsTokenLogin, totp_code: code })
-      });
-    } else {
-      const leg = window._legacyPending || {};
-      resp = await fetch('/api/auth/login', {
-        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ username: leg.username, password: leg.password, totp_code: code })
-      });
-    }
+    const leg = window._legacyPending || {};
+    const resp = await fetch('/api/auth/login', {
+      method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username: leg.username, password: leg.password, totp_code: code })
+    });
     const data = await resp.json().catch(()=>({}));
     if (!resp.ok) {
       alertE.innerHTML=alertHTML(data.detail||'Invalid code. Try again.','err');
@@ -463,8 +507,8 @@ async function doVerify2FA() {
       document.getElementById('inp-totp').value=''; document.getElementById('inp-totp').focus();
       return;
     }
-    Toast.success(data.is_admin?'Welcome, Admin!':'Welcome back!');
-    setTimeout(()=>window.location.href = data.is_admin?'/admin':(window.DASHBOARD_URL||'/dashboard'), 400);
+    Toast.success(data.is_operator?'Welcome, Operator!':'Welcome back!');
+    setTimeout(()=>window.location.href = (window.DASHBOARD_URL||'/dashboard'), 400);
   } catch(e) {
     alertE.innerHTML=alertHTML('Network error.','err');
     btn.disabled=false; btn.innerHTML='Verify & Sign In';
@@ -472,95 +516,11 @@ async function doVerify2FA() {
 }
 
 function backToLogin(){
-  _pendingIdToken=null; window._legacyPending=null;
+  window._legacyPending=null;
   document.getElementById('step-2fa').style.display='none';
   document.getElementById('step-login').style.display='block';
   document.getElementById('tfa-alert').innerHTML=''; document.getElementById('inp-totp').value='';
-}
-
-function showForgot(){
-  if (IS_ONION) { Toast.error('Password reset is disabled on Tor. Use your legacy credentials.'); return; }
-  document.getElementById('step-login').style.display='none';
-  document.getElementById('step-2fa').style.display='none';
-  document.getElementById('step-forgot').style.display='block';
-
-  if (TS_SITE_KEY && _tsWidgetForgot === null && window.turnstile) {
-    _resetTsPromiseForgot();
-    _tsWidgetForgot = window.turnstile.render('#ts-slot-forgot', {
-      sitekey: TS_SITE_KEY, theme: 'dark', size:'flexible',
-      callback:(t)=>{ _tsTokenForgot=t; _tsResolveForgot && _tsResolveForgot(t); },
-      'error-callback':   ()=>{ _resetTsPromiseForgot(); },
-      'expired-callback': ()=>{ _resetTsPromiseForgot(); },
-    });
-  }
-  document.getElementById('forgot-email').focus();
-}
-
-function showLogin(){
-  document.getElementById('step-login').style.display='block';
-  document.getElementById('step-forgot').style.display='none';
-  document.getElementById('step-2fa').style.display='none';
-  document.getElementById('forgot-alert').innerHTML='';
-}
-
-async function doForgot(){
-  const email = document.getElementById('forgot-email').value.trim().toLowerCase();
-  const alertE = document.getElementById('forgot-alert');
-  const btn = document.getElementById('forgot-btn');
-  alertE.innerHTML='';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alertE.innerHTML=alertHTML('Please enter a valid email.','err'); return; }
-
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Verifying…';
-  if (TS_SITE_KEY && !_tsTokenForgot) {
-    try { await _awaitTsToken('forgot'); }
-    catch (_) {
-      alertE.innerHTML = alertHTML('Human verification is taking too long. Please try again.','err');
-      btn.disabled=false; btn.innerHTML='Send reset link';
-      if (_tsWidgetForgot !== null) window.turnstile.reset(_tsWidgetForgot);
-      return;
-    }
-  }
-
-  btn.innerHTML='<span class="spin"></span> Sending…';
-  try {
-    const r = await fetch('/api/auth/fb/forgot-password', {
-      method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email, turnstile_token: _tsTokenForgot })
-    });
-    const data = await r.json().catch(()=>({}));
-    if (TS_SITE_KEY && _tsWidgetForgot !== null) { window.turnstile.reset(_tsWidgetForgot); _resetTsPromiseForgot(); }
-    if (!r.ok) { alertE.innerHTML=alertHTML(data.detail||'Could not send email.','err'); btn.disabled=false; btn.innerHTML='Send reset link'; return; }
-
-    // Success — replace the form with a Check-your-inbox card (mirrors the
-    // register success flow). We show the entered email back so the user
-    // knows exactly which inbox to open, and we do NOT go back to the
-    // original form — preventing accidental re-submits and Turnstile spam.
-    const card = document.querySelector('#step-forgot .card');
-    if (card) {
-      card.innerHTML = `
-        <div style="text-align:center;padding:18px 6px" data-testid="forgot-success-card">
-          <div style="display:inline-flex;width:56px;height:56px;align-items:center;justify-content:center;border-radius:14px 4px 12px 6px;background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.32);margin-bottom:14px">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
-            </svg>
-          </div>
-          <h3 style="margin-bottom:6px">Check your inbox</h3>
-          <p style="color:var(--t2);font-size:.88rem;margin-bottom:4px">
-            If an account exists for <strong style="color:var(--white)">${escHtml(email)}</strong>,<br>we just sent a password reset link to it.
-          </p>
-          <p style="color:var(--t3);font-size:.78rem;margin-bottom:16px">The link expires in 30 minutes. Didn't get it? Check your spam folder.</p>
-          <button onclick="showLogin()" class="btn btn-y" style="padding:10px 22px" data-testid="forgot-back-signin">Back to Sign In</button>
-        </div>`;
-    } else {
-      // Graceful fallback: in-place green confirmation.
-      alertE.innerHTML = alertHTML(data.message || 'If the email exists, we sent a link.','ok');
-      btn.disabled=false; btn.innerHTML='Send reset link';
-    }
-  } catch(e) {
-    alertE.innerHTML = alertHTML('Network error.','err');
-    btn.disabled=false; btn.innerHTML='Send reset link';
-  }
+  _setBackupCodeMode(false);
 }
 
 async function doGoogle(){
@@ -572,7 +532,7 @@ async function doGoogle(){
 
   const orig = gbtn.innerHTML;
   gbtn.disabled = true;
-  gbtn.innerHTML = 'Opening Google…';
+  _gbtnSpin(gbtn, 'Opening Google…');
 
   if (!_fbAuth) {
     const ok = await _initFirebase();
@@ -585,27 +545,21 @@ async function doGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
 
-  // Firebase best-practice (https://firebase.google.com/docs/auth/web/redirect-best-practices):
-  // use signInWithPopup by default — avoids storage partitioning breakage
-  // in Chrome/Safari. Fall back to signInWithRedirect only when the popup
-  // is blocked (e.g. in-app browsers like Instagram/Facebook WebView).
   try {
     const res = await _fbAuth.signInWithPopup(provider);
     await _finishGoogle(res, alertE, gbtn, orig);
     return;
   } catch (e) {
     const code = (e && e.code) || '';
-    // Popup blocked or operation not supported in this environment → redirect.
     if (code === 'auth/popup-blocked' ||
         code === 'auth/popup-closed-by-user' ||
         code === 'auth/cancelled-popup-request' ||
         code === 'auth/operation-not-supported-in-this-environment') {
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-        // User explicitly closed/cancelled the popup — do not force a redirect.
         gbtn.disabled=false; gbtn.innerHTML = orig;
         return;
       }
-      gbtn.innerHTML = 'Redirecting to Google…';
+      _gbtnSpin(gbtn, 'Redirecting to Google…');
       try { await _fbAuth.signInWithRedirect(provider); return; }
       catch (e2) {
         alertE.innerHTML = alertHTML((e2 && e2.message) || 'Unable to start Google sign-in. Please try again.', 'err');
@@ -624,7 +578,7 @@ async function _finishGoogle(res, alertE, gbtn, orig) {
     const idToken = await res.user.getIdToken(true);
     const r = await fetch('/api/auth/fb/google', {
       method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id_token: idToken, turnstile_token: '' })
+      body: JSON.stringify({ id_token: idToken })
     });
     const data = await r.json().catch(()=>({}));
     if (!r.ok) {
@@ -632,8 +586,8 @@ async function _finishGoogle(res, alertE, gbtn, orig) {
       gbtn.disabled=false; gbtn.innerHTML = orig;
       return;
     }
-    Toast.success(data.is_admin ? 'Welcome, Admin!' : 'Welcome!');
-    setTimeout(() => window.location.href = data.is_admin ? '/admin' : (window.DASHBOARD_URL || '/dashboard'), 400);
+    Toast.success(data.is_operator ? 'Welcome, Operator!' : 'Welcome!');
+    setTimeout(() => window.location.href = (window.DASHBOARD_URL || '/dashboard'), 400);
   } catch (e) {
     alertE.innerHTML = alertHTML('Unable to complete Google sign-in. Please try again.', 'err');
     gbtn.disabled=false; gbtn.innerHTML = orig;

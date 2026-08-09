@@ -14,7 +14,7 @@ def _uuid(): return str(uuid.uuid4())
 
 
 class UserRole(str, PyEnum):
-    admin    = "admin"
+    operator = "operator"
     merchant = "merchant"
 
 class PaymentStatus(str, PyEnum):
@@ -25,27 +25,7 @@ class PaymentStatus(str, PyEnum):
     failed     = "failed"
     cancelled  = "cancelled"
 
-class WithdrawalType(str, PyEnum):
-    transparent = "transparent"
-    spark       = "spark"
 
-
-class WithdrawalStatus(str, PyEnum):
-
-    pending        = "pending"
-    queued         = "queued"
-    processing     = "processing"
-
-    completed      = "completed"
-    failed         = "failed"
-    cancelled      = "cancelled"
-
-    manual_review  = "manual_review"
-    email_verify_pending = "email_verify_pending"
-    approved       = "approved"
-    sent           = "sent"
-    rejected       = "rejected"
-    locked         = "locked"
 
 class PlanName(str, PyEnum):
     free     = "free"
@@ -54,100 +34,133 @@ class PlanName(str, PyEnum):
     business = "business"
 
 
+class PaymentAuditEvent(str, PyEnum):
+    payment_created        = "payment_created"
+    payment_detected       = "payment_detected"
+    payment_confirmed      = "payment_confirmed"
+    payment_expired        = "payment_expired"
+    payment_cancelled      = "payment_cancelled"
+    merchant_stats_updated = "merchant_stats_updated"
+    stats_mismatch_detected = "stats_mismatch_detected"
+    stats_verified         = "stats_verified"
+
+
 class User(Base):
     __tablename__ = "users"
 
     id                  = Column(String,  primary_key=True, default=_uuid)
     username            = Column(String(64),  unique=True, nullable=False, index=True)
     email               = Column(String(254), unique=True, nullable=True, index=True)
-    hashed_password     = Column(String,  nullable=False)
+    hashed_password     = Column(String,  nullable=True)
     role                = Column(Enum(UserRole), default=UserRole.merchant)
     is_active           = Column(Boolean, default=True)
+    blocked_reason      = Column(Text, nullable=True)
+    blocked_at          = Column(DateTime(timezone=True), nullable=True)
+    blocked_by          = Column(String(36), nullable=True)
+    spark_connect_enabled = Column(Boolean, nullable=True, default=None)
+    # Merchant Setup checklist (replaces the old operator-approval request
+    # flow). Unlocked by default for both existing and new accounts (see
+    # database.py migration + auth.py /register); operators can still lock
+    # individual accounts via the panel. Always subject to the global
+    # Wallet Connection Access switch (EmergencyControl key
+    # "disable_wallet_connections").
+    merchant_setup_unlocked = Column(Boolean, default=True, nullable=False)
+    setup_learned_basics    = Column(Boolean, default=False, nullable=False)
+    has_seen_onboarding     = Column(Boolean, default=False, nullable=False)
 
     plan                = Column(Enum(PlanName), default=PlanName.free)
     requests_total      = Column(Integer, default=50)
     requests_used       = Column(Integer, default=0)
     plan_expires_at     = Column(DateTime(timezone=True), nullable=True)
+    rollover_requests   = Column(Integer, default=0)
+    rollover_expires_at = Column(DateTime(timezone=True), nullable=True)
+    cycle_start_at      = Column(DateTime(timezone=True), nullable=True)
 
     api_key             = Column(String(64), unique=True, nullable=True, index=True)
     api_key_active      = Column(Boolean, default=True)
     webhook_url         = Column(String(512), nullable=True)
     webhook_secret_enc  = Column(String(512), nullable=True)
 
+    # Per-merchant payment policy. NULL means "use the instance default" —
+    # see app/core/payment_policy.py for resolution order.
+    required_confirmations_policy = Column(Integer, nullable=True)
+    payment_tolerance_firo        = Column(Float, nullable=True)
 
-    balance_firo        = Column(Float, default=0.0)
-    balance_pending     = Column(Float, default=0.0)
-    balance_withdrawn   = Column(Float, default=0.0)
-    total_earned_firo   = Column(Float, default=0.0)
-    total_fees_firo     = Column(Float, default=0.0)
+    # Merchant business metrics (reporting only, not balances or held funds).
+    lifetime_gross_sales_firo   = Column(Float, default=0.0)
+    lifetime_received_firo      = Column(Float, default=0.0)
+    lifetime_confirmed_payments = Column(Integer, default=0)
+    lifetime_completed_orders   = Column(Integer, default=0)
 
     created_at          = Column(DateTime(timezone=True), default=_now)
     last_login_at       = Column(DateTime(timezone=True), nullable=True)
-
+    # Overwritten on every successful login; kept NULL for privacy-mode/Tor users.
+    last_login_ip       = Column(String(64),  nullable=True)
+    last_login_device   = Column(String(256), nullable=True)
 
     totp_secret_enc     = Column(String(512), nullable=True)
     totp_enabled        = Column(Boolean, default=False)
     totp_backup_enc     = Column(Text, nullable=True)
-
+    # Last consumed TOTP time-step (30s window index) blocks replay of an
+    # already-used code within the valid_window, even if intercepted/leaked.
+    totp_last_step      = Column(Integer, nullable=True)
 
     recovery_codes_enc  = Column(Text, nullable=True)
     full_name           = Column(String(128), nullable=True)
 
+    notify_on_payment   = Column(Boolean, default=True)
+    notify_email        = Column(String(254), nullable=True)
+    # Telegram notification channel chat id linked via the bot's /start
+    # deep link; may exist for users who did NOT register with Telegram.
+    telegram_chat_id    = Column(String(32), nullable=True)
+    notify_telegram     = Column(Boolean, default=False)
 
-    withdrawal_whitelist_json = Column(Text, nullable=True)
-
-    # ─ Merchant notifications ─
-    notify_on_payment   = Column(Boolean, default=True)   # email merchant on confirmed payment
-    notify_email        = Column(String(254), nullable=True)  # override email for notifications
-
-    # Trusted addresses: addresses that have had at least one successful withdrawal
     trusted_addresses_json   = Column(Text, nullable=True)
 
-
-    daily_withdrawal_limit_firo  = Column(Float, default=100.0)
-    daily_withdrawal_used_firo   = Column(Float, default=0.0)
-    daily_withdrawal_reset_at    = Column(DateTime(timezone=True), nullable=True)
-    withdrawal_count_today       = Column(Integer, default=0)
-    last_withdrawal_at           = Column(DateTime(timezone=True), nullable=True)
-    min_balance_hold_hours       = Column(Integer, default=24)
-
-    # Privacy Mode - True if account created via Tor/onion
     privacy_mode                 = Column(Boolean, default=False)
     created_via_onion            = Column(Boolean, default=False)
+    show_market_price            = Column(Boolean, default=False, nullable=False)
 
-    # ─ Firebase auth integration (hybrid) ─
     firebase_uid                 = Column(String(128), unique=True, nullable=True, index=True)
+    telegram_id                  = Column(String(32),  unique=True, nullable=True, index=True)
     email_verified               = Column(Boolean, default=False)
     password_changed_at          = Column(DateTime(timezone=True), nullable=True)
 
-    # ─ Merchant branding (shown in checkout + receipt emails) ──
+    wallet_address                = Column(String(128), unique=True, nullable=True, index=True)
+    auth_method                   = Column(String(16), default="password")
+    account_number_hash           = Column(String(128), nullable=True)
+    account_number_lookup         = Column(String(64), unique=True, nullable=True, index=True)
+
     app_name                     = Column(String(64), nullable=True)
     app_name_locked              = Column(Boolean, default=False, nullable=False)
     app_name_change_allowed      = Column(Boolean, default=False, nullable=False)
-    # Brand colors — applied to checkout page (hex values e.g. "#F5C542")
-    brand_primary                = Column(String(7), nullable=True)   # buttons, links
-    brand_bg                     = Column(String(7), nullable=True)   # page background
-    brand_text                   = Column(String(7), nullable=True)   # body text
+    app_name_change_count        = Column(Integer, default=0, nullable=False)
+    app_name_last_changed_at     = Column(DateTime, nullable=True)
+    app_logo                     = Column(Text, nullable=True)
+    brand_primary                = Column(String(7), nullable=True)
+    brand_bg                     = Column(String(7), nullable=True)
+    brand_text                   = Column(String(7), nullable=True)
 
-    # ─ Checkout Theme System ─
-    # theme_id: one of the preset keys or "custom"
+    checkout_layout              = Column(String(16),  nullable=True, default="stripe")
     theme_id                     = Column(String(32),  nullable=True, default="dark_gold")
-    # Custom overrides (all optional — applied on top of preset)
-    theme_accent                 = Column(String(7),   nullable=True)   # accent/button color
-    theme_bg                     = Column(String(7),   nullable=True)   # background
-    theme_surface                = Column(String(7),   nullable=True)   # card/surface color
-    theme_text                   = Column(String(7),   nullable=True)   # body text
-    theme_radius                 = Column(String(8),   nullable=True)   # border radius (px)
-    theme_font                   = Column(String(32),  nullable=True)   # font family key
-    theme_button_style           = Column(String(16),  nullable=True)   # "rounded"|"sharp"|"pill"
-    theme_checkout_title         = Column(String(80),  nullable=True)   # custom title
-    theme_checkout_subtitle      = Column(String(120), nullable=True)   # custom subtitle
-    theme_success_msg            = Column(String(200), nullable=True)   # custom success message
-    theme_cancel_msg             = Column(String(200), nullable=True)   # custom cancel message
+    theme_accent                 = Column(String(7),   nullable=True)
+    theme_bg                     = Column(String(7),   nullable=True)
+    theme_surface                = Column(String(7),   nullable=True)
+    theme_text                   = Column(String(7),   nullable=True)
+    theme_radius                 = Column(String(8),   nullable=True)
+    theme_font                   = Column(String(32),  nullable=True)
+    theme_button_style           = Column(String(16),  nullable=True)
+    theme_checkout_title         = Column(String(80),  nullable=True)
+    theme_checkout_subtitle      = Column(String(120), nullable=True)
+    theme_success_msg            = Column(String(200), nullable=True)
+    theme_cancel_msg             = Column(String(200), nullable=True)
+    theme_qr_position            = Column(String(8),   nullable=True)
+    theme_cancel_position        = Column(String(8),   nullable=True)
+    theme_bg_image               = Column(Text,        nullable=True)
+    theme_bg_overlay             = Column(String(4),   nullable=True)
+    theme_v2_colors_json         = Column(Text,        nullable=True)
 
     payments            = relationship("Payment",    back_populates="merchant", cascade="all, delete-orphan", foreign_keys="[Payment.merchant_id]")
-    withdrawals         = relationship("Withdrawal", back_populates="merchant", cascade="all, delete-orphan", foreign_keys="[Withdrawal.merchant_id]")
-    plan_orders         = relationship("PlanOrder",  back_populates="merchant", cascade="all, delete-orphan", foreign_keys="[PlanOrder.merchant_id]")
 
 
 class Payment(Base):
@@ -156,28 +169,25 @@ class Payment(Base):
     id                      = Column(String, primary_key=True, default=_uuid)
     merchant_id             = Column(String, ForeignKey("users.id"), nullable=False, index=True)
 
-
     receiving_address       = Column(String(256), nullable=False, index=True)
     receiving_address_label = Column(String(128), nullable=True)
 
-
     amount_firo             = Column(Float, nullable=False)
     amount_received         = Column(Float, nullable=True)
-
-
-    platform_fee_pct        = Column(Float, nullable=False, default=1.5)
-    platform_fee_firo       = Column(Float, nullable=True)
-    merchant_net_firo       = Column(Float, nullable=True)
-
 
     txid                    = Column(String(64), nullable=True, index=True)
     vout                    = Column(Integer, nullable=True)
     confirmations           = Column(Integer, default=0)
     required_confirmations  = Column(Integer, default=2)
     block_height            = Column(Integer, nullable=True)
+    # Chain tip at the moment this invoice claimed its receiving address —
+    # the floor a confirming transaction's own block height must meet.
+    # Prevents a transaction that predates the invoice (e.g. historical
+    # activity on a reused Spark diversifier after a DB wipe) from ever
+    # confirming it, independent of the scanner's own group/height cursor.
+    start_block_height      = Column(Integer, nullable=True)
 
     status                  = Column(Enum(PaymentStatus), default=PaymentStatus.pending, index=True)
-
 
     order_id                = Column(String(256), nullable=True)
     order_description       = Column(String(512), nullable=True)
@@ -193,7 +203,6 @@ class Payment(Base):
     created_at              = Column(DateTime(timezone=True), default=_now)
     expires_at              = Column(DateTime(timezone=True), nullable=True)
     confirmed_at            = Column(DateTime(timezone=True), nullable=True)
-    credited_to_balance_at  = Column(DateTime(timezone=True), nullable=True)
 
     webhook_sent            = Column(Boolean, default=False)
     webhook_sent_at         = Column(DateTime(timezone=True), nullable=True)
@@ -205,6 +214,17 @@ class Payment(Base):
     manual_check_result     = Column(String(64), nullable=True)
     customer_ip             = Column(String(45), nullable=True)
 
+    # Always "spark" now (see app/models/spark.py). receiving_address is
+    # derived offline from the merchant's view key plus spark_diversifier;
+    # spark_coin_tag is the matched coin's lTagHash, set once a payment is
+    # detected (prevents double-crediting the same coin). Column kept for
+    # historical rows predating the Spark-only migration.
+    address_type            = Column(String(16), default="spark", nullable=False)
+    spark_diversifier       = Column(Integer, nullable=True)
+    spark_coin_tag          = Column(String(128), nullable=True)
+    spark_owner_id          = Column(String, nullable=True)
+    spark_coin_tags_json    = Column(Text, nullable=True)
+
     merchant                = relationship("User", back_populates="payments")
 
     __table_args__ = (
@@ -213,9 +233,75 @@ class Payment(Base):
     )
 
 
-# ─ Payment Links ──
+class PaymentAuditLog(Base):
+    """Immutable audit trail for all payment lifecycle events.
+    Rows are INSERT-only never modified after creation."""
+    __tablename__ = "payment_audit_logs"
+
+    id          = Column(String(36), primary_key=True, default=_uuid)
+    payment_id  = Column(String(36), ForeignKey("payments.id", ondelete="CASCADE"),
+                         nullable=False, index=True)
+    merchant_id = Column(String(36), nullable=False, index=True)
+    event       = Column(Enum(PaymentAuditEvent), nullable=False, index=True)
+    amount_firo = Column(Float, nullable=True)
+    amount_received = Column(Float, nullable=True)
+    txid        = Column(String(64), nullable=True)
+    confirmations = Column(Integer, nullable=True)
+    detail      = Column(Text, nullable=True)
+    created_at  = Column(DateTime(timezone=True), nullable=False, default=_now, index=True)
+
+    __table_args__ = (
+        Index("ix_pal_payment_event",   "payment_id",  "event"),
+        Index("ix_pal_merchant_time",   "merchant_id", "created_at"),
+    )
+
+
+class SparkCoinCredit(Base):
+    """Global record of every Spark coin ever credited to a Payment. The
+    unique constraint on coin_tag is the real cross-payment, cross-scan-run
+    dedup guarantee — Payment.spark_coin_tag only ever holds the most
+    recently credited coin (overwritten on each multi-coin payment), so it
+    cannot by itself stop the same coin from being credited to a second,
+    unrelated Payment (e.g. after a DB wipe reuses the same diversifier)."""
+    __tablename__ = "spark_coin_credits"
+
+    id          = Column(String, primary_key=True, default=_uuid)
+    coin_tag    = Column(String(128), nullable=False, unique=True, index=True)
+    txid        = Column(String(64), nullable=False, index=True)
+    payment_id  = Column(String, ForeignKey("payments.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at  = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+
+class MerchantStatsCheck(Base):
+    """Records periodic accounting verification results.
+    Compares in-DB merchant lifetime stats against summed payment records."""
+    __tablename__ = "merchant_stats_checks"
+
+    id                         = Column(String(36), primary_key=True, default=_uuid)
+    merchant_id                = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"),
+                                        nullable=False, index=True)
+    checked_at                 = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+    db_gross_sales             = Column(Float, nullable=False)
+    db_received                = Column(Float, nullable=False)
+    db_confirmed_payments      = Column(Integer, nullable=False)
+    db_completed_orders        = Column(Integer, nullable=False)
+
+    actual_gross_sales         = Column(Float, nullable=False)
+    actual_received            = Column(Float, nullable=False)
+    actual_confirmed_payments  = Column(Integer, nullable=False)
+    actual_completed_orders    = Column(Integer, nullable=False)
+
+    has_mismatch               = Column(Boolean, nullable=False, default=False)
+    mismatch_detail            = Column(Text, nullable=True)
+
+    __table_args__ = (
+        Index("ix_msc_merchant_time", "merchant_id", "checked_at"),
+    )
+
+
 class PaymentLink(Base):
-    """Reusable payment links — no API needed. Created from the dashboard."""
+    """Reusable payment links, no API needed. Created from the dashboard."""
     __tablename__ = "payment_links"
 
     id            = Column(String(36), primary_key=True, default=_uuid)
@@ -223,135 +309,19 @@ class PaymentLink(Base):
     slug          = Column(String(32), unique=True, nullable=False, index=True)
     title         = Column(String(128), nullable=False)
     description   = Column(String(512), nullable=True)
-    amount_firo   = Column(Float, nullable=True)        # None = customer sets amount
+    amount_firo   = Column(Float, nullable=True)
     fixed_amount  = Column(Boolean, default=True)
     collect_email = Column(Boolean, default=True)
     success_url   = Column(String(2048), nullable=True)
     cancel_url    = Column(String(2048), nullable=True)
     is_active     = Column(Boolean, default=True)
     uses_count    = Column(Integer, default=0)
-    cancel_count  = Column(Integer, default=0)          # how many buyers cancelled
-    max_uses      = Column(Integer, nullable=True)      # None = unlimited
+    cancel_count  = Column(Integer, default=0)
+    max_uses      = Column(Integer, nullable=True)
     created_at    = Column(DateTime(timezone=True), default=_now)
     expires_at    = Column(DateTime(timezone=True), nullable=True)
     merchant      = relationship("User")
 
-
-class Withdrawal(Base):
-    __tablename__ = "withdrawals"
-
-    id                  = Column(String, primary_key=True, default=_uuid)
-    merchant_id         = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-
-    amount_requested    = Column(Float, nullable=False)
-    withdrawal_fee_pct  = Column(Float, nullable=False)
-    withdrawal_fee_firo = Column(Float, nullable=False)
-    amount_net          = Column(Float, nullable=False)
-
-    destination_address = Column(String(256), nullable=False)
-
-    status              = Column(Enum(WithdrawalStatus), default=WithdrawalStatus.pending, index=True)
-    admin_id            = Column(String, ForeignKey("users.id"), nullable=True)
-    admin_note          = Column(String(512), nullable=True)
-    rejection_reason    = Column(String(512), nullable=True)
-    sent_txid           = Column(String(64), nullable=True)
-
-
-    tier                = Column(String(16), nullable=True)
-    risk_score          = Column(Integer, default=0)
-    process_after       = Column(DateTime(timezone=True), nullable=True)
-    totp_verified       = Column(Boolean, default=False)
-
-    # ─ Email verification code (large-tier withdrawals) ─
-    # Hashed alphanumeric 8-char code (never stored in plaintext). Bound to
-    # this withdrawal + its merchant_id. Validated in constant time, max
-    # 5 attempts, 5-minute lifetime. After 5 bad attempts the withdrawal is
-    # locked and a brand-new request is required.
-    email_code_hash         = Column(String(128), nullable=True)
-    email_code_expires_at   = Column(DateTime(timezone=True), nullable=True)
-    email_code_attempts     = Column(Integer, default=0)
-    email_code_last_sent_at = Column(DateTime(timezone=True), nullable=True)
-
-
-    withdrawal_type     = Column(String(16), default="transparent")
-
-
-    spark_operation_id  = Column(String(128), nullable=True)
-    spark_op_status     = Column(String(32), nullable=True)
-    spark_op_result     = Column(Text, nullable=True)
-
-
-    auto_processed      = Column(Boolean, default=False)
-    security_checks     = Column(Text, nullable=True)
-    processing_error    = Column(String(512), nullable=True)
-    attempts            = Column(Integer, default=0)
-    ip_address          = Column(String(64), nullable=True)
-    balance_locked      = Column(Boolean, default=True)
-
-    created_at          = Column(DateTime(timezone=True), default=_now)
-    queued_at           = Column(DateTime(timezone=True), nullable=True)
-    approved_at         = Column(DateTime(timezone=True), nullable=True)
-    sent_at             = Column(DateTime(timezone=True), nullable=True)
-    rejected_at         = Column(DateTime(timezone=True), nullable=True)
-
-    merchant            = relationship("User", back_populates="withdrawals", foreign_keys=[merchant_id])
-    admin               = relationship("User", foreign_keys=[admin_id])
-
-
-# ─ ENTERPRISE ONLY ─
-class PlanConfig(Base):
-    __tablename__ = "plan_configs"
-
-    id             = Column(String, primary_key=True, default=_uuid)
-    plan           = Column(Enum(PlanName), unique=True, nullable=False)
-    price_firo     = Column(Float, nullable=False)
-    price_usd      = Column(Float, default=0.0)
-    requests_quota = Column(Integer, nullable=False)
-    duration_days  = Column(Integer, default=30)
-    is_active      = Column(Boolean, default=True)
-    updated_at     = Column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-
-class PlanOrder(Base):
-    __tablename__ = "plan_orders"
-
-    id               = Column(String, primary_key=True, default=_uuid)
-    merchant_id      = Column(String, ForeignKey("users.id"), nullable=False)
-    plan             = Column(Enum(PlanName), nullable=False)
-    price_firo       = Column(Float, nullable=False)
-
-    receiving_address = Column(String(256), nullable=True)
-    txid             = Column(String(64), nullable=True)
-    confirmations    = Column(Integer, default=0)
-    status           = Column(Enum(PaymentStatus), default=PaymentStatus.pending)
-
-    created_at       = Column(DateTime(timezone=True), default=_now)
-    expires_at       = Column(DateTime(timezone=True), nullable=True)
-    activated_at     = Column(DateTime(timezone=True), nullable=True)
-
-    merchant         = relationship("User", back_populates="plan_orders")
-
-
-class AuditLog(Base):
-    __tablename__ = "audit_logs"
-
-    id          = Column(String, primary_key=True, default=_uuid)
-    user_id     = Column(String, nullable=True, index=True)
-    action      = Column(String(128), nullable=False, index=True)
-    entity_type = Column(String(64),  nullable=True)
-    entity_id   = Column(String,      nullable=True, index=True)
-    detail      = Column(Text,        nullable=True)
-    ip_address  = Column(String(45),  nullable=True)
-    created_at  = Column(DateTime(timezone=True), default=_now, index=True)
-
-    __table_args__ = (
-
-        Index("ix_audit_user_time",   "user_id",  "created_at"),
-
-        Index("ix_audit_action_time", "action",   "created_at"),
-
-        Index("ix_audit_entity",      "entity_type", "entity_id"),
-    )
 
 
 class LoginAttempt(Base):
@@ -364,7 +334,6 @@ class LoginAttempt(Base):
     created_at = Column(DateTime(timezone=True), default=_now, index=True)
 
     __table_args__ = (
-
         Index("ix_login_ip_time",   "ip_address", "created_at"),
         Index("ix_login_user_time", "username",   "created_at"),
     )
@@ -406,8 +375,6 @@ class ReportStatus(str, PyEnum):
     dismissed   = "dismissed"
 
 
-# Allowed status values (stored as plain string in DB to avoid CHECK-constraint
-# migrations when the set changes).
 REPORT_STATUSES = {s.value for s in ReportStatus}
 
 
@@ -417,13 +384,13 @@ class Report(Base):
 
     id                  = Column(String, primary_key=True, default=_uuid)
     user_id             = Column(String, ForeignKey("users.id"), nullable=True, index=True)
-    email               = Column(String(254), nullable=True)     # non-logged reporter
+    email               = Column(String(254), nullable=True)
     type                = Column(Enum(ReportType), nullable=False, index=True)
     subject             = Column(String(160), nullable=True)
     message             = Column(Text, nullable=False)
-    requested_app_name  = Column(String(64), nullable=True)      # for change_app_name reports
+    requested_app_name  = Column(String(64), nullable=True)
     status              = Column(String(32), default=ReportStatus.pending.value, nullable=False, index=True)
-    admin_notes         = Column(Text, nullable=True)
+    operator_notes         = Column(Text, nullable=True)
     ip_address          = Column(String(45), nullable=True)
     user_agent          = Column(String(300), nullable=True)
     created_at          = Column(DateTime(timezone=True), default=_now, index=True)
@@ -446,75 +413,33 @@ class SystemConfig(Base):
     updated_at = Column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
-class AdminWithdrawalStatus(str, PyEnum):
-    pending    = "pending"
-    processing = "processing"
-    completed  = "completed"
-    failed     = "failed"
 
-
-class AdminWithdrawal(Base):
-    # ENTERPRISE ONLY
-    __tablename__ = "admin_withdrawals"
-
-    id                  = Column(String, primary_key=True, default=_uuid)
-    admin_id            = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-
-    amount_requested    = Column(Float, nullable=False)
-    amount_net          = Column(Float, nullable=False)
-
-    destination_address = Column(String(256), nullable=False)
-    withdrawal_type     = Column(String(16), default="spark")
-
-    status              = Column(Enum(AdminWithdrawalStatus), default=AdminWithdrawalStatus.pending, index=True)
-    sent_txid           = Column(String(64), nullable=True)
-
-
-    note                = Column(String(512), nullable=True)
-    processing_error    = Column(String(512), nullable=True)
-    attempts            = Column(Integer, default=0)
-    is_auto             = Column(Boolean, default=False)
-    security_checks     = Column(Text, nullable=True)
-
-
-    totp_verified       = Column(Boolean, default=False)
-
-    created_at          = Column(DateTime(timezone=True), default=_now, index=True)
-    sent_at             = Column(DateTime(timezone=True), nullable=True)
-
-    admin               = relationship("User", foreign_keys=[admin_id])
-
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Analytics Aggregation Tables - For fast dashboard queries
-# ═══════════════════════════════════════════════════════════════════════════════
 
 class DailyStats(Base):
     """Platform-wide daily aggregated statistics"""
     __tablename__ = "daily_stats"
 
-    id              = Column(String, primary_key=True, default=_uuid)
-    date            = Column(String(10), unique=True, nullable=False, index=True)  # YYYY-MM-DD
-    total_revenue   = Column(Float, default=0.0)
+    id                 = Column(String, primary_key=True, default=_uuid)
+    date               = Column(String(10), unique=True, nullable=False, index=True)
+    total_volume_firo  = Column(Float, default=0.0)
     transactions_count = Column(Integer, default=0)
-    new_users       = Column(Integer, default=0)
-    platform_fees   = Column(Float, default=0.0)
-    updated_at      = Column(DateTime(timezone=True), default=_now, onupdate=_now)
+    new_users          = Column(Integer, default=0)
+    updated_at         = Column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
 class UserDailyStats(Base):
     """Per-merchant daily aggregated statistics"""
     __tablename__ = "user_daily_stats"
 
-    id              = Column(String, primary_key=True, default=_uuid)
-    user_id         = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-    date            = Column(String(10), nullable=False, index=True)  # YYYY-MM-DD
-    revenue         = Column(Float, default=0.0)
-    orders_count    = Column(Integer, default=0)
+    id                  = Column(String, primary_key=True, default=_uuid)
+    user_id             = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    date                = Column(String(10), nullable=False, index=True)
+    gross_sales_firo    = Column(Float, default=0.0)
+    received_firo       = Column(Float, default=0.0)
+    orders_count        = Column(Integer, default=0)
     successful_payments = Column(Integer, default=0)
-    failed_payments = Column(Integer, default=0)
-    updated_at      = Column(DateTime(timezone=True), default=_now, onupdate=_now)
+    failed_payments     = Column(Integer, default=0)
+    updated_at          = Column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     __table_args__ = (
         UniqueConstraint("user_id", "date", name="uq_user_daily_stats"),
@@ -522,81 +447,19 @@ class UserDailyStats(Base):
     )
 
 
-# ─ Privacy Routing ─
-# Single-node Spark routing: all hops executed via the gateway's own Firo node.
-# Fresh Spark addresses are generated per chain (getnewsparkaddress).
-# No external nodes, no pool wallet management table.
-
-class HopStatus(str, PyEnum):
-    pending = "pending"
-    done    = "done"
-    failed  = "failed"
-
-
-class RoutingChain(Base):
-    """
-    One routing chain per automintspark event.
-    Expired automatically after ROUTING_CHAIN_EXPIRE_HOURS.
-    """
-    # ENTERPRISE ONLY
-    __tablename__ = "routing_chains"
-
-    id           = Column(String(36), primary_key=True, default=_uuid)
-    total_hops   = Column(Integer, nullable=False)
-    status       = Column(String(20), default="active")   # active|done|failed
-    created_at   = Column(DateTime(timezone=True), default=_now)
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    expires_at   = Column(DateTime(timezone=True), nullable=False)
-
-    hops = relationship("RoutingHop", back_populates="chain",
-                        order_by="RoutingHop.hop_num",
-                        cascade="all, delete-orphan")
-
-
-class RoutingHop(Base):
-    """
-    Single hop within a routing chain.
-    dest_address — freshly generated Spark address for this hop.
-    All hops are executed by the same node (single-node routing).
-    """
-    # ENTERPRISE ONLY
-    __tablename__ = "routing_hops"
-
-    id           = Column(String(36), primary_key=True, default=_uuid)
-    chain_id     = Column(String(36), ForeignKey("routing_chains.id",
-                           ondelete="CASCADE"), nullable=False, index=True)
-    hop_num      = Column(Integer,  nullable=False)
-    dest_address = Column(String(200), nullable=False)
-    txid         = Column(String(100), nullable=True)
-    status       = Column(Enum(HopStatus, name="hop_status"),
-                          default=HopStatus.pending, nullable=False)
-    locked       = Column(Boolean, default=False, nullable=False)
-    attempts     = Column(Integer, default=0)
-    error_msg    = Column(String(256), nullable=True)
-    run_after    = Column(DateTime(timezone=True), nullable=False)
-    created_at   = Column(DateTime(timezone=True), default=_now)
-    expires_at   = Column(DateTime(timezone=True), nullable=False)
-
-    chain = relationship("RoutingChain", back_populates="hops")
-
-
-
-# ─ API Keys (multi-key per merchant) ─
 class ApiKey(Base):
-    """
-    One row per API key. Merchants can have multiple keys simultaneously.
-    Raw key is NEVER stored — only the SHA-256 hash.
-    The prefix (fg_live_AbCdXxXx) is stored for display.
-    """
+    """One row per API key. Raw key is NEVER stored, only the SHA-256 hash."""
     __tablename__ = "api_keys"
 
     id          = Column(String(36),  primary_key=True, default=_uuid)
     merchant_id = Column(String(36),  nullable=False, index=True)
     name        = Column(String(64),  nullable=False, default="Default")
-    prefix      = Column(String(20),  nullable=False)           # fg_live_AbCd… (shown in UI)
-    key_hash    = Column(String(64),  nullable=False, unique=True, index=True)  # SHA-256
+    prefix      = Column(String(20),  nullable=False)
+    key_hash    = Column(String(64),  nullable=False, unique=True, index=True)
     status      = Column(String(16),  nullable=False, default="active")
     created_at  = Column(DateTime(timezone=True), nullable=False, default=_now)
     last_used   = Column(DateTime(timezone=True), nullable=True)
     revoked_at  = Column(DateTime(timezone=True), nullable=True)
-    scopes      = Column(String(512), nullable=True, default="*")  # future: permission scopes
+    scopes      = Column(String(512), nullable=True, default="*")
+
+

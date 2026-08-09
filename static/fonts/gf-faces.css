@@ -1,0 +1,28 @@
+@font-face { font-family:'Archivo Black'; src:url('/static/fonts/gf-archivo-black-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'Baloo 2'; src:url('/static/fonts/gf-baloo-2-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:block; }
+@font-face { font-family:'Baloo 2'; src:url('/static/fonts/gf-baloo-2-500.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
+@font-face { font-family:'Baloo 2'; src:url('/static/fonts/gf-baloo-2-500.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:block; }
+@font-face { font-family:'Cormorant Garamond'; src:url('/static/fonts/gf-cormorant-garamond-500-italic.woff2') format('woff2'); font-weight:500; font-style:italic; font-display:block; }
+@font-face { font-family:'Cormorant Garamond'; src:url('/static/fonts/gf-cormorant-garamond-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:block; }
+@font-face { font-family:'Cormorant Garamond'; src:url('/static/fonts/gf-cormorant-garamond-500.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:block; }
+@font-face { font-family:'Cormorant Garamond'; src:url('/static/fonts/gf-cormorant-garamond-500.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
+@font-face { font-family:'Inter'; src:url('/static/fonts/gf-inter-300.woff2') format('woff2'); font-weight:300; font-style:normal; font-display:block; }
+@font-face { font-family:'Inter'; src:url('/static/fonts/gf-inter-300.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'Inter'; src:url('/static/fonts/gf-inter-300.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:block; }
+@font-face { font-family:'Inter'; src:url('/static/fonts/gf-inter-300.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:block; }
+@font-face { font-family:'JetBrains Mono'; src:url('/static/fonts/gf-jetbrains-mono-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'JetBrains Mono'; src:url('/static/fonts/gf-jetbrains-mono-400.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
+@font-face { font-family:'Jost'; src:url('/static/fonts/gf-jost-200.woff2') format('woff2'); font-weight:200; font-style:normal; font-display:block; }
+@font-face { font-family:'Jost'; src:url('/static/fonts/gf-jost-200.woff2') format('woff2'); font-weight:300; font-style:normal; font-display:block; }
+@font-face { font-family:'Jost'; src:url('/static/fonts/gf-jost-200.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'Jost'; src:url('/static/fonts/gf-jost-200.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:block; }
+@font-face { font-family:'Orbitron'; src:url('/static/fonts/gf-orbitron-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:block; }
+@font-face { font-family:'Orbitron'; src:url('/static/fonts/gf-orbitron-500.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
+@font-face { font-family:'Orbitron'; src:url('/static/fonts/gf-orbitron-500.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:block; }
+@font-face { font-family:'Outfit'; src:url('/static/fonts/gf-outfit-300.woff2') format('woff2'); font-weight:300; font-style:normal; font-display:block; }
+@font-face { font-family:'Outfit'; src:url('/static/fonts/gf-outfit-300.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:block; }
+@font-face { font-family:'Outfit'; src:url('/static/fonts/gf-outfit-300.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
+@font-face { font-family:'Press Start 2P'; src:url('/static/fonts/gf-press-start-2p-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'Space Grotesk'; src:url('/static/fonts/gf-space-grotesk-400.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:block; }
+@font-face { font-family:'Space Grotesk'; src:url('/static/fonts/gf-space-grotesk-400.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:block; }
+@font-face { font-family:'Space Grotesk'; src:url('/static/fonts/gf-space-grotesk-400.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:block; }
