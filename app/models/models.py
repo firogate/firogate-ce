@@ -130,6 +130,7 @@ class User(Base):
     auth_method                   = Column(String(16), default="password")
     account_number_hash           = Column(String(128), nullable=True)
     account_number_lookup         = Column(String(64), unique=True, nullable=True, index=True)
+    account_number_enc            = Column(String(512), nullable=True)
 
     app_name                     = Column(String(64), nullable=True)
     app_name_locked              = Column(Boolean, default=False, nullable=False)

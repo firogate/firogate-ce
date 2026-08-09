@@ -119,6 +119,17 @@ async def get_webhook_secret(user: User = Depends(get_current_user)):
         return {"secret": None}
 
 
+@router.get("/account-number")
+async def get_account_number(user: User = Depends(get_current_user)):
+    if not user.account_number_enc:
+        return {"account_number": None}
+    from app.core.security import format_account_number
+    try:
+        return {"account_number": format_account_number(decrypt_field(user.account_number_enc))}
+    except Exception:
+        return {"account_number": None}
+
+
 class WebhookUpdate(BaseModel):
     webhook_url: str | None = None
 

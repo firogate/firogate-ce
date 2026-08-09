@@ -117,6 +117,7 @@ def _ensure_user_columns(sync_conn) -> None:
         ("has_seen_onboarding",           "BOOLEAN DEFAULT 0 NOT NULL"),
         ("account_number_hash",           "VARCHAR(128)"),
         ("account_number_lookup",         "VARCHAR(64)"),
+        ("account_number_enc",            "VARCHAR(512)"),
         ("required_confirmations_policy", "INTEGER"),
         ("payment_tolerance_firo",        "FLOAT"),
     ]
