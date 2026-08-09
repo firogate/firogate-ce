@@ -1,904 +1,130 @@
 {% extends "base.html" %}
-{% block title %}About — FiroGate{% endblock %}
-{% block body %}
+{% block title %}About FiroGate{% endblock %}
+{% block extra_css %}
 <style>
-.about-wrap { max-width: 1080px; margin: 0 auto; padding: 48px 40px 100px; }
-
-.about-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 44px;
-  flex-wrap: wrap;
+:root{
+  --ab-bg:#F5EFE0;
+  --ab-heading:#3B5BA5;
+  --ab-text:#1A1A1A;
+  --ab-text2:#5B5548;
 }
-.about-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-.about-logo .logo-box {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, #FFD56B, #C9A020);
-  border-radius: 12px 4px 10px 4px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(245,197,66,0.35);
-  transition: all 0.25s ease;
-}
-.about-logo .logo-box:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,197,66,0.5); }
-.about-logo span { font-size: 1.4rem; font-weight: 800; color: var(--white); }
-.about-nav {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.about-nav a {
-  color: var(--t2);
-  text-decoration: none;
-  font-size: .83rem;
-  padding: 6px 14px;
-  border: 1px solid var(--bw);
-  border-radius: 8px 4px 6px 4px;
-  transition: all .22s ease;
-  font-weight: 500;
-}
-.about-nav a:hover { color: var(--white); border-color: rgba(245,197,66,0.35); background: rgba(245,197,66,0.05); }
-.about-nav a.nav-y { color: var(--y); border-color: rgba(245,197,66,0.35); }
-.about-nav a.nav-y:hover { background: rgba(245,197,66,0.08); }
-
-.about-hero {
-  background: linear-gradient(155deg, rgba(24,15,4,0.95), rgba(12,8,2,0.98));
-  border: 1px solid rgba(245,197,66,0.18);
-  border-radius: 20px 8px 16px 12px;
-  padding: 52px 44px;
-  margin-bottom: 32px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.about-hero::before {
-  content: '';
-  position: absolute;
-  top: -100px; left: 50%; transform: translateX(-50%);
-  width: 600px; height: 400px;
-  background: radial-gradient(ellipse, rgba(245,197,66,0.06) 0%, transparent 65%);
-  pointer-events: none;
-}
-.about-hero h1 {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 800;
-  color: var(--white);
-  margin-bottom: 16px;
-  line-height: 1.15;
-  position: relative;
-}
-.about-hero h1 span { color: var(--y); }
-.about-hero p {
-  font-size: 1rem;
-  color: var(--t2);
-  max-width: 580px;
-  margin: 0 auto 28px;
-  line-height: 1.75;
-  position: relative;
-}
-.about-hero-badges {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-  position: relative;
-}
-.about-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border-radius: 100px;
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-.about-badge-y { background: rgba(245,197,66,.12); color: var(--y); border: 1px solid rgba(245,197,66,.25); }
-.about-badge-g { background: rgba(34,197,94,.10); color: var(--g); border: 1px solid rgba(34,197,94,.22); }
-.about-badge-b { background: rgba(96,165,250,.10); color: var(--blue); border: 1px solid rgba(96,165,250,.20); }
-
-.section-heading {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-heading::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(245,197,66,.15), transparent);
-}
-
-.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px; }
-.feat-card {
-  background: linear-gradient(155deg, rgba(20,13,4,0.92), rgba(12,8,2,0.96));
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 14px 5px 12px 8px;
-  padding: 24px;
-  transition: border-color .22s ease, transform .22s ease;
-}
-.feat-card:nth-child(2) { border-radius: 5px 14px 8px 12px; }
-.feat-card:nth-child(3) { border-radius: 12px 8px 14px 5px; }
-.feat-card:nth-child(4) { border-radius: 8px 12px 5px 14px; }
-.feat-card:nth-child(5) { border-radius: 14px 6px 10px 8px; }
-.feat-card:nth-child(6) { border-radius: 6px 14px 8px 10px; }
-.feat-card:hover { border-color: rgba(245,197,66,.2); transform: translateY(-2px); }
-.feat-card .fc-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px 4px 10px 4px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 14px;
-  flex-shrink: 0;
-}
-.feat-card:nth-child(even) .fc-icon { border-radius: 4px 12px 4px 10px; }
-.feat-card h3 { font-size: .93rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
-.feat-card p  { font-size: .81rem; color: var(--t2); line-height: 1.65; margin: 0; }
-
-.info-block {
-  background: linear-gradient(155deg, rgba(18,12,4,0.90), rgba(10,7,2,0.95));
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 14px 6px 12px 8px;
-  padding: 28px;
-  margin-bottom: 20px;
-}
-.info-block:nth-child(even) { border-radius: 6px 14px 8px 12px; }
-.info-block h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 12px; }
-.info-block p  { font-size: .85rem; color: var(--t2); line-height: 1.72; margin: 0 0 12px; }
-.info-block p:last-child { margin: 0; }
-
-.privacy-table { width: 100%; border-collapse: collapse; margin-top: 14px; }
-.privacy-table th, .privacy-table td { text-align: left; padding: 10px 14px; font-size: .81rem; border-bottom: 1px solid rgba(255,255,255,.04); }
-.privacy-table th { color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; font-size: .68rem; }
-.privacy-table td { color: var(--t2); }
-.privacy-table tr:last-child td { border-bottom: none; }
-.ptag { display: inline-block; padding: 3px 10px; border-radius: 6px 3px 5px 3px; font-size: .70rem; font-weight: 600; }
-.ptag-g { background: rgba(34,197,94,.10); color: var(--g); border: 1px solid rgba(34,197,94,.2); }
-.ptag-y { background: rgba(245,197,66,.10); color: var(--y); border: 1px solid rgba(245,197,66,.2); }
-.ptag-b { background: rgba(96,165,250,.10); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
-
-.flow-step {
-  display: flex;
-  gap: 16px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-  align-items: flex-start;
-}
-.flow-step:last-child { border-bottom: none; }
-.flow-num {
-  width: 32px; height: 32px;
-  border-radius: 10px 4px 8px 4px;
-  background: rgba(245,197,66,.10);
-  border: 1px solid rgba(245,197,66,.22);
-  display: flex; align-items: center; justify-content: center;
-  font-size: .75rem; font-weight: 800; color: var(--y);
-  flex-shrink: 0;
-}
-.flow-step p { font-size: .84rem; color: var(--t2); line-height: 1.68; margin: 0; margin-top: 4px; }
-
-.about-cta {
-  background: linear-gradient(155deg, rgba(24,15,4,0.95), rgba(12,8,2,0.98));
-  border: 1px solid rgba(245,197,66,.22);
-  border-radius: 18px 8px 16px 12px;
-  padding: 44px 36px;
-  text-align: center;
-  margin-top: 32px;
-}
-.about-cta h2 { font-size: 1.5rem; font-weight: 800; color: var(--white); margin-bottom: 10px; }
-.about-cta p  { font-size: .88rem; color: var(--t2); margin-bottom: 24px; }
-.about-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
-@media (max-width: 600px) {
-  .about-hero {
-    padding: 28px 18px 26px;
-    border-radius: 14px 6px 12px 8px;
-    margin-bottom: 20px;
+@media (prefers-color-scheme:dark){
+  :root{
+    --ab-bg:#2A211A;
+    --ab-heading:#8FADE0;
+    --ab-text:#EDE6DA;
+    --ab-text2:#B8AD9C;
   }
-  .about-hero::before { width: 380px; height: 260px; top: -80px; }
-  .about-hero h1 {
-    font-size: 1.55rem;
-    line-height: 1.22;
-    margin-bottom: 12px;
-    letter-spacing: -.01em;
-  }
-  .about-hero h1 br { display: none; }
-  .about-hero h1 span { display: inline; }
-  .about-hero p {
-    font-size: .88rem;
-    line-height: 1.6;
-    margin-bottom: 18px;
-    padding: 0 2px;
-  }
-  .about-hero-badges { gap: 6px; }
-  .about-badge {
-    padding: 5px 11px;
-    font-size: .62rem;
-    letter-spacing: .03em;
-  }
-  .info-block { padding: 20px; }
-  .about-cta  { padding: 28px 20px; }
-  .feat-grid  { grid-template-columns: 1fr; }
+}
+:root[data-theme="dark"]{
+  --ab-bg:#2A211A;
+  --ab-heading:#8FADE0;
+  --ab-text:#EDE6DA;
+  --ab-text2:#B8AD9C;
+}
+:root[data-theme="light"]{
+  --ab-bg:#F5EFE0;
+  --ab-heading:#3B5BA5;
+  --ab-text:#1A1A1A;
+  --ab-text2:#5B5548;
 }
 
-/* ─ "You Stay in Control" showcase — green + black, 4 cards, each its own shape ─ */
-.ctrl-wrap { margin: 40px 0; }
-.ctrl-head { text-align: center; margin-bottom: 32px; }
-.ctrl-head h2 {
-  font-size: clamp(1.5rem, 4vw, 2.1rem);
-  font-weight: 800; color: var(--white); margin: 0 0 10px;
-  letter-spacing: -0.02em;
-}
-.ctrl-head h2 em { font-style: normal; color: #4ade80; }
-.ctrl-head p { color: var(--t2); font-size: .95rem; max-width: 620px; margin: 0 auto; line-height: 1.65; }
-
-.ctrl-grid {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 16px;
-}
-@media (max-width: 820px) { .ctrl-grid { grid-template-columns: 1fr; } }
-
-.ctrl-card {
-  position: relative;
-  padding: 26px;
-  border: 1px solid rgba(34,197,94,0.18);
-  background:
-    radial-gradient(ellipse at 0% 0%, rgba(34,197,94,0.08) 0%, transparent 55%),
-    linear-gradient(155deg, #0a130a 0%, #050808 100%);
-  overflow: hidden;
-  transition: transform .32s cubic-bezier(.4,0,.2,1), border-color .32s;
-}
-.ctrl-card:hover { transform: translateY(-3px); border-color: rgba(74,222,128,0.38); }
-
-/* Card 1 — hero-style, left column, spans both rows, keys pattern */
-.ctrl-card-hero {
-  grid-row: span 2;
-  border-radius: 22px 8px 18px 10px;
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(34,197,94,0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(34,197,94,0.05) 0%, transparent 55%),
-    linear-gradient(155deg, #0d1a0e 0%, #060a06 100%);
-}
-.ctrl-card-hero .ctrl-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: .68rem; color: #4ade80;
-  background: rgba(34,197,94,.10); border: 1px solid rgba(34,197,94,0.25);
-  border-radius: 999px; padding: 4px 10px; margin-bottom: 14px;
-  text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
-}
-.ctrl-card-hero h3 {
-  font-size: 1.35rem; font-weight: 800; color: var(--white);
-  margin: 0 0 10px; line-height: 1.25;
-}
-.ctrl-card-hero p { color: var(--t2); font-size: .92rem; line-height: 1.7; margin: 0 0 18px; }
-.ctrl-card-hero .ctrl-visual {
-  margin-top: 18px; border-radius: 14px 4px 10px 4px;
-  border: 1px solid rgba(34,197,94,0.2);
-  padding: 14px; background: rgba(0,0,0,0.45);
-  display: flex; gap: 10px; flex-wrap: wrap;
-}
-.ctrl-key {
-  font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: .62rem; color: #4ade80;
-  background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.16);
-  border-radius: 5px; padding: 4px 7px;
-}
-
-/* Card 2 — right top, picture of a node/server */
-.ctrl-card-node {
-  border-radius: 8px 18px 6px 14px;
-  background:
-    linear-gradient(155deg, rgba(34,197,94,0.06) 0%, rgba(0,0,0,0) 50%),
-    linear-gradient(155deg, #091109 0%, #030603 100%);
-}
-.ctrl-card-node .ctrl-node-visual {
-  height: 110px; margin-bottom: 14px;
-  border-radius: 10px; background: #060806;
-  border: 1px solid rgba(34,197,94,0.14);
-  position: relative; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-}
-.ctrl-card-node .ctrl-node-visual::before {
-  content: '';
-  position: absolute; inset: 0;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 18px, rgba(34,197,94,.08) 18px 19px),
-    repeating-linear-gradient(0deg,  transparent 0 18px, rgba(34,197,94,.05) 18px 19px);
-  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 80%);
-}
-.ctrl-card-node h3 { font-size: 1.02rem; color: var(--white); margin: 0 0 6px; font-weight: 700; }
-.ctrl-card-node p  { color: var(--t2); font-size: .86rem; line-height: 1.6; margin: 0; }
-
-/* Card 3 — right bottom, minimal dotted with big icon */
-.ctrl-card-custody {
-  border-radius: 14px 8px 18px 6px;
-  background:
-    linear-gradient(155deg, #0a0a0a 0%, #040404 100%);
-  border-style: dashed;
-  border-color: rgba(34,197,94,0.25);
-}
-.ctrl-card-custody .ctrl-big-ico {
-  width: 56px; height: 56px; border-radius: 14px 4px 12px 4px;
-  background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.28);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 14px;
-}
-.ctrl-card-custody h3 { font-size: 1.02rem; color: var(--white); margin: 0 0 6px; font-weight: 700; }
-.ctrl-card-custody p  { color: var(--t2); font-size: .86rem; line-height: 1.6; margin: 0; }
-
-/* Card 4 — full-width bottom band, code-style visual */
-.ctrl-card-noncustodial {
-  grid-column: 1 / -1;
-  border-radius: 18px 6px 14px 10px;
-  background:
-    radial-gradient(ellipse at 100% 50%, rgba(34,197,94,0.10) 0%, transparent 55%),
-    linear-gradient(155deg, #0a130a 0%, #050805 100%);
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 22px;
-  align-items: center;
-}
-@media (max-width: 820px) { .ctrl-card-noncustodial { grid-template-columns: 1fr; } }
-.ctrl-card-noncustodial h3 { font-size: 1.15rem; color: var(--white); margin: 0 0 10px; font-weight: 800; }
-.ctrl-card-noncustodial p  { color: var(--t2); font-size: .9rem; line-height: 1.7; margin: 0 0 12px; }
-.ctrl-card-noncustodial .ctrl-check-list { list-style: none; padding: 0; margin: 6px 0 0; }
-.ctrl-card-noncustodial .ctrl-check-list li {
-  display: flex; align-items: center; gap: 8px;
-  color: var(--t2); font-size: .83rem; padding: 5px 0;
-}
-.ctrl-card-noncustodial .ctrl-check-list li svg { flex-shrink: 0; color: #4ade80; }
-.ctrl-code-frame {
-  border-radius: 12px 4px 10px 4px;
-  background: #020402;
-  border: 1px solid rgba(34,197,94,0.22);
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 14px 40px rgba(0,0,0,.55), inset 0 0 0 1px rgba(34,197,94,.05);
-}
-.ctrl-code-frame .ctrl-code-bar {
-  display: flex; gap: 6px; padding: 9px 12px;
-  border-bottom: 1px solid rgba(34,197,94,0.12); background: rgba(34,197,94,0.04);
-}
-.ctrl-code-frame .ctrl-code-bar i {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: rgba(34,197,94,0.3);
-}
-.ctrl-code-frame pre {
-  margin: 0; padding: 14px 16px;
-  font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: .72rem; line-height: 1.65; color: #86efac; overflow-x: auto;
-}
-.ctrl-code-frame .kw { color: #4ade80; font-weight: 700; }
-.ctrl-code-frame .mu { color: var(--t3); }
-.ctrl-code-frame .st { color: #fde68a; }
+html body{background:var(--ab-bg)}
+html[data-theme="light"] body{background:var(--ab-bg)}
+html[data-theme="dark"] body{background:var(--ab-bg)}
+.ab-wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
+.ab-title{font-size:1.6rem;font-weight:800;color:var(--ab-heading);margin:0 0 6px;letter-spacing:-.02em}
+.ab-lead{color:var(--ab-text);font-size:.92rem;line-height:1.75;margin:0 0 28px}
+.ab-block{margin-bottom:24px}
+.ab-block h2{font-size:.95rem;font-weight:700;color:var(--ab-heading);margin:0 0 8px}
+.ab-block p{color:var(--ab-text);font-size:.85rem;line-height:1.7;margin:0}
+.ab-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+.ab-who-row{display:flex;align-items:center;gap:32px}
+.ab-who-list{flex:1;min-width:0}
+.ab-who-list div{margin-bottom:14px}
+.ab-who-list div:last-child{margin-bottom:0}
+.ab-who-list strong{display:block;font-size:.85rem;font-weight:700;color:var(--ab-text);margin-bottom:2px}
+.ab-who-list span{font-size:.82rem;color:var(--ab-text2);line-height:1.6}
+.ab-who-imgs{display:flex;align-items:center;gap:20px;flex-shrink:0;width:180px}
+.ab-who-imgs img{width:50%;height:auto;opacity:0;filter:drop-shadow(0 14px 24px rgba(0,0,0,.5));transition:opacity 1.2s ease}
+.ab-who-imgs img.is-on{opacity:1}
+.ab-who-imgs img:last-child{transform:rotate(9deg)}
+html[data-theme="light"] .ab-who-imgs img{filter:drop-shadow(0 12px 20px rgba(0,0,0,.16))}
+@media (max-width:640px){.ab-who-imgs{display:none}}
 </style>
-
-<div class="about-wrap">
-
-  <div class="about-header">
-    <a href="{{ base_url }}" class="about-logo">
-      <div class="logo-box">
-        <svg width="28" height="28" viewBox="0 0 24 24"><path fill="#8D1B28" d="M12 18.857a6.858 6.858 0 0 0 6.36-9.429h-3.34a.43.43 0 0 0-.373.219l-.591 1.067h1.371a.43.43 0 0 1 .429.429v1.285a.43.43 0 0 1-.428.429h-2.572l-2.036 3.639a.43.43 0 0 1-.373.218H7.02A6.84 6.84 0 0 0 12 18.857M5.64 14.57a6.857 6.857 0 0 1 11.34-7.286h-3.214a.43.43 0 0 0-.373.22l-1.796 3.209H9a.43.43 0 0 0-.429.429v1.285a.43.43 0 0 0 .429.429h1.4l-.835 1.496a.43.43 0 0 1-.373.218z"/></svg>
-      </div>
-      <span>FiroGate</span>
-    </a>
-    <nav class="about-nav" id="about-nav-auth">
-      <a href="{{ base_url }}">Home</a>
-      <a href="/docs">API Docs</a>
-    </nav>
-  </div>
-
- <div class="about-hero">
-  <h1>Accept <span>Firo</span> Payments<br>With Confidence</h1>
-
-  <p>
-    FiroGate is a modern payment gateway built for Firo.
-    Connect your receiving address, integrate a simple API request,
-    and start accepting payments with fast confirmations, secure
-    infrastructure, and reliable transaction processing.
-  </p>
-
-  <div class="about-hero-badges">
-    <span class="about-badge about-badge-g">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-      Secure Payments
-    </span>
-
-    <span class="about-badge about-badge-y">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      Reliable Processing
-    </span>
-    <span class="about-badge about-badge-b">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="16 18 22 12 16 6"/>
-        <polyline points="8 6 2 12 8 18"/>
-      </svg>
-      Developer-Friendly
-    </span>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: How It Works — Payment Flow
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="how" style="margin-top:72px">
-  <div style="margin-bottom:32px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">How It Works</div>
-    <h2 style="font-size:clamp(1.7rem,4vw,2.3rem);font-weight:800;letter-spacing:-.02em;margin:0 0 10px;color:var(--white)">Three steps. Real money. Your server, your keys.</h2>
-    <p style="color:var(--t2);font-size:1rem;line-height:1.75;margin:0;max-width:620px">From API call to confirmed payment — completely automated, running on the Firo blockchain.</p>
-  </div>
-
-  <!-- Animated flow steps -->
-  <div class="fg-steps" style="position:relative">
-    <!-- Connector line (desktop only) -->
-    <div class="fg-step-line" style="position:absolute;top:28px;left:28px;right:28px;height:1px;background:linear-gradient(90deg,var(--y),rgba(245,197,66,.2),transparent);display:none"></div>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px" class="fg-steps-grid">
-      <!-- Step 1 -->
-      <div class="fg-step-card" data-step="1" style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-          </div>
-          <span style="font-size:.7rem;color:var(--t3);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Step 01</span>
-        </div>
-        <h3 style="font-size:1rem;font-weight:700;color:var(--white);margin:0 0 8px">Connect your store</h3>
-        <p style="font-size:.83rem;color:var(--t2);line-height:1.65;margin:0">One API call creates a full checkout page with a unique receiving address per order. No UI to build — it's all handled.</p>
-        <div style="margin-top:14px;background:var(--bg4);border-radius:8px;padding:10px;font-family:var(--mono);font-size:.7rem;color:var(--t3)">
-          <span style="color:#86EFAC">POST</span> <span style="color:var(--y)">/api/payments/create</span>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="fg-step-card" data-step="2" style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <span style="font-size:.7rem;color:var(--t3);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Step 02</span>
-        </div>
-        <h3 style="font-size:1rem;font-weight:700;color:var(--white);margin:0 0 8px">Customer pays</h3>
-        <p style="font-size:.83rem;color:var(--t2);line-height:1.65;margin:0">Buyer sees a clean checkout page with QR code, address, and live countdown. The page watches the blockchain in real time via SSE — no refresh needed.</p>
-        <div style="margin-top:14px;display:flex;align-items:center;gap:6px">
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--y);animation:fg-blink 1.4s ease-in-out infinite"></div>
-          <span style="font-size:.72rem;color:var(--t3)">Watching blockchain…</span>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="fg-step-card" data-step="3" style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <span style="font-size:.7rem;color:var(--t3);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Step 03</span>
-        </div>
-        <h3 style="font-size:1rem;font-weight:700;color:var(--white);margin:0 0 8px">Confirmed automatically</h3>
-        <p style="font-size:.83rem;color:var(--t2);line-height:1.65;margin:0">Once the chain confirms, your webhook fires instantly, the customer is redirected to success, and FIRO lands in your withdrawal address. Zero manual work.</p>
-        <div style="margin-top:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:8px 10px;font-size:.72rem;color:#22C55E;font-family:var(--mono)">payment.confirmed → webhook fired</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: Payment Flow Visual
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="flow" style="margin-top:72px">
-  <div style="margin-bottom:24px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Payment Flow</div>
-    <h2 style="font-size:clamp(1.4rem,3.4vw,2rem);font-weight:800;letter-spacing:-.02em;margin:0 0 8px;color:var(--white)">What happens behind the scenes</h2>
-  </div>
-
-  <!-- Interactive flow diagram -->
-  <div class="fg-flow-wrap" style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;overflow-x:auto">
-    <div style="display:flex;align-items:center;gap:0;min-width:540px;position:relative" id="fg-flow-nodes">
-
-      <!-- Node: Your Server -->
-      <div class="fg-fn" style="text-align:center;flex:1">
-        <div style="width:48px;height:48px;border-radius:10px;background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.25);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-        </div>
-        <div style="font-size:.75rem;font-weight:600;color:var(--white)">Your Server</div>
-        <div style="font-size:.68rem;color:var(--t3);margin-top:2px">POST /create</div>
-      </div>
-
-      <!-- Arrow 1 -->
-      <div class="fg-fa" style="flex:0.6;text-align:center;position:relative">
-        <div class="fg-flow-arrow" style="height:1px;background:linear-gradient(90deg,rgba(245,197,66,.4),rgba(245,197,66,.8),rgba(245,197,66,.4));position:relative">
-          <div class="fg-flow-dot" style="width:6px;height:6px;border-radius:50%;background:var(--y);position:absolute;top:-3px;left:0;animation:fg-flow-move 1.8s ease-in-out infinite"></div>
-        </div>
-        <div style="font-size:.62rem;color:var(--t4);margin-top:4px">checkout_url</div>
-      </div>
-
-      <!-- Node: FiroGate -->
-      <div class="fg-fn" style="text-align:center;flex:1">
-        <div style="width:48px;height:48px;border-radius:10px;background:rgba(245,197,66,.15);border:1px solid rgba(245,197,66,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <div style="font-size:.75rem;font-weight:600;color:var(--white)">FiroGate</div>
-        <div style="font-size:.68rem;color:var(--t3);margin-top:2px">Generates address</div>
-      </div>
-
-      <!-- Arrow 2 -->
-      <div class="fg-fa" style="flex:0.6;text-align:center;position:relative">
-        <div class="fg-flow-arrow" style="height:1px;background:linear-gradient(90deg,rgba(96,165,250,.4),rgba(96,165,250,.8),rgba(96,165,250,.4));position:relative">
-          <div class="fg-flow-dot" style="width:6px;height:6px;border-radius:50%;background:#60A5FA;position:absolute;top:-3px;left:0;animation:fg-flow-move 1.8s ease-in-out infinite;animation-delay:.6s"></div>
-        </div>
-        <div style="font-size:.62rem;color:var(--t4);margin-top:4px">unique address</div>
-      </div>
-
-      <!-- Node: Buyer -->
-      <div class="fg-fn" style="text-align:center;flex:1">
-        <div style="width:48px;height:48px;border-radius:10px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <div style="font-size:.75rem;font-weight:600;color:var(--white)">Buyer</div>
-        <div style="font-size:.68rem;color:var(--t3);margin-top:2px">Sends FIRO</div>
-      </div>
-
-      <!-- Arrow 3 -->
-      <div class="fg-fa" style="flex:0.6;text-align:center;position:relative">
-        <div class="fg-flow-arrow" style="height:1px;background:linear-gradient(90deg,rgba(34,197,94,.4),rgba(34,197,94,.8),rgba(34,197,94,.4));position:relative">
-          <div class="fg-flow-dot" style="width:6px;height:6px;border-radius:50%;background:#22C55E;position:absolute;top:-3px;left:0;animation:fg-flow-move 1.8s ease-in-out infinite;animation-delay:1.2s"></div>
-        </div>
-        <div style="font-size:.62rem;color:var(--t4);margin-top:4px">blockchain tx</div>
-      </div>
-
-      <!-- Node: Blockchain -->
-      <div class="fg-fn" style="text-align:center;flex:1">
-        <div style="width:48px;height:48px;border-radius:10px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 8px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><rect x="2" y="7" width="6" height="6" rx="1"/><rect x="9" y="7" width="6" height="6" rx="1"/><rect x="16" y="7" width="6" height="6" rx="1"/><path d="M5 13v4"/><path d="M12 13v4"/><path d="M5 17h14"/></svg>
-        </div>
-        <div style="font-size:.75rem;font-weight:600;color:var(--white)">Firo Chain</div>
-        <div style="font-size:.68rem;color:var(--t3);margin-top:2px">2 confirmations</div>
-      </div>
-    </div>
-
-    <!-- Result row -->
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bw);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div style="text-align:center;font-size:.72rem;color:var(--t3)">
-        <span style="display:block;color:#22C55E;font-weight:600;margin-bottom:2px">Webhook fires</span>
-        payment.confirmed
-      </div>
-      <div style="text-align:center;font-size:.72rem;color:var(--t3)">
-        <span style="display:block;color:#22C55E;font-weight:600;margin-bottom:2px">SSE pushes</span>
-        Checkout updates instantly
-      </div>
-      <div style="text-align:center;font-size:.72rem;color:var(--t3)">
-        <span style="display:block;color:#22C55E;font-weight:600;margin-bottom:2px">FIRO lands</span>
-        To your withdrawal address
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: Features
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="features" style="margin-top:72px">
-  <div style="margin-bottom:24px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Platform Features</div>
-    <h2 style="font-size:clamp(1.4rem,3.4vw,2rem);font-weight:800;letter-spacing:-.02em;margin:0 0 8px;color:var(--white)">Built for production</h2>
-    <p style="color:var(--t2);font-size:.92rem;line-height:1.7;margin:0;max-width:580px">Every feature is designed around real merchant needs — not demos.</p>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" class="fg-feat-grid">
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">Real-time via SSE</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">Checkout pages update instantly when payment arrives — no polling, no refresh. Server-Sent Events push updates directly to the browser.</p>
-    </div>
-
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">HD Wallet addresses</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">Each order gets a unique derived address. No address reuse, complete on-chain privacy, and full tracking per payment.</p>
-    </div>
-
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.1 2.18 2 2 0 012.07 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">Webhook delivery</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">HMAC-SHA256 signed payloads delivered to your server on every event. Verify signatures, retry on failure, full delivery logs.</p>
-    </div>
-
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">Automatic withdrawals</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">Request a withdrawal from your dashboard or via API. Funds move from the gateway wallet to your personal address on-chain.</p>
-    </div>
-
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">Payment Links</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">Create shareable payment links with no API required. Ideal for social sellers, invoices, and one-off transactions.</p>
-    </div>
-
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:24px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-        <span style="font-size:.85rem;font-weight:700;color:var(--white)">Tor & clearnet</span>
-      </div>
-      <p style="font-size:.8rem;color:var(--t2);line-height:1.6;margin:0">Runs on both clearnet and Tor hidden services simultaneously. Same integration, same checkout — full privacy stack for privacy-first merchants.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: Developer API
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="dev" style="margin-top:72px">
-  <div style="margin-bottom:24px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Developer Integration</div>
-    <h2 style="font-size:clamp(1.4rem,3.4vw,2rem);font-weight:800;letter-spacing:-.02em;margin:0 0 8px;color:var(--white)">One request to start accepting payments</h2>
-    <p style="color:var(--t2);font-size:.92rem;line-height:1.7;margin:0;max-width:580px">Authenticate with your API key, send one POST, redirect the customer. That's the integration.</p>
-  </div>
-
-  <!-- Code examples -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="fg-code-grid">
-    <!-- Request -->
-    <div style="background:var(--bg0);border:1px solid var(--bw);border-radius:12px;overflow:hidden">
-      <div style="padding:10px 14px;border-bottom:1px solid var(--bw);display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block"></span>
-        <span style="font-size:.72rem;color:var(--t3);font-family:var(--mono)">Request</span>
-      </div>
-      <pre style="margin:0;padding:16px;font-size:.72rem;line-height:1.7;overflow-x:auto;color:var(--t2);font-family:var(--mono)"><code><span style="color:var(--t3)">POST</span> <span style="color:var(--y)">/api/payments/create</span>
-<span style="color:var(--t3)">X-API-Key:</span> <span style="color:#86EFAC">fg_live_your_key</span>
-
-{
-  <span style="color:#93C5FD">"amount_firo"</span>: <span style="color:#86EFAC">1.5</span>,
-  <span style="color:#93C5FD">"order_id"</span>:    <span style="color:#FCA5A5">"ORD-123"</span>,
-  <span style="color:#93C5FD">"success_url"</span>: <span style="color:#FCA5A5">"https://…/ok"</span>,
-  <span style="color:#93C5FD">"cancel_url"</span>:  <span style="color:#FCA5A5">"https://…/cancel"</span>
-}</code></pre>
-    </div>
-
-    <!-- Response -->
-    <div style="background:var(--bg0);border:1px solid var(--bw);border-radius:12px;overflow:hidden">
-      <div style="padding:10px 14px;border-bottom:1px solid var(--bw);display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;display:inline-block"></span>
-        <span style="font-size:.72rem;color:var(--t3);font-family:var(--mono)">Response 201</span>
-      </div>
-      <pre style="margin:0;padding:16px;font-size:.72rem;line-height:1.7;overflow-x:auto;color:var(--t2);font-family:var(--mono)"><code>{
-  <span style="color:#93C5FD">"checkout_url"</span>: <span style="color:#FCA5A5">"https://pay.…/invoice/…?t=…"</span>,
-  <span style="color:#93C5FD">"payment_id"</span>:   <span style="color:#FCA5A5">"f47ac10b-58cc…"</span>,
-  <span style="color:#93C5FD">"receiving_address"</span>: <span style="color:#FCA5A5">"TBbGHCNfhg…"</span>,
-  <span style="color:#93C5FD">"expires_at"</span>:  <span style="color:#FCA5A5">"2026-05-22T14:00:00Z"</span>
-}
-<span style="color:var(--t4);font-style:italic">// Redirect buyer to checkout_url</span></code></pre>
-    </div>
-  </div>
-
-  <!-- Webhook payload -->
-  <div style="margin-top:12px;background:var(--bg0);border:1px solid var(--bw);border-radius:12px;overflow:hidden">
-    <div style="padding:10px 14px;border-bottom:1px solid var(--bw);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;background:var(--y);display:inline-block"></span>
-        <span style="font-size:.72rem;color:var(--t3);font-family:var(--mono)">Webhook payload — payment.confirmed</span>
-      </div>
-      <span style="font-size:.68rem;color:var(--t3)">Signed with HMAC-SHA256 → X-FiroGate-Signature</span>
-    </div>
-    <pre style="margin:0;padding:16px;font-size:.72rem;line-height:1.7;overflow-x:auto;color:var(--t2);font-family:var(--mono)"><code>{
-  <span style="color:#93C5FD">"event"</span>:      <span style="color:#FCA5A5">"payment.confirmed"</span>,
-  <span style="color:#93C5FD">"payment_id"</span>: <span style="color:#FCA5A5">"f47ac10b-58cc…"</span>,
-  <span style="color:#93C5FD">"order_id"</span>:   <span style="color:#FCA5A5">"ORD-123"</span>,
-  <span style="color:#93C5FD">"amount_firo"</span>: <span style="color:#86EFAC">1.5</span>,
-  <span style="color:#93C5FD">"txid"</span>:       <span style="color:#FCA5A5">"a1b2c3d4…"</span>,
-  <span style="color:#93C5FD">"confirmed_at"</span>: <span style="color:#FCA5A5">"2026-05-22T13:47:22Z"</span>
-}</code></pre>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: Security
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="security" style="margin-top:72px">
-  <div style="margin-bottom:24px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Security Architecture</div>
-    <h2 style="font-size:clamp(1.4rem,3.4vw,2rem);font-weight:800;letter-spacing:-.02em;margin:0 0 8px;color:var(--white)">Designed to be trusted</h2>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="fg-sec-grid">
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2" style="margin-bottom:10px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">Self-hosted</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">You run the server. You control the wallet keys and the infrastructure. No third party between you and your funds.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" style="margin-bottom:10px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">API keys hashed</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Raw API keys are never stored. Only SHA-256 hashes. Shown once on creation — like Stripe, GitHub, and Cloudflare.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" style="margin-bottom:10px"><polyline points="20 6 9 17 4 12"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">Webhook signatures</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Every webhook is signed with HMAC-SHA256. Verify on your server — reject anything unsigned.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" style="margin-bottom:10px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">HMAC checkout tokens</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Every checkout URL includes an HMAC token. Even a guessed payment UUID is useless without it.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" style="margin-bottom:10px"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">Rate limiting</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Per-IP rate limiting on all endpoints. SSE connections capped. Abuse automatically throttled.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:12px;padding:22px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--y)" stroke-width="2" style="margin-bottom:10px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <div style="font-size:.84rem;font-weight:700;color:var(--white);margin-bottom:6px">Self-hosted</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Run on your own server. Your data, your infrastructure. No third-party access to your keys or transactions.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     SECTION: Who This Is For
-═══════════════════════════════════════════════════════════════════════════ -->
-<section id="audience" style="margin-top:72px">
-  <div style="margin-bottom:24px">
-    <div style="font-size:.72rem;font-weight:700;color:var(--y);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Who Uses FiroGate</div>
-    <h2 style="font-size:clamp(1.4rem,3.4vw,2rem);font-weight:800;letter-spacing:-.02em;margin:0;color:var(--white)">Built for every seller who values privacy</h2>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="fg-aud-grid">
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:10px;padding:18px;border-top:2px solid var(--y)">
-      <div style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:6px">Developers</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Clean REST API, webhook callbacks, SSE for real-time, multi-key management. Integrate in one afternoon.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:10px;padding:18px;border-top:2px solid #60A5FA">
-      <div style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:6px">Online Stores</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Accept Firo with no chargebacks, no freezes, no approval process. Funds move through your own server.</p>
-    </div>
-    <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:10px;padding:18px;border-top:2px solid #22C55E">
-      <div style="font-size:.88rem;font-weight:700;color:var(--white);margin-bottom:6px">Privacy-focused</div>
-      <p style="font-size:.78rem;color:var(--t2);line-height:1.6;margin:0">Tor hidden service support built-in. Run behind .onion — full stack privacy from customer to merchant.</p>
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     CTA
-═══════════════════════════════════════════════════════════════════════════ -->
-<div class="about-cta" style="margin-top:72px">
-  <h2>Start accepting Firo payments today</h2>
-  <p>You run the server. You control the keys. You own the infrastructure.</p>
-  <div class="about-cta-btns">
-    <span class="about-cta-guest">
-      <a href="{{ login_url }}" class="btn btn-y" data-testid="about-start-free">Create Free Account</a>
-    </span>
-    <span class="about-cta-user" style="display:none">
-      <a href="/dashboard" class="btn btn-y">Go to Dashboard</a>
-    </span>
-    <a href="/docs" class="btn btn-o">View API Docs</a>
-  </div>
-</div>
-
-<section style="margin-top:36px;padding-top:24px;border-top:1px solid var(--bw)">
-  <p style="font-size:.84rem;color:var(--t2);margin:0 0 4px">
-    <a href="https://twitter.com/firogate_" target="_blank" rel="noopener" style="color:var(--y);font-weight:700;text-decoration:none">@firogate_ on X</a>
-    <span style="color:var(--t4);margin:0 8px">·</span>
-    <a href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener" style="color:var(--y);font-weight:700;text-decoration:none">GitHub — Open Source</a>
-  </p>
-  <p style="color:var(--t2);font-size:.82rem;line-height:1.65;margin:8px 0 0;max-width:580px">
-    FiroGate is open-source. Run it on your own server — full control over your infrastructure, your keys, and your data.
-    <a href="/docs#installation" style="color:var(--y);text-decoration:none;font-weight:600"> Installation guide →</a>
-  </p>
-  <p style="color:var(--t3);font-size:.78rem;margin:6px 0 0">Feedback and contributions welcome.</p>
-</section>
-
-<p style="text-align:center;color:var(--t4);font-size:.72rem;margin-top:28px">
-  FiroGate · Secure payment infrastructure · Built on Firo
-</p>
-
-</div>
 {% endblock %}
-{% block js %}
+{% block body %}
+<div class="ab-wrap">
+  <h1 class="ab-title">About FiroGate</h1>
+  <p class="ab-lead">FiroGate is a self-hosted, non-custodial payment gateway for Firo. It runs on your own server, connects to your own Firo node, and every payment settles directly to your wallet.</p>
+
+  <div class="ab-block">
+    <h2>How it works</h2>
+    <p>Connect a Spark view key, create an invoice through the dashboard or the API, and FiroGate watches the blockchain for the matching payment. Once confirmed, a signed webhook notifies your backend automatically.</p>
+  </div>
+
+  <div class="ab-block">
+    <h2>No custody</h2>
+    <p>FiroGate never holds a spend key. Addresses are derived from your view key and funds move directly from customer to merchant on-chain.</p>
+  </div>
+
+  <div class="ab-block">
+    <h2>How payments are confirmed</h2>
+    <p>FiroGate decides a payment is final using one thing only: how many blocks have been mined on top of it your <strong>Confirmation Policy</strong> (Instant / Fast / Standard / High Security), which you set for your instance. A feature called <code>blocknotify</code> just wakes the scanner the moment a new block arrives instead of waiting on a timer, so detection is fast — but it never changes what counts as confirmed. Firo's own network-level ChainLocks are what make trusting plain block confirmations safe, so FiroGate doesn't need to check them itself. You may also see an "InstantLock" flag on some Firo transactions — FiroGate deliberately does not use it to confirm payments, because it isn't reliably available for every Spark payment and would be an unsafe thing to depend on for settlement.</p>
+  </div>
+
+  <div class="ab-block">
+    <h2>Community Edition vs. Hosted</h2>
+    <p>Community Edition is the complete payment platform, fully open source. Self-host it, customize it, extend it however your infrastructure needs. Hosted runs the same payment engine, plus the extra operational layer (moderation, abuse prevention, monitoring, infrastructure management) needed to run it as a managed service. None of that is required to self-host, and none of it lives in this codebase.</p>
+  </div>
+
+  <div class="ab-block">
+    <h2>Who uses FiroGate</h2>
+    <div class="ab-who-row">
+      <div class="ab-who-list">
+        <div><strong>Developers</strong><span>A clean REST API you can integrate in an afternoon. Full reference in the <a href="/docs" style="color:var(--ab-text);text-decoration:underline">API Docs</a>.</span></div>
+        <div><strong>Online stores</strong><span>Start accepting Firo instantly. No manual review, no chargebacks, no middleman.</span></div>
+        <div><strong>Anyone using Firo</strong><span>Private, non-custodial payments built on Firo.</span></div>
+      </div>
+      <div class="ab-who-imgs" id="ab-who-imgs" data-base="/static/images/about/" aria-hidden="true">
+        <img alt="">
+        <img alt="">
+      </div>
+    </div>
+  </div>
+
+  <div class="ab-links">
+    <a href="/docs" class="btn btn-o btn-sm">API Docs</a>
+  </div>
+</div>
 <script>
 (function() {
-  var _dash  = (window.DASHBOARD_URL  || '/dashboard').replace(/\/$/, '');
-  var _login = (window.LOGIN_URL       || '/login');
-  var nav = document.getElementById('about-nav-auth');
-
-  function asGuest() {
-    if (nav) nav.innerHTML =
-      '<a href="' + _login + '">Sign In</a>' +
-      '<a href="' + _login + '" class="nav-y">Get Started</a>';
-    document.querySelectorAll('.about-cta-guest').forEach(function(el){ el.style.display=''; });
-    document.querySelectorAll('.about-cta-user').forEach(function(el){ el.style.display='none'; });
+  var imgsWrap = document.getElementById('ab-who-imgs');
+  if (!imgsWrap) return;
+  var base = imgsWrap.dataset.base;
+  var srcs = ['1.svg','2.svg','3.svg','4.svg','5.svg','6.svg'].map(function(f) { return base + f; });
+  var used = [];
+  function pick() {
+    var choices = srcs.filter(function(s) { return used.indexOf(s) === -1; });
+    if (!choices.length) { used = []; choices = srcs; }
+    var s = choices[Math.floor(Math.random() * choices.length)];
+    used.push(s);
+    if (used.length > 4) used.shift();
+    return s;
   }
-  function asUser() {
-    if (nav) nav.innerHTML = '<a href="' + _dash + '" class="nav-y">Dashboard</a>';
-    document.querySelectorAll('.about-cta-guest').forEach(function(el){ el.style.display='none'; });
-    document.querySelectorAll('.about-cta-user').forEach(function(el){ el.style.display='inline'; });
+  function swap(img) {
+    img.classList.remove('is-on');
+    setTimeout(function() {
+      img.src = pick();
+      img.classList.add('is-on');
+    }, 900);
   }
-  asGuest();
-  fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(me){ if (me && me.id) asUser(); })
-    .catch(function(){});
-
-  // ─ Intersection observer — animate step cards on scroll ──
-  if (window.IntersectionObserver) {
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-
-    document.querySelectorAll('.fg-step-card,.fg-fn,.fg-feat-grid > div,.fg-sec-grid > div,.fg-aud-grid > div').forEach(function(el, i) {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(16px)';
-      el.style.transition = 'opacity .4s ease ' + (i * 0.06) + 's, transform .4s ease ' + (i * 0.06) + 's';
-      observer.observe(el);
-    });
-  }
-
-  // ─ Step card hover ─
-  document.querySelectorAll('.fg-step-card').forEach(function(card) {
-    card.addEventListener('mouseenter', function() {
-      this.style.borderColor = 'rgba(245,197,66,.3)';
-      this.style.transform = 'translateY(-2px)';
-    });
-    card.addEventListener('mouseleave', function() {
-      this.style.borderColor = 'var(--bw)';
-      this.style.transform = '';
-    });
+  var slots = imgsWrap.querySelectorAll('img');
+  slots.forEach(function(img, i) {
+    img.src = pick();
+    setTimeout(function() { img.classList.add('is-on'); }, 60 + i * 200);
+    setInterval(function() { swap(img); }, 15000 + i * 4000);
   });
-}());
+})();
 </script>
-<style>
-@keyframes fg-blink { 0%,100%{opacity:.3} 50%{opacity:1} }
-@keyframes fg-flow-move { 0%{left:0;opacity:0} 20%{opacity:1} 80%{opacity:1} 100%{left:calc(100% - 6px);opacity:0} }
-
-/* Responsive grids */
-@media (max-width: 680px) {
-  .about-wrap { padding: 28px 18px 60px !important; }
-  .fg-steps-grid   { grid-template-columns: 1fr !important; }
-  .fg-code-grid    { grid-template-columns: 1fr !important; }
-  .fg-feat-grid    { grid-template-columns: 1fr !important; }
-  .fg-sec-grid     { grid-template-columns: 1fr 1fr !important; }
-  .fg-aud-grid     { grid-template-columns: 1fr !important; }
-  .fg-flow-dot     { display: none !important; }
-}
-@media (max-width: 480px) {
-  .fg-sec-grid     { grid-template-columns: 1fr !important; }
-}
-pre { tab-size: 2; }
-pre::-webkit-scrollbar { height: 4px; }
-pre::-webkit-scrollbar-track { background: transparent; }
-pre::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 2px; }
-</style>
 {% endblock %}

@@ -1,0 +1,358 @@
+{% macro panel_styles() %}
+.nh-mini{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--bg2);border:1px solid var(--bw);margin-bottom:14px}
+.nh-mini-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:dotBlink2 2s ease-in-out infinite}
+.nh-mini-dot.ok{background:var(--g,#22c55e)}
+.nh-mini-dot.err{background:var(--red,#ef4444);animation:none}
+.nh-mini-dot.checking{background:var(--y,#F5C542)}
+@keyframes dotBlink2{0%,100%{opacity:1}50%{opacity:.35}}
+.nh-mini-label{font-size:.75rem;color:var(--t2);flex:1}
+.nh-mini-val{font-size:.72rem;font-family:var(--mono);color:var(--t3);font-variant-numeric:tabular-nums}
+.op-nh-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.op-nh-stat{background:var(--bg3);border:1px solid var(--bw);border-radius:11px;padding:10px 12px;min-width:0}
+.op-nh-k{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t3)}
+.op-nh-v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono);margin-top:3px;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.op-nh-v .u{font-size:10px;color:var(--t3);font-weight:500}
+@media (max-width:360px){
+  .op-nh-grid{grid-template-columns:1fr}
+}
+.op-syncrow{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--t3)}
+.op-syncbar{flex:1;height:6px;border-radius:99px;background:var(--bg3);border:1px solid var(--bw);overflow:hidden}
+.op-syncfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--y),#fff);transition:width 1.4s cubic-bezier(.3,0,.2,1)}
+.op-nh-live{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--white)}
+.op-nh-live i{width:7px;height:7px;border-radius:50%;background:var(--g,#22c55e);animation:dotBlink2 2.2s ease-in-out infinite}
+.op-nh-live.err i{background:var(--red,#ef4444);animation:none}
+.op-nh-chain{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.op-nh-chain.test{color:#F5C542;background:rgba(245,197,66,.12);border:1px solid rgba(245,197,66,.35)}
+.op-nh-chain.mainnet{color:var(--white);background:var(--bg3);border:1px solid var(--bw)}
+.op-nh-chain.mismatch{color:#ef4444;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4)}
+.op-nh-refresh{background:none;border:1px solid var(--bw);color:var(--t3);width:28px;height:28px;border-radius:8px;cursor:pointer;display:grid;place-items:center;transition:color .2s,border-color .2s}
+.op-nh-refresh:hover{color:var(--white);border-color:var(--t2)}
+.op-nh-refresh svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.op-nh-refresh.spin svg{animation:lbSpin .7s linear}
+.op-wh-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.op-wh-url{flex:1;min-width:0;font-family:var(--mono);font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.op-wh-pill{font-size:9px;font-weight:700;letter-spacing:.7px;border-radius:99px;padding:3px 9px;flex-shrink:0;transition:all .4s}
+.op-wh-pill.bad{color:#e58a94;background:rgba(184,35,52,.12);border:1px solid rgba(184,35,52,.55)}
+.op-wh-pill.good{color:var(--white);background:rgba(240,237,234,.08);border:1px solid rgba(240,237,234,.35)}
+.op-wh-attempts{display:flex;gap:5px;align-items:flex-end;height:32px;margin-bottom:6px}
+.op-wh-bar{flex:1;border-radius:4px 4px 2px 2px;transform:scaleY(0);transform-origin:bottom;transition:transform .5s cubic-bezier(.25,1.05,.35,1),background .4s}
+.op-wh-attempts.in .op-wh-bar{transform:scaleY(1)}
+.op-wh-bar.ok{background:linear-gradient(180deg,var(--white),#8f8c89);height:100%}
+.op-wh-bar.fail{background:linear-gradient(180deg,var(--red,#ef4444),#7a1c1c);height:55%}
+.op-wh-lbls{display:flex;gap:5px;font-size:8.5px;color:var(--t3);margin-bottom:10px}
+.op-wh-lbls span{flex:1;text-align:center}
+.op-wh-foot{display:flex;align-items:center;gap:9px}
+.op-wh-last{flex:1;font-size:10.5px;color:var(--t3);font-family:var(--mono)}
+.op-wh-retry{display:inline-flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--bw);color:var(--white);font:600 11.5px var(--sans,sans-serif);padding:7px 13px;border-radius:9px;cursor:pointer;transition:border-color .2s}
+.op-wh-retry:hover{border-color:var(--t2)}
+.op-wh-retry svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.op-wh-retry.spin svg{animation:lbSpin .7s linear infinite}
+@keyframes lbSpin{to{transform:rotate(360deg)}}
+.diag-check{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:var(--bg3);border:1px solid var(--bw)}
+.diag-check-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.diag-check-dot.ok{background:var(--g,#22c55e)}
+.diag-check-dot.bad{background:var(--red,#ef4444)}
+.diag-check-dot.warn{background:var(--y,#F5C542)}
+.diag-check-label{font-size:.78rem;color:var(--t2);flex:1}
+.diag-check-val{font-size:.7rem;color:var(--t3);font-family:var(--mono)}
+.diag-radio-opt{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:9px;background:var(--bg3);border:1px solid var(--bw);cursor:pointer;font-size:.82rem;color:var(--t1);transition:border-color .15s}
+.diag-radio-opt:hover{border-color:var(--t2)}
+.diag-radio-opt input{margin-top:2px;accent-color:var(--y)}
+{% endmacro %}
+
+
+{% macro panel_nh_mini() %}
+  <div class="nh-mini" id="nh-mini">
+    <div class="nh-mini-dot checking" id="nh-dot"></div>
+    <span class="nh-mini-label" id="nh-label">Checking node…</span>
+    <span class="nh-mini-val" id="nh-block"></span>
+  </div>
+{% endmacro %}
+
+
+{% macro panel_analytics_cards() %}
+  <div id="panel-node-card" class="card" style="margin-top:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="op-nh-live" id="op-nh-live"><i></i>NODE ONLINE</span>
+        <span class="op-nh-chain" id="op-nh-chain" style="display:none"></span>
+      </div>
+      <button class="op-nh-refresh" id="op-nh-refresh" aria-label="Refresh node health">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v5h-5"/></svg>
+      </button>
+    </div>
+    <div class="op-nh-grid">
+      <div class="op-nh-stat"><div class="op-nh-k">Block height</div><div class="op-nh-v" id="op-nh-height">—</div></div>
+      <div class="op-nh-stat"><div class="op-nh-k">Peers</div><div class="op-nh-v" id="op-nh-peers">—</div></div>
+      <div class="op-nh-stat"><div class="op-nh-k">Mempool</div><div class="op-nh-v"><span id="op-nh-mem">—</span> <span class="u">txs</span></div></div>
+      <div class="op-nh-stat"><div class="op-nh-k">Version</div><div class="op-nh-v" id="op-nh-ver" style="font-size:12px">—</div></div>
+    </div>
+    <div class="op-syncrow">
+      <span>Sync</span>
+      <div class="op-syncbar"><div class="op-syncfill" id="op-nh-sync"></div></div>
+      <span id="op-nh-syncpct" style="font-family:var(--mono);font-variant-numeric:tabular-nums">—</span>
+    </div>
+  </div>
+
+  <div id="panel-webhook-card" class="card" style="margin-top:16px">
+    <div class="op-wh-top">
+      <span class="op-wh-url" id="op-wh-url">—</span>
+      <span class="op-wh-pill" id="op-wh-pill">—</span>
+    </div>
+    <div class="op-wh-attempts" id="op-wh-att"></div>
+    <div class="op-wh-lbls" id="op-wh-lbls"></div>
+    <div class="op-wh-foot">
+      <span class="op-wh-last" id="op-wh-last">—</span>
+      <button class="op-wh-retry" id="op-wh-retry">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v5h-5"/></svg>
+        Retry
+      </button>
+    </div>
+  </div>
+{% endmacro %}
+
+
+
+{% macro panel_script() %}
+async function _loadNodeHealth() {
+  var mini  = document.getElementById('nh-mini');
+  var dot   = document.getElementById('nh-dot');
+  var label = document.getElementById('nh-label');
+  var block = document.getElementById('nh-block');
+  if (!mini) return;
+  mini.style.display = 'flex';
+  try {
+    var r = await fetch('/api/health');
+    var d = r.ok ? await r.json() : null;
+    if (d && d.status === 'ok') {
+      dot.className   = 'nh-mini-dot ok';
+      label.textContent = 'Firo node synced';
+      if (d.block_height) block.textContent = 'Block #' + Number(d.block_height).toLocaleString();
+    } else {
+      dot.className   = 'nh-mini-dot err';
+      label.textContent = 'Node offline payments may be delayed';
+      block.textContent = '';
+    }
+  } catch(e) {
+    dot.className   = 'nh-mini-dot checking';
+    label.textContent = 'Node status unavailable';
+    block.textContent = '';
+  }
+}
+
+var _panelRefreshers = {};
+
+function _registerPanelRefresher(tabName, loadFn, intervalMs) {
+  _panelRefreshers[tabName] = { fn: loadFn, intervalId: null, intervalMs: intervalMs };
+}
+
+function _startPanelRefresher(tabName) {
+  var r = _panelRefreshers[tabName];
+  if (!r || r.intervalId) return;
+  r.fn();
+  r.intervalId = setInterval(function() {
+    if (document.visibilityState === 'visible') r.fn();
+  }, r.intervalMs);
+}
+
+function _stopPanelRefresher(tabName) {
+  var r = _panelRefreshers[tabName];
+  if (r && r.intervalId) { clearInterval(r.intervalId); r.intervalId = null; }
+}
+
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState !== 'visible') return;
+  Object.keys(_panelRefreshers).forEach(function(t) {
+    if (_panelRefreshers[t].intervalId) _panelRefreshers[t].fn();
+  });
+});
+
+document.addEventListener('fg:tab-changed', function(e) {
+  var name = e.detail && e.detail.tab;
+  if (name === 'analytics') _startPanelRefresher('analytics'); else _stopPanelRefresher('analytics');
+  if (name === 'sec')       _startPanelRefresher('sec');       else _stopPanelRefresher('sec');
+});
+
+async function panelLoadNodeHealth() {
+  const live = document.getElementById('op-nh-live');
+  const btn  = document.getElementById('op-nh-refresh');
+  const set  = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  if (btn) btn.classList.add('spin');
+  try {
+    const r = await fetch('/api/health');
+    const d = r.ok ? await r.json() : null;
+    if (d && d.status === 'ok') {
+      if (live) { live.className = 'op-nh-live'; live.innerHTML = '<i></i>NODE ONLINE'; }
+      set('op-nh-height', d.block_height ? Number(d.block_height).toLocaleString() : '—');
+      set('op-nh-peers',  d.peers != null ? d.peers : '—');
+      set('op-nh-mem',    d.mempool_size != null ? d.mempool_size : '—');
+      set('op-nh-ver',    d.version || '—');
+      const pct = d.sync_progress != null ? Math.round(d.sync_progress * 100) : 100;
+      const fill = document.getElementById('op-nh-sync');
+      if (fill) fill.style.width = pct + '%';
+      set('op-nh-syncpct', pct + '%');
+
+      const chainEl = document.getElementById('op-nh-chain');
+      if (chainEl) {
+        if (d.chain) {
+          const nodeIsTest = d.chain !== 'main';
+          const mismatch = nodeIsTest !== IS_TESTNET;
+          chainEl.style.display = '';
+          chainEl.className = 'op-nh-chain ' + (mismatch ? 'mismatch' : (nodeIsTest ? 'test' : 'mainnet'));
+          chainEl.textContent = mismatch
+            ? ('⚠ NODE IS ' + d.chain.toUpperCase() + ' CONFIG MISMATCH')
+            : (nodeIsTest ? 'TESTNET' : 'MAINNET');
+        } else {
+          chainEl.style.display = 'none';
+        }
+      }
+    } else {
+      if (live) { live.className = 'op-nh-live err'; live.innerHTML = '<i></i>NODE OFFLINE'; }
+      ['op-nh-height','op-nh-peers','op-nh-mem','op-nh-ver'].forEach(id => set(id, '—'));
+      const chainEl = document.getElementById('op-nh-chain');
+      if (chainEl) chainEl.style.display = 'none';
+    }
+  } catch(e) {
+    if (live) { live.className = 'op-nh-live err'; live.innerHTML = '<i></i>UNAVAILABLE'; }
+  }
+  if (btn) btn.classList.remove('spin');
+}
+document.getElementById('op-nh-refresh')?.addEventListener('click', function() {
+  this.classList.remove('spin'); void this.offsetWidth; this.classList.add('spin');
+  panelLoadNodeHealth();
+});
+
+function panelFetch(url, opts) {
+  return fetch(url, opts || {});
+}
+
+async function panelLoadWebhook() {
+  const urlEl   = document.getElementById('op-wh-url');
+  const pillEl  = document.getElementById('op-wh-pill');
+  const attEl   = document.getElementById('op-wh-att');
+  const lblEl   = document.getElementById('op-wh-lbls');
+  const lastEl  = document.getElementById('op-wh-last');
+  const retryEl = document.getElementById('op-wh-retry');
+  if (!urlEl) return;
+  try {
+    const r = await panelFetch('/api/panel/webhook-status');
+    if (!r.ok) { if (urlEl) urlEl.textContent = 'Webhook status unavailable'; return; }
+    const d = await r.json();
+    if (urlEl) urlEl.textContent = d.url || '—';
+    if (retryEl) {
+      retryEl.disabled = !d.url;
+      retryEl.style.opacity = d.url ? '' : '.45';
+      retryEl.style.cursor = d.url ? '' : 'not-allowed';
+    }
+    const healthy = d.healthy !== false;
+    if (pillEl) { pillEl.className = 'op-wh-pill ' + (healthy ? 'good' : 'bad'); pillEl.textContent = healthy ? 'HEALTHY' : 'FAILING'; }
+    if (lastEl) lastEl.textContent = d.last_result || '—';
+    const attempts = d.recent_attempts || [];
+    if (attEl) {
+      attEl.innerHTML = attempts.map((a, i) => `<div class="op-wh-bar ${a.ok ? 'ok' : 'fail'}" style="transition-delay:${i*0.08}s"></div>`).join('');
+      requestAnimationFrame(() => requestAnimationFrame(() => attEl.classList.add('in')));
+    }
+    if (lblEl) lblEl.innerHTML = (d.attempt_labels || []).map(l => `<span>${escHtml(l)}</span>`).join('');
+  } catch(e) {
+    if (urlEl) urlEl.textContent = 'Webhook status unavailable';
+  }
+}
+document.getElementById('op-wh-retry')?.addEventListener('click', function() {
+  if (this.classList.contains('spin')) return;
+  this.classList.add('spin');
+  const self = this;
+  panelFetch('/api/panel/webhook-retry', { method: 'POST' })
+    .then(async r => {
+      const d = await r.json().catch(() => ({}));
+      self.classList.remove('spin');
+      panelLoadWebhook();
+      const msg = d.message || d.detail || '';
+      if (window.fgShowToast) fgShowToast({ type: (r.ok && d.ok) ? 'success' : 'error', title: (r.ok && d.ok) ? 'Webhook delivered' : 'Retry failed', message: msg });
+    }).catch(() => { self.classList.remove('spin'); });
+});
+
+_registerPanelRefresher('analytics', function() {
+  panelLoadNodeHealth();
+  panelLoadWebhook();
+}, 45000);
+_registerPanelRefresher('sec', function() {
+  if (document.getElementById('sec-pane-diag')?.style.display !== 'none') loadDiagnostics();
+}, 60000);
+
+async function loadDiagnostics() {
+  const grid  = document.getElementById('diag-grid');
+  const score = document.getElementById('diag-score');
+  const bar   = document.getElementById('diag-score-bar');
+  const btn   = document.getElementById('diag-refresh');
+  if (!grid) return;
+  if (btn) btn.classList.add('spin');
+  try {
+    const r = await panelFetch('/api/panel/diagnostics');
+    if (!r.ok) {
+      let detail = '';
+      try { detail = (await r.json()).detail || ''; } catch(_) {}
+      grid.innerHTML = detail.startsWith('2fa_required')
+        ? '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Turn on two-factor authentication in <a href="#" onclick="secTab(\'tfa\');return false" style="color:var(--y)">Security</a> to unlock Merchant Health.</div>'
+        : '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Diagnostics unavailable.</div>';
+      return;
+    }
+    const d = await r.json();
+    if (score) score.textContent = d.score + '%';
+    if (bar) bar.style.width = d.score + '%';
+    grid.innerHTML = (d.checks || []).map(c => {
+      const dotClass = c.healthy ? 'ok' : 'bad';
+      return '<div class="diag-check">'
+        + '<span class="diag-check-dot ' + dotClass + '"></span>'
+        + '<span class="diag-check-label">' + escHtml(c.name) + '</span>'
+        + (c.detail ? '<span class="diag-check-val">' + escHtml(c.detail) + '</span>' : '')
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Diagnostics unavailable.</div>';
+  }
+  if (btn) btn.classList.remove('spin');
+}
+
+async function loadDiagSettings() {
+  try {
+    const r = await panelFetch('/api/panel/settings');
+    if (!r.ok) return;
+    const d = await r.json();
+    const hideToggle = document.getElementById('diag-hide-auth-toggle');
+    const hideSlider = document.getElementById('diag-hide-auth-slider');
+    if (hideToggle) hideToggle.checked = !!d.hide_auth_pages;
+    if (hideSlider) {
+      hideSlider.style.background = d.hide_auth_pages ? '#F5C542' : 'var(--bg4)';
+      hideSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (d.hide_auth_pages ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
+    }
+    const radio = document.querySelector('input[name="diag-confirm"][value="' + d.required_confirmations + '"]');
+    if (radio) radio.checked = true;
+  } catch (e) {}
+}
+
+async function saveDiagSettings() {
+  const ab = document.getElementById('diag-settings-ab');
+  if (ab) ab.innerHTML = '';
+  const hideToggle = document.getElementById('diag-hide-auth-toggle');
+  const hideSlider = document.getElementById('diag-hide-auth-slider');
+  const checkedRadio = document.querySelector('input[name="diag-confirm"]:checked');
+  if (hideSlider) {
+    hideSlider.style.background = hideToggle.checked ? '#F5C542' : 'var(--bg4)';
+    hideSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (hideToggle.checked ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
+  }
+  const body = { hide_auth_pages: !!hideToggle?.checked };
+  if (checkedRadio) body.required_confirmations = parseInt(checkedRadio.value, 10);
+  try {
+    const r = await panelFetch('/api/panel/settings', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { if (ab) ab.innerHTML = '<div class="alert al-err mt2">' + (d.detail || 'Failed to save.') + '</div>'; return; }
+    if (window.Toast) Toast.success('Settings saved.');
+  } catch (e) {
+    if (ab) ab.innerHTML = '<div class="alert al-err mt2">Network error.</div>';
+  }
+}
+
+{% endmacro %}

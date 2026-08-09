@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Register — FiroGate{% endblock %}
+{% block title %}Register FiroGate{% endblock %}
 {% block extra_css %}
 <style>
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px 16px;border-radius:10px;background:#fff;color:#111;border:1px solid rgba(255,255,255,.12);font-weight:600;font-size:.9rem;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none}
@@ -7,29 +7,60 @@
 .gbtn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .divsep{display:flex;align-items:center;gap:10px;color:var(--t4);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;margin:14px 0}
 .divsep::before,.divsep::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08)}
+.fg-ai-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0 6px;text-align:center;animation:sd .22s ease}
+.fg-ai-label{font-size:.7rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.fg-ai-name{font-size:1.05rem;font-weight:700;color:var(--white)}
+.fg-ai-actions{display:flex;flex-direction:column;gap:7px;width:100%;margin-top:4px}
+.fg-ai-btn-dash{display:block;background:var(--y);color:#1a1510;font-weight:700;font-size:.9rem;padding:12px;border-radius:0;text-decoration:none;text-align:center;transition:opacity .15s}
+.fg-ai-btn-dash:hover{opacity:.88}
+.fg-ai-btn-switch{background:none;border:1px solid var(--bw2,rgba(255,255,255,.1));color:var(--t1);font-size:.82rem;font-weight:600;padding:10px;border-radius:10px;cursor:pointer;transition:border-color .15s,color .15s;width:100%;font-family:inherit}
+.fg-ai-btn-switch:hover{border-color:var(--y);color:var(--y)}
+html[data-theme="light"] .fg-ai-btn-switch{border-color:rgba(0,0,0,.14);color:rgba(26,26,26,.55)}
+html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a07800}
+
+.auth-split{width:100%;max-width:420px}
+.auth-right-panel{display:none}
+.auth-page-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px}
+@media (min-width:900px){
+  .auth-split{max-width:840px;display:flex;align-items:center;gap:56px}
+  .auth-split > .auth-left{flex:1;min-width:0;max-width:420px}
+  .auth-right-panel{
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    flex:1;min-width:0;max-width:360px;
+  }
+  .auth-left-brand{display:none}
+  #desktop-social-wrap #social-sep{display:none}
+  .auth-page-wrap{align-items:center;padding:20px}
+}
+
+.finput-icon-wrap{position:relative}
+.finput-icon-wrap .finput{padding-left:40px}
+.finput-icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--t3);pointer-events:none;display:flex;
+}
+.finput-icon svg{width:100%;height:100%}
+
+.auth-mode-switch{display:flex;gap:6px;background:var(--bg3,rgba(255,255,255,.04));border:1px solid var(--bw2,rgba(255,255,255,.1));border-radius:10px;padding:4px;margin-bottom:18px}
+.auth-mode-btn{flex:1;padding:8px;border:none;border-radius:7px;background:none;color:var(--t3);font-size:.8rem;font-weight:600;cursor:pointer;transition:background-color .15s,color .15s;font-family:inherit}
+.auth-mode-btn.on{background:var(--y);color:#1a1510}
+.acct-num-reveal{font-family:var(--mono);font-size:1.3rem;letter-spacing:.06em;text-align:center;color:var(--white);background:var(--bg3,rgba(255,255,255,.04));border:1px solid var(--bw2,rgba(255,255,255,.1));border-radius:10px;padding:16px;margin:14px 0;word-break:break-all}
+
+#stars{display:none;position:fixed;inset:0;width:100%;height:100vh;z-index:0;pointer-events:none}
+@media (min-width:900px){ #stars{display:block} }
 </style>
 {% endblock %}
 {% block body %}
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,rgba(34,197,94,.04) 0%,transparent 55%)">
-  <div style="width:100%;max-width:420px">
-    <div style="text-align:center;margin-bottom:24px">
+<canvas id="stars"></canvas>
+<div class="auth-page-wrap" style="position:relative;z-index:1;background:radial-gradient(ellipse at 50% 0%,rgba(34,197,94,.04) 0%,transparent 55%)">
+  <div class="auth-split">
+    <div class="auth-left">
+    <div class="auth-left-brand" style="text-align:center;margin-bottom:24px">
       <a href="{{ base_url }}" data-testid="register-brand-link"
          style="display:inline-block;font-weight:800;font-size:1.45rem;letter-spacing:-.02em;color:var(--white);text-decoration:none;transition:color .18s;margin-bottom:6px">
         Firo<span style="color:var(--y)">Gate</span>
       </a>
-      <p id="register-subtitle" style="color:var(--g3);font-size:.85rem;margin:0">Create your account</p>
-    </div>
-
-    <div id="onion-indicator" style="display:none;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:12px 14px;margin-bottom:16px">
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" style="flex-shrink:0;margin-top:2px">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        <div>
-          <div style="font-size:.85rem;color:#4ade80;font-weight:600">Privacy Mode (Tor)</div>
-          <div style="font-size:.78rem;color:var(--t3);margin-top:4px">You are registering via Tor — username/password only. Email verification and third-party providers are disabled on onion sessions.</div>
-        </div>
-      </div>
+      <p style="color:var(--g3);font-size:.85rem;margin:0">Create your account</p>
     </div>
 
     <div class="card" data-testid="register-card">
@@ -39,28 +70,68 @@
         <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
       </div>
 
-      <div id="google-block" style="{% if not firebase_enabled %}display:none;{% endif %}margin-bottom:6px">
-        <button id="google-btn" class="gbtn" onclick="doGoogle()" data-testid="register-google-btn">
-          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3A12 12 0 1 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 1 0 44 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a20 20 0 0 0 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 29l-6.6 5.1A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-3.5z"/></svg>
-          Continue with Google
-        </button>
-        <div class="divsep">or</div>
+      <div id="mobile-social-wrap">
+        <div id="google-block" style="{% if not firebase_enabled %}display:none;{% endif %}margin-bottom:6px">
+          <button id="google-btn" class="gbtn" onclick="doGoogle()" data-testid="register-google-btn">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3A12 12 0 1 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 1 0 44 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.9 1.1 8 3l5.7-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a20 20 0 0 0 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 29l-6.6 5.1A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.4-.4-3.5z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+        <div id="social-sep" class="divsep" style="{% if not firebase_enabled %}display:none;{% endif %}">or</div>
       </div>
 
-      <div id="email-form">
-        <div class="fg">
-          <label class="flabel">Email</label>
-          <input id="e" type="email" class="finput" placeholder="you@example.com" autocomplete="email" required data-testid="register-email-input">
-          <span class="fhint" style="margin-top:5px;display:block">We'll send a verification link to this address.</span>
+      <div class="auth-mode-switch" role="tablist">
+        <button type="button" class="auth-mode-btn on" id="mode-btn-number" onclick="setRegMode('number')" data-testid="register-mode-number-btn">Account Number</button>
+        <button type="button" class="auth-mode-btn" id="mode-btn-password" onclick="setRegMode('password')" data-testid="register-mode-password-btn">Username &amp; Password</button>
+      </div>
+
+      <div id="number-form">
+        <div id="number-step-create">
+          <p style="font-size:.82rem;color:var(--t1);margin:0 0 14px;line-height:1.6">A 16-digit account number will be generated for you. No email, no password just the number. Anyone who has it can sign in, so keep it as safe as a password.</p>
+          <button id="number-create-btn" class="btn btn-y wf" style="height:44px" onclick="doRegNumber()" data-testid="register-number-create-btn">
+            Generate Account Number
+          </button>
         </div>
-        <div class="fg mt2" id="username-row" style="display:none">
-          <label class="flabel">Username</label>
-          <input id="u" type="text" class="finput" placeholder="3–32 chars · letters/numbers/-/_" autocomplete="username" data-testid="register-username-input">
+        <div id="number-step-reveal" style="display:none">
+          <div class="acct-num-reveal" id="number-reveal-text"></div>
+          <div class="fg" style="margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:var(--t1)">
+              <input type="checkbox" id="number-saved-check" style="accent-color:var(--y)">
+              I have saved this number. It cannot be recovered if lost.
+            </label>
+          </div>
+          <button id="number-continue-btn" class="btn btn-y wf" style="height:44px" disabled onclick="continueAfterReveal()" data-testid="register-number-continue-btn">
+            Continue to Dashboard
+          </button>
+        </div>
+      </div>
+
+      <div id="email-form" style="display:none">
+        <div class="fg">
+          <div class="finput-icon-wrap">
+            <span class="finput-icon" id="ic-an"></span>
+            <input id="an" type="text" class="finput" maxlength="40" placeholder="Service or company name" data-i18n-placeholder="Service or company name" autocomplete="organization" required data-testid="register-appname-input">
+          </div>
+          <span class="fhint" style="margin-top:5px;display:block">This is the name your customers will see at checkout. You can change it later in Security.</span>
         </div>
         <div class="fg mt2">
-          <label class="flabel">Password</label>
-          <div style="position:relative">
-            <input id="p" type="password" class="finput" placeholder="Min 10 characters" autocomplete="new-password" style="padding-right:42px" oninput="chkStr(this.value)" data-testid="register-password-input">
+          <div class="finput-icon-wrap">
+            <span class="finput-icon" id="ic-u"></span>
+            <input id="u" type="text" class="finput" maxlength="32" placeholder="Choose a username" data-i18n-placeholder="Choose a username" autocomplete="username" required data-testid="register-username-input">
+          </div>
+          <span class="fhint" style="margin-top:5px;display:block">Used to sign in. Letters, numbers, - and _ only.</span>
+        </div>
+        <div class="fg mt2">
+          <div class="finput-icon-wrap">
+            <span class="finput-icon" id="ic-e"></span>
+            <input id="e" type="email" class="finput" maxlength="320" placeholder="Email (optional)" data-i18n-placeholder="Email (optional)" autocomplete="email" data-testid="register-email-input">
+          </div>
+          <span class="fhint" style="margin-top:5px;display:block">Optional. Only used for account recovery. You can still sign in with just your username.</span>
+        </div>
+        <div class="fg mt2">
+          <div class="finput-icon-wrap" style="position:relative">
+            <span class="finput-icon" id="ic-p"></span>
+            <input id="p" type="password" class="finput" placeholder="Min 10 characters" data-i18n-placeholder="Min 10 characters" autocomplete="new-password" style="padding-right:42px" oninput="chkStr(this.value)" data-testid="register-password-input">
             <button onclick="togglePwd('p',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--g3);width:20px;height:20px;padding:0;display:flex;align-items:center" title="Show/hide" type="button">
               <span class="eye-i" style="width:18px;height:18px;display:block"></span>
             </button>
@@ -68,58 +139,62 @@
           <div class="str-bar mt1"><div id="sf" class="str-fill" style="width:0%"></div></div>
           <span id="sl" class="fhint"></span>
         </div>
-        <div class="fg mt2">
-          <label class="flabel">Confirm Password</label>
-          <input id="p2" type="password" class="finput" placeholder="Repeat password" autocomplete="new-password" data-testid="register-confirm-input">
-        </div>
 
-        <div id="ts-slot-register" style="display:flex;justify-content:center;margin-top:14px" data-testid="register-turnstile"></div>
-
-        
-
-        <div id="agree-wrap" onclick="toggleAgree(event)" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 2px;margin-bottom:8px;user-select:none">
-          <div id="agree-box" style="flex-shrink:0;margin-top:2px;width:18px;height:18px;border:2px solid #fff;border-radius:5px;background:var(--bg3);display:flex;align-items:center;justify-content:center;transition:all .15s;pointer-events:none">
-            <svg id="agree-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.5" style="display:none">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </div>
-          <span style="font-size:.8rem;color:var(--t2);line-height:1.55;pointer-events:none">
-            I have read and agree to the
-            <a href="/legal#privacy" target="_blank" onclick="event.stopPropagation()" style="color:var(--yellow);font-weight:600;pointer-events:auto">Terms of Service</a>
-            and
-            <a href="/legal#privacy" target="_blank" onclick="event.stopPropagation()" style="color:var(--yellow);font-weight:600;pointer-events:auto">Privacy Policy</a>.
-          </span>
-        </div>
-
-        <button id="btn" class="btn btn-g wf mt1" onclick="doReg()" style="height:44px;opacity:.45;cursor:not-allowed" disabled data-testid="register-submit-btn">
+        <button id="btn" class="btn btn-y wf mt1" onclick="doReg()" style="height:44px" data-testid="register-submit-btn">
           Create Account
         </button>
       </div>
 
       <div class="div"></div>
-      <p style="text-align:center;font-size:.875rem;color:var(--t3)">
-        Already registered? <a href="{{ login_url or '/login' }}" style="color:var(--y);font-weight:700" data-testid="register-signin-link">Sign in</a>
+      <p style="text-align:center;font-size:.875rem;color:var(--t1)">
+        Already have an account? <a href="{{ login_url or '/login' }}" style="color:var(--y);font-weight:700" data-testid="register-signin-link">Sign in</a>
       </p>
+    </div>
+    </div>
+
+    <div class="auth-right-panel">
+      <a href="{{ base_url }}" data-testid="register-brand-link-desktop"
+         style="display:inline-block;font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--white);text-decoration:none;transition:color .18s;margin-bottom:8px">
+        Firo<span style="color:var(--y)">Gate</span>
+      </a>
+      <p id="register-subtitle" style="color:var(--g3);font-size:1rem;margin:0 0 28px">Create your account</p>
+      <div id="desktop-social-wrap" style="width:100%;max-width:320px"></div>
     </div>
   </div>
 </div>
+
 {% endblock %}
 {% block js %}
 {% if firebase_enabled %}
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 {% endif %}
-{% if turnstile_site_key %}
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-{% endif %}
+<script>
+if (window.matchMedia('(min-width:900px)').matches) {
+  var _starsScript = document.createElement('script');
+  _starsScript.src = '/static/js/auth-stars.js';
+  document.body.appendChild(_starsScript);
+}
+</script>
 <script>
 const IS_ONION = window.location.hostname.endsWith('.onion');
 const FB_ENABLED  = {{ firebase_enabled|tojson }} && !IS_ONION;
 
-// ─ /register landing orchestrator ─
-// Same two-step pattern as /login but without auto-logout — that used
-// to race against doReg() and wipe a freshly-issued cookie. We just show
-// a friendly notice if the visitor is already signed in.
+(function _authSplitLayout(){
+  const mq = window.matchMedia('(min-width:900px)');
+  const socialWrap = document.getElementById('mobile-social-wrap');
+  const desktopWrap = document.getElementById('desktop-social-wrap');
+  if (!socialWrap || !desktopWrap) return;
+  const mobileParent = socialWrap.parentElement;
+  const mobileNext = socialWrap.nextSibling;
+  function apply(isDesktop) {
+    if (isDesktop) desktopWrap.appendChild(socialWrap);
+    else mobileParent.insertBefore(socialWrap, mobileNext);
+  }
+  apply(mq.matches);
+  mq.addEventListener('change', e => apply(e.matches));
+})();
+
 window._fgAlreadySignedIn = false;
 (async function _landRegister(){
   try {
@@ -134,39 +209,158 @@ window._fgAlreadySignedIn = false;
     const data = await r.json().catch(() => ({}));
     const ab = document.getElementById('ab');
     if (ab) {
+      const uname = data.username || data.email || 'user';
+      function _aiEsc(s){ return String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])); }
+      const dashUrl = _aiEsc(window.DASHBOARD_URL || '/dashboard');
       ab.innerHTML =
-        '<div class="alert al-info" data-testid="register-already-signedin">' +
-          'Already signed in <strong>' + (data.username || data.email || 'user') + '</strong>. ' +
-          '<a href="' + (window.DASHBOARD_URL || '/dashboard') + '" style="color:var(--y);font-weight:700">Back</a>' +
+        '<div class="fg-ai-wrap" data-testid="register-already-signedin">' +
+          '<div>' +
+            '<div class="fg-ai-label">Already signed in</div>' +
+            '<div class="fg-ai-name">' + _aiEsc(uname) + '</div>' +
+          '</div>' +
+          '<div class="fg-ai-actions">' +
+            '<a href="' + dashUrl + '" class="fg-ai-btn-dash">Back to Dashboard</a>' +
+            '<button class="fg-ai-btn-switch" id="register-switch-account">Switch account</button>' +
+          '</div>' +
         '</div>';
+
+      const _card = ab.closest('.card') || ab.parentElement;
+      const _hide = [
+        document.getElementById('google-block'),
+        document.getElementById('social-sep'),
+        document.querySelector('.auth-mode-switch'),
+        document.getElementById('number-form'),
+        document.getElementById('email-form'),
+        _card && _card.querySelector('.div'),
+        document.querySelector('[data-testid="register-signin-link"]') && document.querySelector('[data-testid="register-signin-link"]').parentElement,
+      ].filter(Boolean);
+      _hide.forEach(el=>{ el._aiWasHidden = el.style.display; el.style.display='none'; });
+
+      const sw = document.getElementById('register-switch-account');
+      if (sw) sw.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        sw.textContent = 'Signing out…';
+        sw.disabled = true;
+        try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch(_){}
+        try {
+          if (typeof Auth !== 'undefined' && Auth._bc) Auth._bc.postMessage({ type: 'logout' });
+        } catch(_){}
+        window._fgAlreadySignedIn = false;
+        if (ab) ab.innerHTML = '';
+        _hide.forEach(el=>{ el.style.display = el._aiWasHidden !== undefined ? el._aiWasHidden : ''; });
+      });
     }
   } catch (_) {}
 })();
-const TS_SITE_KEY = {{ (turnstile_site_key or '')|tojson }};
 const FB_CFG      = {{ firebase_config|tojson }};
 let _fbAuth = null;
-let _tsWidgetId = null;
-let _tsToken = '';
-let _tsPromise = null, _tsResolve = null;
 
-function _resetTsPromiseReg() {
-  _tsToken = '';
-  _tsPromise = new Promise(r => { _tsResolve = r; });
+function _gbtnSpin(gbtn, text) {
+  gbtn.innerHTML = '<span class="spin"></span> ' + (window.t ? window.t(text) : text);
 }
-async function _awaitTsTokenReg(timeoutMs = 20000) {
-  if (!TS_SITE_KEY || IS_ONION) return '';
-  if (_tsToken) return _tsToken;
-  if (!_tsPromise) return '';
-  const t = await Promise.race([
-    _tsPromise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs)),
-  ]);
-  return t || _tsToken;
+
+async function doGoogle(){
+  const ab = document.getElementById('ab');
+  const gbtn = document.getElementById('google-btn');
+
+  if (IS_ONION) { ab.innerHTML = alertHTML('Google sign-in is disabled on Tor.', 'err'); return; }
+  if (!FB_ENABLED || !FB_CFG.apiKey) { ab.innerHTML = alertHTML('Google sign-in is not configured on this server.', 'err'); return; }
+
+  gbtn.disabled = true;
+  const originalHtml = gbtn.innerHTML;
+  _gbtnSpin(gbtn, 'Opening Google…');
+
+  if (!_fbAuth) {
+    const ok = await _initFirebase();
+    if (!ok) {
+      ab.innerHTML = alertHTML('Could not load Google sign-in. Your browser or an extension may be blocking <code>gstatic.com</code>. Disable ad/privacy blockers for this site and reload.', 'err');
+      gbtn.disabled = false; gbtn.innerHTML = originalHtml;
+      return;
+    }
+  }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    _gbtnSpin(gbtn, 'Opening Google…');
+    let res;
+    try {
+      res = await _fbAuth.signInWithPopup(provider);
+    } catch (e) {
+      const code = (e && e.code) || '';
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        gbtn.disabled=false; gbtn.innerHTML = originalHtml;
+        return;
+      }
+      if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') {
+        _gbtnSpin(gbtn, 'Redirecting to Google…');
+        await _fbAuth.signInWithRedirect(provider);
+        return;
+      }
+      throw e;
+    }
+
+    if (res && res.user) {
+      const idToken = await res.user.getIdToken(true);
+      const r = await fetch('/api/auth/fb/google', {
+        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id_token: idToken })
+      });
+      const data = await r.json().catch(()=>({}));
+      if (!r.ok) {
+        ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
+        gbtn.disabled=false; gbtn.innerHTML = originalHtml;
+        return;
+      }
+      Toast.success(data.is_operator ? 'Welcome, Operator!' : 'Welcome!');
+      setTimeout(() => window.location.href = data.is_operator ? '/admin' : (window.DASHBOARD_URL || '/dashboard'), 400);
+    }
+  } catch(e) {
+    ab.innerHTML = alertHTML(e && e.message ? e.message : 'Google sign-in cancelled.','err');
+    gbtn.disabled=false; gbtn.innerHTML = originalHtml;
+  }
+}
+
+async function _consumeGoogleRedirect() {
+  if (!FB_ENABLED) return false;
+  const ok = await _initFirebase();
+  if (!ok || !_fbAuth) return false;
+  let res;
+  try { res = await _fbAuth.getRedirectResult(); }
+  catch (e) {
+    const code = (e && e.code) || '';
+    if (code && code !== 'auth/no-auth-event') {
+      const el = document.getElementById('ab');
+      if (el) el.innerHTML = alertHTML('Google sign-in failed: ' + (e.message || code), 'err');
+    }
+    return false;
+  }
+  if (!res || !res.user) return false;
+  const ab = document.getElementById('ab');
+  try {
+    const idToken = await res.user.getIdToken(true);
+    const r = await fetch('/api/auth/fb/google', {
+      method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id_token: idToken })
+    });
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok) {
+      if (ab) ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
+      return false;
+    }
+    Toast.success(data.is_operator ? 'Welcome, Operator!' : 'Welcome!');
+    setTimeout(() => window.location.href = data.is_operator ? '/admin' : (window.DASHBOARD_URL || '/dashboard'), 400);
+    return true;
+  } catch (e) {
+    if (ab) ab.innerHTML = alertHTML('Unable to complete Google sign-in. Please try again.', 'err');
+    return false;
+  }
 }
 
 if (IS_ONION) {
   document.getElementById('onion-indicator').style.display = 'block';
   const gb = document.getElementById('google-block'); if (gb) gb.style.display = 'none';
+  const ss = document.getElementById('social-sep'); if (ss) ss.style.display = 'none';
 }
 
 function _waitForFirebase(timeoutMs = 6000) {
@@ -191,255 +385,114 @@ async function _initFirebase() {
 }
 _initFirebase();
 
-if (IS_ONION) {
-  document.getElementById('username-row').style.display = 'block';
-}
-// In dev mode without Firebase, also show the username row so the user
-// can pick their own handle (otherwise we derive it from the email).
-if (!FB_ENABLED && !IS_ONION) {
-  const _ur = document.getElementById('username-row');
-  if (_ur) _ur.style.display = 'block';
-  const _sub = document.getElementById('register-subtitle');
-  if (_sub) _sub.textContent = 'Create your account · Dev mode';
-}
-
-if (TS_SITE_KEY && !IS_ONION) {
-  window.onloadTurnstile = function () {
-    _resetTsPromiseReg();
-    _tsWidgetId = window.turnstile.render('#ts-slot-register', {
-      sitekey: TS_SITE_KEY, theme: 'dark', size: 'flexible',
-      callback: (t) => { _tsToken = t; _tsResolve && _tsResolve(t); },
-      'error-callback':   () => { _resetTsPromiseReg(); },
-      'expired-callback': () => { _resetTsPromiseReg(); },
-    });
-  };
-  const tryInit = () => window.turnstile ? window.onloadTurnstile() : setTimeout(tryInit, 250);
-  tryInit();
-}
-
-let _agreed = false;
-function toggleAgree(e){
-  if (e && e.target && e.target.tagName === 'A') return;
-  _agreed = !_agreed;
-  const box=document.getElementById('agree-box'), check=document.getElementById('agree-check'), btn=document.getElementById('btn');
-  if (_agreed) { box.style.background='var(--green,#22c55e)'; box.style.borderColor='var(--green,#22c55e)'; check.style.display='block'; btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
-  else { box.style.background='var(--bg3)'; box.style.borderColor='var(--b2)'; check.style.display='none'; btn.disabled=true; btn.style.opacity='.45'; btn.style.cursor='not-allowed'; }
-}
+document.getElementById('ic-an').innerHTML = IC.storefront;
+document.getElementById('ic-u').innerHTML = IC.user;
+document.getElementById('ic-e').innerHTML = IC.mail;
+document.getElementById('ic-p').innerHTML = IC.lock;
 
 document.querySelectorAll('.eye-i').forEach(el=>el.innerHTML=IC.eye);
 let _shown={};
 function togglePwd(id,btn){ const i=document.getElementById(id); _shown[id]=!_shown[id]; i.type=_shown[id]?'text':'password'; btn.querySelector('.eye-i').innerHTML=_shown[id]?IC.eyeoff:IC.eye; }
-function chkStr(v){ const sf=document.getElementById('sf'),sl=document.getElementById('sl'); let s=0; if(v.length>=10)s++;if(v.length>=16)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++; const lvl=[{c:'var(--red)',l:'Weak',w:'20%'},{c:'var(--red)',l:'Weak',w:'35%'},{c:'var(--yellow)',l:'Fair',w:'55%'},{c:'var(--yellow)',l:'Good',w:'75%'},{c:'var(--green)',l:'Strong',w:'100%'}]; const lv=lvl[Math.min(s,4)]; sf.style.width=lv.w; sf.style.background=lv.c; sl.textContent=lv.l; sl.style.color=lv.c; }
+function chkStr(v){ const sf=document.getElementById('sf'),sl=document.getElementById('sl'); let s=0; if(v.length>=10)s++;if(v.length>=16)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++; const lvl=[{c:'var(--red)',l:'Weak',w:'20%'},{c:'var(--red)',l:'Weak',w:'35%'},{c:'var(--y)',l:'Fair',w:'55%'},{c:'var(--y)',l:'Good',w:'75%'},{c:'var(--g)',l:'Strong',w:'100%'}]; const lv=lvl[Math.min(s,4)]; sf.style.width=lv.w; sf.style.background=lv.c; sl.textContent=lv.l; sl.style.color=lv.c; }
 
-function validateInputs(e,u,p,p2,requireUsername){
-  if(!/^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/.test(e)) return 'Please enter a valid email address.';
-  if(requireUsername && !/^[a-zA-Z0-9_\-]{3,32}$/.test(u||'')) return 'Username must be 3–32 characters (letters, numbers, - and _ only).';
+const APP_NAME_RE = /^[A-Za-z0-9 ._\-&'()]{2,40}$/;
+const USERNAME_RE = /^[a-zA-Z0-9_-]{3,32}$/;
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/;
+function validateInputs(an,u,p,e){
+  if(!APP_NAME_RE.test(an)) return "Service or company name must be 2–40 characters: letters, numbers, spaces and ._-&'() only.";
+  if(!USERNAME_RE.test(u)) return 'Username must be 3–32 characters: letters, numbers, - and _ only.';
+  if(e && !EMAIL_RE.test(e)) return 'Invalid email address format.';
   if(p.length<10) return 'Password must be at least 10 characters.';
   if(p.length>128) return 'Password is too long (max 128 characters).';
-  if(p!==p2) return 'Passwords do not match.';
   return null;
+}
+
+function setRegMode(mode) {
+  const isNumber = mode === 'number';
+  document.getElementById('mode-btn-number').classList.toggle('on', isNumber);
+  document.getElementById('mode-btn-password').classList.toggle('on', !isNumber);
+  document.getElementById('number-form').style.display = isNumber ? 'block' : 'none';
+  document.getElementById('email-form').style.display = isNumber ? 'none' : 'block';
+  document.getElementById('ab').innerHTML = '';
+}
+
+document.getElementById('number-saved-check').addEventListener('change', function() {
+  document.getElementById('number-continue-btn').disabled = !this.checked;
+});
+
+let _generatedAccountNumber = null;
+
+async function doRegNumber() {
+  const btn = document.getElementById('number-create-btn');
+  const ab = document.getElementById('ab');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> ' + (window.t ? window.t('Generating…') : 'Generating…');
+
+  try {
+    const r = await fetch('/api/auth/register-number', {
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      ab.innerHTML = alertHTML(data.detail || 'Registration failed.', 'err');
+      btn.disabled = false; btn.innerHTML = 'Generate Account Number';
+      return;
+    }
+    _generatedAccountNumber = data.account_number;
+    document.getElementById('number-reveal-text').textContent = data.account_number;
+    document.getElementById('number-step-create').style.display = 'none';
+    document.getElementById('number-step-reveal').style.display = 'block';
+    window.addEventListener('beforeunload', _warnLeaveReveal);
+  } catch (err) {
+    ab.innerHTML = alertHTML('Network error.', 'err');
+    btn.disabled = false; btn.innerHTML = 'Generate Account Number';
+  }
+}
+
+function _warnLeaveReveal(e) {
+  e.preventDefault();
+  e.returnValue = '';
+}
+
+function continueAfterReveal() {
+  window.removeEventListener('beforeunload', _warnLeaveReveal);
+  Toast.success('Account created! Taking you to your dashboard…');
+  setTimeout(() => window.location.href = window.DASHBOARD_URL || '/dashboard', 500);
 }
 
 async function doReg(){
   const btn = document.getElementById('btn');
   const hp = document.getElementById('hp-website');
-  if (hp && hp.value) { btn.disabled=true; btn.innerHTML='<span class="spin"></span> Creating…'; setTimeout(()=>{document.getElementById('ab').innerHTML=alertHTML('Registration failed.','err'); btn.disabled=false; btn.textContent='Create Account';},1500); return; }
+  if (hp && hp.value) { btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Creating…') : 'Creating…'); setTimeout(()=>{document.getElementById('ab').innerHTML=alertHTML('Registration failed.','err'); btn.disabled=false; btn.textContent=window.t ? window.t('Create Account') : 'Create Account';},1500); return; }
 
-  const e  = document.getElementById('e').value.trim().toLowerCase();
-  const u  = document.getElementById('u') ? document.getElementById('u').value.trim() : '';
+  const an = document.getElementById('an').value.trim();
+  const u  = document.getElementById('u').value.trim();
+  const e  = document.getElementById('e').value.trim();
   const p  = document.getElementById('p').value;
-  const p2 = document.getElementById('p2').value;
   const ab = document.getElementById('ab');
 
-  if(!_agreed){ ab.innerHTML=alertHTML('You must agree to the Terms and Privacy Policy.','err'); return; }
-  const err = validateInputs(e,u,p,p2,IS_ONION); if (err){ ab.innerHTML=alertHTML(err,'err'); return; }
+  const err = validateInputs(an,u,p,e); if (err){ ab.innerHTML=alertHTML(err,'err'); return; }
 
-  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Creating…'; ab.innerHTML='';
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Creating…') : 'Creating…'); ab.innerHTML='';
 
   try {
-    if (IS_ONION || !FB_ENABLED) {
-      // Onion mode OR dev mode without Firebase → use the local
-      // username/password endpoint. In dev mode (Firebase disabled) the
-      // backend will derive the username from the email.
-      const r = await fetch('/api/auth/register', {
-        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          username: u || (e.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_\-]/g,'').slice(0,32),
-          email: e || null,
-          password: p,
-          agreed_to_terms: true
-        })
-      });
-      const data = await r.json().catch(()=>({}));
-      if (!r.ok) { ab.innerHTML=alertHTML(data.detail||'Registration failed.','err'); btn.disabled=false; btn.textContent='Create Account'; return; }
-      Toast.success('Account created! Taking you to your dashboard…');
-      setTimeout(()=>window.location.href = window.DASHBOARD_URL || '/dashboard', 700);
-      return;
-    }
-
-    if (TS_SITE_KEY && !_tsToken) {
-      btn.innerHTML = '<span class="spin"></span> Verifying…';
-      try { await _awaitTsTokenReg(); }
-      catch (_) {
-        ab.innerHTML = alertHTML('Human verification is taking too long. Please reload and try again.','err');
-        btn.disabled=false; btn.textContent='Create Account';
-        if (_tsWidgetId !== null) window.turnstile.reset(_tsWidgetId);
-        return;
-      }
-    }
-
-    const r = await fetch('/api/auth/fb/register', {
+    const r = await fetch('/api/auth/register', {
       method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email:e, password:p, full_name:null, turnstile_token:_tsToken, agreed_to_terms:true })
+      body: JSON.stringify({
+        username: u,
+        email: e || null,
+        password: p,
+        app_name: an
+      })
     });
     const data = await r.json().catch(()=>({}));
-
-    if (TS_SITE_KEY && _tsWidgetId !== null) { window.turnstile.reset(_tsWidgetId); _resetTsPromiseReg(); }
-
-    if (!r.ok) {
-      ab.innerHTML = alertHTML(data.detail || 'Registration failed.','err');
-      btn.disabled=false; btn.textContent='Create Account';
-      return;
-    }
-
-    document.querySelector('.card').innerHTML = `
-      <div style="text-align:center;padding:18px 6px">
-        <div style="display:inline-flex;width:56px;height:56px;align-items:center;justify-content:center;border-radius:14px 4px 12px 6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.32);margin-bottom:14px">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-            <polyline points="22,6 12,13 2,6"/>
-          </svg>
-        </div>
-        <h3 style="margin-bottom:6px">Check your inbox</h3>
-        <p style="color:var(--t2);font-size:.88rem;margin-bottom:14px">We sent a verification link to <strong style="color:var(--white)">${escHtml(e)}</strong>. Click the link to activate your account, then log in.</p>
-        <a href="${(window.LOGIN_URL || '/login')}" class="btn btn-y" style="display:inline-flex;text-decoration:none;padding:10px 22px" data-testid="register-go-signin">Go to Sign In</a>
-      </div>`;
-    const sub = document.getElementById('register-subtitle');
-    if (sub) sub.textContent = 'Verify your email to finish';
+    if (!r.ok) { ab.innerHTML=alertHTML(data.detail||'Registration failed.','err'); btn.disabled=false; btn.textContent='Create Account'; return; }
+    Toast.success('Account created! Taking you to your dashboard…');
+    setTimeout(()=>window.location.href = window.DASHBOARD_URL || '/dashboard', 700);
   } catch(err) {
     ab.innerHTML = alertHTML('Network error.','err');
     btn.disabled=false; btn.textContent='Create Account';
   }
 }
-
-async function doGoogle(){
-  const ab = document.getElementById('ab');
-  const gbtn = document.getElementById('google-btn');
-
-  if (IS_ONION) { ab.innerHTML = alertHTML('Google sign-in is disabled on Tor.', 'err'); return; }
-  if (!FB_ENABLED || !FB_CFG.apiKey) { ab.innerHTML = alertHTML('Google sign-in is not configured on this server.', 'err'); return; }
-
-  gbtn.disabled = true;
-  const originalHtml = gbtn.innerHTML;
-  gbtn.innerHTML = 'Opening Google…';
-
-  if (!_fbAuth) {
-    const ok = await _initFirebase();
-    if (!ok) {
-      ab.innerHTML = alertHTML('Could not load Google sign-in. Your browser or an extension may be blocking <code>gstatic.com</code>. Disable ad/privacy blockers for this site and reload.', 'err');
-      gbtn.disabled = false; gbtn.innerHTML = originalHtml;
-      return;
-    }
-  }
-  if (TS_SITE_KEY && !_tsToken) {
-    try { await _awaitTsTokenReg(); }
-    catch (_) {
-      ab.innerHTML = alertHTML('Human verification is taking too long. Please reload and try again.','err');
-      gbtn.disabled = false; gbtn.innerHTML = originalHtml;
-      if (_tsWidgetId !== null) window.turnstile.reset(_tsWidgetId);
-      return;
-    }
-  }
-  try {
-    try { sessionStorage.setItem('fg_ts_token', _tsToken || ''); } catch(_){}
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-
-    // Firebase best-practice: popup first (avoids storage partitioning),
-    // redirect only if the popup is blocked by the environment.
-    gbtn.innerHTML = 'Opening Google…';
-    let res;
-    try {
-      res = await _fbAuth.signInWithPopup(provider);
-    } catch (e) {
-      const code = (e && e.code) || '';
-      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-        gbtn.disabled=false; gbtn.innerHTML = originalHtml;
-        return;
-      }
-      if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') {
-        gbtn.innerHTML = 'Redirecting to Google…';
-        await _fbAuth.signInWithRedirect(provider);
-        return; // _consumeGoogleRedirect() finishes it after the round-trip
-      }
-      throw e;
-    }
-
-    // Popup succeeded → finish inline (no redirect roundtrip needed)
-    if (res && res.user) {
-      let tsToken = '';
-      try { tsToken = sessionStorage.getItem('fg_ts_token') || ''; sessionStorage.removeItem('fg_ts_token'); } catch(_){}
-      const idToken = await res.user.getIdToken(true);
-      const r = await fetch('/api/auth/fb/google', {
-        method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ id_token: idToken, turnstile_token: tsToken })
-      });
-      const data = await r.json().catch(()=>({}));
-      if (!r.ok) {
-        ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
-        gbtn.disabled=false; gbtn.innerHTML = originalHtml;
-        return;
-      }
-      Toast.success(data.is_admin ? 'Welcome, Admin!' : 'Welcome!');
-      setTimeout(() => window.location.href = data.is_admin ? '/admin' : (window.DASHBOARD_URL || '/dashboard'), 400);
-    }
-  } catch(e) {
-    ab.innerHTML = alertHTML(e && e.message ? e.message : 'Google sign-in cancelled.','err');
-    gbtn.disabled=false; gbtn.innerHTML = originalHtml;
-  }
-}
-
-// Finish a redirect sign-in if the user came back from Google on this page.
-// Called sequentially by _landRegister() above BEFORE any auto-logout so
-// the two never race. Returns true when a Google redirect was consumed
-// (main page navigates away), false otherwise.
-async function _consumeGoogleRedirect() {
-  if (!FB_ENABLED) return false;
-  const ok = await _initFirebase();
-  if (!ok || !_fbAuth) return false;
-  let res;
-  try { res = await _fbAuth.getRedirectResult(); }
-  catch (e) {
-    const code = (e && e.code) || '';
-    if (code && code !== 'auth/no-auth-event') {
-      const el = document.getElementById('ab');
-      if (el) el.innerHTML = alertHTML('Google sign-in failed: ' + (e.message || code), 'err');
-    }
-    return false;
-  }
-  if (!res || !res.user) return false;
-  const ab = document.getElementById('ab');
-  let tsToken = '';
-  try { tsToken = sessionStorage.getItem('fg_ts_token') || ''; sessionStorage.removeItem('fg_ts_token'); } catch(_){}
-  try {
-    const idToken = await res.user.getIdToken(true);
-    const r = await fetch('/api/auth/fb/google', {
-      method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id_token: idToken, turnstile_token: tsToken })
-    });
-    const data = await r.json().catch(()=>({}));
-    if (!r.ok) {
-      if (ab) ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
-      return false;
-    }
-    Toast.success(data.is_admin ? 'Welcome, Admin!' : 'Welcome!');
-    setTimeout(() => window.location.href = data.is_admin ? '/admin' : (window.DASHBOARD_URL || '/dashboard'), 400);
-    return true;
-  } catch (e) {
-    if (ab) ab.innerHTML = alertHTML('Unable to complete Google sign-in. Please try again.', 'err');
-    return false;
-  }
-}
-// Note: no auto-invoke here — _landRegister() calls us in the right order.
 </script>
 {% endblock %}

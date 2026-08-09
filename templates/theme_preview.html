@@ -14,8 +14,7 @@
   padding:20px;
   font-family:var(--th-font,-apple-system,sans-serif);
 ">
-  <!-- Mock checkout card -->
-  <div style="
+  <div id="pv-card" style="
     width:100%;max-width:440px;
     background:var(--th-surface,#161210);
     border:1px solid var(--th-border,#2A221A);
@@ -23,7 +22,6 @@
     overflow:hidden;
     box-shadow:0 24px 64px rgba(0,0,0,.5);
   ">
-    <!-- Header -->
     <div style="padding:24px 24px 20px;border-bottom:1px solid var(--th-border,#2A221A)">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
         <div style="
@@ -31,6 +29,7 @@
           background:var(--th-accent,#F5C542);
           display:flex;align-items:center;justify-content:center;
           font-weight:800;font-size:.9rem;color:#111;
+          background-size:cover;background-position:center;
         " id="pv-initial">M</div>
         <div>
           <div id="pv-title" style="font-weight:700;font-size:.95rem;color:var(--th-text,#EBE4D7)">Merchant Store</div>
@@ -38,14 +37,12 @@
         </div>
       </div>
     </div>
-    <!-- Amount -->
     <div style="padding:20px 24px;border-bottom:1px solid var(--th-border,#2A221A)">
       <div style="font-size:.75rem;color:rgba(235,228,215,.4);margin-bottom:4px">Total Due</div>
       <div style="font-size:2rem;font-weight:800;color:var(--th-text,#EBE4D7);font-family:var(--mono)">1.50 <span style="font-size:1rem;font-weight:600;color:var(--th-accent,#F5C542)">FIRO</span></div>
       <div style="font-size:.78rem;color:rgba(235,228,215,.4);margin-top:2px">≈ $3.24 USD</div>
     </div>
-    <!-- Address -->
-    <div style="padding:20px 24px;border-bottom:1px solid var(--th-border,#2A221A)">
+    <div id="pv-qr-section" style="padding:20px 24px;border-bottom:1px solid var(--th-border,#2A221A)">
       <div style="font-size:.75rem;color:rgba(235,228,215,.4);margin-bottom:8px">Send exactly to this address</div>
       <div style="
         background:rgba(0,0,0,.3);
@@ -56,7 +53,6 @@
         color:var(--th-text,#EBE4D7);
         word-break:break-all;
       ">TBbGHCNfhg9BxRkwR1HBqJtTNxBwBSV3Mj</div>
-      <!-- QR placeholder -->
       <div style="
         width:140px;height:140px;margin:16px auto 0;
         background:white;border-radius:8px;
@@ -64,13 +60,11 @@
         font-size:.7rem;color:#999;
       ">QR Code</div>
     </div>
-    <!-- Status bar -->
     <div style="padding:14px 24px;display:flex;align-items:center;gap:8px">
       <div style="width:8px;height:8px;border-radius:50%;background:var(--th-accent,#F5C542);animation:pulse 2s infinite"></div>
       <span style="font-size:.78rem;color:rgba(235,228,215,.6)">Waiting for payment…</span>
       <span style="margin-left:auto;font-size:.72rem;color:rgba(235,228,215,.3)">0/2</span>
     </div>
-    <!-- Button -->
     <div style="padding:0 24px 24px">
       <button style="
         width:100%;padding:13px;
@@ -83,7 +77,7 @@
       " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
         Copy Address
       </button>
-      <button style="
+      <button id="pv-cancel-btn" style="
         width:100%;padding:11px;margin-top:8px;
         background:transparent;
         color:rgba(235,228,215,.4);font-size:.8rem;
@@ -94,7 +88,6 @@
     </div>
   </div>
 
-  <!-- Preview banner -->
   <div style="
     position:fixed;top:0;left:0;right:0;
     background:rgba(245,197,66,.15);
@@ -105,7 +98,7 @@
   ">
     <span style="color:#F5C542;font-weight:600">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      Theme Preview — changes are not saved
+      Theme Preview changes are not saved
     </span>
     <button onclick="window.close()" style="background:none;border:none;color:rgba(235,228,215,.5);cursor:pointer;font-size:.78rem">Close ✕</button>
   </div>
@@ -117,7 +110,6 @@
 {% endblock %}
 {% block js %}
 <script>
-// Apply theme params from URL query string
 (function() {
   var p = new URLSearchParams(window.location.search);
   var root = document.documentElement;
@@ -157,7 +149,6 @@
   if (btn !== null)    root.style.setProperty('--th-radius-btn', btn + 'px');
   if (font)            root.style.setProperty('--th-font', font);
 
-  // Detect light/dark and adjust text vars
   var bgHex = bg || '#0A0806';
   var bgR = parseInt(bgHex.slice(1,3),16);
   var bgG = parseInt(bgHex.slice(3,5),16);
@@ -175,7 +166,6 @@
   root.style.setProperty('--t3', hexAlpha(textColor, 0.42));
   root.style.setProperty('--bw',  isLight ? 'rgba(0,0,0,.1)' : 'rgba(255,255,255,.07)');
 
-  // Update text content
   if (title) {
     var el = document.getElementById('pv-title');
     if (el) el.textContent = title;
@@ -186,6 +176,49 @@
     var el2 = document.getElementById('pv-subtitle');
     if (el2) el2.textContent = sub;
   }
+})();
+
+(function() {
+  function applyExtras(d) {
+    if (!d || d.type !== 'firo-theme-preview') return;
+
+    if (d.logo && /^data:image\//.test(d.logo)) {
+      var ini = document.getElementById('pv-initial');
+      if (ini) {
+        ini.textContent = '';
+        ini.style.backgroundImage = "url('" + d.logo.replace(/'/g, "%27") + "')";
+        ini.style.backgroundColor = 'transparent';
+      }
+    }
+
+    if (d.bg_image && /^data:image\//.test(d.bg_image)) {
+      var card = document.getElementById('pv-card');
+      if (card) {
+        var ov = Math.max(0, Math.min(95, parseInt(d.bg_overlay || '70', 10))) / 100;
+        card.style.backgroundImage =
+          'linear-gradient(rgba(10,10,12,' + ov + '), rgba(10,10,12,' + Math.min(1, ov + 0.12) + ')), url("' + d.bg_image.replace(/"/g, '%22') + '")';
+        card.style.backgroundSize = 'cover';
+        card.style.backgroundPosition = 'center';
+      }
+    }
+
+    if (d.qr_position === 'top') {
+      var qr = document.getElementById('pv-qr-section');
+      var parent = qr && qr.parentElement;
+      if (qr && parent) {
+        var header = parent.querySelector('[style*="border-bottom"]');
+        parent.insertBefore(qr, parent.children[1] || null);
+      }
+    }
+
+    if (d.cancel_position === 'top') {
+      var cancel = document.getElementById('pv-cancel-btn');
+      if (cancel) { cancel.style.order = '-1'; cancel.style.marginTop = '0'; cancel.style.marginBottom = '8px'; }
+    }
+  }
+
+  window.addEventListener('message', function(e) { applyExtras(e.data); });
+  try { if (window.opener) window.opener.postMessage('firo-preview-ready', '*'); } catch (_) {}
 })();
 </script>
 {% endblock %}
