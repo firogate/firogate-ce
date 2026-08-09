@@ -45,7 +45,14 @@ build/
 # ─ Node (fonts/assets build) ─
 node_modules/
 
+# ─ Vendored native dependency (own git clone + ~1GB CMake build tree) ─
+# Source: https://github.com/cypherstack/flutter_libsparkmobile re-clone and
+# rebuild instead of committing. The compiled output FiroGate actually loads
+# (app/native/libflutter_libsparkmobile.so) lives outside this directory and
+# is not affected by this rule.
+native/flutter_libsparkmobile/
+
 # ─ Misc ─
-sandbox/
 *.bak
 *.tmp
+firogate
