@@ -1,0 +1,2 @@
+API_VERSION = "1.0"
+APP_VERSION = "0.0.7"

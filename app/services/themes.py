@@ -22,7 +22,7 @@ Isolation:
 import re
 from typing import Any
 
-# ─ Font allowlist — local system fonts only, no external loading ─
+# Local system fonts only, no external loading
 SAFE_FONTS: dict[str, str] = {
     "system":    "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     "mono":      "'Courier New', Courier, monospace",
@@ -30,11 +30,33 @@ SAFE_FONTS: dict[str, str] = {
     "roboto":    "Roboto, 'Helvetica Neue', Arial, sans-serif",
     "georgia":   "Georgia, 'Times New Roman', serif",
     "ubuntu":    "Ubuntu, Cantarell, sans-serif",
+    # Bundled locally as woff2 (see templates/base.html @font-face block) —
+    # Arabic-range glyphs only, so picking these never affects Latin text.
+    "cairo":     "'Cairo', 'Noto Sans Arabic', -apple-system, sans-serif",
+    "tajawal":   "'Tajawal', 'Noto Sans Arabic', -apple-system, sans-serif",
+    "notoarabic":"'Noto Sans Arabic', 'Cairo', -apple-system, sans-serif",
+    "notocyrillic": "'Noto Sans Cyrillic', 'Roboto', -apple-system, sans-serif",
+    "notosc":       "'Noto Sans SC', -apple-system, sans-serif",
+    # Bundled locally as woff2 (see templates/base.html / gf-faces.css) —
+    # decorative/display Latin fonts.
+    "spacegrotesk": "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif",
+    "jost":         "'Jost', 'Helvetica Neue', Arial, sans-serif",
+    "outfit":       "'Outfit', 'Helvetica Neue', Arial, sans-serif",
+    "orbitron":     "'Orbitron', 'Helvetica Neue', Arial, sans-serif",
+    "archivoblack": "'Archivo Black', 'Helvetica Neue', Arial, sans-serif",
+    "baloo2":       "'Baloo 2', cursive, sans-serif",
+    "cormorant":    "'Cormorant Garamond', Georgia, serif",
+    "jetbrains":    "'JetBrains Mono', 'Courier New', monospace",
+    "pressstart":   "'Press Start 2P', 'Courier New', monospace",
+    "poiret":       "'Poiret One', cursive, sans-serif",
+    "bangers":      "'Bangers', cursive, sans-serif",
+    "monoton":      "'Monoton', cursive, sans-serif",
+    "pacifico":     "'Pacifico', cursive, sans-serif",
+    "caveat":       "'Caveat', cursive, sans-serif",
 }
 
 SAFE_BUTTON_STYLES = {"rounded", "sharp", "pill"}
 
-# ─ Theme presets ─
 PRESETS: dict[str, dict] = {
     "dark_gold": {
         "label":       "Dark Gold",
@@ -83,7 +105,7 @@ PRESETS: dict[str, dict] = {
     },
     "corporate_blue": {
         "label":       "Corporate Blue",
-        "description": "Professional enterprise look",
+        "description": "Professional corporate look",
         "accent":      "#2563EB",
         "bg":          "#F8FAFF",
         "surface":     "#FFFFFF",
@@ -144,7 +166,6 @@ PRESETS: dict[str, dict] = {
 }
 
 
-# ─ Validators ─
 _HEX_RE = re.compile(r'^#[0-9A-Fa-f]{6}$')
 
 
@@ -158,7 +179,6 @@ def _safe_hex(v: Any) -> str | None:
 def _safe_text(v: Any, maxlen: int = 120) -> str | None:
     if not v or not isinstance(v, str):
         return None
-    # Strip HTML tags, dangerous chars
     v = re.sub(r'<[^>]+>', '', str(v))
     v = re.sub(r'[<>&"\'\\]', '', v)
     v = re.sub(r'(javascript|data|vbscript):', '', v, flags=re.IGNORECASE)
@@ -197,7 +217,6 @@ def _safe_theme_id(v: Any) -> str | None:
     return k if k in PRESETS or k == "custom" else None
 
 
-# ─ Merge preset + user overrides → final CSS vars ─
 def resolve_theme(
     theme_id: str | None,
     overrides: dict,
@@ -208,7 +227,6 @@ def resolve_theme(
     """
     base = PRESETS.get(theme_id or "dark_gold", PRESETS["dark_gold"]).copy()
 
-    # Apply validated overrides
     if _safe_hex(overrides.get("accent")):
         base["accent"] = _safe_hex(overrides["accent"])
     if _safe_hex(overrides.get("bg")):
@@ -224,10 +242,8 @@ def resolve_theme(
     if _safe_button_style(overrides.get("button_style")):
         base["button_style"] = _safe_button_style(overrides["button_style"])
 
-    # Resolve font stack
     base["font_stack"] = SAFE_FONTS.get(base["font"], SAFE_FONTS["system"])
 
-    # Computed radius variants
     r = int(base.get("radius", "12"))
     base["radius_sm"]  = str(max(0, r - 4))
     base["radius_lg"]  = str(min(24, r + 4))
@@ -258,7 +274,142 @@ def validate_theme_input(data: dict) -> dict:
         "theme_checkout_subtitle": _safe_text(data.get("theme_checkout_subtitle"), 120),
         "theme_success_msg":       _safe_text(data.get("theme_success_msg"), 200),
         "theme_cancel_msg":        _safe_text(data.get("theme_cancel_msg"), 200),
+        "theme_qr_position":       _safe_position(data.get("theme_qr_position")),
+        "theme_cancel_position":   _safe_position(data.get("theme_cancel_position")),
+        "theme_bg_image":          _safe_bg_image(data.get("theme_bg_image")),
+        "theme_bg_overlay":        _safe_overlay(data.get("theme_bg_overlay")),
+        "checkout_layout":         _safe_checkout_layout(data.get("checkout_layout")),
+        "theme_v2_colors_json":    safe_v2_colors_json(data.get("theme_v2_colors_json")),
     }
+
+
+_VALID_LAYOUTS = {
+    "stripe", "receipt", "glass", "brutalist", "luxury", "playful",
+    "newspaper", "cyberpunk", "swiss", "pixel", "boarding_pass", "zen",
+    "aurora", "blueprint", "botanical", "eink", "fintech", "artdeco", "comic", "vaporwave",
+    "delivery", "candy", "beauty", "princess", "boutique", "chalkboard", "gym", "vinyl",
+}
+_V2_LAYOUTS = _VALID_LAYOUTS - {"stripe"}
+
+def _safe_checkout_layout(v):
+    return v if v in _VALID_LAYOUTS else None
+
+
+def safe_v2_colors_json(v: Any) -> str | None:
+    """Validate {layout_id: {accent: '#hex', bg: '#hex'}, ...}. Unknown
+    layout ids and non-hex values are dropped rather than rejecting the
+    whole payload, so one bad entry can't block saving the rest."""
+    if v is None:
+        return None
+    if isinstance(v, str):
+        import json
+        try:
+            v = json.loads(v)
+        except Exception:
+            return None
+    if not isinstance(v, dict):
+        return None
+    clean: dict[str, dict[str, str]] = {}
+    for layout_id, colors in v.items():
+        if layout_id not in _V2_LAYOUTS or not isinstance(colors, dict):
+            continue
+        entry = {}
+        accent = _safe_hex(colors.get("accent"))
+        bg = _safe_hex(colors.get("bg"))
+        font = _safe_font(colors.get("font"))
+        if accent:
+            entry["accent"] = accent
+        if bg:
+            entry["bg"] = bg
+        if font:
+            entry["font"] = font
+        if entry:
+            clean[layout_id] = entry
+    if not clean:
+        return None
+    import json
+    return json.dumps(clean)
+
+
+def _safe_position(v):
+    """QR / cancel position: only 'top' or 'bottom'."""
+    return v if v in ("top", "bottom") else None
+
+
+def _safe_overlay(v):
+    """Background overlay strength 0–95 (digits only)."""
+    if v is None:
+        return None
+    s = re.sub(r"[^0-9]", "", str(v))
+    if not s:
+        return None
+    n = max(0, min(95, int(s)))
+    return str(n)
+
+
+_BG_RE      = re.compile(r'^data:(image/(?:png|jpeg|webp|gif));base64,([A-Za-z0-9+/=]+)$')
+_BG_MAX_IN  = 8 * 1024 * 1024   # 8 MB max raw upload
+_BG_MAX_OUT = 2 * 1024 * 1024   # 2 MB max after compression
+
+
+def _compress_bg(data: bytes) -> tuple[bytes, str]:
+    """
+    Resize to max 1920×1200 and re-encode as JPEG. Re-encoding strips all EXIF
+    metadata and embedded payloads. Returns (compressed_bytes, 'image/jpeg').
+    """
+    import io
+    from PIL import Image
+    img = Image.open(io.BytesIO(data))
+    img.load()
+    img.thumbnail((1920, 1200), Image.LANCZOS)
+    if img.mode in ("RGBA", "LA", "P"):
+        img = img.convert("RGB")
+    out = io.BytesIO()
+    quality = 85
+    img.save(out, format="JPEG", quality=quality, optimize=True)
+    result = out.getvalue()
+    while len(result) > _BG_MAX_OUT and quality > 60:
+        quality -= 8
+        out = io.BytesIO()
+        img.save(out, format="JPEG", quality=quality, optimize=True)
+        result = out.getvalue()
+    return result, "image/jpeg"
+
+
+def _safe_bg_image(v):
+    """
+    Validate, compress and return a checkout background image data URI.
+    Accepts up to 8 MB raster input; compresses to JPEG ≤ 2 MB via Pillow
+    (strips EXIF/metadata). SVG not allowed (script risk). Empty string = clear.
+    """
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s == "":
+        return ""
+    m = _BG_RE.match(s)
+    if not m:
+        return None
+    import base64 as _b64
+    try:
+        raw = _b64.b64decode(m.group(2), validate=True)
+    except Exception:
+        return None
+    if len(raw) == 0 or len(raw) > _BG_MAX_IN:
+        return None
+    # Magic-byte check rejects executables renamed as images.
+    ok = (raw[:8] == b"\x89PNG\r\n\x1a\n" or raw[:3] == b"\xff\xd8\xff"
+          or raw[:6] in (b"GIF87a", b"GIF89a")
+          or (raw[:4] == b"RIFF" and raw[8:12] == b"WEBP"))
+    if not ok:
+        return None
+    try:
+        comp, out_mime = _compress_bg(raw)
+    except Exception:
+        return None
+    if len(comp) > _BG_MAX_OUT:
+        return None
+    return f"data:{out_mime};base64,{_b64.b64encode(comp).decode()}"
 
 
 def theme_from_user(user) -> dict:
@@ -277,5 +428,23 @@ def theme_from_user(user) -> dict:
     theme["checkout_subtitle"] = _safe_text(user.theme_checkout_subtitle, 120) or ""
     theme["success_msg"]       = _safe_text(user.theme_success_msg, 200) or ""
     theme["cancel_msg"]        = _safe_text(user.theme_cancel_msg, 200) or ""
+    theme["qr_position"]       = _safe_position(user.theme_qr_position) or "bottom"
+    theme["cancel_position"]   = _safe_position(user.theme_cancel_position) or "bottom"
+    theme["bg_image"]          = _safe_bg_image(user.theme_bg_image) or ""
+    theme["bg_overlay"]        = _safe_overlay(user.theme_bg_overlay) or "70"
     theme["theme_id"]          = user.theme_id or "dark_gold"
+    raw_layout = getattr(user, "checkout_layout", None) or "stripe"
+    theme["checkout_layout"] = raw_layout if raw_layout in _VALID_LAYOUTS else "stripe"
+    theme["v2_colors"] = _parse_v2_colors(getattr(user, "theme_v2_colors_json", None))
     return theme
+
+
+def _parse_v2_colors(raw: str | None) -> dict:
+    if not raw:
+        return {}
+    import json
+    try:
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}

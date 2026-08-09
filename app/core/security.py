@@ -20,8 +20,21 @@ from loguru import logger
 from app.core.config import get_settings
 
 
-_KDF_SALT       = b"lavapay-field-encryption-v1-salt"
-_KDF_ITERATIONS = 260_000
+# Default salt (published). For stronger security set FIELD_ENCRYPTION_SALT in
+# .env to a unique random value recommended for open-source deployments.
+_KDF_SALT_DEFAULT = b"lavapay-field-encryption-v1-salt"
+_KDF_ITERATIONS   = 260_000  # keep stable — changing this invalidates existing ciphertext
+
+
+def _kdf_salt() -> bytes:
+    try:
+        from app.core.config import get_settings
+        custom = (getattr(get_settings(), "FIELD_ENCRYPTION_SALT", "") or "").strip()
+        if custom:
+            return custom.encode("utf-8")
+    except Exception:
+        pass
+    return _KDF_SALT_DEFAULT
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080   # 7 days (7 * 24 * 60)
 COOKIE_MAX_AGE = ACCESS_TOKEN_EXPIRE_MINUTES * 60
@@ -32,19 +45,19 @@ def _cookie_kwargs(request=None) -> dict:
     Shared cookie attributes for the access_token cookie.
 
     * `domain`:
-        1. explicit COOKIE_DOMAIN from .env (highest priority, e.g. '.firogate.com')
-        2. auto-derived from the CURRENT REQUEST's Host header — ensures the
+        1. explicit COOKIE_DOMAIN from .env (highest priority, e.g. '.example.com')
+        2. auto-derived from the CURRENT REQUEST's Host header ensures the
            cookie is always scoped to the registrable domain the user is on
-           right now, so a login on firogate.com works on dashboard.firogate.com
+           right now, so a login on example.com works on dashboard.example.com
            and vice versa.
         3. fall back to BASE_URL when the request is unavailable (background task).
         4. empty (host-only) for single-host / localhost / IP.
     * `secure`: True when the request reached us via HTTPS (direct or via a
       reverse-proxy that sets X-Forwarded-Proto: https).
     * `samesite`:
-        - 'none' when the cookie is Secure (HTTPS) — required for cross-site
+        - 'none' when the cookie is Secure (HTTPS) required for cross-site
           contexts such as Firebase's OAuth popup/iframe returning a response
-          that should still carry the session cookie across firogate.com
+          that should still carry the session cookie across example.com
           siblings (dashboard ↔ api ↔ checkout).
         - 'lax' as a fallback for plain HTTP (Tor hidden service, local dev).
           Browsers reject SameSite=None without Secure, so we must downgrade.
@@ -81,12 +94,11 @@ def _cookie_kwargs(request=None) -> dict:
             pass
     if secure:
         kw["secure"] = True
-        kw["samesite"] = "none"
-    else:
-        # HTTP (Tor/onion or local dev) — SameSite=Lax, no Secure flag
-        # Browsers reject SameSite=None without Secure, so Lax is correct here.
         kw["samesite"] = "lax"
-        # For onion requests: do NOT set a domain — keep cookie host-only
+    else:
+        # HTTP (Tor/onion or local dev): SameSite=Lax, no Secure flag
+        kw["samesite"] = "lax"
+        # For onion requests, do NOT set a domain — keep the cookie host-only
         # so it's scoped to the .onion hostname, not leaked to clearnet domains.
         if "domain" in kw and request is not None:
             try:
@@ -96,7 +108,7 @@ def _cookie_kwargs(request=None) -> dict:
                     or (request.url.hostname or "")
                 ).split(",")[0].split(":")[0].strip().lower()
                 if host.endswith(".onion"):
-                    kw.pop("domain", None)  # host-only cookie for .onion
+                    kw.pop("domain", None)
             except Exception:
                 pass
     return kw
@@ -106,9 +118,9 @@ def _derive_cookie_domain(base_url: str) -> str:
     """Derive a cross-subdomain cookie domain from BASE_URL.
 
     Examples:
-      'https://firogate.com'            → '.firogate.com'
-      'https://www.firogate.com'        → '.firogate.com'
-      'https://dashboard.firogate.com'  → '.firogate.com'
+      'https://example.com'            → '.example.com'
+      'https://www.example.com'        → '.example.com'
+      'https://dashboard.example.com'  → '.example.com'
       'http://localhost:8000'           → ''      (host-only cookie)
       'http://127.0.0.1:8000'           → ''
       'https://example.co.uk'           → ''      (avoid public-suffix traps)
@@ -120,7 +132,7 @@ def _derive_cookie_domain(base_url: str) -> str:
         return ""
     if not host or host in ("localhost",):
         return ""
-    # IP literal? no cookie domain
+    # IP literal: no cookie domain
     try:
         import ipaddress
         ipaddress.ip_address(host)
@@ -139,13 +151,13 @@ def _derive_cookie_domain(base_url: str) -> str:
     # Leading dot so ALL subdomains receive the cookie
     return "." + ".".join(parts[-2:])
 
-# Session binding: hash of IP + User-Agent for clearnet users
+
 _SESSION_BIND_ALGO = "sha256"
 
 
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt (12 rounds). Truncates to 72 bytes —
-    bcrypt's hard limit — to stay compatible with all bcrypt implementations."""
+    bcrypt's hard limit to stay compatible with all bcrypt implementations."""
     pw = password.encode("utf-8")[:72]
     return bcrypt.hashpw(pw, bcrypt.gensalt(12)).decode("utf-8")
 
@@ -161,12 +173,6 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def _compute_session_fingerprint(ip: str, ua: str) -> str:
-    """Compute a short hash binding a session to IP + User-Agent."""
-    raw = f"{ip or ''}|{ua or ''}"
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
-
-
 def create_access_token(
     sub: str,
     minutes: int = ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -176,7 +182,7 @@ def create_access_token(
 ) -> str:
     """
     Create JWT.
-    Session binding is intentionally DISABLED — behind Cloudflare / nginx /
+    Session binding is intentionally DISABLED behind a reverse proxy /
     rotating mobile networks, the client IP observed at cookie issue vs verify
     can differ, which breaks legitimate sessions (users get kicked out to
     /login on every tab click). Token-theft is already mitigated by:
@@ -209,7 +215,7 @@ def verify_access_token(token: str) -> Optional[str]:
 def verify_session_binding(token: str, ip: str, ua: str) -> bool:
     """
     Legacy session fingerprint check. Session binding has been disabled
-    (see create_access_token) because IP mismatches behind Cloudflare cause
+    (see create_access_token) because IP mismatches behind a proxy cause
     false logouts. We still accept old tokens that embed an `sfp` claim —
     we just don't enforce it strictly. Returns True whenever the JWT decodes
     successfully. Token-theft defence relies on httponly cookie + TLS.
@@ -227,7 +233,7 @@ def _derive_fernet(key_material: str, iterations: int = _KDF_ITERATIONS) -> Fern
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=_KDF_SALT,
+        salt=_kdf_salt(),
         iterations=iterations,
         backend=default_backend(),
     )
@@ -267,7 +273,7 @@ def _build_multi_fernet(s) -> MultiFernet:
         keys.append(_derive_fernet(old_raw))
         logger.info(
             "[security] Key rotation active: MultiFernet with current + old key. "
-            "Run /api/admin/rotate-field-keys to re-encrypt at-rest data, "
+            "Run /api/panel/rotate-field-keys to re-encrypt at-rest data, "
             "then remove FIELD_ENCRYPTION_KEY_OLD from .env."
         )
 
@@ -304,7 +310,7 @@ def decrypt_field(value: str) -> str:
         return get_fernet().decrypt(value.encode("ascii")).decode("utf-8")
     except InvalidToken as exc:
         raise ValueError(
-            "Field decryption failed — token is invalid, tampered, or was "
+            "Field decryption failed token is invalid, tampered, or was "
             "encrypted with a different FIELD_ENCRYPTION_KEY."
         ) from exc
 
@@ -348,19 +354,32 @@ def validate_encryption_key_on_startup() -> None:
     except Exception as exc:
         raise RuntimeError(
             f"[security] FIELD_ENCRYPTION_KEY validation FAILED: {exc}\n"
-            "The application cannot start safely — fix the key in .env."
+            "The application cannot start safely fix the key in .env."
         ) from exc
 
-    key_prefix = raw[:6] + "…" if len(raw) > 6 else raw
     logger.success(
         f"[security] ✅ FIELD_ENCRYPTION_KEY validated "
-        f"(PBKDF2-SHA256, {_KDF_ITERATIONS:,} iter) prefix={key_prefix}"
+        f"(PBKDF2-SHA256, {_KDF_ITERATIONS:,} iter)"
     )
+
+    if not (getattr(s, "FIELD_ENCRYPTION_SALT", "") or "").strip():
+        logger.warning(
+            "[security] FIELD_ENCRYPTION_SALT is NOT SET in .env — using the "
+            "shared default salt baked into this open-source repo. This does "
+            "not break encryption, but every deployment that skips this "
+            "setting derives its encryption key with the same salt, which "
+            "narrows the KDF's per-deployment diversity.\n"
+            "[security]  Recommended: set FIELD_ENCRYPTION_SALT and rotate "
+            "via FIELD_ENCRYPTION_KEY_OLD (see below) do NOT change it "
+            "silently on an existing deployment, or previously-encrypted "
+            "fields (webhook secrets, TOTP secrets) become unreadable.\n"
+            "[security]  python3 -c \"import secrets; print(secrets.token_hex(16))\""
+        )
 
     old_raw = (getattr(s, "FIELD_ENCRYPTION_KEY_OLD", "") or "").strip()
     if old_raw:
         logger.info(
-            "[security] FIELD_ENCRYPTION_KEY_OLD detected — key rotation mode is active. "
+            "[security] FIELD_ENCRYPTION_KEY_OLD detected key rotation mode is active. "
             "After migrating all rows, remove FIELD_ENCRYPTION_KEY_OLD from .env."
         )
 
@@ -373,48 +392,53 @@ def generate_webhook_secret() -> str:
     return secrets.token_hex(32)
 
 
+def generate_account_number() -> str:
+    return "".join(str(secrets.randbelow(10)) for _ in range(16))
+
+
+def format_account_number(raw: str) -> str:
+    digits = "".join(c for c in raw if c.isdigit())
+    return " ".join(digits[i:i + 4] for i in range(0, len(digits), 4))
+
+
+def normalize_account_number(raw: str) -> str:
+    return "".join(c for c in raw if c.isdigit())
+
+
+def account_number_lookup_key(normalized: str) -> str:
+    key = get_settings().SECRET_KEY.encode("utf-8")
+    return hmac.new(key, normalized.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
 def sign_webhook(payload: dict, secret: str) -> str:
     body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hmac.new(secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
 
 
-def verify_webhook_signature(
-    payload: dict,
-    secret: str,
-    signature: str,
-    max_age_seconds: int = 300,
-) -> bool:
-    ts  = payload.get("timestamp", 0)
-    now = time.time()
-    if abs(now - ts) > max_age_seconds:
-        return False
-    if ts > now + 30:
-        return False
-    expected = sign_webhook(payload, secret)
-    if not hmac.compare_digest(expected, signature):
-        return False
-    # Nonce replay check is handled externally via nonce_tracker
-    # (caller should check is_nonce_used before calling this)
-    return True
-
-
 def build_webhook_payload(base: dict) -> dict:
     return {**base, "nonce": secrets.token_hex(16), "timestamp": int(time.time())}
 
-# ─ Checkout Access Token (HMAC) ─
-# Protects public payment endpoints from enumeration.
-# Even if someone guesses a UUID, they can't access it without the token.
-#
-# Token = first 16 bytes of HMAC-SHA256(payment_id + ":" + created_ts, SECRET_KEY)
-# Encoded as URL-safe base64 (22 chars, no padding).
 
 def generate_checkout_token(payment_id: str, created_ts: str) -> str:
-    """Generate a short HMAC token for checkout URL."""
+    """Generate a short HMAC token for the checkout URL.
+
+    Protects public payment endpoints from enumeration: even if someone
+    guesses a UUID, they can't access it without the token. Token is the
+    first 12 bytes of HMAC-SHA256(payment_id + ":" + created_ts, SECRET_KEY),
+    encoded as URL-safe base64.
+    """
     from app.core.config import get_settings
     secret = get_settings().SECRET_KEY.encode()
+    # created_ts comes from datetime.isoformat(). SQLite drops tzinfo on
+    # read, so the same instant serializes with a "+00:00" suffix right
+    # after creation (in-memory, tz-aware) but without one once re-fetched
+    # from the DB (naive). Strip it so both produce the same token.
+    if created_ts.endswith("+00:00"):
+        created_ts = created_ts[:-6]
+    elif created_ts.endswith("Z"):
+        created_ts = created_ts[:-1]
     message = f"{payment_id}:{created_ts}".encode()
     digest = hmac.new(secret, message, hashlib.sha256).digest()
-    # First 12 bytes → 16 URL-safe base64 chars (no padding)
     import base64
     return base64.urlsafe_b64encode(digest[:12]).decode().rstrip("=")
 
@@ -425,3 +449,37 @@ def verify_checkout_token(payment_id: str, created_ts: str, token: str) -> bool:
         return False
     expected = generate_checkout_token(payment_id, created_ts)
     return hmac.compare_digest(expected, token)
+
+
+def record_login_meta(user, request) -> None:
+    """Stamp last-login time / IP / device on the user row (panel visibility).
+
+    Privacy rules: for privacy-mode accounts and Tor sessions the IP and
+    user-agent are NOT recorded only the timestamp. The row is overwritten
+    on every successful login (one snapshot per user, not a history log).
+    """
+    from datetime import datetime, timezone
+    user.last_login_at = datetime.now(timezone.utc)
+    try:
+        from app.services.privacy_service import is_onion_request
+        private = bool(getattr(user, "privacy_mode", False)) or is_onion_request(request)
+    except Exception:
+        private = bool(getattr(user, "privacy_mode", False))
+    if private:
+        user.last_login_ip = None
+        user.last_login_device = None
+        return
+    try:
+        from app.core.config import get_settings
+        ip = ""
+        if get_settings().TRUST_PROXY_HEADERS:
+            ip = (request.headers.get("CF-Connecting-IP", "").strip()
+                  or request.headers.get("X-Real-IP", "").strip()
+                  or (request.headers.get("X-Forwarded-For", "").split(",")[0].strip()))
+        if not ip:
+            ip = request.client.host if request.client else ""
+        user.last_login_ip = ip[:64] or None
+    except Exception:
+        user.last_login_ip = None
+    ua = (request.headers.get("user-agent") or "").strip()
+    user.last_login_device = ua[:256] or None

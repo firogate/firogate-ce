@@ -2,9 +2,9 @@ import json
 import secrets
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 import re as _re
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -13,11 +13,26 @@ from app.core.security import (
     generate_api_key, generate_webhook_secret, encrypt_field, decrypt_field,
     _cookie_kwargs,
 )
-from app.core.validators import validate_username, validate_password, sanitize_str
+from app.core.validators import validate_password, sanitize_str
 from app.core.rate_limit import rate_limit_auth, rate_limit_moderate
 from app.models.models import User, UserRole, LoginAttempt
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+def _trusted_client_ip(request: Request) -> str:
+    """Client IP for session-binding/logging. Only trusts proxy headers
+    (CF-Connecting-IP / X-Real-IP) when TRUST_PROXY_HEADERS is enabled —
+    otherwise they're client-spoofable and must not influence auth logic."""
+    from app.core.config import get_settings as _gs_ip
+    if _gs_ip().TRUST_PROXY_HEADERS:
+        ip = request.headers.get("CF-Connecting-IP", "").strip()
+        if ip:
+            return ip
+        ip = request.headers.get("X-Real-IP", "").strip()
+        if ip:
+            return ip
+    return request.client.host if request.client else ""
 
 
 async def _get_current_user(request: Request, db: AsyncSession) -> User:
@@ -31,118 +46,112 @@ async def _get_current_user(request: Request, db: AsyncSession) -> User:
     from app.core.security import verify_session_binding
     from app.services.privacy_service import is_onion_request
     if not is_onion_request(request):
-        ip = request.headers.get("CF-Connecting-IP", "").strip()
-        if not ip:
-            ip = request.headers.get("X-Real-IP", "").strip()
-        if not ip:
-            ip = request.client.host if request.client else ""
+        ip = _trusted_client_ip(request)
         ua = request.headers.get("user-agent", "")
         if not verify_session_binding(token, ip, ua):
-            raise HTTPException(401, "Session expired — please log in again")
+            raise HTTPException(401, "Session expired please log in again")
 
     res = await db.execute(select(User).where(User.id == uid))
     u = res.scalar_one_or_none()
     if not u or not u.is_active:
         raise HTTPException(401, "User not found or inactive")
 
-    # Admin-email auto-promotion (mirrors the logic in app.api.users.get_current_user).
-    # /api/auth/me is the single source of truth the admin page uses to check
-    # role, so if we don't promote here the admin panel will see role=merchant
+    # Operator-email auto-promotion (mirrors the logic in app.api.users.get_current_user).
+    # /api/auth/me is the single source of truth the panel uses to check
+    # role, so if we don't promote here the panel will see role=merchant
     # even for a user listed in OPERATOR_EMAILS, and kick them back to /dashboard.
     from app.core.config import get_settings as _gs
-    if u.role != UserRole.admin and _gs().is_admin_email(u.email):
-        u.role = UserRole.admin
+    _s = _gs()
+    if u.role != UserRole.operator and (_s.is_operator_email(u.email) or _s.is_operator_username(u.username)):
+        u.role = UserRole.operator
         db.add(u)
         await db.commit()
         await db.refresh(u)
     return u
 
 
-def _generate_recovery_codes(count: int = 8) -> list[str]:
-    # DEPRECATED — recovery codes removed; kept as a compatibility stub.
-    return []
-
-
 class RegisterIn(BaseModel):
-    username:         str
-    email:            str | None = None   # optional — privacy-first
+    username:         str | None = None
+    email:            str | None = None   # optional privacy-first
     password:         str
+    app_name:         str
     full_name:        str | None = None
-    agreed_to_terms:  bool = False        # must be True — enforced server-side
 
 
 @router.post("/register", status_code=201, dependencies=[Depends(rate_limit_moderate)])
 async def register(body: RegisterIn, request: Request, response: Response, db: AsyncSession = Depends(get_db)):
-    # Server-side enforcement: terms must be explicitly accepted.
-    # This is a second layer — the frontend also enforces it.
-    if not body.agreed_to_terms:
-        raise HTTPException(400, "You must agree to the Terms of Service and Privacy Policy to register.")
+    from app.core.system_settings import hide_auth_pages_enabled
+    if await hide_auth_pages_enabled(db):
+        raise HTTPException(404)
 
     from app.services.privacy_service import is_onion_request
-    
+    from app.api.users import clean_app_name
+
     try:
-        body.username = validate_username(body.username)
         validate_password(body.password)
         if body.full_name:
             body.full_name = sanitize_str(body.full_name, 128)
     except ValueError as e:
         raise HTTPException(422, str(e))
 
-    # Validate email format only if provided
+    app_name = clean_app_name(body.app_name)
+
     clean_email: str | None = None
     if body.email:
         raw_email = body.email.strip().lower()
-        # Basic RFC-safe check — no external library needed
+        # Basic RFC-safe check, no external library needed
         if not _re.match(r'^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$', raw_email):
             raise HTTPException(422, "Invalid email address format.")
         if len(raw_email) > 320:
             raise HTTPException(422, "Email address is too long.")
         clean_email = raw_email
 
-    res = await db.execute(select(User).where(User.username == body.username))
-    if res.scalar_one_or_none():
-        raise HTTPException(409, "Username already taken")
+    if body.username:
+        candidate = body.username.strip().lower()
+        if not _re.match(r'^[a-z0-9_\-]{3,32}$', candidate):
+            raise HTTPException(422, "Username must be 3-32 characters: letters, numbers, - and _ only.")
+        res = await db.execute(select(User).where(User.username == candidate))
+        if res.scalar_one_or_none():
+            raise HTTPException(409, "Username already taken")
+        username = candidate
+    else:
+        username = (clean_email.split("@", 1)[0] if clean_email else f"user-{secrets.token_hex(3)}").lower()
+        username = _re.sub(r"[^a-z0-9_\-]", "-", username)[:32] or f"user-{secrets.token_hex(3)}"
+        for _ in range(6):
+            res = await db.execute(select(User).where(User.username == username))
+            if not res.scalar_one_or_none():
+                break
+            username = f"{username[:26]}-{secrets.token_hex(2)}"
 
-    # Only check email uniqueness if one was provided
     if clean_email:
         res = await db.execute(select(User).where(User.email == clean_email))
         if res.scalar_one_or_none():
             raise HTTPException(409, "Email already registered")
 
-    # Detect if registering via Tor/onion
     is_onion = is_onion_request(request)
-    # Get client IP for session binding (blank for Tor/onion users)
-    ip = ""
-    if not is_onion:
-        ip = request.headers.get("CF-Connecting-IP", "").strip()
-        if not ip:
-            ip = request.headers.get("X-Real-IP", "").strip()
-        if not ip:
-            ip = request.client.host if request.client else ""
+    ip = "" if is_onion else _trusted_client_ip(request)
 
     webhook_secret = generate_webhook_secret()
     user = User(
-        username=body.username,
+        username=username,
         email=clean_email,   # None if not provided
         full_name=body.full_name,
-        hashed_password=hash_password(body.password),  # always stored — Tor login fallback
+        hashed_password=hash_password(body.password),  # always stored, used as Tor login fallback
         role=UserRole.merchant,
         api_key=generate_api_key(),
         api_key_active=True,
         webhook_secret_enc=encrypt_field(webhook_secret),
-        requests_total=50,
-        requests_used=0,
-        balance_firo=0.0,
-        # Privacy mode - set if registering via onion
         privacy_mode=is_onion,
         created_via_onion=is_onion,
+        merchant_setup_unlocked=True,
+        app_name=app_name,
+        app_name_locked=True,
     )
     db.add(user)
     await db.flush()
     user_id = user.id
     await db.commit()
-    
-    # Update analytics stats for new user
+
     from app.services.analytics_service import on_user_registered
     await on_user_registered(db, user)
 
@@ -153,18 +162,16 @@ async def register(body: RegisterIn, request: Request, response: Response, db: A
         privacy=is_onion,
     )
 
-    # Set httponly cookie — same as login, so browser is authenticated immediately.
-    # Without this, Tor Browser gets the token in JSON but never stores it,
-    # causing an instant 401 on the next request and kicking the user out.
+    # Set httponly cookie same as login, so the browser is authenticated
+    # immediately. Without this, Tor Browser gets the token in JSON but never
+    # stores it, causing an instant 401 on the next request.
     from app.core.security import _cookie_kwargs
     response.set_cookie("access_token", token, **_cookie_kwargs(request))
 
-    return {
-        "message": "Account created",
-        "user_id": user_id,
-        "access_token": token,
-        "token": token,  # backward compatibility
-    }
+    result = {"message": "Account created", "user_id": user_id}
+    if not clean_email:
+        result["username"] = username
+    return result
 
 
 class LoginIn(BaseModel):
@@ -175,14 +182,12 @@ class LoginIn(BaseModel):
 
 @router.post("/login", dependencies=[Depends(rate_limit_auth)])
 async def login(body: LoginIn, response: Response, request: Request, db: AsyncSession = Depends(get_db)):
-    from app.services.privacy_service import is_onion_request, get_client_ip, check_privacy_mode_access
+    from app.services.privacy_service import is_onion_request, get_client_ip
     from app.core.privacy_middleware import update_privacy_state_for_user
     
     is_onion = is_onion_request(request)
-    # Only log IP for non-privacy requests
     ip = get_client_ip(request, privacy_mode=is_onion) or "privacy"
     identifier = body.username.strip().lower()
-
 
     res = await db.execute(
         select(User).where(
@@ -194,10 +199,31 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
     )
     user = res.scalar_one_or_none()
 
+    # Per-account lockout backstop against brute force even if the IP-based
+    # rate limit is evaded (rotating proxies, spoofable X-Forwarded-For, etc).
+    # 10 failed attempts against the SAME username within 15 minutes locks
+    # that account out for 15 minutes, independent of source IP.
+    if user and not is_onion:
+        from datetime import timedelta as _td
+        _window_start = datetime.now(timezone.utc) - _td(minutes=15)
+        _fail_count_res = await db.execute(
+            select(func.count()).select_from(LoginAttempt).where(
+                LoginAttempt.username == body.username,
+                LoginAttempt.success == False,
+                LoginAttempt.created_at >= _window_start,
+            )
+        )
+        _fail_count = _fail_count_res.scalar() or 0
+        if _fail_count >= 10:
+            raise HTTPException(
+                429,
+                "Too many failed login attempts for this account. Try again in 15 minutes."
+            )
+
     # Firebase-backed account? Verify the password via Firebase (the source of
     # truth for it). The local hashed_password for these accounts is an
     # unusable random value by design, so we MUST NOT compare it here.
-    # EXCEPTION: On Tor/onion, Firebase REST API is unreachable — fall back to
+    # EXCEPTION: On Tor/onion, Firebase REST API is unreachable fall back to
     # local hashed_password if one exists (set during onion registration).
     if user and user.firebase_uid and not is_onion:
         from app.core import firebase_auth as _fb
@@ -211,12 +237,12 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
             fb_result = None
         pw_ok = bool(fb_result and user.is_active)
     elif user and user.firebase_uid and is_onion:
-        # Tor path: Firebase unreachable — use local password hash if available
+        # Tor path: Firebase is unreachable, use local password hash if available
         if user.hashed_password and not user.hashed_password.startswith("UNUSABLE"):
             pw_ok = bool(verify_password(body.password, user.hashed_password) and user.is_active)
         else:
-            # Firebase-only account with no local password — cannot log in via Tor
-            # Return a helpful error instead of a confusing 401
+            # Firebase-only account with no local password cannot log in via Tor.
+            # Return a helpful error instead of a confusing 401.
             raise HTTPException(
                 403,
                 "This account uses Google/Firebase sign-in which is not available over Tor. "
@@ -226,16 +252,10 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
         pw_ok = bool(user and verify_password(body.password, user.hashed_password) and user.is_active)
 
     if not pw_ok:
-        # Log attempt with privacy awareness
         if not is_onion and not (user and getattr(user, 'privacy_mode', False)):
             db.add(LoginAttempt(username=body.username, ip_address=ip, success=False))
         await db.commit()
         raise HTTPException(401, "Invalid credentials")
-
-    # Firebase users must have verified email before we hand out a session
-    if user.firebase_uid and not user.email_verified:
-        raise HTTPException(403, "Please verify your email first.")
-
 
     if user.totp_enabled and user.totp_secret_enc:
         code = (body.totp_code or "").strip()
@@ -245,7 +265,7 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
             await db.commit()
             raise HTTPException(403, "2FA code required")
 
-        from app.core.totp import verify_totp_code, decrypt_totp_secret
+        from app.core.totp import verify_totp_code, decrypt_totp_secret, current_totp_step
         from app.core.security import get_fernet
         try:
             fernet = get_fernet()
@@ -255,7 +275,7 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
         except Exception:
             raise HTTPException(500, "2FA configuration error")
 
-        totp_ok = verify_totp_code(secret, code)
+        totp_ok = verify_totp_code(secret, code, last_step=user.totp_last_step)
         backup_ok = (not totp_ok) and _use_backup_code(user, code)
 
         if not totp_ok and not backup_ok:
@@ -264,33 +284,30 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
             await db.commit()
             raise HTTPException(401, "Invalid 2FA code")
 
-    user.last_login_at = datetime.now(timezone.utc)
+        if totp_ok:
+            step = current_totp_step(secret, code)
+            if step is not None:
+                user.totp_last_step = step
+
+    from app.core.security import record_login_meta
+    record_login_meta(user, request)
 
     # Session binding: embed IP + UA fingerprint for clearnet non-Firebase users.
-    # Firebase users skip it — Firebase revocation already invalidates sessions
-    # on password change, and behind Cloudflare + nginx the IP extracted at
+    # Firebase users skip it Firebase revocation already invalidates sessions
+    # on password change, and behind a reverse proxy the IP extracted at
     # cookie issue vs verify can subtly differ, locking legitimate users out.
     ua = request.headers.get("user-agent", "")
     is_firebase = bool(getattr(user, "firebase_uid", None))
     is_privacy = is_onion or getattr(user, 'privacy_mode', False) or is_firebase
     token = create_access_token(user.id, ip=ip, ua=ua, privacy=is_privacy)
-    
-    # Log successful attempt with privacy awareness
+
     if not is_onion and not user.privacy_mode:
         db.add(LoginAttempt(username=body.username, ip_address=ip, success=True))
     await db.commit()
 
     response.set_cookie("access_token", token, **_cookie_kwargs(request))
 
-    # Update privacy state for this session
     privacy_state = update_privacy_state_for_user(request, user)
-
-    if user.role == UserRole.admin and user.totp_enabled and (body.totp_code or "").strip():
-        try:
-            from app.enterprise.core.admin_guard import mark_admin_2fa_verified
-            mark_admin_2fa_verified(token)
-        except ImportError:
-            pass  # Community Edition — no admin 2FA tracking
 
     return {
         "access_token":      token,
@@ -298,16 +315,155 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
         "user_id":           user.id,
         "username":          user.username,
         "role":              user.role,
-        "is_admin":          user.role == UserRole.admin,
+        "is_operator":          user.role == UserRole.operator,
         "has_2fa":           bool(user.totp_enabled),
         "requires_2fa":      False,
-        "admin_2fa_granted": (
-            user.role == UserRole.admin
+        "operator_2fa_granted": (
+            user.role == UserRole.operator
             and user.totp_enabled
             and bool((body.totp_code or "").strip())
         ),
-        # Privacy mode info
         "privacy_mode":      user.privacy_mode,
+        "is_onion_session":  is_onion,
+        "privacy_warning":   privacy_state.get("access_warning"),
+    }
+
+
+@router.post("/register-number", status_code=201, dependencies=[Depends(rate_limit_moderate)])
+async def register_number(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
+    from app.core.system_settings import hide_auth_pages_enabled
+    if await hide_auth_pages_enabled(db):
+        raise HTTPException(404)
+
+    from app.core.security import (
+        generate_account_number, format_account_number,
+        account_number_lookup_key,
+    )
+    from app.services.privacy_service import is_onion_request
+
+    is_onion = is_onion_request(request)
+    ip = "" if is_onion else _trusted_client_ip(request)
+
+    raw_number = generate_account_number()
+    lookup = account_number_lookup_key(raw_number)
+
+    username = f"user-{secrets.token_hex(4)}"
+    for _ in range(6):
+        res = await db.execute(select(User).where(User.username == username))
+        if not res.scalar_one_or_none():
+            break
+        username = f"user-{secrets.token_hex(4)}"
+
+    webhook_secret = generate_webhook_secret()
+    user = User(
+        username=username,
+        email=None,
+        hashed_password="UNUSABLE-" + secrets.token_hex(32),
+        account_number_hash=hash_password(raw_number),
+        account_number_lookup=lookup,
+        auth_method="account_number",
+        role=UserRole.merchant,
+        api_key=generate_api_key(),
+        api_key_active=True,
+        webhook_secret_enc=encrypt_field(webhook_secret),
+        privacy_mode=is_onion,
+        created_via_onion=is_onion,
+        merchant_setup_unlocked=True,
+        app_name="Payment Gateway",
+        app_name_locked=False,
+    )
+    db.add(user)
+    await db.flush()
+    user_id = user.id
+    await db.commit()
+
+    from app.services.analytics_service import on_user_registered
+    await on_user_registered(db, user)
+
+    token = create_access_token(
+        user_id,
+        ip=ip if not is_onion else "",
+        ua=request.headers.get("user-agent", "") if not is_onion else "",
+        privacy=True,
+    )
+    response.set_cookie("access_token", token, **_cookie_kwargs(request))
+
+    return {
+        "message": "Account created",
+        "user_id": user_id,
+        "account_number": format_account_number(raw_number),
+    }
+
+
+class LoginNumberIn(BaseModel):
+    account_number: str
+
+
+@router.post("/login-number", dependencies=[Depends(rate_limit_auth)])
+async def login_number(body: LoginNumberIn, response: Response, request: Request, db: AsyncSession = Depends(get_db)):
+    from app.services.privacy_service import is_onion_request
+    from app.core.privacy_middleware import update_privacy_state_for_user
+    from app.core.security import normalize_account_number, account_number_lookup_key, record_login_meta
+
+    is_onion = is_onion_request(request)
+    ip = "" if is_onion else _trusted_client_ip(request)
+
+    normalized = normalize_account_number(body.account_number)
+    if len(normalized) != 16:
+        raise HTTPException(401, "Invalid account number")
+
+    if not is_onion:
+        from datetime import timedelta as _td
+        _window_start = datetime.now(timezone.utc) - _td(minutes=15)
+        _fail_count_res = await db.execute(
+            select(func.count()).select_from(LoginAttempt).where(
+                LoginAttempt.username == "acct-number",
+                LoginAttempt.ip_address == ip,
+                LoginAttempt.success == False,
+                LoginAttempt.created_at >= _window_start,
+            )
+        )
+        if (_fail_count_res.scalar() or 0) >= 10:
+            raise HTTPException(429, "Too many failed attempts. Try again in 15 minutes.")
+
+    lookup = account_number_lookup_key(normalized)
+    res = await db.execute(select(User).where(User.account_number_lookup == lookup))
+    user = res.scalar_one_or_none()
+
+    pw_ok = bool(
+        user
+        and user.account_number_hash
+        and verify_password(normalized, user.account_number_hash)
+        and user.is_active
+    )
+
+    if not pw_ok:
+        if not is_onion:
+            db.add(LoginAttempt(username="acct-number", ip_address=ip, success=False))
+            await db.commit()
+        raise HTTPException(401, "Invalid account number")
+
+    record_login_meta(user, request)
+
+    ua = request.headers.get("user-agent", "")
+    token = create_access_token(user.id, ip=ip, ua=ua, privacy=True)
+
+    if not is_onion:
+        db.add(LoginAttempt(username="acct-number", ip_address=ip, success=True))
+    await db.commit()
+
+    response.set_cookie("access_token", token, **_cookie_kwargs(request))
+    privacy_state = update_privacy_state_for_user(request, user)
+
+    return {
+        "access_token":      token,
+        "token_type":        "bearer",
+        "user_id":           user.id,
+        "username":          user.username,
+        "role":              user.role,
+        "is_operator":       user.role == UserRole.operator,
+        "has_2fa":           bool(user.totp_enabled),
+        "privacy_mode":      True,
         "is_onion_session":  is_onion,
         "privacy_warning":   privacy_state.get("access_warning"),
     }
@@ -335,7 +491,6 @@ class RecoveryStep1In(BaseModel):
 
 @router.post("/recovery/verify-code")
 async def recovery_verify_code(body: RecoveryStep1In, db: AsyncSession = Depends(get_db)):
-    # Recovery-code flow removed. Returns a generic message pointing users at the new email-based reset.
     raise HTTPException(410, "Recovery codes have been removed. Use the forgot-password flow instead.")
 
 
@@ -372,14 +527,14 @@ async def me(request: Request, db: AsyncSession = Depends(get_db)):
         "email_verified":  bool(getattr(u, 'email_verified', False)),
         "full_name":       getattr(u, 'full_name', None),
         "role":            u.role,
-        "is_admin":        u.role == UserRole.admin,
+        "is_operator":        u.role == UserRole.operator,
         "plan":            u.plan,
         "requests_total":  u.requests_total,
         "requests_used":   u.requests_used,
         "requests_left":   max(0, (u.requests_total or 0) - (u.requests_used or 0)),
-        "balance_firo":    round(u.balance_firo or 0, 8),
-        "balance_pending": round(u.balance_pending or 0, 8),
-        "total_earned":    round(u.total_earned_firo or 0, 8),
+        "lifetime_gross_sales_firo":   round(u.lifetime_gross_sales_firo or 0, 8),
+        "lifetime_received_firo":      round(u.lifetime_received_firo or 0, 8),
+        "lifetime_confirmed_payments": int(u.lifetime_confirmed_payments or 0),
         "plan_expires_at": u.plan_expires_at.isoformat() if u.plan_expires_at else None,
         "api_key":         u.api_key,
         "webhook_url":     u.webhook_url,
@@ -432,7 +587,7 @@ async def tfa_verify(request: Request, db: AsyncSession = Depends(get_db)):
     if not u.totp_secret_enc:
         raise HTTPException(400, "Run 2FA setup first")
 
-    from app.core.totp import verify_totp_code, decrypt_totp_secret, generate_recovery_codes, hash_recovery_code
+    from app.core.totp import verify_totp_code, decrypt_totp_secret, generate_recovery_codes, hash_recovery_code, current_totp_step
     from app.core.security import get_fernet
     try:
         fernet = get_fernet()
@@ -442,8 +597,12 @@ async def tfa_verify(request: Request, db: AsyncSession = Depends(get_db)):
     except Exception:
         raise HTTPException(500, "2FA secret error")
 
-    if not verify_totp_code(secret, code):
-        raise HTTPException(400, "Invalid code — check your authenticator app clock")
+    if not verify_totp_code(secret, code, last_step=u.totp_last_step):
+        raise HTTPException(400, "Invalid code check your authenticator app clock")
+
+    step = current_totp_step(secret, code)
+    if step is not None:
+        u.totp_last_step = step
 
     backup_codes        = generate_recovery_codes(8)
     backup_codes_hashed = [hash_recovery_code(c) for c in backup_codes]
@@ -469,15 +628,20 @@ async def tfa_disable(request: Request, db: AsyncSession = Depends(get_db)):
         raise HTTPException(400, "Incorrect password")
 
     if u.totp_enabled and u.totp_secret_enc:
-        from app.core.totp import verify_totp_code, decrypt_totp_secret
+        from app.core.totp import verify_totp_code, decrypt_totp_secret, current_totp_step
         from app.core.security import get_fernet
         try:
             fernet = get_fernet()
             secret = decrypt_totp_secret(u.totp_secret_enc, fernet)
         except Exception:
             raise HTTPException(500, "2FA secret error")
-        if not verify_totp_code(secret, totp_code) and not _use_backup_code(u, totp_code):
+        totp_ok = verify_totp_code(secret, totp_code, last_step=u.totp_last_step)
+        if not totp_ok and not _use_backup_code(u, totp_code):
             raise HTTPException(400, "Invalid 2FA code")
+        if totp_ok:
+            step = current_totp_step(secret, totp_code)
+            if step is not None:
+                u.totp_last_step = step
 
     u.totp_enabled    = False
     u.totp_secret_enc = None
@@ -488,7 +652,7 @@ async def tfa_disable(request: Request, db: AsyncSession = Depends(get_db)):
 
 
 class RefreshIn(BaseModel):
-    refresh_token: str | None = None  # accepted but unused — we refresh from access token
+    refresh_token: str | None = None  # accepted but unused - we refresh from the access token
 
 
 @router.post("/refresh")
@@ -499,16 +663,14 @@ async def refresh_token(
     """
     Re-issue a fresh access token for a valid (or recently expired) session.
     Accepts the token via Authorization header, cookie, or request body.
-    No separate refresh-token DB table needed — the access token itself is
+    No separate refresh-token DB table needed - the access token itself is
     re-verified with a grace window to allow seamless background renewal.
     """
-    # Extract token from header, cookie, or body
     token = (
         request.cookies.get("access_token")
         or request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
     )
 
-    # Also accept token from body for clients that send it explicitly
     if not token:
         try:
             body = await request.json()
@@ -519,7 +681,6 @@ async def refresh_token(
     if not token:
         raise HTTPException(401, "No token provided")
 
-    # Try normal verification first
     uid = verify_access_token(token)
 
     # If expired, attempt grace-window decode (leeway 30 min)
@@ -540,19 +701,13 @@ async def refresh_token(
     if not uid:
         raise HTTPException(401, "Token invalid or too old to refresh")
 
-    # Load user and verify still active
     res = await db.execute(select(User).where(User.id == uid))
     u = res.scalar_one_or_none()
     if not u or not u.is_active:
         raise HTTPException(401, "User not found or disabled")
 
-    # Issue fresh token with session binding
     from app.services.privacy_service import is_onion_request
-    _ref_ip = request.headers.get("CF-Connecting-IP", "").strip()
-    if not _ref_ip:
-        _ref_ip = request.headers.get("X-Real-IP", "").strip()
-    if not _ref_ip:
-        _ref_ip = request.client.host if request.client else ""
+    _ref_ip = _trusted_client_ip(request)
     _ref_ua = request.headers.get("user-agent", "")
     _ref_priv = is_onion_request(request) or getattr(u, 'privacy_mode', False)
     new_token = create_access_token(u.id, ip=_ref_ip, ua=_ref_ua, privacy=_ref_priv)

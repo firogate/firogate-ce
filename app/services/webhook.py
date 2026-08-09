@@ -12,7 +12,7 @@ from app.core.config import get_settings
 RETRY_DELAYS = [0, 60, 300, 1800, 7200]
 
 def _parse_metadata(payment: Payment) -> dict:
-    """Safely parse metadata_json — always returns a dict, never raises."""
+    """Safely parse metadata_json always returns a dict, never raises."""
     if not payment.metadata_json:
         return {}
     try:
@@ -27,10 +27,13 @@ MAX_ATTEMPTS = 5
 def _build_client(url: str) -> httpx.AsyncClient:
     s = get_settings()
     use_tor = s.should_use_tor_for_url(url)
+    # follow_redirects=False so a malicious endpoint can't 302-redirect the
+    # webhook to an internal target (SSRF bypass). Responses are not consumed
+    # for content, so we don't need to chase redirects anyway.
     if use_tor:
         transport = httpx.AsyncHTTPTransport(proxy=s.tor_socks_url)
-        return httpx.AsyncClient(timeout=30, transport=transport)
-    return httpx.AsyncClient(timeout=10)
+        return httpx.AsyncClient(timeout=30, transport=transport, follow_redirects=False)
+    return httpx.AsyncClient(timeout=10, follow_redirects=False)
 
 
 async def fire_webhook(db: AsyncSession, payment: Payment):
@@ -53,8 +56,6 @@ async def fire_webhook(db: AsyncSession, payment: Payment):
         "order_id":        payment.order_id,
         "amount_firo":     payment.amount_firo,
         "amount_received": payment.amount_received,
-        "platform_fee":    payment.platform_fee_firo,
-        "merchant_net":    payment.merchant_net_firo,
         "txid":            payment.txid,
         "confirmations":   payment.confirmations,
         "customer_email":  payment.customer_email,
@@ -63,43 +64,6 @@ async def fire_webhook(db: AsyncSession, payment: Payment):
     }
 
     await _send_webhook(db, payment, merchant.webhook_url, secret, base_payload, "payment.confirmed")
-
-
-async def fire_withdrawal_webhook(db: AsyncSession, withdrawal, event: str):
-    res = await db.execute(select(User).where(User.id == withdrawal.merchant_id))
-    merchant = res.scalar_one_or_none()
-    if not merchant or not merchant.webhook_url:
-        return
-
-    secret = ""
-    if merchant.webhook_secret_enc:
-        try:
-            secret = decrypt_field(merchant.webhook_secret_enc)
-        except Exception:
-            pass
-
-    base_payload = {
-        "event":            event,
-        "withdrawal_id":    withdrawal.id,
-        "amount_requested": withdrawal.amount_requested,
-        "amount_net":       withdrawal.amount_net,
-        "fee_firo":         withdrawal.withdrawal_fee_firo,
-        "status":           withdrawal.status,
-        "sent_txid":        withdrawal.sent_txid,
-        "withdrawal_type":  getattr(withdrawal, "withdrawal_type", "transparent"),
-    }
-
-    url = merchant.webhook_url
-    payload   = build_webhook_payload(base_payload)
-    signature = sign_webhook(payload, secret) if secret else ""
-    headers   = _build_headers(event, signature, payload)
-
-    try:
-        async with _build_client(url) as c:
-            r = await c.post(url, json=payload, headers=headers)
-        logger.info(f"Withdrawal webhook ({event}) → {url[:50]} status={r.status_code}")
-    except Exception as e:
-        _log_webhook_failure(url, str(e))
 
 
 async def _send_webhook(
@@ -117,6 +81,18 @@ async def _send_webhook(
 
     attempts = (payment.webhook_attempts or 0) + 1
     payment.webhook_attempts = attempts
+
+    # Re-validate at send time the URL was checked when the merchant saved
+    # it, but a DNS record can be repointed to an internal/metadata address
+    # after that (DNS rebinding) before this delivery fires.
+    try:
+        from app.core.validators import validate_url as _validate_webhook_url
+        url = _validate_webhook_url(url, "webhook_url") or url
+    except Exception as e:
+        payment.webhook_response = "error: webhook URL points to a disallowed host"
+        _schedule_retry(payment, attempts, "disallowed host")
+        await db.commit()
+        return
 
     try:
         async with _build_client(url) as c:
@@ -234,8 +210,6 @@ async def retry_failed_webhooks():
                 "order_id":        payment.order_id,
                 "amount_firo":     payment.amount_firo,
                 "amount_received": payment.amount_received,
-                "platform_fee":    payment.platform_fee_firo,
-                "merchant_net":    payment.merchant_net_firo,
                 "txid":            payment.txid,
                 "confirmations":   payment.confirmations,
                 "customer_email":  payment.customer_email,
@@ -246,6 +220,51 @@ async def retry_failed_webhooks():
 
             await _send_webhook(db, payment, merchant.webhook_url, secret, base_payload, "payment.confirmed")
 
+
+
+async def fire_expired_webhook(payment: Payment):
+    """Fire webhook for payment.expired event (fire-and-forget, own DB session)."""
+    from app.core.database import AsyncSessionLocal
+    try:
+        async with AsyncSessionLocal() as db:
+            res = await db.execute(select(User).where(User.id == payment.merchant_id))
+            merchant = res.scalar_one_or_none()
+            if not merchant or not merchant.webhook_url:
+                return
+
+            secret = ""
+            if merchant.webhook_secret_enc:
+                try:
+                    secret = decrypt_field(merchant.webhook_secret_enc)
+                except Exception:
+                    pass
+
+            base_payload = {
+                "event":       "payment.expired",
+                "payment_id":  payment.id,
+                "order_id":    payment.order_id,
+                "amount_firo": payment.amount_firo,
+                "status":      "expired",
+                "expired_at":  datetime.now(timezone.utc).isoformat(),
+                "metadata":    _parse_metadata(payment),
+            }
+
+            url     = merchant.webhook_url
+            try:
+                from app.core.validators import validate_url as _validate_webhook_url
+                url = _validate_webhook_url(url, "webhook_url") or url
+            except Exception:
+                logger.warning(f"fire_expired_webhook: webhook URL points to a disallowed host, skipping")
+                return
+            payload = build_webhook_payload(base_payload)
+            sig     = sign_webhook(payload, secret) if secret else ""
+            headers = _build_headers("payment.expired", sig, payload)
+
+            async with _build_client(url) as c:
+                r = await c.post(url, json=payload, headers=headers)
+            logger.info(f"Expired webhook (payment.expired) → {url[:50]} status={r.status_code}")
+    except Exception as e:
+        logger.warning(f"fire_expired_webhook failed: {e}")
 
 
 async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelled_at: datetime):
@@ -273,6 +292,12 @@ async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelle
     }
 
     url = merchant.webhook_url
+    try:
+        from app.core.validators import validate_url as _validate_webhook_url
+        url = _validate_webhook_url(url, "webhook_url") or url
+    except Exception:
+        logger.warning(f"fire_cancellation_webhook: webhook URL points to a disallowed host, skipping")
+        return
     payload   = build_webhook_payload(base_payload)
     signature = sign_webhook(payload, secret) if secret else ""
     headers   = _build_headers("payment.cancelled", signature, payload)
@@ -285,40 +310,3 @@ async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelle
         _log_webhook_failure(url, str(e))
 
 
-async def fire_plan_activated_webhook(db: AsyncSession, payment: Payment, merchant: User, activated_at: datetime):
-    """Fire webhook for plan.activated event."""
-    if not merchant.webhook_url:
-        return
-
-    plan_name = _parse_metadata(payment).get("plan", "")
-
-    secret = ""
-    if merchant.webhook_secret_enc:
-        try:
-            secret = decrypt_field(merchant.webhook_secret_enc)
-        except Exception:
-            pass
-
-    base_payload = {
-        "event":        "plan.activated",
-        "payment_id":   payment.id,
-        "order_id":     payment.order_id,
-        "plan":         plan_name,
-        "amount_firo":  payment.amount_firo,
-        "txid":         payment.txid,
-        "confirmations": payment.confirmations,
-        "activated_at": activated_at.isoformat(),
-        "metadata":     _parse_metadata(payment),
-    }
-
-    url = merchant.webhook_url
-    payload   = build_webhook_payload(base_payload)
-    signature = sign_webhook(payload, secret) if secret else ""
-    headers   = _build_headers("plan.activated", signature, payload)
-
-    try:
-        async with _build_client(url) as c:
-            r = await c.post(url, json=payload, headers=headers)
-        logger.info(f"Plan activation webhook (plan.activated) → {url[:50]} status={r.status_code}")
-    except Exception as e:
-        _log_webhook_failure(url, str(e))

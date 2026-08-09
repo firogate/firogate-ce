@@ -6,8 +6,23 @@ import time
 from collections import defaultdict
 from typing import Optional, Tuple
 
+from urllib.parse import urlsplit, urlunsplit
+
 from fastapi import HTTPException, Request
 from loguru import logger
+
+
+def _redact_url(url: str) -> str:
+    try:
+        parts = urlsplit(url)
+        if not parts.password and not parts.username:
+            return url
+        netloc = parts.hostname or ""
+        if parts.port:
+            netloc += f":{parts.port}"
+        return urlunsplit((parts.scheme, "***@" + netloc, parts.path, parts.query, parts.fragment))
+    except Exception:
+        return "***"
 
 
 def get_client_ip(request: Request) -> str:
@@ -15,22 +30,19 @@ def get_client_ip(request: Request) -> str:
     Get client IP for rate limiting.
     Privacy-aware: uses hashed identifier for Tor/privacy-mode users.
     """
-    # Check if this is a privacy-mode request
     from app.services.privacy_service import get_session_privacy_state, is_onion_request
-    
+
     state = get_session_privacy_state(request)
     is_onion = state.get("is_onion") or is_onion_request(request)
     privacy_mode = state.get("privacy_mode", False)
-    
-    # For privacy users, use a hashed identifier instead of IP
+
     if is_onion or privacy_mode:
         import hashlib
-        # Use user-agent + a salt as identifier (provides some rate limiting without storing IP)
+        # Hash of user-agent + salt: rate-limits privacy users without storing their IP.
         ua = request.headers.get("user-agent", "unknown")
         identifier = hashlib.sha256(f"privacy:{ua}".encode()).hexdigest()[:24]
         return f"priv_{identifier}"
-    
-    # Normal mode - get actual IP
+
     try:
         from app.core.config import get_settings
         trust = get_settings().TRUST_PROXY_HEADERS
@@ -91,7 +103,6 @@ class RedisRateLimiter:
                 if self._pw:
                     pool_kwargs["password"] = self._pw
                 if self._ssl:
-                    import ssl as _ssl
                     pool_kwargs["ssl"] = True
                     pool_kwargs["ssl_certfile"] = None
                 pool = aioredis.ConnectionPool.from_url(
@@ -99,7 +110,7 @@ class RedisRateLimiter:
                     **pool_kwargs,
                 )
                 self._conn_pool = pool
-                logger.success(f"[rate_limit] Redis pool ready → {self._url}")
+                logger.success(f"[rate_limit] Redis pool ready → {_redact_url(self._url)}")
             except ImportError:
                 logger.error(
                     "[rate_limit] redis[asyncio] not installed. "
@@ -108,7 +119,7 @@ class RedisRateLimiter:
                 self._ok = False
                 self._conn_pool = None
             except Exception as exc:
-                logger.error(f"[rate_limit] Redis pool creation failed: {exc}")
+                logger.error(f"[rate_limit] Redis pool creation failed: {type(exc).__name__}")
                 self._ok = False
                 self._conn_pool = None
 
@@ -160,10 +171,10 @@ class RedisRateLimiter:
             return allowed, remaining, reset_at
 
         except Exception as exc:
-            logger.warning(f"[rate_limit] Redis check error (fail-open): {exc}")
+            logger.error(f"[rate_limit] Redis error (fail-closed): {exc}")
             self._ok = False
             asyncio.create_task(self._reconnect_probe())
-            return True, max_requests, int(time.time()) + window
+            return False, 0, int(time.time()) + window
 
     async def _reconnect_probe(self):
         await asyncio.sleep(30)
@@ -364,6 +375,20 @@ async def rate_limit_check(
     client_ip = get_client_ip(request)
     path      = request.url.path
 
+    # On TESTNET we keep rate limiting active (so the code path is exercised and
+    # abuse is still slowed) but we DO NOT hard-block IPs and we raise the
+    # ceilings generously. Developers hammer the API/login repeatedly while
+    # building, and a 5-minute IP block would lock them out. This relaxation
+    # applies to testnet only; mainnet keeps the strict limits + blocking.
+    try:
+        from app.core.config import get_settings
+        _testnet = get_settings().is_testnet
+    except Exception:
+        _testnet = False
+    if _testnet:
+        block_on_exceed = False
+        max_requests = max_requests * 20
+
 
     blocked, secs = await limiter.is_blocked(client_ip)
     if blocked:
@@ -406,43 +431,31 @@ async def rate_limit_check(
 
 
 async def rate_limit_auth(request: Request) -> None:
-    await rate_limit_check(request, 5, 60, "auth",
-                           block_on_exceed=True, block_duration_seconds=300)
+    # Raised from 20 -> 60 req/min per IP: deployments sitting behind
+    # Cloudflare/a proxy were tripping the old ceiling for legitimate users
+    # on shared/NAT'd IPs. Brute-force protection on /login itself is the
+    # account-based LoginAttempt lockout (10 failed attempts / 15 min per-
+    # username, see app/api/auth.py), not this IP ceiling - this stays only
+    # to blunt basic scripted abuse, matching BTCPayServer's dual-layer
+    # approach (IP rate limit + account lockout, neither replaced by a
+    # front-end WAF/CDN).
+    await rate_limit_check(request, 60, 60, "auth")
 
 async def rate_limit_strict(request: Request) -> None:
-    await rate_limit_check(request, 10, 60, "strict")
+    await rate_limit_check(request, 60, 60, "strict")
 
 async def rate_limit_moderate(request: Request) -> None:
-    await rate_limit_check(request, 30, 60, "moderate")
+    await rate_limit_check(request, 120, 60, "moderate")
 
 async def rate_limit_relaxed(request: Request) -> None:
-    await rate_limit_check(request, 60, 60, "relaxed")
-
-async def rate_limit_api(request: Request) -> None:
-    await rate_limit_check(request, 100, 60, "api")
-
-async def rate_limit_webhook(request: Request) -> None:
-    await rate_limit_check(request, 200, 60, "webhook")
-
-
-async def admin_block_ip(ip: str, duration: int, reason: str = "") -> None:
-    await get_rate_limiter().block(ip, duration, reason)
-
-async def admin_unblock_ip(ip: str) -> bool:
-    return await get_rate_limiter().unblock(ip)
-
-async def rate_limiter_health() -> dict:
-    limiter = get_rate_limiter()
-    backend = "redis" if isinstance(limiter, RedisRateLimiter) else "in-memory"
-    online  = await limiter.ping()
-    return {"backend": backend, "online": online}
+    await rate_limit_check(request, 300, 60, "relaxed")
 
 
 def log_rate_limiter_info() -> None:
     limiter = get_rate_limiter()
     if isinstance(limiter, RedisRateLimiter):
         logger.success(
-            f"[rate_limit] ✅ Redis backend — url={limiter._url} "
+            f"[rate_limit] ✅ Redis backend url={limiter._url} "
             f"prefix={limiter._prefix!r} pool_size={limiter._pool_sz}"
         )
     else:

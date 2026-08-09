@@ -4,8 +4,8 @@ import io
 import base64
 import secrets
 import hashlib
+import hmac
 import time
-from datetime import datetime, timezone
 
 
 def generate_totp_secret():
@@ -38,7 +38,15 @@ def generate_totp_qr_code(username, secret, issuer="FiroGate"):
     return f"data:image/png;base64,{img_base64}"
 
 
-def verify_totp_code(secret, code):
+def verify_totp_code(secret, code, last_step=None):
+    """Verify a 6-digit TOTP code.
+
+    If `last_step` is given (the caller's previously-consumed time-step),
+    reject any code from that step or earlier this blocks replay of an
+    intercepted/leaked code within the +/-2-step (~90s) valid_window. Callers
+    that pass `last_step` should persist `current_totp_step(...)` on success
+    so the next verification can compare against it.
+    """
     if not secret or not code:
         return False
 
@@ -53,9 +61,36 @@ def verify_totp_code(secret, code):
             return False
 
         totp = pyotp.TOTP(secret_clean)
-        return totp.verify(code_clean, valid_window=2)
+        if not totp.verify(code_clean, valid_window=2):
+            return False
+
+        if last_step is not None:
+            matched_step = _find_matching_step(totp, code_clean)
+            if matched_step is not None and matched_step <= last_step:
+                return False
+
+        return True
     except Exception:
         return False
+
+
+def current_totp_step(secret, code, valid_window=2):
+    """Return the time-step counter that `code` matched against, or None."""
+    try:
+        secret_clean = str(secret).strip().upper()
+        totp = pyotp.TOTP(secret_clean)
+        return _find_matching_step(totp, str(code).strip(), valid_window=valid_window)
+    except Exception:
+        return None
+
+
+def _find_matching_step(totp, code_clean, valid_window=2):
+    now_step = int(time.time() / totp.interval)
+    for offset in range(-valid_window, valid_window + 1):
+        step = now_step + offset
+        if hmac.compare_digest(totp.generate_otp(step), code_clean):
+            return step
+    return None
 
 
 def generate_recovery_codes(count=10):
@@ -88,21 +123,6 @@ def base32_encode(data):
 
 def hash_recovery_code(code):
     return hashlib.sha256(code.encode()).hexdigest()
-
-
-def verify_recovery_code(code, hashed_codes):
-    if not code or not hashed_codes:
-        return False
-
-    code_hash = hash_recovery_code(code.upper().strip())
-    return code_hash in hashed_codes
-
-
-def remove_used_recovery_code(code, hashed_codes):
-    code_hash = hash_recovery_code(code.upper().strip())
-    if code_hash in hashed_codes:
-        hashed_codes.remove(code_hash)
-    return hashed_codes
 
 
 def encrypt_totp_secret(secret, fernet):
@@ -145,7 +165,6 @@ def init_totp_for_user(username, fernet=None):
 
     if fernet:
         result['secret_encrypted'] = encrypt_totp_secret(secret, fernet)
-        # Validate round-trip
         decrypted_test = decrypt_totp_secret(result['secret_encrypted'], fernet)
         if decrypted_test != secret:
             raise ValueError("TOTP secret encryption/decryption validation failed")
@@ -153,13 +172,3 @@ def init_totp_for_user(username, fernet=None):
     return result
 
 
-def format_recovery_codes_for_display(codes):
-    html = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-family: monospace; font-size: 14px;">'
-    for i, code in enumerate(codes, 1):
-        html += f'<div style="padding: 8px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; text-align: center;">{i}. {code}</div>'
-    html += '</div>'
-    return html
-
-generate_secret = generate_totp_secret
-make_qr_png = generate_totp_qr_code
-verify_totp = verify_totp_code

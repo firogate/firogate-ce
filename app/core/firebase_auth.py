@@ -84,7 +84,6 @@ def is_configured() -> bool:
     return bool(s.FIREBASE_PROJECT_ID and s.FIREBASE_CLIENT_EMAIL and s.FIREBASE_PRIVATE_KEY)
 
 
-# ─ ID token verification ──
 def verify_id_token(id_token: str, check_revoked: bool = False) -> dict:
     """
     Verify a Firebase ID token. Returns the decoded claims dict on success.
@@ -115,39 +114,6 @@ def verify_id_token(id_token: str, check_revoked: bool = False) -> dict:
         raise ValueError("Could not verify session.")
 
 
-# ─ User management ─
-def create_user(email: str, password: str, display_name: Optional[str] = None):
-    get_app()
-    return fb_auth.create_user(
-        email=email,
-        password=password,
-        email_verified=False,
-        display_name=display_name or None,
-        disabled=False,
-    )
-
-
-def get_user_by_email(email: str):
-    get_app()
-    try:
-        return fb_auth.get_user_by_email(email)
-    except fb_auth.UserNotFoundError:
-        return None
-
-
-def get_user(uid: str):
-    get_app()
-    try:
-        return fb_auth.get_user(uid)
-    except fb_auth.UserNotFoundError:
-        return None
-
-
-def set_email_verified(uid: str) -> None:
-    get_app()
-    fb_auth.update_user(uid, email_verified=True)
-
-
 def set_password(uid: str, new_password: str) -> None:
     get_app()
     fb_auth.update_user(uid, password=new_password)
@@ -161,7 +127,6 @@ def revoke_refresh_tokens(uid: str) -> None:
         logger.warning(f"[firebase] revoke_refresh_tokens({uid}) failed: {exc}")
 
 
-# ─ Password verification via Firebase REST API ─
 # Admin SDK cannot directly verify a plaintext password. We hit the public
 # Identity Toolkit endpoint (the same one the Web SDK uses) so backend-
 # initiated logins still go through Firebase as the source of truth.

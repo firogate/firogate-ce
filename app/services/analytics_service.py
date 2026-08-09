@@ -1,35 +1,118 @@
-"""
-Analytics Service - Updates aggregated stats for fast dashboard queries
-
-This service updates DailyStats and UserDailyStats tables on:
-- Payment confirmation
-- New user registration
-- Failed/expired payments
-"""
-
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
 
-from app.models.models import (
-    DailyStats, UserDailyStats, User, UserRole,
-    Payment, PaymentStatus
-)
+from app.models.models import DailyStats, UserDailyStats, User, Payment, PaymentStatus
+
+
+def _pct_change(current: float, previous: float) -> float:
+    """Percent change vs. the prior period of equal length. None (not 0)
+    when there's no prior-period baseline, so the UI can show '—' instead
+    of a misleading '+100%'/'0%'."""
+    if not previous:
+        return None
+    return round((current - previous) / previous * 100, 1)
 
 
 def _today_str() -> str:
-    """Get today's date as YYYY-MM-DD string"""
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 def _date_str(dt: datetime) -> str:
-    """Convert datetime to YYYY-MM-DD string"""
     return dt.strftime("%Y-%m-%d")
 
 
+def _build_daily_series(daily_data, start_date: str, end_date: str) -> dict:
+    """Zero-fill a contiguous per-day series between start/end from whatever
+    UserDailyStats rows actually exist shared by the period-scoped
+    analytics chart and the long-range history endpoint so both stay
+    consistent."""
+    chart_dates, chart_sales, chart_orders = [], [], []
+    current = datetime.strptime(start_date, "%Y-%m-%d").date()
+    end     = datetime.strptime(end_date,   "%Y-%m-%d").date()
+    daily_dict = {d.date: d for d in daily_data}
+
+    while current <= end:
+        date_str = current.strftime("%Y-%m-%d")
+        chart_dates.append(date_str)
+        if date_str in daily_dict:
+            chart_sales.append(round(daily_dict[date_str].gross_sales_firo or 0, 8))
+            chart_orders.append(daily_dict[date_str].orders_count or 0)
+        else:
+            chart_sales.append(0)
+            chart_orders.append(0)
+        current += timedelta(days=1)
+
+    return {"dates": chart_dates, "sales": chart_sales, "orders": chart_orders}
+
+
+async def get_user_chart_history(db: AsyncSession, user_id: str, days: int = 1095) -> dict:
+    """Long-range daily chart series (default up to 3 years) for the
+    draggable/scrollable Sales Volume and Activity Heatmap views decoupled
+    from the 24H/7D/30D/90D period buttons, which only scope the summary
+    stat cards. Capped at 1095 days (3 years) to keep the query bounded."""
+    days = max(1, min(days, 1095))
+    end_date   = _today_str()
+    start_date = _date_str(datetime.now(timezone.utc) - timedelta(days=days - 1))
+
+    res = await db.execute(
+        select(UserDailyStats).where(
+            UserDailyStats.user_id == user_id,
+            UserDailyStats.date >= start_date,
+            UserDailyStats.date <= end_date
+        ).order_by(UserDailyStats.date)
+    )
+    return _build_daily_series(res.scalars().all(), start_date, end_date)
+
+
+async def get_user_hourly_chart(db: AsyncSession, user_id: str) -> dict:
+    """Last 24 hours of confirmed-payment activity, bucketed by hour the
+    24H button needs finer-than-a-day granularity, which UserDailyStats
+    can't provide. Computed on the fly straight from Payment rows since
+    it's a small, bounded 24-bucket window rather than a pre-aggregated
+    table like the daily stats."""
+    now        = datetime.now(timezone.utc)
+    end_hour   = now.replace(minute=0, second=0, microsecond=0)
+    start_hour = end_hour - timedelta(hours=23)
+
+    res = await db.execute(
+        select(Payment.confirmed_at, Payment.amount_firo, Payment.order_id).where(
+            Payment.merchant_id == user_id,
+            Payment.status == PaymentStatus.confirmed,
+            Payment.confirmed_at >= start_hour
+        )
+    )
+
+    labels, buckets = [], {}
+    current = start_hour
+    while current <= end_hour:
+        key = current.strftime("%Y-%m-%dT%H:00")
+        labels.append(key)
+        buckets[key] = {"sales": 0.0, "orders": 0}
+        current += timedelta(hours=1)
+
+    for confirmed_at, amount_firo, order_id in res.all():
+        if not confirmed_at:
+            continue
+        # Plan-purchase payments aren't "this merchant's sales" — same
+        # exclusion as the daily/long-range series above.
+        if (order_id or "").startswith("plan:"):
+            continue
+        key = confirmed_at.replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:00")
+        bucket = buckets.get(key)
+        if bucket:
+            bucket["sales"]   = round(bucket["sales"] + (amount_firo or 0), 8)
+            bucket["orders"] += 1
+
+    return {
+        "labels": labels,
+        "sales":  [buckets[k]["sales"]  for k in labels],
+        "orders": [buckets[k]["orders"] for k in labels],
+    }
+
+
 async def get_or_create_daily_stats(db: AsyncSession, date_str: str) -> DailyStats:
-    """Get or create DailyStats record for a given date"""
     res = await db.execute(
         select(DailyStats).where(DailyStats.date == date_str)
     )
@@ -42,7 +125,6 @@ async def get_or_create_daily_stats(db: AsyncSession, date_str: str) -> DailySta
 
 
 async def get_or_create_user_daily_stats(db: AsyncSession, user_id: str, date_str: str) -> UserDailyStats:
-    """Get or create UserDailyStats record for a given user and date"""
     res = await db.execute(
         select(UserDailyStats).where(
             UserDailyStats.user_id == user_id,
@@ -58,193 +140,89 @@ async def get_or_create_user_daily_stats(db: AsyncSession, user_id: str, date_st
 
 
 async def on_payment_confirmed(db: AsyncSession, payment: Payment):
-    """
-    Called when a payment is confirmed.
-    Updates both platform and user daily stats.
-    """
     try:
         date_str = _date_str(payment.confirmed_at or datetime.now(timezone.utc))
-        
-        # Update platform daily stats
+        amount   = payment.amount_received or payment.amount_firo
+
         daily = await get_or_create_daily_stats(db, date_str)
-        daily.total_revenue = round((daily.total_revenue or 0) + (payment.amount_received or payment.amount_firo), 8)
+        daily.total_volume_firo  = round((daily.total_volume_firo or 0) + amount, 8)
         daily.transactions_count = (daily.transactions_count or 0) + 1
-        daily.platform_fees = round((daily.platform_fees or 0) + (payment.platform_fee_firo or 0), 8)
-        
-        # Update user daily stats
+
         user_daily = await get_or_create_user_daily_stats(db, payment.merchant_id, date_str)
-        user_daily.revenue = round((user_daily.revenue or 0) + (payment.merchant_net_firo or 0), 8)
-        user_daily.orders_count = (user_daily.orders_count or 0) + 1
+        user_daily.gross_sales_firo  = round((user_daily.gross_sales_firo or 0) + (payment.amount_firo or 0), 8)
+        user_daily.received_firo     = round((user_daily.received_firo or 0) + amount, 8)
+        user_daily.orders_count      = (user_daily.orders_count or 0) + 1
         user_daily.successful_payments = (user_daily.successful_payments or 0) + 1
-        
+
         await db.flush()
-        logger.debug(f"[analytics] Updated stats for payment {payment.id[:8]}...")
-        
+        logger.debug(f"[analytics] Updated stats for payment {payment.id[:8]}")
+
     except Exception as e:
         logger.error(f"[analytics] Failed to update payment stats: {e}")
 
 
 async def on_payment_failed(db: AsyncSession, payment: Payment):
-    """
-    Called when a payment fails or expires.
-    Updates user daily stats with failed count.
-    """
     try:
-        date_str = _today_str()
-        
+        date_str = _date_str(
+            payment.confirmed_at or payment.created_at or datetime.now(timezone.utc)
+        )
+
         user_daily = await get_or_create_user_daily_stats(db, payment.merchant_id, date_str)
         user_daily.failed_payments = (user_daily.failed_payments or 0) + 1
-        
+
         await db.flush()
-        logger.debug(f"[analytics] Recorded failed payment for user {payment.merchant_id[:8]}...")
-        
+        logger.debug(f"[analytics] Recorded failed payment for user {payment.merchant_id[:8]}")
+
     except Exception as e:
         logger.error(f"[analytics] Failed to update failed payment stats: {e}")
 
 
 async def on_user_registered(db: AsyncSession, user: User):
-    """
-    Called when a new user registers.
-    Updates platform daily stats with new user count.
-    """
     try:
         date_str = _today_str()
-        
+
         daily = await get_or_create_daily_stats(db, date_str)
         daily.new_users = (daily.new_users or 0) + 1
-        
+
         await db.flush()
         logger.debug("[analytics] Recorded new user registration")
-        
+
     except Exception as e:
         logger.error(f"[analytics] Failed to update new user stats: {e}")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Query Functions for Dashboard
-# ═══════════════════════════════════════════════════════════════════════════════
-
 def _get_date_range(period: str) -> tuple[str, str]:
-    """Get start and end date strings for a period"""
     today = datetime.now(timezone.utc).date()
-    
+
     if period == "today":
         start = today
     elif period == "7d":
         start = today - timedelta(days=6)
     elif period == "30d":
         start = today - timedelta(days=29)
+    elif period == "90d":
+        start = today - timedelta(days=89)
     else:
-        start = today - timedelta(days=6)  # Default to 7 days
-    
+        start = today - timedelta(days=6)
+
     return start.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")
 
 
-async def get_admin_analytics(db: AsyncSession, period: str = "7d") -> dict:
-    """
-    Get aggregated analytics for admin dashboard.
-    Uses pre-computed daily stats for performance.
-    """
-    start_date, end_date = _get_date_range(period)
-    
-    # Get aggregated stats from daily_stats table
-    res = await db.execute(
-        select(
-            func.sum(DailyStats.total_revenue),
-            func.sum(DailyStats.transactions_count),
-            func.sum(DailyStats.new_users),
-            func.sum(DailyStats.platform_fees)
-        ).where(
-            DailyStats.date >= start_date,
-            DailyStats.date <= end_date
-        )
-    )
-    row = res.first()
-    
-    # Get total users (this is a simple count, fast query)
-    total_users = (await db.execute(
-        select(func.count(User.id)).where(User.role == UserRole.merchant)
-    )).scalar() or 0
-    
-    # Get daily data for charts
-    chart_res = await db.execute(
-        select(DailyStats).where(
-            DailyStats.date >= start_date,
-            DailyStats.date <= end_date
-        ).order_by(DailyStats.date)
-    )
-    daily_data = chart_res.scalars().all()
-    
-    # Fill in missing dates with zeros
-    chart_dates = []
-    chart_revenue = []
-    chart_transactions = []
-    
-    current = datetime.strptime(start_date, "%Y-%m-%d").date()
-    end = datetime.strptime(end_date, "%Y-%m-%d").date()
-    daily_dict = {d.date: d for d in daily_data}
-    
-    while current <= end:
-        date_str = current.strftime("%Y-%m-%d")
-        chart_dates.append(date_str)
-        
-        if date_str in daily_dict:
-            chart_revenue.append(round(daily_dict[date_str].total_revenue or 0, 8))
-            chart_transactions.append(daily_dict[date_str].transactions_count or 0)
-        else:
-            chart_revenue.append(0)
-            chart_transactions.append(0)
-        
-        current += timedelta(days=1)
-    
-    # Get latest transactions for table
-    latest_tx = await db.execute(
-        select(Payment).where(
-            Payment.status == PaymentStatus.confirmed
-        ).order_by(Payment.confirmed_at.desc()).limit(10)
-    )
-    transactions = latest_tx.scalars().all()
-    
-    # Get usernames for transactions
-    tx_list = []
-    for tx in transactions:
-        user_res = await db.execute(select(User.username).where(User.id == tx.merchant_id))
-        username = user_res.scalar() or "Unknown"
-        tx_list.append({
-            "txid": tx.txid or tx.id[:12] + "...",
-            "amount": round(tx.amount_received or tx.amount_firo, 4),
-            "status": tx.status.value if hasattr(tx.status, 'value') else str(tx.status),
-            "user": username,
-            "date": tx.confirmed_at.isoformat() if tx.confirmed_at else tx.created_at.isoformat()
-        })
-    
-    return {
-        "total_revenue": round(row[0] or 0, 8),
-        "total_transactions": int(row[1] or 0),
-        "total_users": total_users,
-        "new_users": int(row[2] or 0),
-        "platform_fees": round(row[3] or 0, 8),
-        "chart": {
-            "dates": chart_dates,
-            "revenue": chart_revenue,
-            "transactions": chart_transactions
-        },
-        "latest_transactions": tx_list,
-        "period": period
-    }
+def _get_previous_range(period: str, start_date: str) -> tuple[str, str]:
+    """The immediately-preceding window of the same length, for delta badges
+    ("vs. previous period") e.g. for 7d this is the 7 days before start_date."""
+    start = datetime.strptime(start_date, "%Y-%m-%d").date()
+    days = {"today": 1, "7d": 7, "30d": 30, "90d": 90}.get(period, 7)
+    prev_end   = start - timedelta(days=1)
+    prev_start = prev_end - timedelta(days=days - 1)
+    return prev_start.strftime("%Y-%m-%d"), prev_end.strftime("%Y-%m-%d")
 
 
-async def get_user_analytics(db: AsyncSession, user_id: str, period: str = "7d") -> dict:
-    """
-    Get aggregated analytics for a specific merchant.
-    Uses pre-computed user_daily_stats for performance.
-    """
-    start_date, end_date = _get_date_range(period)
-    
-    # Get aggregated stats from user_daily_stats table
+async def _sum_period(db: AsyncSession, user_id: str, start_date: str, end_date: str):
     res = await db.execute(
         select(
-            func.sum(UserDailyStats.revenue),
+            func.sum(UserDailyStats.gross_sales_firo),
+            func.sum(UserDailyStats.received_firo),
             func.sum(UserDailyStats.orders_count),
             func.sum(UserDailyStats.successful_payments),
             func.sum(UserDailyStats.failed_payments)
@@ -255,8 +233,36 @@ async def get_user_analytics(db: AsyncSession, user_id: str, period: str = "7d")
         )
     )
     row = res.first()
-    
-    # Get daily data for charts
+    return {
+        "gross_sales": float(row[0] or 0),
+        "received":    float(row[1] or 0),
+        "orders":      int(row[2] or 0),
+        "successful":  int(row[3] or 0),
+        "failed":      int(row[4] or 0),
+    }
+
+
+async def get_user_analytics(db: AsyncSession, user_id: str, period: str = "7d") -> dict:
+    start_date, end_date = _get_date_range(period)
+    cur = await _sum_period(db, user_id, start_date, end_date)
+
+    prev_start, prev_end = _get_previous_range(period, start_date)
+    prev = await _sum_period(db, user_id, prev_start, prev_end)
+
+    gross_sales     = cur["gross_sales"]
+    received        = cur["received"]
+    orders          = cur["orders"]
+    successful      = cur["successful"]
+    failed          = cur["failed"]
+    total_attempts  = successful + failed
+    success_rate    = round(successful / total_attempts * 100, 1) if total_attempts else 0.0
+    avg_order_value = round(gross_sales / orders, 8) if orders else 0.0
+
+    prev_total_attempts = prev["successful"] + prev["failed"]
+    prev_success_rate = (
+        round(prev["successful"] / prev_total_attempts * 100, 1) if prev_total_attempts else 0.0
+    )
+
     chart_res = await db.execute(
         select(UserDailyStats).where(
             UserDailyStats.user_id == user_id,
@@ -264,113 +270,57 @@ async def get_user_analytics(db: AsyncSession, user_id: str, period: str = "7d")
             UserDailyStats.date <= end_date
         ).order_by(UserDailyStats.date)
     )
-    daily_data = chart_res.scalars().all()
-    
-    # Fill in missing dates with zeros
-    chart_dates = []
-    chart_revenue = []
-    chart_orders = []
-    
-    current = datetime.strptime(start_date, "%Y-%m-%d").date()
-    end = datetime.strptime(end_date, "%Y-%m-%d").date()
-    daily_dict = {d.date: d for d in daily_data}
-    
-    while current <= end:
-        date_str = current.strftime("%Y-%m-%d")
-        chart_dates.append(date_str)
-        
-        if date_str in daily_dict:
-            chart_revenue.append(round(daily_dict[date_str].revenue or 0, 8))
-            chart_orders.append(daily_dict[date_str].orders_count or 0)
+    chart_series = _build_daily_series(chart_res.scalars().all(), start_date, end_date)
+
+    # Live invoice-status breakdown (donut chart) a point-in-time snapshot
+    # of every payment this merchant currently has, not filtered by period.
+    # Broken down by SOURCE + OUTCOME rather than raw status, since that's
+    # more actionable for a merchant: where invoices come from (payment
+    # links vs. direct/API checkout) and how many failed or were cancelled.
+    # Plan-purchase payments are excluded entirely those are the merchant
+    # paying the operator for their FiroGate subscription, not a customer
+    # paying the merchant, so they aren't "this merchant's invoices" at all
+    # (same exclusion already applied to gross_sales/received above).
+    src_res = await db.execute(
+        select(Payment.order_id, Payment.status)
+        .where(Payment.merchant_id == user_id)
+    )
+    paylink_ct = direct_ct = failed_cancelled_ct = 0
+    for order_id, status in src_res.all():
+        order_id = order_id or ""
+        if order_id.startswith("plan:"):
+            continue
+        status_val = status.value if hasattr(status, "value") else str(status)
+        if status_val in ("failed", "cancelled", "expired"):
+            failed_cancelled_ct += 1
+        elif order_id.startswith("LINK-"):
+            paylink_ct += 1
         else:
-            chart_revenue.append(0)
-            chart_orders.append(0)
-        
-        current += timedelta(days=1)
-    
+            direct_ct += 1
+    invoice_total = paylink_ct + direct_ct + failed_cancelled_ct
+
     return {
-        "revenue": round(row[0] or 0, 8),
-        "orders_count": int(row[1] or 0),
-        "successful_payments": int(row[2] or 0),
-        "failed_payments": int(row[3] or 0),
-        "chart": {
-            "dates": chart_dates,
-            "revenue": chart_revenue,
-            "orders": chart_orders
+        "gross_sales_firo":    round(gross_sales, 8),
+        "received_firo":       round(received, 8),
+        "orders_count":        orders,
+        "successful_payments": successful,
+        "failed_payments":     failed,
+        "success_rate_pct":    success_rate,
+        "avg_order_value":     avg_order_value,
+        # vs. the immediately-preceding period of equal length powers the
+        # ▲/▼ delta badges on the stat cards. None when there's no prior data.
+        "deltas": {
+            "gross_sales_firo": _pct_change(gross_sales, prev["gross_sales"]),
+            "received_firo":    _pct_change(received, prev["received"]),
+            "orders_count":     _pct_change(orders, prev["orders"]),
+            "success_rate_pct": _pct_change(success_rate, prev_success_rate),
         },
+        "invoice_status": {
+            "total":            invoice_total,
+            "paylink":          paylink_ct,
+            "direct":           direct_ct,
+            "failed_cancelled": failed_cancelled_ct,
+        },
+        "chart": chart_series,
         "period": period
     }
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Backfill Function - Run once to populate historical data
-# ═══════════════════════════════════════════════════════════════════════════════
-
-async def backfill_analytics(db: AsyncSession):
-    """
-    One-time backfill of analytics data from existing payments.
-    Run this once after adding the analytics tables.
-    """
-    logger.info("[analytics] Starting backfill of historical data...")
-    
-    # Get all confirmed payments
-    payments_res = await db.execute(
-        select(Payment).where(Payment.status == PaymentStatus.confirmed)
-    )
-    payments = payments_res.scalars().all()
-    
-    # Aggregate by date for platform stats
-    platform_stats = {}
-    user_stats = {}
-    
-    for p in payments:
-        date_str = _date_str(p.confirmed_at or p.created_at)
-        
-        # Platform stats
-        if date_str not in platform_stats:
-            platform_stats[date_str] = {
-                "revenue": 0, "transactions": 0, "fees": 0
-            }
-        platform_stats[date_str]["revenue"] += (p.amount_received or p.amount_firo)
-        platform_stats[date_str]["transactions"] += 1
-        platform_stats[date_str]["fees"] += (p.platform_fee_firo or 0)
-        
-        # User stats
-        key = (p.merchant_id, date_str)
-        if key not in user_stats:
-            user_stats[key] = {"revenue": 0, "orders": 0, "success": 0}
-        user_stats[key]["revenue"] += (p.merchant_net_firo or 0)
-        user_stats[key]["orders"] += 1
-        user_stats[key]["success"] += 1
-    
-    # Insert platform stats
-    for date_str, stats in platform_stats.items():
-        daily = await get_or_create_daily_stats(db, date_str)
-        daily.total_revenue = round(stats["revenue"], 8)
-        daily.transactions_count = stats["transactions"]
-        daily.platform_fees = round(stats["fees"], 8)
-    
-    # Insert user stats
-    for (user_id, date_str), stats in user_stats.items():
-        user_daily = await get_or_create_user_daily_stats(db, user_id, date_str)
-        user_daily.revenue = round(stats["revenue"], 8)
-        user_daily.orders_count = stats["orders"]
-        user_daily.successful_payments = stats["success"]
-    
-    # Count new users by registration date
-    users_res = await db.execute(
-        select(User).where(User.role == UserRole.merchant)
-    )
-    users = users_res.scalars().all()
-    
-    user_counts = {}
-    for u in users:
-        date_str = _date_str(u.created_at)
-        user_counts[date_str] = user_counts.get(date_str, 0) + 1
-    
-    for date_str, count in user_counts.items():
-        daily = await get_or_create_daily_stats(db, date_str)
-        daily.new_users = count
-    
-    await db.commit()
-    logger.success(f"[analytics] Backfill complete: {len(payments)} payments, {len(users)} users processed")
