@@ -12,7 +12,7 @@ By deploying this software, you accept full legal responsibility for its operati
 
 Apache License 2.0
 
-You are free to use, modify, and distribute this software under the terms of the Apache 2.0 license. You may rebrand and rename it as you wish — however, do not change the repository name or license header in the source files.
+You are free to use, modify, and distribute this software under the terms of the Apache 2.0 license. You may rebrand and rename it as you wish however, do not change the repository name or license header in the source files.
 
 ---
 
@@ -24,4 +24,4 @@ When self-hosted, all data remains on your own server. FiroGate does not transmi
 
 ## Contact
 
-legal@firogate.com
+team@firogate.com

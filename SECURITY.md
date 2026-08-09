@@ -1,124 +1,80 @@
-# Security Policy — FiroGate Community Edition
+# Security Policy
+
+Thank you for helping keep FiroGate secure.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, **do NOT open a public GitHub issue.**
+Please **do not** open public GitHub issues for security reports.
 
-Please report it responsibly:
+Contact:
 
-**Email:** security@firogate.com  
-**Subject:** `[SECURITY] Brief description`
+**Email:** team@firogate.com
 
-Include:
-- Description of the vulnerability
+Suggested subject:
+
+```
+[SECURITY] Brief description
+```
+
+Please include:
+
+- Description of the issue
 - Steps to reproduce
 - Potential impact
-- Your suggested fix (optional)
+- Suggested fix (optional)
 
-We will acknowledge your report within **48 hours** and aim to release a fix within **7 days** for critical issues.
-
-We appreciate responsible disclosure and will credit researchers who report valid vulnerabilities.
+We acknowledge reports as quickly as possible and work to resolve verified security issues in a timely manner.
 
 ---
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| Latest  | ✅ Yes    |
-| Older   | ❌ No     |
+| Version | Status |
+|---------|--------|
+| Latest Release | ✅ Supported |
+| Older Releases | ❌ Unsupported |
 
-Always run the latest release.
-
----
-
-## Security Architecture
-
-### API Keys
-- Raw keys are **never stored** — only SHA-256 hashes
-- Keys are shown **once** on creation and cannot be retrieved again
-- Keys can be revoked instantly from the dashboard
-- Format: `fg_live_` prefix for easy identification
-
-### Webhook Signatures
-- Every webhook is signed with **HMAC-SHA256**
-- Signature is included in the `X-FiroGate-Signature` header
-- Includes a timestamp to prevent replay attacks (5-minute window)
-- Always verify signatures on your server before processing events
-
-### Checkout Tokens
-- Every checkout URL includes an **HMAC security token**
-- Prevents unauthorized access to payment status even with a guessed payment ID
-- Tokens are single-use scoped to the payment
-
-### Encryption at Rest
-- Sensitive fields (webhook secrets) are encrypted using **PBKDF2-SHA256**
-- Encryption key is set via `FIELD_ENCRYPTION_KEY` in `.env`
-- If this key is lost, encrypted data cannot be recovered — back it up
-
-### Authentication
-- Passwords are hashed with **bcrypt**
-- Optional **TOTP 2FA** for merchant accounts
-- Per-IP rate limiting on all auth endpoints
-- Account lockout after repeated failed attempts
-
-### Rate Limiting
-- Per-IP rate limiting on all API endpoints
-- SSE connection limits per IP
-- Configurable via `.env`
-
-### Withdrawal Security
-- Optional **address whitelist** — restrict withdrawals to trusted addresses only
-- Minimum hold period before funds can be withdrawn
-- Daily withdrawal limits
+Always use the latest stable release.
 
 ---
 
-## Hardening Recommendations
+## Security Recommendations
 
-For production deployments:
+When deploying FiroGate:
 
-```env
-# Require strong secrets
-SECRET_KEY=<64-char random hex>
-FIELD_ENCRYPTION_KEY=<32-byte base64>
-
-# Restrict admin access
-PANEL_ALLOWED_IPS=your.server.ip
-PANEL_REQUIRE_2FA=true
-
-# Rate limiting
-TRUST_PROXY_HEADERS=true  # only if behind nginx/Cloudflare
-```
-
-**nginx:** always use HTTPS. Never expose port 8000 directly.
-
-**Firewall:** only expose ports 80 and 443. Block 8000 externally.
-
-**Backups:** regularly back up `data/gateway.db` and `.env`.
+- Keep your server up to date.
+- Use HTTPS in production.
+- Do not expose internal services directly to the Internet.
+- Generate unique secrets for every deployment.
+- Never commit `.env` files.
+- Restrict filesystem permissions for configuration files.
+- Back up your database and configuration securely.
 
 ---
 
-## Known Security Considerations
+## Responsible Disclosure
 
-- FiroGate holds funds in the gateway wallet until merchants request withdrawal — this is custodial in nature for hosted deployments
-- In self-hosted mode, the operator controls the server and the wallet
-- Never run FiroGate with `DEBUG=true` in production
-- Never commit `.env` to version control
+Please allow us reasonable time to investigate and resolve reported vulnerabilities before making them public.
+
+We appreciate responsible disclosure and may credit researchers who report valid security issues.
 
 ---
 
 ## Scope
 
-Security reports are accepted for:
-- Authentication and authorization flaws
-- Cryptographic weaknesses
-- Injection vulnerabilities (SQL, XSS, SSTI)
-- Webhook signature bypass
-- Checkout token bypass
+Examples of issues we are interested in:
+
+- Authentication or authorization bypass
+- Injection vulnerabilities
 - Sensitive data exposure
+- Access control issues
+- Cryptographic implementation flaws
+- Remote code execution
+- Denial of service caused by software defects
 
 Out of scope:
-- Issues requiring physical access to the server
-- Social engineering attacks
-- Vulnerabilities in third-party dependencies (report to them directly)
+
+- Social engineering
+- Physical access attacks
+- Third-party software vulnerabilities
+- Server misconfiguration outside FiroGate itself
