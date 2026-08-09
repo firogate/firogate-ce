@@ -42,6 +42,12 @@ build/
 *.swo
 .DS_Store
 
+# ─ Claude Code (local permission allowlist reveals local paths, never shared) ─
+.claude/settings.local.json
+
+# ─ Claude Code working notes (local-only, this repo is open source) ─
+CLAUDE.md
+
 # ─ Node (fonts/assets build) ─
 node_modules/
 
@@ -52,10 +58,7 @@ node_modules/
 # is not affected by this rule.
 native/flutter_libsparkmobile/
 
-# ─ Real production nginx config — never commit, contains real domains/ports ─
-/firogate
-
 # ─ Misc ─
-sandbox/
 *.bak
 *.tmp
+firogate

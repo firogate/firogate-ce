@@ -1,26 +1,27 @@
-# FiroGate Community Edition — Docker Compose
-# Usage: docker compose up -d
-#
-# Requirements:
-#   - Copy .env.example to .env and fill in your values
-#   - A synced Firo Core node (can be on host or separate container)
-
-version: "3.9"
-
 services:
   firogate:
     build: .
     container_name: firogate
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"    # Only expose to localhost (use nginx in front)
-    environment:
-      - DATABASE_URL=sqlite+aiosqlite:///./data/gateway.db
+      - "127.0.0.1:8000:8000"
     env_file:
       - .env
+    # Linux only, needed if your Firo node runs on the Docker host and
+    # FIRO_RPC_HOST=host.docker.internal in .env (Docker Desktop on Mac/
+    # Windows resolves this automatically, no need to uncomment there).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    #
+    # Linux-only alternative to extra_hosts above: share the host's network
+    # stack directly so FIRO_RPC_HOST=127.0.0.1 (the default) just works,
+    # no host.docker.internal needed. Remove the ports: block below if you
+    # use this (not needed/ignored in host mode). Not supported the same
+    # way on Docker Desktop for Mac/Windows — see BUILD.md.
+    # network_mode: host
     volumes:
-      - firogate_data:/app/data   # Persistent database
-      - firogate_logs:/app/logs   # Persistent logs
+      - firogate_data:/app/data
+      - firogate_logs:/app/logs
     networks:
       - firogate_net
     healthcheck:
