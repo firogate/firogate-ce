@@ -15,6 +15,17 @@ from app.services.sparkmobile import SparkViewKeyError
 
 
 async def get_next_spark_address(db: AsyncSession, merchant_id: str, payment: Payment) -> str:
+    # Fetched before any DB write below so this network round-trip (cache
+    # miss can take seconds against a slow/unreachable node) never happens
+    # while a SQLite write transaction is open - doing it after db.flush()
+    # held the write lock long enough to blow through the busy timeout and
+    # starve unrelated writers (e.g. the Spark scanner's own state update).
+    from app.services.firo_rpc import get_rpc, FiroRPCError
+    try:
+        start_block_height = await get_rpc().get_block_count_cached()
+    except FiroRPCError:
+        start_block_height = None
+
     stmt = select(SparkWalletConnection).where(
         SparkWalletConnection.merchant_id == merchant_id,
         SparkWalletConnection.is_active == True,
@@ -48,11 +59,7 @@ async def get_next_spark_address(db: AsyncSession, merchant_id: str, payment: Pa
     # confirm it with a transaction that predates its creation (e.g. old
     # activity on a reused diversifier after a DB wipe). None (RPC failure)
     # is a defensive fallback, never treated as "no floor" by the scanner.
-    from app.services.firo_rpc import get_rpc, FiroRPCError
-    try:
-        payment.start_block_height = await get_rpc().get_block_count_cached()
-    except FiroRPCError:
-        payment.start_block_height = None
+    payment.start_block_height = start_block_height
 
     await db.flush()
     return address
