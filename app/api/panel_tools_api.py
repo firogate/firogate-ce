@@ -221,6 +221,7 @@ async def get_diagnostics(operator: User = Depends(require_operator)):
     score = round(healthy_count / len(checks) * 100) if checks else 0
 
     from loguru import logger
-    logger.info(f"[diagnostics] merchant={operator.id[:8]} score={score} checks={checks}")
+    names = [c["name"] for c in checks if not c["healthy"]]
+    logger.info(f"[diagnostics] merchant={operator.id[:8]} score={score} failing={names}")
 
     return {"score": score, "checks": checks}

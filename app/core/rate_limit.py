@@ -455,7 +455,7 @@ def log_rate_limiter_info() -> None:
     limiter = get_rate_limiter()
     if isinstance(limiter, RedisRateLimiter):
         logger.success(
-            f"[rate_limit] ✅ Redis backend url={limiter._url} "
+            f"[rate_limit] ✅ Redis backend url={_redact_url(limiter._url)} "
             f"prefix={limiter._prefix!r} pool_size={limiter._pool_sz}"
         )
     else:
