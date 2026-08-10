@@ -44,9 +44,6 @@ _No API changes._
 - Private Spark payments — connect a Spark view key instead of pushing pre-derived addresses; checkout addresses are derived offline per payment, no address pool to exhaust
 - "Private (Spark)" badge on checkout
 
-#### Changed
-- Plan pricing set by the operator no longer resets to defaults on server restart
-
 ---
 
 ## [0.0.5] 2026-07 — API v1.0
@@ -56,13 +53,7 @@ _No API changes._
 
 ### App
 #### Added
-- Wallet Access Control — public, invite-only, or operator-approval modes
 - Scoped API key permissions
-- Operator approval workflow for new merchants
-- Invite token system for invite-only mode
-- Proof-of-ownership for wallet connect
-- Emergency kill switches to block wallet connections or payment creation instance-wide
-- Notification system with real-time push
 - Resend email provider support
 
 #### Changed

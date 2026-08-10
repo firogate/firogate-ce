@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     CMC_API_KEY:            str   = ""
     PRICE_PROXY_URL:        str   = "http://127.0.0.1:8899/cmc/v1/cryptocurrency/quotes/latest"
-    PRICE_CACHE_SECONDS:    int   = 60    # dashboard/home cache TTL
+    PRICE_CACHE_SECONDS:    int   = 60    # dashboard/home cache TTL add more if you want
     PRICE_FRESH_SECONDS:    int   = 30    # checkout/paylink cache TTL (both stale-while-revalidate)
 
     TIER_ENABLED:           bool  = False
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     OPERATOR_USERNAMES:     str   = ""
 
     PANEL_REQUIRE_2FA:      bool  = True
-    REQUIRED_CONFIRMATIONS: int   = 2
+    REQUIRED_CONFIRMATIONS: int   = ""
     PAYMENT_TIMEOUT_MINUTES: int  = 20
     FORCE_AUTH_PAGES_VISIBLE: bool = False
     DEFAULT_PAYMENT_TOLERANCE_FIRO: float = 0.001

@@ -735,5 +735,12 @@
   "Kenyan": "肯尼亚先令",
   "Ghanaian": "加纳塞地",
   "Moroccan": "摩洛哥迪拉姆",
-  "Tunisian": "突尼斯第纳尔"
+  "Tunisian": "突尼斯第纳尔",
+  "Payment Gateway": "支付网关",
+  "Webhook URL saved.": "Webhook 网址已保存。",
+  "Webhook URL cleared.": "Webhook 网址已清除。",
+  "Theme saved!": "主题已保存！",
+  "Analytics reset.": "分析已重置。",
+  "Background uploaded.": "背景已上传。",
+  "Logo uploaded.": "徽标已上传。"
 }

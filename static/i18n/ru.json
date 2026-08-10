@@ -735,5 +735,12 @@
   "Kenyan": "Кенийский шиллинг",
   "Ghanaian": "Ганский седи",
   "Moroccan": "Марокканский дирхам",
-  "Tunisian": "Тунисский динар"
+  "Tunisian": "Тунисский динар",
+  "Payment Gateway": "Платёжный шлюз",
+  "Webhook URL saved.": "URL вебхука сохранён.",
+  "Webhook URL cleared.": "URL вебхука очищен.",
+  "Theme saved!": "Тема сохранена!",
+  "Analytics reset.": "Аналитика сброшена.",
+  "Background uploaded.": "Фон загружен.",
+  "Logo uploaded.": "Логотип загружен."
 }
