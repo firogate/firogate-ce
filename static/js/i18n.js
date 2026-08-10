@@ -357,9 +357,11 @@
         if (!btn) return;
         var code = btn.getAttribute('data-lang');
         if (code) {
+          var profilePopup = el.closest('#sb-profile-popup');
           changeLanguage(code);
           el.classList.remove('is-open');
           toggle.setAttribute('aria-expanded', 'false');
+          if (profilePopup) profilePopup.classList.remove('open');
         }
       });
       document.addEventListener('click', function (e) {

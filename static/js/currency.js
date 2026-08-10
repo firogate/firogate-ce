@@ -223,6 +223,8 @@
           select(c.code);
           wrap.classList.remove('open');
           btn.setAttribute('aria-expanded', 'false');
+          var profilePopup = wrap.closest('#sb-profile-popup');
+          if (profilePopup) profilePopup.classList.remove('open');
         };
         listWrap.appendChild(item);
       });
