@@ -3,7 +3,7 @@
 {% block title %}Dashboard FiroGate{% endblock %}
 {% block extra_css %}
 <style>
-.wd-fi{display:block;width:100%;padding:8px 10px;background:none;border:none;border-radius:8px 3px 8px 3px;cursor:pointer;color:rgba(235,228,215,.85);font-size:.8rem;font-family:inherit;text-align:left;transition:background .12s,color .12s}
+.wd-fi{display:block;width:100%;padding:8px 10px;background:none;border:none;border-radius:8px 3px 8px 3px;cursor:pointer;color:rgba(235,228,215,.85);font-size:.8rem;font-family:inherit;text-align:start;transition:background .12s,color .12s}
 .wd-fi:hover{background:rgba(245,197,66,.07);color:#fff}
 .wd-fi.active{background:rgba(245,197,66,.10);color:#F5C542;font-weight:700}
 
@@ -115,7 +115,7 @@ html[data-theme="light"]{
 }
 .wallet-opt{display:flex;align-items:center;gap:12px;width:100%;padding:14px;margin-bottom:8px;background:var(--bg3);border:1px solid var(--bw);border-radius:12px;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--w);transition:background .15s}
 .wallet-opt:hover{background:var(--bg4)}
-.wallet-opt span:nth-child(2){flex:1;text-align:left}
+.wallet-opt span:nth-child(2){flex:1;text-align:start}
 .wallet-opt-badge{font-size:.6rem;padding:3px 8px;border-radius:20px;background:rgba(155,28,46,.15);color:#e87080;font-weight:700}
 
 #ob-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
@@ -168,11 +168,9 @@ html[data-theme="light"]{
 #ds-footer{padding:8px 14px;border-top:1px solid var(--bw);display:flex;gap:14px;align-items:center}
 #ds-footer span{font-size:.65rem;color:var(--t4);display:flex;align-items:center;gap:4px}
 #ds-footer kbd{font-size:.6rem;padding:1px 5px;border-radius:4px;border:1px solid var(--bw2);background:var(--bg3);color:var(--t3)}
-#ds-trigger{display:flex;align-items:center;gap:7px;width:100%;padding:5px 8px;margin-bottom:4px;background:var(--bg2);border:1px solid var(--bw);border-radius:0;cursor:pointer;color:var(--t3);font-size:.72rem;font-family:inherit;transition:all .15s;overflow:hidden}
-html[dir="rtl"] #ds-trigger{flex-direction:row-reverse;text-align:right}
-html[dir="rtl"] #ds-trigger-kbd{margin-left:0;margin-right:auto}
+#ds-trigger{display:flex;align-items:center;gap:7px;width:100%;padding:5px 8px;margin-bottom:4px;background:var(--bg2);border:1px solid var(--bw);border-radius:0;cursor:pointer;color:var(--t3);font-size:.72rem;font-family:inherit;transition:all .15s;overflow:hidden;text-align:start}
 #ds-trigger:hover{border-color:var(--y);color:#fff;background:var(--y)}
-#ds-trigger-kbd{margin-left:auto;font-size:.58rem;padding:1px 5px;border-radius:0;border:1px solid var(--bw);background:var(--bg1);color:var(--t4)}
+#ds-trigger-kbd{margin-inline-start:auto;font-size:.58rem;padding:1px 5px;border-radius:0;border:1px solid var(--bw);background:var(--bg1);color:var(--t4)}
 html[data-theme="light"] #ds-box{box-shadow:0 24px 64px rgba(0,0,0,.18)}
 html[data-theme="light"] #ds-overlay{background:rgba(0,0,0,.3)}
 
@@ -191,7 +189,7 @@ html[dir="rtl"] .sec-drop-menu { left:auto; right:0; }
 html[data-theme="light"] .sec-drop-menu { background:#fff; border-color:rgba(0,0,0,.3); box-shadow:0 0 0 3px rgba(0,0,0,.06), 0 0 26px rgba(0,0,0,.12); }
 @keyframes secdrop-in { from { opacity:0; transform:translateY(-8px) scale(.96); } to { opacity:1; transform:none; } }
 @media (prefers-reduced-motion: reduce) { .sec-drop-menu { animation:none } }
-.sec-drop-item { display:flex; align-items:center; gap:8px; width:100%; padding:8px 10px; border-radius:7px; border:none; background:none; color:var(--t2); font-size:.8rem; font-family:inherit; cursor:pointer; text-align:left; transition:all .1s; }
+.sec-drop-item { display:flex; align-items:center; gap:8px; width:100%; padding:8px 10px; border-radius:7px; border:none; background:none; color:var(--t2); font-size:.8rem; font-family:inherit; cursor:pointer; text-align:start; transition:all .1s; }
 .sec-drop-item:hover { background:var(--bg3); color:var(--t1); }
 .sec-drop-item.active { color:var(--y); }
 .sec-drop-arrow { transition:transform .18s; flex-shrink:0; }
@@ -244,7 +242,7 @@ html[data-theme="light"] #account-wrap [style*="background:rgba(245,197,66,.06)"
 .pdt-row{background:var(--bg2);border-bottom:1px solid var(--bw);font-size:11.5px;cursor:pointer;transition:background .15s}
 .pdt-row:last-child{border-bottom:none}
 .pdt-row:hover{background:var(--bg3)}
-.pdt-row.sel{background:rgba(245,197,66,.05);border-left:2px solid var(--y)}
+.pdt-row.sel{background:rgba(245,197,66,.05);border-inline-start:2px solid var(--y)}
 .pdt-cb{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--t3);display:grid;place-items:center;transition:all .22s;cursor:pointer;background:none;padding:0;flex-shrink:0}
 .pdt-cb svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .22s .04s}
 .pdt-cb.on{background:#141312;border-color:#141312}
@@ -300,10 +298,8 @@ html[data-theme="light"] #sb-profile-popup{
 #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle:hover{
   background:var(--y);color:#fff;
 }
-#sb-profile-popup .fg-i18n-sidebar .fg-i18n-toggle::before{content:var(--fg-i18n-lang-label,"Language");flex:1;text-align:left;order:2}
-#sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::before{content:var(--fg-i18n-curr-label,"Currency");flex:1;text-align:left;order:2}
-html[dir="rtl"] #sb-profile-popup .fg-i18n-sidebar .fg-i18n-toggle::before,
-html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::before{text-align:right}
+#sb-profile-popup .fg-i18n-sidebar .fg-i18n-toggle::before{content:var(--fg-i18n-lang-label,"Language");flex:1;text-align:start;order:2}
+#sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::before{content:var(--fg-i18n-curr-label,"Currency");flex:1;text-align:start;order:2}
 #sb-profile-popup .fg-i18n-sidebar .fg-i18n-cur-label,
 #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-label{display:none}
 #sb-profile-popup .fg-i18n-sidebar .fg-i18n-cur-flag{
@@ -408,7 +404,7 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
 
 <aside class="sidebar" id="main-sidebar">
   <div class="sb-logo">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+    <div class="sb-logo-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
       <a href="{{ base_url }}" class="logo sb-logo-full" style="font-size:.95rem;text-decoration:none;display:inline-flex;align-items:center">
        <svg width="70" height="28" viewBox="0 0 150 30">
   <style type="text/css">.cls-0 {fill:url(#SVGID_1_);stroke:#DAD9D9;stroke-width:0.39;stroke-miterlimit:10;}
@@ -519,22 +515,6 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
               </button>
             </div>
           </div>
-          <div class="ni-group" data-ni-node="sec-password">
-            <div class="ni-row">
-              <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('password')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                <span class="ni-label" data-i18n="Change Password">Change Password</span>
-              </button>
-            </div>
-          </div>
-          <div class="ni-group" data-ni-node="sec-tfa">
-            <div class="ni-row">
-              <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('tfa')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span class="ni-label" data-i18n="Secure 2FA">Secure 2FA</span>
-              </button>
-            </div>
-          </div>
           {% if is_operator %}
           <div class="ni-group" data-ni-node="sec-diag">
             <div class="ni-row">
@@ -554,6 +534,29 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
       <span class="ni-label" data-i18n="Account">Account</span>
     </button>
+        <button type="button" class="ni-chev" data-ni-toggle="account" aria-expanded="false" title="Expand" data-i18n-title="Expand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="ni-children">
+        <div class="ni-children-inner">
+          <div class="ni-group" data-ni-node="account-password">
+            <div class="ni-row">
+              <button class="ni" onclick="go('account','sb-account',null);secTab('password')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <span class="ni-label" data-i18n="Change Password">Change Password</span>
+              </button>
+            </div>
+          </div>
+          <div class="ni-group" data-ni-node="account-tfa">
+            <div class="ni-row">
+              <button class="ni" onclick="go('account','sb-account',null);secTab('tfa')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                <span class="ni-label" data-i18n="Secure 2FA">Secure 2FA</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="ni-group" data-ni-node="about">
@@ -834,7 +837,7 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
         your Firo transactions and amounts &mdash; it grants <strong>zero spend authority</strong>.
         FiroGate can never move your funds with it.
       </p>
-      <div style="max-width:420px;margin:0 auto;text-align:left">
+      <div style="max-width:420px;margin:0 auto;text-align:start">
         <div class="fg" style="margin-bottom:10px">
           <label class="flabel" data-i18n="Spark View Key">Spark View Key</label>
           <textarea id="spark-viewkey-input" class="finput" rows="3" placeholder="Paste your Spark full view key (hex)…" style="font-family:var(--mono);font-size:.76rem;resize:vertical" data-i18n-placeholder="Paste your Spark full view key (hex)…"></textarea>
@@ -1038,7 +1041,7 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
         <span data-i18n="I have copied and saved this key securely">I have copied and saved this key securely</span>
       </label>
       <button class="btn btn-o btn-sm mt2 wf" id="close-secret-btn" onclick="closeSecretModal()" disabled
-        style="opacity:.4;transition:opacity .2s" data-i18n="Done">Done</button>
+        data-i18n="Done">Done</button>
     </div>
   </div>
 </div>
@@ -1148,7 +1151,7 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
         <span class="fhint" data-i18n-html="2&ndash;40 characters. Letters, numbers, spaces and <code>. _ - &amp; ' ( )</code>">2–40 characters. Letters, numbers, spaces and <code>. _ - &amp; ' ( )</code></span>
       </div>
       <button id="an-btn" class="btn btn-y mt3" onclick="saveAppName()" data-testid="app-name-save-btn" data-i18n="Save">Save</button>
-      <button id="an-report" type="button" class="btn btn-gh mt3" style="margin-left:8px;display:none" onclick="goReport()" data-testid="app-name-report-btn" data-i18n="Request a change">Request a change</button>
+      <button id="an-report" type="button" class="btn btn-gh mt3" style="margin-inline-start:8px;display:none" onclick="goReport()" data-testid="app-name-report-btn" data-i18n="Request a change">Request a change</button>
     </div>
     </div>
 
@@ -1439,45 +1442,6 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
     </div>
     {% endif %}
 
-    <div class="sec-pane" id="sec-pane-password" style="display:none">
-    <div class="card" style="margin-bottom:18px;border-radius:4px" data-testid="password-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <h3 id="pw-title" style="margin:0" data-i18n="Change Password">Change Password</h3>
-        <span id="pw-status-badge" style="display:none;font-size:.7rem;padding:3px 9px;border-radius:4px;background:rgba(245,197,66,.12);color:#eab308;border:1px solid rgba(245,197,66,.28)" data-i18n="Google account">Google account</span>
-      </div>
-      <p id="pw-subtitle" style="color:var(--t1);font-size:.82rem;margin:0 0 14px 0" data-i18n="Update the password you use to sign in.">Update the password you use to sign in.</p>
-      <div id="pw-ab"></div>
-      <div class="fg" id="pw-cur-row">
-        <label class="flabel" data-i18n="Current Password">Current Password</label>
-        <input type="password" id="pw-cur" class="finput" placeholder="Current password" data-i18n-placeholder="Current password" autocomplete="current-password" data-testid="pw-current-input">
-      </div>
-      <div class="fg mt2">
-        <label class="flabel" data-i18n="New Password">New Password</label>
-        <input type="password" id="pw-new" class="finput" placeholder="Min 10 characters" data-i18n-placeholder="Min 10 characters" autocomplete="new-password" data-testid="pw-new-input">
-      </div>
-      <div class="fg mt2">
-        <label class="flabel" data-i18n="Confirm New Password">Confirm New Password</label>
-        <input type="password" id="pw-new2" class="finput" placeholder="Repeat new password" data-i18n-placeholder="Repeat new password" autocomplete="new-password" data-testid="pw-confirm-input">
-      </div>
-      <button id="pw-btn" class="btn btn-y mt3" onclick="changePassword()" data-testid="pw-submit-btn" data-i18n="Update Password">Update Password</button>
-    </div>
-    </div>
-
-    <div class="sec-pane" id="sec-pane-tfa" style="display:none">
-    <div id="tfa-card" class="card cy" style="margin-bottom:18px;border-radius:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <div style="display:flex;align-items:center;gap:10px">
-        <div style="display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="28" height="28" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" fill-opacity=".25" d="M3 11c0-3.771 0-5.657 1.172-6.828C5.343 3 7.229 3 11 3h2c3.771 0 5.657 0 6.828 1.172C21 5.343 21 7.229 21 11v2c0 3.771 0 5.657-1.172 6.828C18.657 21 16.771 21 13 21h-2c-3.771 0-5.657 0-6.828-1.172C3 18.657 3 16.771 3 13z"/><circle cx="8.5" cy="11.5" r="2" stroke="currentColor"/><path stroke="currentColor" stroke-linecap="round" d="M10.5 11.5h5m2 2v-1.85a.15.15 0 0 0-.15-.15H15.5m0 0v2"/></g></svg>
-        </div>
-          <div>
-            <h4 style="margin:0" data-i18n="Secure 2FA">Secure 2FA</h4>
-          </div>
-        <div id="tfa-badge"></div>
-      </div></div>
-      <div id="tfa-body"><div style="text-align:center;padding:20px;color:var(--t3)"><span class="spin" style="display:inline-block;margin-bottom:8px"></span><br><span data-i18n="Loading…">Loading…</span></div></div>
-    </div>
-    </div>
 
   </div>
 </div>
@@ -1549,6 +1513,46 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
       <button class="btn btn-y" onclick="obRestart()" data-i18n="Restart Tour">Restart Tour</button>
     </div>
     </div>
+
+    <div class="sec-pane" id="sec-pane-password" style="display:none">
+    <div class="card" style="margin-bottom:12px;border-radius:4px" data-testid="password-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <h3 id="pw-title" style="margin:0" data-i18n="Change Password">Change Password</h3>
+        <span id="pw-status-badge" style="display:none;font-size:.7rem;padding:3px 9px;border-radius:4px;background:rgba(245,197,66,.12);color:#eab308;border:1px solid rgba(245,197,66,.28)" data-i18n="Google account">Google account</span>
+      </div>
+      <p id="pw-subtitle" style="color:var(--t1);font-size:.82rem;margin:0 0 10px 0" data-i18n="Update the password you use to sign in.">Update the password you use to sign in.</p>
+      <div id="pw-ab"></div>
+      <div class="fg" id="pw-cur-row">
+        <label class="flabel" data-i18n="Current Password">Current Password</label>
+        <input type="password" id="pw-cur" class="finput" placeholder="Current password" data-i18n-placeholder="Current password" autocomplete="current-password" data-testid="pw-current-input">
+      </div>
+      <div class="fg mt2">
+        <label class="flabel" data-i18n="New Password">New Password</label>
+        <input type="password" id="pw-new" class="finput" placeholder="Min 10 characters" data-i18n-placeholder="Min 10 characters" autocomplete="new-password" data-testid="pw-new-input">
+      </div>
+      <div class="fg mt2">
+        <label class="flabel" data-i18n="Confirm New Password">Confirm New Password</label>
+        <input type="password" id="pw-new2" class="finput" placeholder="Repeat new password" data-i18n-placeholder="Repeat new password" autocomplete="new-password" data-testid="pw-confirm-input">
+      </div>
+      <button id="pw-btn" class="btn btn-y mt3" onclick="changePassword()" data-testid="pw-submit-btn" data-i18n="Update Password">Update Password</button>
+    </div>
+    </div>
+
+    <div class="sec-pane" id="sec-pane-tfa" style="display:none">
+    <div id="tfa-card" class="card cy" style="margin-bottom:12px;border-radius:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="28" height="28" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" fill-opacity=".25" d="M3 11c0-3.771 0-5.657 1.172-6.828C5.343 3 7.229 3 11 3h2c3.771 0 5.657 0 6.828 1.172C21 5.343 21 7.229 21 11v2c0 3.771 0 5.657-1.172 6.828C18.657 21 16.771 21 13 21h-2c-3.771 0-5.657 0-6.828-1.172C3 18.657 3 16.771 3 13z"/><circle cx="8.5" cy="11.5" r="2" stroke="currentColor"/><path stroke="currentColor" stroke-linecap="round" d="M10.5 11.5h5m2 2v-1.85a.15.15 0 0 0-.15-.15H15.5m0 0v2"/></g></svg>
+        </div>
+          <div>
+            <h4 style="margin:0" data-i18n="Secure 2FA">Secure 2FA</h4>
+          </div>
+        <div id="tfa-badge"></div>
+      </div></div>
+      <div id="tfa-body"><div style="text-align:center;padding:20px;color:var(--t3)"><span class="spin" style="display:inline-block;margin-bottom:8px"></span><br><span data-i18n="Loading…">Loading…</span></div></div>
+    </div>
+    </div>
   </div>
 </div>
 
@@ -1589,7 +1593,7 @@ html[dir="rtl"] #sb-profile-popup .fg-curr-sidebar-inline .fg-curr-toggle::befor
   color:var(--t3, rgba(255,255,255,.66));
 }
 .ag-field label .ag-opt{
-  text-transform:none; letter-spacing:0; opacity:.7; margin-left:4px;
+  text-transform:none; letter-spacing:0; opacity:.7; margin-inline-start:4px;
 }
 .ag-input{
   width:100%; box-sizing:border-box;
@@ -1701,10 +1705,10 @@ html[data-theme="light"] .ag-input::placeholder{color:rgba(20,12,0,.4)}
       <div class="fg" style="margin-bottom:12px">
         <label class="flabel"><span data-i18n="Custom Name">Custom Name</span> <span style="font-size:.7rem;color:var(--t3)" data-i18n-html="(optional, e.g. &quot;my-shop&quot;)">(optional, e.g. "my-shop")</span></label>
         <div style="position:relative">
-          <input type="text" id="pl-custom-slug" class="finput" placeholder="Leave blank for auto-generated" data-i18n-placeholder="Leave blank for auto-generated" maxlength="32" style="padding-right:80px"
+          <input type="text" id="pl-custom-slug" class="finput" placeholder="Leave blank for auto-generated" data-i18n-placeholder="Leave blank for auto-generated" maxlength="32" style="padding-inline-end:80px"
           oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9\-]/g,''); validateSlugInput(this)">
         <span id="pl-slug-hint" class="fhint" style="display:none"></span>
-          <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--t3);pointer-events:none">/pay/…</span>
+          <span style="position:absolute;inset-inline-end:10px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--t3);pointer-events:none">/pay/…</span>
         </div>
         <span class="fhint" data-i18n="3–32 chars, letters/digits/hyphens.">3–32 chars, letters/digits/hyphens.</span>
       </div>
@@ -1944,9 +1948,14 @@ function syncProfileUI(d) {
   const used  = d.requests_used  || 0;
   const total = d.requests_total || 0;
 
-  const _displayName = (d.auth_provider === 'account_number' && d.app_name) ? d.app_name : d.username;
+  let _displayName = (d.auth_provider === 'account_number' && d.app_name) ? d.app_name : d.username;
+  if (_displayName === 'Payment Gateway' && window.t) _displayName = window.t('Payment Gateway');
   document.getElementById('sb-uname').textContent = _displayName;
   { const _m = document.getElementById('sb-popup-mail'); if (_m) _m.textContent = _profileIdentLine(d); }
+  {
+    const _pwNode = document.querySelector('[data-ni-node="account-password"]');
+    if (_pwNode) _pwNode.style.display = d.auth_provider === 'account_number' ? 'none' : '';
+  }
   { const _u = document.getElementById('sb-popup-uname'); if (_u && _displayName) _u.textContent = _displayName; }
 
   ['ov-left', 'ov-balance', 'ov-earned'].forEach(function(id) {
@@ -2089,7 +2098,7 @@ function dismiss2FANudge(goToSecurity) {
   if (ov) ov.remove();
   try { localStorage.setItem('fg_2fa_nudge_ts', String(Date.now())); } catch(_) {}
   if (goToSecurity) {
-    go('sec', 'sb-sec', 'mb-sec');
+    go('account', 'sb-account', null);
     if (typeof secTab === 'function') secTab('tfa');
     setTimeout(() => {
       const el = document.getElementById('tfa-body') || document.getElementById('btn-enable-2fa');
@@ -2163,6 +2172,7 @@ function _secSectionTitle(id) {
 }
 
 function secTab(id) {
+  if (id === 'password' && profile && profile.auth_provider === 'account_number') { id = 'reports'; }
   const pane = document.getElementById('sec-pane-' + id);
   if (!pane) return;
   const scope = pane.closest('#sec-wrap, #account-wrap') || document;
@@ -2178,12 +2188,14 @@ function secTab(id) {
     if (typeof loadDiagSettings === 'function') loadDiagSettings();
   }
 
-  const secGroup = document.querySelector('[data-ni-node="sec"]');
-  if (secGroup) {
-    secGroup.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-    const childNode = secGroup.querySelector('[data-ni-node="sec-' + id + '"] .ni');
+  const parentNode = scope.id === 'account-wrap' ? 'account' : 'sec';
+  const parentBtnId = scope.id === 'account-wrap' ? 'sb-account' : 'sb-sec';
+  const parentGroup = document.querySelector('[data-ni-node="' + parentNode + '"]');
+  if (parentGroup) {
+    parentGroup.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+    const childNode = parentGroup.querySelector('[data-ni-node="' + parentNode + '-' + id + '"] .ni');
     if (childNode) childNode.classList.add('active');
-    else document.getElementById('sb-sec')?.classList.add('active');
+    else document.getElementById(parentBtnId)?.classList.add('active');
   }
 }
 
@@ -2225,7 +2237,7 @@ async function connectSparkViewKey() {
     if (al) al.innerHTML = alertHTML(window.t ? window.t('Paste your wallet key first.') : 'Paste your wallet key first.', 'err');
     return;
   }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin" style="width:12px;height:12px;border-width:2px;vertical-align:-2px;margin-right:6px"></span>' + (window.t ? window.t('Connecting…') : 'Connecting…'); }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin" style="width:12px;height:12px;border-width:2px;vertical-align:-2px;margin-inline-end:6px"></span>' + (window.t ? window.t('Connecting…') : 'Connecting…'); }
   try {
     const r = await API.post('/spark/connect', {
       view_key_hex: viewKeyHex,
@@ -2292,8 +2304,7 @@ function go(name, sbId, mobId) {
   });
 
   if (name === 'pays') loadPays();
-  if (name === 'sec') { load2FA(); }
-  if (name === 'account') { if (typeof loadMyReports === 'function') loadMyReports(); }
+  if (name === 'account') { if (typeof loadMyReports === 'function') loadMyReports(); load2FA(); }
   if (name === 'wallet') { loadSparkStatus(); }
   if (name === 'api')  { loadApiTab(); }
 
@@ -2417,7 +2428,7 @@ async function createApiKey() {
   var cb = document.getElementById('confirm-key-saved');
   var btn = document.getElementById('close-secret-btn');
   if (cb) { cb.checked = false; }
-  if (btn) { btn.disabled = true; btn.style.opacity = '.4'; }
+  if (btn) { btn.disabled = true; }
   var m = document.getElementById('modal-key-secret');
   if (m) m.style.display = 'flex';
   loadApiKeys();
@@ -2430,7 +2441,7 @@ function copyNewKey() {
 document.addEventListener('change', function(e) {
   if (e.target && e.target.id === 'confirm-key-saved') {
     var btn = document.getElementById('close-secret-btn');
-    if (btn) { btn.disabled = !e.target.checked; btn.style.opacity = e.target.checked ? '1' : '.4'; }
+    if (btn) { btn.disabled = !e.target.checked; }
   }
 });
 
@@ -2495,7 +2506,7 @@ async function confirmResetAnalytics() {
   var r = await API.post('/api/analytics/user/reset', { confirm: 'RESET' });
   if (r && r.ok) {
     closeResetAnalyticsModal();
-    Toast.success(window.t ? window.t('Analytics reset. Starting fresh from today.') : 'Analytics reset. Starting fresh from today.');
+    Toast.success(window.t ? window.t('Analytics reset.') : 'Analytics reset.');
     _chartHistory = null;
     loadUserAnalytics();
   } else {
@@ -2510,9 +2521,11 @@ async function saveWebhook() {
   var url = (document.getElementById('webhook-url') || {}).value || '';
   var r = await API.patch('/api/users/webhook', { webhook_url: url.trim() || null });
   if (r && !r.error) {
-    Toast.success(window.t ? window.t('Webhook endpoint saved!') : 'Webhook endpoint saved!');
+    var msg = r.message && window.t ? window.t(r.message) : (r.message || (window.t ? window.t('Webhook endpoint saved!') : 'Webhook endpoint saved!'));
+    Toast.success(msg);
   } else {
-    if (ab) ab.innerHTML = alertHTML(r && r.error || (window.t ? window.t('Failed to save.') : 'Failed to save.'), 'err');
+    var errMsg = (r && r.error && window.t) ? window.t(r.error) : (r && r.error) || (window.t ? window.t('Failed to save.') : 'Failed to save.');
+    if (ab) ab.innerHTML = alertHTML(errMsg, 'err');
   }
 }
 
@@ -2521,7 +2534,7 @@ async function regenWHSecret() {
   var r = await API.post('/api/users/regenerate-webhook-secret');
   if (r && !r.error) {
     document.getElementById('wh-secret-text').textContent = r.webhook_secret;
-    Toast.success(window.t ? window.t('New secret generated copy and update your server.') : 'New secret generated copy and update your server.');
+    Toast.success(window.t ? window.t('New secret generated.') : 'New secret generated.');
   } else {
     Toast.error(r && r.error || (window.t ? window.t('Failed to regenerate secret.') : 'Failed to regenerate secret.'));
   }
@@ -3185,7 +3198,7 @@ function _dsRender(items) {
       </div>
       <div class="ds-item-body">
         <div class="ds-item-title">${_mrEsc(it.txid || it.payment_id)}</div>
-        <div class="ds-item-sub"><span style="color:${col};font-size:.65rem;font-weight:700;margin-right:5px">${_mrEsc(it.status)}</span>${_mrEsc(sub)} <span style="color:var(--t4);font-size:.65rem;margin-left:4px">[${tag}]</span></div>
+        <div class="ds-item-sub"><span style="color:${col};font-size:.65rem;font-weight:700;margin-inline-end:5px">${_mrEsc(it.status)}</span>${_mrEsc(sub)} <span style="color:var(--t4);font-size:.65rem;margin-inline-start:4px">[${tag}]</span></div>
       </div>
       <div class="ds-item-meta">
         <div class="ds-item-amount">${_mrEsc(amt)}</div>
@@ -3410,8 +3423,8 @@ async function load2FA() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
         <span style="flex:1">${window.t ? window.t('Your account is protected with 2FA.') : 'Your account is protected with 2FA.'}
         ${d.backup_codes_remaining > 0
-          ? `<span style="margin-left:8px;color:#eab308;font-size:.78rem">${d.backup_codes_remaining} ${window.t ? window.t('2FA backup codes') : '2FA backup codes'}</span>`
-          : `<span style="margin-left:8px;color:var(--red);font-size:.78rem">${window.t ? window.t('No 2FA backup codes left') : 'No 2FA backup codes left'}</span>`}</span>
+          ? `<span style="margin-inline-start:8px;color:#eab308;font-size:.78rem">${d.backup_codes_remaining} ${window.t ? window.t('2FA backup codes') : '2FA backup codes'}</span>`
+          : `<span style="margin-inline-start:8px;color:var(--red);font-size:.78rem">${window.t ? window.t('No 2FA backup codes left') : 'No 2FA backup codes left'}</span>`}</span>
         <button onclick="this.closest('.alert').remove()" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.6;font-size:1rem;line-height:1;padding:0;flex-shrink:0">&times;</button>
       </div>
       ${d.recovery_codes_remaining !== undefined ? `
@@ -4142,7 +4155,7 @@ function _renderPresets(presets, activeId) {
       'padding:10px','border-radius:10px','cursor:pointer',
       'border:2px solid ' + (isActive ? 'var(--y)' : 'var(--bw)'),
       'background:' + (isActive ? 'rgba(245,197,66,.06)' : 'var(--bg4)'),
-      'text-align:left','transition:border-color .15s',
+      'text-align:start','transition:border-color .15s',
     ].join(';');
     const swatches = document.createElement('div');
     swatches.style.cssText = 'display:flex;gap:3px';
@@ -4257,7 +4270,7 @@ async function uploadLogo(ev) {
     var dataUrl = await _fileToDataURL(file);
     var r = await fetch('/api/users/app-logo', { method:'POST', credentials:'include',
       headers:{'Content-Type':'application/json'}, body: JSON.stringify({ logo: dataUrl }) }).then(function(x){return x.json();});
-    if (r && r.ok) { Toast.success(window.t ? window.t('Logo uploaded and compressed.') : 'Logo uploaded and compressed.'); loadLogoPreview(); }
+    if (r && r.ok) { Toast.success(window.t ? window.t('Logo uploaded.') : 'Logo uploaded.'); loadLogoPreview(); }
     else { Toast.error((r && r.detail) || (window.t ? window.t('Upload failed.') : 'Upload failed.')); }
   } catch (e) { Toast.error(window.t ? window.t('Upload failed.') : 'Upload failed.'); }
   ev.target.value = '';
@@ -4280,7 +4293,7 @@ async function uploadBg(ev) {
     var r = await fetch('/api/theme', { method:'PUT', credentials:'include',
       headers:{'Content-Type':'application/json'}, body: JSON.stringify({ theme_bg_image: dataUrl }) }).then(function(x){return x.json();});
     if (r && r.ok) {
-      Toast.success(window.t ? window.t('Background uploaded and compressed. Save theme to keep other changes.') : 'Background uploaded and compressed. Save theme to keep other changes.');
+      Toast.success(window.t ? window.t('Background uploaded.') : 'Background uploaded.');
       var prev = document.getElementById('bg-preview');
       if (prev) { prev.style.backgroundImage = "url('" + dataUrl + "')"; prev.textContent = ''; }
     } else { Toast.error((r && r.detail) || (window.t ? window.t('Upload failed.') : 'Upload failed.')); }
@@ -4458,7 +4471,7 @@ function _initLayoutPicker(currentLayout) {
     eyeBtn.title = (window.t ? window.t('Preview') : 'Preview') + ' ' + l.label;
     eyeBtn.style.cssText = 'width:20px;height:20px;border-radius:5px;border:1px solid var(--bw);'
       +'background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;'
-      +'color:var(--t3);transition:color .15s,border-color .15s;padding:0;vertical-align:middle;margin-left:5px;flex-shrink:0';
+      +'color:var(--t3);transition:color .15s,border-color .15s;padding:0;vertical-align:middle;margin-inline-start:5px;flex-shrink:0';
     eyeBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
     eyeBtn.onmouseenter = function(){ this.style.color='var(--white)'; this.style.borderColor='var(--t2)'; };
     eyeBtn.onmouseleave = function(){ this.style.color='var(--t3)'; this.style.borderColor='var(--bw)'; };
@@ -4489,7 +4502,7 @@ function _initLayoutPicker(currentLayout) {
       ballBtn.dataset.layoutId = l.id;
       ballBtn.title = (window.t ? window.t('Customize') : 'Customize') + ' ' + l.label + ' ' + (window.t ? window.t('colors') : 'colors');
       ballBtn.style.cssText = 'width:20px;height:20px;border-radius:50%;border:1px solid var(--bw);'
-        +'cursor:pointer;padding:0;margin-left:6px;flex-shrink:0;vertical-align:middle;'
+        +'cursor:pointer;padding:0;margin-inline-start:6px;flex-shrink:0;vertical-align:middle;'
         +'box-shadow:0 1px 3px rgba(0,0,0,.25);'
         +'background:linear-gradient(135deg, '+v2AccentShow+' 50%, '+v2BgShow+' 50%)';
       nameRow.appendChild(ballBtn);
@@ -4798,7 +4811,7 @@ async function saveTheme() {
   }).then(function(res){ return res.json(); }).catch(function(){ return null; });
 
   if (r && r.ok) {
-    Toast.success(window.t ? window.t('Theme saved! Click "Preview selected" to see it.') : 'Theme saved! Click "Preview selected" to see it.');
+    Toast.success(window.t ? window.t('Theme saved!') : 'Theme saved!');
   } else {
     if (ab) ab.innerHTML = alertHTML((r && r.detail) || (window.t ? window.t('Failed to save theme.') : 'Failed to save theme.'), 'err');
   }
