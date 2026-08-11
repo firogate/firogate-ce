@@ -41,6 +41,16 @@ build/
 *.swp
 *.swo
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# ─ Keys, credentials ─
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*service-account*.json
 
 # ─ Claude Code (local permission allowlist reveals local paths, never shared) ─
 .claude/settings.local.json
