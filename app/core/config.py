@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     OPERATOR_USERNAMES:     str   = ""
 
     PANEL_REQUIRE_2FA:      bool  = True
-    REQUIRED_CONFIRMATIONS: int   = ""
+    REQUIRED_CONFIRMATIONS: int   = 1
     PAYMENT_TIMEOUT_MINUTES: int  = 20
     FORCE_AUTH_PAGES_VISIBLE: bool = False
     DEFAULT_PAYMENT_TOLERANCE_FIRO: float = 0.001
