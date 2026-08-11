@@ -1,17 +1,36 @@
 # Changelog
 
-Current: **API v1.0** · **App 0.0.7**
+Current: **API v1.0** · **App 0.0.8**
 
 ---
 
-## [Unreleased] — App 0.0.8
+## [Unreleased] — App 0.0.9
+:)
+---
+
+## [0.0.8] 2026-08 — App 0.0.8
 
 ### API
 _No API changes._
 
 ### App
+#### Added
+- Account number is now stored encrypted, not just hashed
+
+#### Changed
+- Arabic (RTL) layout now fully mirrors the sidebar and dashboard, not just text direction
+- Shortened toast/status messages and updated translations
+- Removed the "Network" label from the checkout page — no longer shown
+- Removed a duplicate "USD" label next to the fiat value on checkout
+
 #### Fixed
 - FIRO amounts showing 8 trailing decimal zeros (e.g. "0.05500000") on the checkout page's partially-paid summary
+- Webhook URL wasn't validated or saved when left empty, despite showing a success message
+- Language/currency switcher popup wasn't closing automatically after a selection
+- `database is locked` errors from the Spark payment scanner colliding with other writes
+
+#### Security
+- Reduced risk of secrets (RPC credentials, encryption keys, session data) leaking into server logs
 
 ---
 
