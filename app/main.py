@@ -119,6 +119,31 @@ templates = Jinja2Templates(directory="templates")
 scheduler = AsyncIOScheduler(timezone="UTC")
 fg_i18n.register_jinja(templates)
 
+# diagnose=True leaks local vars (passwords/tokens/keys) in tracebacks - tie to DEBUG
+import sys as _sys
+logger.remove()
+logger.add(_sys.stderr, diagnose=settings.DEBUG, backtrace=settings.DEBUG)
+
+# blocknotify's secret rides in the URL - strip it from uvicorn's access log
+import logging as _logging
+import re as _re
+_BLOCKNOTIFY_SECRET_RE = _re.compile(r"(/api/internal/blocknotify\?secret=)[^\s&\"]+")
+
+
+class _RedactBlocknotifySecret(_logging.Filter):
+    def filter(self, record: _logging.LogRecord) -> bool:
+        if isinstance(record.args, tuple):
+            record.args = tuple(
+                _BLOCKNOTIFY_SECRET_RE.sub(r"\1<redacted>", a) if isinstance(a, str) else a
+                for a in record.args
+            )
+        elif isinstance(record.msg, str):
+            record.msg = _BLOCKNOTIFY_SECRET_RE.sub(r"\1<redacted>", record.msg)
+        return True
+
+
+_logging.getLogger("uvicorn.access").addFilter(_RedactBlocknotifySecret())
+
 
 # ── Static asset cache-buster ────────────────────────────────────────────────
 # Appends the file's mtime to any /static/... path so browsers fetch a fresh
@@ -272,6 +297,16 @@ async def _seed():
                     requests_total=999999,
                 ))
                 logger.info(f"Operator account created")
+
+        # ── Spark scanner cursor row ─────────────────────────────────────
+        # Seeded once here (not lazily on first scan) so two concurrent
+        # scan runs - the 20s scheduler and blocknotify's debounced trigger
+        # commonly overlap - can never both see "row missing" and race to
+        # INSERT the same id=1 row (sqlite3.IntegrityError: UNIQUE
+        # constraint failed: spark_scan_state.id).
+        from app.models.spark import SparkScanState
+        if not (await db.execute(select(SparkScanState).where(SparkScanState.id == 1))).scalar_one_or_none():
+            db.add(SparkScanState(id=1, coin_group_id=0, last_block_hash=None))
 
         await db.commit()
     logger.info("Seed complete")

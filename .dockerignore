@@ -1,0 +1,51 @@
+# ─ Secrets & Environment ─
+.env
+.env.*
+!.env.example
+
+# ─ Database (never bake real data into an image) ─
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ─ Logs ─
+logs/
+*.log
+
+# ─ Python ─
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ─ Virtual environments (the image installs its own deps fresh) ─
+.venv/
+venv/
+env/
+ENV/
+
+# ─ Git ─
+.git/
+.gitignore
+
+# ─ Real nginx site config (real domains, real filesystem paths) — never bake into an image ─
+firogate
+
+# ─ IDE ─
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ─ Vendored native dependency source tree (~1GB) — only the compiled
+# app/native/libflutter_libsparkmobile.so is needed at runtime, and that
+# file lives outside this directory so it's unaffected by this rule.
+native/flutter_libsparkmobile/
+
+# ─ Misc ─
+*.bak
+*.tmp
+.claude/

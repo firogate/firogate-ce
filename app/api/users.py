@@ -119,6 +119,17 @@ async def get_webhook_secret(user: User = Depends(get_current_user)):
         return {"secret": None}
 
 
+@router.get("/account-number")
+async def get_account_number(user: User = Depends(get_current_user)):
+    if not user.account_number_enc:
+        return {"account_number": None}
+    from app.core.security import format_account_number
+    try:
+        return {"account_number": format_account_number(decrypt_field(user.account_number_enc))}
+    except Exception:
+        return {"account_number": None}
+
+
 class WebhookUpdate(BaseModel):
     webhook_url: str | None = None
 
@@ -128,14 +139,13 @@ async def update_webhook(
     user: User = Depends(get_current_user),
     db:   AsyncSession = Depends(get_db),
 ):
-    if body.webhook_url is not None:
-        try:
-            user.webhook_url = validate_url(body.webhook_url, "Webhook URL")
-        except ValueError as e:
-            raise HTTPException(422, str(e))
+    user.webhook_url = validate_url(body.webhook_url, "Webhook URL")
     db.add(user)
     await db.commit()
-    return {"message": "Webhook URL updated"}
+    return {
+        "message": "Webhook URL saved." if user.webhook_url else "Webhook URL cleared.",
+        "webhook_url": user.webhook_url,
+    }
 
 
 class PaymentPolicyUpdate(BaseModel):
@@ -202,6 +212,7 @@ async def password_status(user: User = Depends(get_current_user)):
     return {
         "has_password":         bool(has_password),
         "has_firebase":         bool(user.firebase_uid),
+        "is_account_number":    getattr(user, "auth_method", None) == "account_number",
         "password_changed_at":  user.password_changed_at.isoformat() if user.password_changed_at else None,
     }
 
@@ -224,6 +235,9 @@ async def change_password(
     """
     from app.core.security import hash_password, verify_password
     from datetime import datetime, timezone
+
+    if getattr(user, "auth_method", None) == "account_number":
+        raise HTTPException(403, "Account number login does not use a password.")
 
     has_password = not (user.firebase_uid and user.password_changed_at is None)
 

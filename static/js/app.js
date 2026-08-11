@@ -225,7 +225,15 @@ function copyText(text,label='Copied!'){
 
 
 function fmtDate(iso){if(!iso)return'—';return new Date(iso).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}
-function fmtFiro(a){return(parseFloat(a)||0).toFixed(8)+' FIRO'}
+function fmtFiro(a){
+  const n = parseFloat(a) || 0;
+  let s = n.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+  const dot = s.indexOf('.');
+  const dec = dot === -1 ? 0 : s.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  s = dot === -1 ? s + '.' + '0'.repeat(want) : (dec < want ? s + '0'.repeat(want - dec) : s);
+  return s + ' FIRO';
+}
 function truncate(s,n=16){if(!s||s==='—')return'—';if(s.length<=n)return s;return s.slice(0,8)+'…'+s.slice(-6)}
 
 function badge(s){

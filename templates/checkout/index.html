@@ -339,7 +339,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 #v2-themes .t-brut h1{font-family:'Noto Sans Arabic','Archivo Black',sans-serif;font-size:34px;line-height:1;text-transform:uppercase;margin-bottom:6px;color:#111}
 .t-brut h1 em{font-style:normal;color:#B82334}
 .t-brut .sub{font:700 12px 'JetBrains Mono',monospace;margin:6px 0 16px;color:#444}
-.t-brut .grid{display:grid;grid-template-columns:1fr 1fr;border:3px solid #111}
+.t-brut .grid{display:grid;grid-template-columns:1fr;border:3px solid #111}
 .t-brut .cell{padding:12px;border-right:3px solid #111}.t-brut .cell:last-child{border-right:none}
 .t-brut .cell .k{font:700 9.5px 'JetBrains Mono';text-transform:uppercase;letter-spacing:1px;color:#666}
 #v2-themes .t-brut .cell .v{font-family:'Noto Sans Arabic','Archivo Black';font-size:20px;margin-top:3px}
@@ -1746,6 +1746,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 body[data-checkout-theme] .fg-curr-fixed{display:none!important}
 body.fg-curr-off .cw{display:none!important}
 body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{display:none!important}
+body.fg-curr-off #th-brut .grid .cell:has(.v2-fiat){display:none!important}
 </style>
 {% endblock %}
 {% block body %}
@@ -1808,10 +1809,6 @@ body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{
         <div class="st-row" id="st-row-order">
           <div class="k" id="txt-order-label">Order</div>
           <div class="v" id="st-order-id" data-testid="st-order-id">—</div>
-        </div>
-        <div class="st-row">
-          <div class="k" id="txt-net-label">Network</div>
-          <div class="v" id="st-network">—</div>
         </div>
         <div class="st-row" style="padding-top:10px;border-top:1px solid var(--bw)">
           <div class="k" style="color:var(--white);font-weight:600" id="txt-total-label">Total due</div>
@@ -2011,7 +2008,7 @@ body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{
   <div class="row"><span>Amount</span><b><span class="v2-amount skel-shimmer">—</span> FIRO</b></div>
   <hr class="sep">
   <div class="row total"><span>TOTAL</span><span><span class="v2-amount skel-shimmer">—</span> FIRO</span></div>
-  <div class="row"><span>≈ USD</span><span class="v2-fiat skel-shimmer">—</span></div>
+  <div class="row"><span></span><span class="v2-fiat skel-shimmer">—</span></div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <hr class="sep">
   <div class="c" style="font-size:10px;letter-spacing:1px">SEND EXACTLY TO</div>
@@ -2049,9 +2046,8 @@ body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{
     <h1>Pay <em class="v2-amount skel-shimmer">—</em> Firo.</h1>
     <div class="sub">// INVOICE <span class="v2-order">—</span> → <span class="v2-merchant">STORE</span></div>
     <div class="grid">
-      <div class="cell"><div class="k">≈ USD</div><div class="v v2-fiat skel-shimmer">—</div></div>
+      <div class="cell"><div class="k"></div><div class="v v2-fiat skel-shimmer">—</div></div>
       <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
-      <div class="cell"><div class="k">Network</div><div class="v v2-network-short">MAINNET</div></div>
     </div>
     <div class="addrb"><span class="lbl">SEND TO</span><span class="addr-txt">—</span></div>
     <button class="cp" data-copy>COPY ADDRESS</button>
@@ -2144,7 +2140,6 @@ body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="gridd">
     <dl>
-      <dt>Network</dt><dd class="v2-network">Firo mainnet</dd>
       <dt>Expires</dt><dd class="timer">—</dd>
       <dt>Address</dt><dd class="mono addr-txt">—</dd>
       <dt></dt><dd><button class="cp" data-copy>Copy address</button></dd>
@@ -2186,7 +2181,6 @@ body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{
     <div class="facts">
       <div><div class="k">Amount</div><div class="v v2-amount skel-shimmer">—</div><div class="v2-fiat skel-shimmer" style="font-size:9px;font-weight:600;color:#7181a3;margin-top:2px">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div></div>
       <div><div class="k">Order</div><div class="v v2-order">—</div></div>
-      <div><div class="k">Network</div><div class="v v2-network-short">MAINNET</div></div>
     </div>
     <div class="addr">SEND TO: <span class="addr-txt">—</span></div>
     <button class="cp" data-copy>Copy address</button>
@@ -2693,7 +2687,11 @@ function fmtFiro(val) {
   if (s.indexOf('.') !== -1) {
     s = s.replace(/0+$/, '').replace(/\.$/, '');
   }
-  return s.indexOf('.') === -1 ? s + '.00' : s;
+  const dot = s.indexOf('.');
+  const dec = dot === -1 ? 0 : s.length - dot - 1;
+  const want = Math.max(2, dec + 1);
+  if (dot === -1) return s + '.' + '0'.repeat(want);
+  return dec < want ? s + '0'.repeat(want - dec) : s;
 }
 
 const T = {
@@ -2807,7 +2805,6 @@ function applyLang(lang) {
 
   const set = (id, txt) => { const el=document.getElementById(id); if(el) el.textContent = txt; };
   set('txt-order-label', t.order);
-  set('txt-net-label', t.network);
   set('txt-total-label', t.total);
   set('txt-secure', t.secure);
   set('email-title', t.emailTitle);
@@ -3400,8 +3397,6 @@ function _v2InitTheme(layout) {
     orderId = orderId.replace(/^plan:/i, '').replace(/[_-]/g, ' ')
       .replace(/\b\w/g, function(c){ return c.toUpperCase(); }) + ' Plan';
   }
-  var isTest  = payData.is_testnet;
-
   sec.querySelectorAll('.v2-merchant').forEach(function(el){ el.textContent = merch; });
   sec.querySelectorAll('.v2-merchant-short').forEach(function(el){ el.textContent = merch.substring(0,12).toUpperCase(); });
   sec.querySelectorAll('.v2-merchant-code').forEach(function(el){ el.textContent = merch.replace(/[^A-Za-z]/g,'').substring(0,3).toUpperCase() || 'MRC'; });
@@ -3409,8 +3404,6 @@ function _v2InitTheme(layout) {
   sec.querySelectorAll('.v2-order').forEach(function(el){ el.textContent = orderId; });
   sec.querySelectorAll('.v2-amount').forEach(function(el){ el.classList.remove('skel-shimmer'); el.textContent = amount; });
   sec.querySelectorAll('.addr-txt').forEach(function(el){ el.textContent = addr; });
-  sec.querySelectorAll('.v2-network').forEach(function(el){ el.textContent = isTest ? 'Firo testnet' : 'Firo mainnet'; });
-  sec.querySelectorAll('.v2-network-short').forEach(function(el){ el.textContent = isTest ? 'TESTNET' : 'MAINNET'; });
   var _now = new Date();
   sec.querySelectorAll('.v2-date').forEach(function(el){
     var isReceipt = !!el.closest('#th-rcpt');
@@ -3550,7 +3543,7 @@ window._updateAltLayout = function(d) {
     var total = d.amount_firo || 0;
     var remain = Math.max(0, total - recv);
     state = 'c1';
-    fxText = 'Partially paid · ' + recv.toFixed(8) + ' / ' + total.toFixed(8) + ' FIRO (remaining ' + remain.toFixed(8) + ')';
+    fxText = 'Partially paid · ' + fmtFiro(recv) + ' / ' + fmtFiro(total) + ' FIRO (remaining ' + fmtFiro(remain) + ')';
   }
   sec.dataset.state = state;
   sec.querySelectorAll('.fx').forEach(function(el){ el.textContent = fxText; });
@@ -3584,7 +3577,6 @@ function applyOrderSummary(d) {
   document.getElementById('st-order-title').classList.remove('skel-shimmer');
   document.getElementById('st-amount').textContent = amt;
   document.getElementById('st-total').textContent = amt + ' FIRO';
-  document.getElementById('st-network').textContent = d.is_testnet ? 'Testnet' : 'Firo';
   let orderRef = (d.order_id || '—').replace(/^link-/i, '');
   if (/^plan:/i.test(orderRef)) {
     orderRef = orderRef.replace(/^plan:/i, '').replace(/[_-]/g, ' ')
@@ -3911,9 +3903,9 @@ function updatePartialBlock(d) {
     const totalEl = document.getElementById('pay-amt-total');
     const recvEl  = document.getElementById('pay-amt-received');
     const remEl   = document.getElementById('pay-amt-remaining');
-    if (totalEl) totalEl.textContent = total.toFixed(8) + ' FIRO';
-    if (recvEl)  recvEl.textContent  = received.toFixed(8) + ' FIRO';
-    if (remEl)   remEl.textContent   = remaining.toFixed(8) + ' FIRO';
+    if (totalEl) totalEl.textContent = fmtFiro(total) + ' FIRO';
+    if (recvEl)  recvEl.textContent  = fmtFiro(received) + ' FIRO';
+    if (remEl)   remEl.textContent   = fmtFiro(remaining) + ' FIRO';
   } else {
     block.style.display = 'none';
   }

@@ -735,5 +735,12 @@
   "Kenyan": "Kenia-Schilling",
   "Ghanaian": "Ghanaischer Cedi",
   "Moroccan": "Marokkanischer Dirham",
-  "Tunisian": "Tunesischer Dinar"
+  "Tunisian": "Tunesischer Dinar",
+  "Payment Gateway": "Zahlungsgateway",
+  "Webhook URL saved.": "Webhook-URL gespeichert.",
+  "Webhook URL cleared.": "Webhook-URL gelöscht.",
+  "Theme saved!": "Design gespeichert!",
+  "Analytics reset.": "Statistiken zurückgesetzt.",
+  "Background uploaded.": "Hintergrund hochgeladen.",
+  "Logo uploaded.": "Logo hochgeladen."
 }

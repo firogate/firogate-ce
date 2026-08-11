@@ -1,4 +1,5 @@
 from pathlib import Path
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from app.core.config import get_settings
@@ -13,7 +14,14 @@ _is_sqlite = _db_url.startswith("sqlite")
 
 _engine_kwargs: dict = {"echo": False}
 if _is_sqlite:
-    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+    # timeout is sqlite3's busy-wait in seconds: when a second writer hits a
+    # locked DB (SQLite only allows one writer at a time), it retries for up
+    # to this long instead of raising "database is locked" immediately. This
+    # matters here because the Spark scanner (triggered both by its poll
+    # loop and by blocknotify, see app/api/internal.py) and a normal request
+    # handler (e.g. payment_links.py's checkout) can each open a write
+    # transaction at the same moment.
+    _engine_kwargs["connect_args"] = {"check_same_thread": False, "timeout": 15}
 else:
     # PostgreSQL (asyncpg): real connection pooling for concurrency under load.
     _engine_kwargs.update(
@@ -25,6 +33,19 @@ else:
     )
 
 engine = create_async_engine(_db_url, **_engine_kwargs)
+
+if _is_sqlite:
+    # WAL lets readers proceed while a writer is mid-transaction (default
+    # "DELETE" journal mode blocks readers too), so most of the concurrent
+    # read/write traffic this app generates (dashboard polling, webhook
+    # retries, the Spark scanner) never reaches the writer-vs-writer
+    # contention that `timeout` above handles as a fallback.
+    @event.listens_for(engine.sync_engine, "connect")
+    def _set_sqlite_pragma(dbapi_conn, _):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.close()
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -117,6 +138,7 @@ def _ensure_user_columns(sync_conn) -> None:
         ("has_seen_onboarding",           "BOOLEAN DEFAULT 0 NOT NULL"),
         ("account_number_hash",           "VARCHAR(128)"),
         ("account_number_lookup",         "VARCHAR(64)"),
+        ("account_number_enc",            "VARCHAR(512)"),
         ("required_confirmations_policy", "INTEGER"),
         ("payment_tolerance_firo",        "FLOAT"),
     ]

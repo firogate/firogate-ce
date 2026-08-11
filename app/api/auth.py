@@ -361,6 +361,7 @@ async def register_number(request: Request, response: Response, db: AsyncSession
         hashed_password="UNUSABLE-" + secrets.token_hex(32),
         account_number_hash=hash_password(raw_number),
         account_number_lookup=lookup,
+        account_number_enc=encrypt_field(raw_number),
         auth_method="account_number",
         role=UserRole.merchant,
         api_key=generate_api_key(),

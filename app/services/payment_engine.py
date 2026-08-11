@@ -86,9 +86,17 @@ async def _run_spark_scan(db: AsyncSession):
     res_state = await db.execute(select(SparkScanState).where(SparkScanState.id == 1))
     state = res_state.scalar_one_or_none()
     if state is None:
+        # Should not happen in practice - app.main._seed() creates this row
+        # once at startup specifically so two concurrent scan runs (the 20s
+        # scheduler and blocknotify's debounced trigger routinely overlap)
+        # never both see "missing" and race to INSERT the same id=1 row.
+        # This is only a defensive fallback (e.g. mid-upgrade before a
+        # restart re-runs _seed()); kept unflushed in memory - flushing here
+        # would open a write transaction before the RPC calls below, which
+        # can take seconds against a slow node and starve other writers for
+        # the whole scan. db.add() further down writes it together with the
+        # rest of this pass's state update instead.
         state = SparkScanState(id=1, coin_group_id=0, last_block_hash=None)
-        db.add(state)
-        await db.flush()
 
     try:
         latest_group = await rpc.get_spark_latest_coin_id()
