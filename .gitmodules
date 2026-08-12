@@ -1,0 +1,3 @@
+[submodule "native/flutter_libsparkmobile"]
+	path = native/flutter_libsparkmobile
+	url = https://github.com/cypherstack/flutter_libsparkmobile.git
