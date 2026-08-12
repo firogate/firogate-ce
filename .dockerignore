@@ -26,5 +26,3 @@ ENV/
 *.swp
 *.swo
 .DS_Store
-
-native/flutter_libsparkmobile/
