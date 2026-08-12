@@ -16,10 +16,8 @@ class SparkWalletConnection(Base):
     network              = Column(String(16), default="testnet")  # testnet | mainnet
 
     next_diversifier     = Column(Integer, default=1, nullable=False)
-    last_scanned_coin_id = Column(Integer, default=0, nullable=False)
 
     connected_at         = Column(DateTime(timezone=True), default=_now)
-    last_scanned_at       = Column(DateTime(timezone=True), nullable=True)
     is_active            = Column(Boolean, default=True)
 
 

@@ -112,7 +112,6 @@ async def spark_status(
         "label":            conn.label,
         "view_key_suffix":  suffix,
         "connected_at":     conn.connected_at.isoformat() if conn.connected_at else None,
-        "last_scanned_at":  conn.last_scanned_at.isoformat() if conn.last_scanned_at else None,
     }
 
 
