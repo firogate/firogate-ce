@@ -2,49 +2,21 @@
 {% block title %}About FiroGate{% endblock %}
 {% block extra_css %}
 <style>
-:root{
-  --ab-bg:#F5EFE0;
-  --ab-heading:#3B5BA5;
-  --ab-text:#1A1A1A;
-  --ab-text2:#5B5548;
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --ab-bg:#2A211A;
-    --ab-heading:#8FADE0;
-    --ab-text:#EDE6DA;
-    --ab-text2:#B8AD9C;
-  }
-}
-:root[data-theme="dark"]{
-  --ab-bg:#2A211A;
-  --ab-heading:#8FADE0;
-  --ab-text:#EDE6DA;
-  --ab-text2:#B8AD9C;
-}
-:root[data-theme="light"]{
-  --ab-bg:#F5EFE0;
-  --ab-heading:#3B5BA5;
-  --ab-text:#1A1A1A;
-  --ab-text2:#5B5548;
-}
-
-html body{background:var(--ab-bg)}
-html[data-theme="light"] body{background:var(--ab-bg)}
-html[data-theme="dark"] body{background:var(--ab-bg)}
-.ab-wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
-.ab-title{font-size:1.6rem;font-weight:800;color:var(--ab-heading);margin:0 0 6px;letter-spacing:-.02em}
-.ab-lead{color:var(--ab-text);font-size:.92rem;line-height:1.75;margin:0 0 28px}
+.ab-wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px;font-family:var(--font)}
+.ab-title{font-size:1.6rem;font-weight:800;color:var(--t1);margin:0 0 6px;letter-spacing:-.02em}
+.ab-lead{color:var(--t1);font-size:.92rem;line-height:1.75;margin:0 0 28px}
 .ab-block{margin-bottom:24px}
-.ab-block h2{font-size:.95rem;font-weight:700;color:var(--ab-heading);margin:0 0 8px}
-.ab-block p{color:var(--ab-text);font-size:.85rem;line-height:1.7;margin:0}
+.ab-block h2{font-size:.95rem;font-weight:700;color:var(--y);margin:0 0 8px}
+.ab-block p{color:var(--t2);font-size:.85rem;line-height:1.7;margin:0}
+.ab-block code{font-family:var(--mono);font-size:.82em;color:var(--t1);background:var(--bw);padding:1px 6px;border-radius:4px}
 .ab-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
 .ab-who-row{display:flex;align-items:center;gap:32px}
 .ab-who-list{flex:1;min-width:0}
 .ab-who-list div{margin-bottom:14px}
 .ab-who-list div:last-child{margin-bottom:0}
-.ab-who-list strong{display:block;font-size:.85rem;font-weight:700;color:var(--ab-text);margin-bottom:2px}
-.ab-who-list span{font-size:.82rem;color:var(--ab-text2);line-height:1.6}
+.ab-who-list strong{display:block;font-size:.85rem;font-weight:700;color:var(--t1);margin-bottom:2px}
+.ab-who-list span{font-size:.82rem;color:var(--t2);line-height:1.6}
+.ab-who-list a{color:var(--y)}
 .ab-who-imgs{display:flex;align-items:center;gap:20px;flex-shrink:0;width:180px}
 .ab-who-imgs img{width:50%;height:auto;opacity:0;filter:drop-shadow(0 14px 24px rgba(0,0,0,.5));transition:opacity 1.2s ease}
 .ab-who-imgs img.is-on{opacity:1}
@@ -70,19 +42,19 @@ html[data-theme="light"] .ab-who-imgs img{filter:drop-shadow(0 12px 20px rgba(0,
 
   <div class="ab-block">
     <h2>How payments are confirmed</h2>
-    <p>FiroGate decides a payment is final using one thing only: how many blocks have been mined on top of it your <strong>Confirmation Policy</strong> (Instant / Fast / Standard / High Security), which you set for your instance. A feature called <code>blocknotify</code> just wakes the scanner the moment a new block arrives instead of waiting on a timer, so detection is fast — but it never changes what counts as confirmed. Firo's own network-level ChainLocks are what make trusting plain block confirmations safe, so FiroGate doesn't need to check them itself. You may also see an "InstantLock" flag on some Firo transactions — FiroGate deliberately does not use it to confirm payments, because it isn't reliably available for every Spark payment and would be an unsafe thing to depend on for settlement.</p>
+    <p>FiroGate decides a payment is final using one thing only: how many blocks have been mined on top of it your <strong>Confirmation Policy</strong> (Instant / Fast / Standard / High Security), which you set for your instance. A feature called <code>blocknotify</code> just wakes the scanner the moment a new block arrives instead of waiting on a timer, so detection is fast but it never changes what counts as confirmed. Firo's own network-level ChainLocks are what make trusting plain block confirmations safe, so FiroGate doesn't need to check them itself. You may also see an "InstantLock" flag on some Firo transactions FiroGate deliberately does not use it to confirm payments, because it isn't reliably available for every Spark payment and would be an unsafe thing to depend on for settlement.</p>
   </div>
 
   <div class="ab-block">
-    <h2>Community Edition vs. Hosted</h2>
-    <p>Community Edition is the complete payment platform, fully open source. Self-host it, customize it, extend it however your infrastructure needs. Hosted runs the same payment engine, plus the extra operational layer (moderation, abuse prevention, monitoring, infrastructure management) needed to run it as a managed service. None of that is required to self-host, and none of it lives in this codebase.</p>
+    <h2>Open source</h2>
+    <p>FiroGate is a complete payment platform, fully open source. Self-host it, customize it, extend it however your infrastructure needs.</p>
   </div>
 
   <div class="ab-block">
     <h2>Who uses FiroGate</h2>
     <div class="ab-who-row">
       <div class="ab-who-list">
-        <div><strong>Developers</strong><span>A clean REST API you can integrate in an afternoon. Full reference in the <a href="/docs" style="color:var(--ab-text);text-decoration:underline">API Docs</a>.</span></div>
+        <div><strong>Developers</strong><span>A clean REST API you can integrate in an afternoon. Full reference in the <a href="/docs">API Docs</a>.</span></div>
         <div><strong>Online stores</strong><span>Start accepting Firo instantly. No manual review, no chargebacks, no middleman.</span></div>
         <div><strong>Anyone using Firo</strong><span>Private, non-custodial payments built on Firo.</span></div>
       </div>

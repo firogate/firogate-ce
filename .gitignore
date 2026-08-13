@@ -1,21 +1,12 @@
-# ─ Secrets & Environment ─
 .env
 .env.*
 !.env.example
 
-# ─ Database (never commit real data) ─
 data/
 *.db
 *.sqlite
 *.sqlite3
 
-# ─ Logs ─
-logs/
-*.log
-*.out.log
-*.err.log
-
-# ─ Python ──
 __pycache__/
 **/__pycache__/
 *.py[cod]
@@ -23,52 +14,13 @@ __pycache__/
 *.pyd
 .Python
 
-# ─ Virtual environments ─
 .venv/
 venv/
 env/
 ENV/
 
-# ─ Build / dist ─
-dist/
-build/
-*.egg-info/
-.eggs/
-
-# ─ IDE ─
 .vscode/
 .idea/
 *.swp
 *.swo
 .DS_Store
-Thumbs.db
-desktop.ini
-
-# ─ Keys, credentials ─
-*.pem
-*.key
-*.p12
-*.pfx
-*credentials*.json
-*service-account*.json
-
-# ─ Claude Code (local permission allowlist reveals local paths, never shared) ─
-.claude/settings.local.json
-
-# ─ Claude Code working notes (local-only, this repo is open source) ─
-CLAUDE.md
-
-# ─ Node (fonts/assets build) ─
-node_modules/
-
-# ─ Vendored native dependency (own git clone + ~1GB CMake build tree) ─
-# Source: https://github.com/cypherstack/flutter_libsparkmobile re-clone and
-# rebuild instead of committing. The compiled output FiroGate actually loads
-# (app/native/libflutter_libsparkmobile.so) lives outside this directory and
-# is not affected by this rule.
-native/flutter_libsparkmobile/
-
-# ─ Misc ─
-*.bak
-*.tmp
-firogate
