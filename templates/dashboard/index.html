@@ -118,7 +118,7 @@ html[data-theme="light"]{
 .wallet-opt span:nth-child(2){flex:1;text-align:start}
 .wallet-opt-badge{font-size:.6rem;padding:3px 8px;border-radius:20px;background:rgba(155,28,46,.15);color:#e87080;font-weight:700}
 
-#ob-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+#ob-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:20px}
 #ob-overlay.open{display:flex}
 #ob-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:16px;width:100%;max-width:520px;max-height:min(640px,90vh);display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.5)}
 #ob-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--bw)}
@@ -142,7 +142,7 @@ html[data-theme="light"]{
   #ob-actions{justify-content:flex-end}
 }
 
-#ds-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding-top:80px}
+#ds-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;padding-top:80px}
 #ds-overlay.open{display:flex}
 #ds-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:16px 6px 14px 8px;width:100%;max-width:600px;box-shadow:0 24px 64px rgba(0,0,0,.55);overflow:hidden;animation:ds-in .15s ease}
 @keyframes ds-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
@@ -998,7 +998,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-create-key" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center;padding:20px">
+<div id="modal-create-key" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:0;padding:28px;width:100%;max-width:420px;position:relative">
     <button onclick="closeCreateKeyModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:1.2rem;line-height:1">✕</button>
     <h3 style="margin:0 0 6px" data-i18n="Create API Key">Create API Key</h3>
@@ -1016,7 +1016,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-key-secret" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9001;align-items:center;justify-content:center;padding:20px">
+<div id="modal-key-secret" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9001;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:0;padding:28px;width:100%;max-width:480px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
       <h3 style="margin:0;color:#22C55E" data-i18n="API Key Created">API Key Created</h3>
@@ -1046,7 +1046,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-revoke" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9002;align-items:center;justify-content:center;padding:20px">
+<div id="modal-revoke" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9002;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:0;padding:28px;width:100%;max-width:380px">
     <h3 style="margin:0 0 8px;color:var(--red)" data-i18n="Revoke API Key?">Revoke API Key?</h3>
     <p style="font-size:.84rem;color:var(--t1);margin:0 0 6px"><span data-i18n="Key:">Key:</span> <strong id="revoke-key-name" style="color:var(--white)"></strong></p>
@@ -1058,7 +1058,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-reset-analytics" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9101;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeResetAnalyticsModal()">
+<div id="modal-reset-analytics" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9101;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeResetAnalyticsModal()">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:0;padding:28px;width:100%;max-width:400px">
     <h3 style="margin:0 0 10px;color:var(--red);display:flex;align-items:center;gap:8px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -1681,7 +1681,7 @@ html[data-theme="light"] .ag-input::placeholder{color:rgba(20,12,0,.4)}
 
 <div id="mob-overlay" class="mob-overlay" onclick="closeSidebar()"></div>
 
-<div id="pl-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);padding:16px;overflow-y:auto" onclick="if(event.target===this)closePL()">
+<div id="pl-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.75);padding:16px;overflow-y:auto" onclick="if(event.target===this)closePL()">
   <div style="max-width:620px;margin:40px auto;background:var(--bg2);border:1px solid var(--bw);border-radius:18px 6px 14px 8px;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bw)">
       <div>
@@ -2045,7 +2045,7 @@ function maybeSuggest2FA(profile) {
 function show2FANudge(opts) {
   const ov = document.createElement('div');
   ov.id = 'fg-2fa-nudge';
-  ov.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fg2faFade .25s ease';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px;animation:fg2faFade .25s ease';
   ov.innerHTML = `
     <style>
       @keyframes fg2faFade { from {opacity:0} to {opacity:1} }
@@ -4455,7 +4455,7 @@ function _initLayoutPicker(currentLayout) {
       upBtn.style.cssText = 'position:absolute;top:4px;right:4px;z-index:4'
         +';background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.18);border-radius:6px'
         +';padding:3px 7px;cursor:pointer;display:flex;align-items:center;gap:4px'
-        +';font-size:.62rem;color:#fff;backdrop-filter:blur(6px)'
+        +';font-size:.62rem;color:#fff'
         +';opacity:0;transition:opacity .15s;pointer-events:none';
       upBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' + (window.t ? window.t('Screenshot') : 'Screenshot');
       thumb.appendChild(upBtn);

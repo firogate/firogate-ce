@@ -1,403 +1,300 @@
 {% extends "base.html" %}
-{% block title %}FiroGate{% endblock %}
+{% block title %}FiroGate CE: Open-source payment gateway for FIRO{% endblock %}
 {% block extra_css %}
 <style>
-:root{
-  --fg-ent-bg:#F5EFE0;
-  --fg-ent-card:#FFFFFF;
-  --fg-ent-border:#E4DBC5;
-  --fg-ent-text:#1A1A1A;
-  --fg-ent-text2:#5B5548;
-}
-@media (prefers-color-scheme:dark){
-  :root{
-    --fg-ent-bg:#2A211A;
-    --fg-ent-card:#3A2E24;
-    --fg-ent-border:#4A3C30;
-    --fg-ent-text:#EDE6DA;
-    --fg-ent-text2:#B8AD9C;
-  }
-}
-:root[data-theme="dark"]{
-  --fg-ent-bg:#2A211A;
-  --fg-ent-card:#3A2E24;
-  --fg-ent-border:#4A3C30;
-  --fg-ent-text:#EDE6DA;
-  --fg-ent-text2:#B8AD9C;
-}
-:root[data-theme="light"]{
-  --fg-ent-bg:#F5EFE0;
-  --fg-ent-card:#FFFFFF;
-  --fg-ent-border:#E4DBC5;
-  --fg-ent-text:#1A1A1A;
-  --fg-ent-text2:#5B5548;
-}
+.hm-wrap{max-width:1120px;margin:0 auto;padding:0 24px}
 
-.fg-entry{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px 20px 64px;background:var(--fg-ent-bg)}
-.fg-entry-card{width:100%;max-width:520px;text-align:center}
-.fg-entry-card.fg-wide{max-width:1100px}
-.fg-entry-logo{font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--fg-ent-text);margin-bottom:6px}
-.fg-entry-sub{color:var(--fg-ent-text2);font-size:.85rem;margin-bottom:32px}
+.hm-nav{position:sticky;top:0;z-index:100;background:color-mix(in srgb, var(--bg0) 88%, transparent);border-bottom:1px solid var(--bw)}
+.hm-nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+.hm-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;letter-spacing:-.01em;color:var(--t1)}
+.hm-brand-mark{width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hm-brand-mark svg{width:100%;height:100%}
+.hm-nav-links{display:flex;align-items:center;gap:30px;font-size:.9rem;color:var(--t2)}
+.hm-nav-links a{padding:4px 0;transition:color .15s var(--ease)}
+.hm-nav-links a:hover{color:var(--t1)}
+@media (max-width:800px){.hm-nav-links{display:none}}
 
-.fg-status-wrap{position:relative;margin-bottom:26px}
-.fg-status-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.fg-status{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.fg-status-sq{
-  position:relative;text-align:left;
-  aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;
-  border-radius:var(--rA);background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
-  padding:14px;cursor:default;
-  transition:border-color .15s ease;
-}
-.fg-status-sq:hover{border-color:var(--y)}
-.fg-status-label{font-size:.74rem;color:var(--fg-ent-text);font-weight:600;letter-spacing:-.005em}
-.fg-status-bottom{display:flex;align-items:center;gap:6px}
-.fg-status-dot{position:relative;width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--y)}
-.fg-status-dot.ok{background:var(--g,#22c55e)}
-.fg-status-dot.bad{background:var(--red,#ef4444)}
-.fg-status-val{font-size:.72rem;color:var(--fg-ent-text2);font-family:var(--mono)}
+.hm-hero{padding:96px 0 84px;border-bottom:1px solid var(--bw)}
+.hm-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);border:1px solid var(--bw2);padding:6px 12px;border-radius:4px;margin-bottom:22px}
+.hm-eyebrow .hm-dot{width:6px;height:6px;border-radius:50%;background:var(--y)}
+.hm-hero h1{font-size:clamp(2rem,4.4vw,3rem);line-height:1.12;letter-spacing:-.02em;font-weight:700;color:var(--t1);max-width:20ch;margin:0 0 20px}
+.hm-hero-detail{font-size:1rem;line-height:1.65;color:var(--t2);max-width:52ch;margin:0 0 34px}
+.hm-hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hm-hero-meta{display:flex;gap:22px;margin-top:36px;flex-wrap:wrap}
+.hm-hero-meta-item{font-size:.82rem;color:var(--t3);display:flex;align-items:center;gap:7px}
+.hm-hero-meta-item svg{width:14px;height:14px;flex-shrink:0;opacity:.8}
 
-.fg-entry-actions{display:flex;flex-direction:column;gap:10px}
-.fg-topbar{
-  display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;
-  margin-bottom:6px;
-}
-.fg-topbar-brand{font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--fg-ent-text)}
-.fg-topbar-mid{font-size:.72rem;font-weight:700;color:var(--fg-ent-text);text-transform:uppercase;letter-spacing:.1em;text-align:center}
-.fg-topbar-btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:8px 18px;border-radius:var(--rBtn);
-  background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
-  color:var(--fg-ent-text);font-size:.8rem;font-weight:600;text-decoration:none;
-  transition:background .15s ease,color .15s ease,border-color .15s ease;
-}
-.fg-topbar-btn:hover{background:var(--y);border-color:var(--y);color:#fff}
-@media (min-width:640px){
-  .fg-topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:left;margin-bottom:16px;gap:12px}
-  .fg-topbar-brand{text-align:left}
-  .fg-topbar-mid{text-align:center}
-  .fg-topbar-btn{justify-self:end}
-}
+.hm-section{padding:84px 0;border-bottom:1px solid var(--bw)}
+.hm-section:last-of-type{border-bottom:none}
+.hm-section-head{max-width:640px;margin-bottom:48px}
+.hm-kicker{font-family:var(--mono);font-size:.76rem;color:var(--y);letter-spacing:.04em;display:block;margin-bottom:12px}
+.hm-section-head h2{font-size:clamp(1.7rem,3.2vw,2.3rem);line-height:1.16;letter-spacing:-.01em;font-weight:700;color:var(--t1);margin:0 0 14px}
+.hm-section-head p{font-size:.98rem;line-height:1.65;color:var(--t2);margin:0}
 
-.fg-avail{margin-top:36px;padding-top:28px;border-top:1px solid var(--fg-ent-border);text-align:left;width:100%}
+.hm-about-body{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+@media (max-width:800px){.hm-about-body{grid-template-columns:1fr}}
+.hm-about-body p{font-size:.98rem;line-height:1.7;color:var(--t2);margin:0 0 16px}
+.hm-about-body p:last-child{margin-bottom:0}
+.hm-about-body strong{color:var(--t1)}
+.hm-trust{border-left:2px solid var(--y);padding:4px 0 4px 18px;font-size:.92rem;color:var(--t2);line-height:1.6;margin-top:26px}
 
-.fg-hub-wrap{position:relative}
-.fg-hub-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
-.fg-hub{position:relative;z-index:2;display:flex;justify-content:center;margin-bottom:30px}
-.fg-hub-node{
-  display:flex;align-items:center;justify-content:center;
-  min-width:104px;height:52px;border-radius:var(--rA);padding:0 20px;
-  background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
-  font-weight:800;font-size:.86rem;letter-spacing:-.01em;color:var(--fg-ent-text);white-space:nowrap;
-}
-.fg-hub-node span{color:var(--fg-ent-text)}
+.hm-feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bw);border:1px solid var(--bw)}
+@media (max-width:920px){.hm-feature-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.hm-feature-grid{grid-template-columns:1fr}}
+.hm-feature-card{background:var(--bg1);padding:26px 22px;transition:background .2s var(--ease)}
+.hm-feature-card:hover{background:var(--bg2)}
+.hm-feature-card h3{font-size:.95rem;font-weight:700;color:var(--t1);margin:0 0 8px;letter-spacing:-.005em}
+.hm-feature-card p{font-size:.84rem;line-height:1.55;color:var(--t3);margin:0}
+.hm-feature-card code{font-family:var(--mono);font-size:.9em;color:var(--t2)}
 
-.fg-avail-group{position:relative;z-index:2;margin-bottom:26px}
-.fg-avail-group:last-child{margin-bottom:20px}
-.fg-avail-group-label{font-size:.68rem;color:var(--fg-ent-text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;text-align:center}
-.fg-avail-grid{display:grid;grid-template-columns:1fr;gap:10px}
-@media (min-width:560px){.fg-avail-grid{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:860px){.fg-avail-grid{grid-template-columns:repeat(3,1fr)}}
-@media (min-width:1100px){.fg-avail-grid{grid-template-columns:repeat(4,1fr)}}
-.fg-avail-card{
-  border-radius:var(--rA);background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);padding:14px 16px;
-  transition:border-color .15s ease;
-}
-.fg-avail-card:hover{border-color:var(--y)}
-.fg-avail-name{font-size:.84rem;font-weight:700;color:var(--fg-ent-text);margin-bottom:4px}
-.fg-avail-desc{font-size:.74rem;color:var(--fg-ent-text2);line-height:1.55}
+.hm-dev-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:52px;align-items:start}
+@media (max-width:880px){.hm-dev-grid{grid-template-columns:1fr;gap:36px}}
+.hm-dev-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px}
+.hm-dev-list li{display:flex;gap:14px;align-items:flex-start;font-size:.96rem;line-height:1.5;color:var(--t2)}
+.hm-dev-num{font-family:var(--mono);font-size:.76rem;color:var(--y);border:1px solid var(--bw2);width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.hm-dev-list strong{color:var(--t1);display:block;margin-bottom:2px}
+
+.hm-code{background:var(--bg0);border:1px solid var(--bw2);border-radius:8px;overflow:hidden;box-shadow:var(--sh);max-width:640px}
+.hm-code-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bw)}
+.hm-code-dots{display:flex;gap:6px}
+.hm-code-dots span{width:9px;height:9px;border-radius:50%;background:var(--bw2)}
+.hm-code-title{font-family:var(--mono);font-size:.74rem;color:var(--t3)}
+.hm-copy-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bw2);color:var(--t2);font-size:.74rem;font-weight:500;padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s var(--ease)}
+.hm-copy-btn:hover{color:var(--t1);border-color:var(--y)}
+.hm-copy-btn.copied{color:var(--t1);border-color:var(--y)}
+.hm-copy-btn svg{width:13px;height:13px}
+.hm-code-body{padding:20px 22px 24px;margin:0;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.85;color:var(--t1)}
+.hm-code-body .hm-cm{color:var(--t3)}
+.hm-code-body .hm-fn{color:var(--t1);font-weight:600}
+.hm-install-note{margin-top:18px;font-size:.86rem;color:var(--t3);line-height:1.6;max-width:640px}
+.hm-install-note a{color:var(--y);border-bottom:1px solid transparent;transition:border-color .15s var(--ease)}
+.hm-install-note a:hover{border-color:var(--y)}
+.visually-hidden{position:absolute;left:16px;top:16px;background:var(--y);color:var(--yd,#000);padding:10px 16px;border-radius:6px;z-index:200;font-weight:600;transform:translateY(-200%);transition:transform .15s var(--ease)}
+.visually-hidden:focus{transform:translateY(0)}
+html[data-theme="light"] .visually-hidden{color:#fff}
 </style>
 {% endblock %}
 {% block body %}
-<div class="fg-entry">
-  <div class="fg-entry-card{{ ' fg-wide' if auth_pages_hidden else '' }}">
-    {% if auth_pages_hidden %}
-    <div class="fg-topbar">
-      <div class="fg-topbar-brand">Firo<span style="color:var(--y)">Gate</span></div>
-      <span class="fg-topbar-mid">Where to get FIRO</span>
-      <a class="fg-topbar-btn" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">Open-source</a>
-    </div>
+<a href="#hm-main" class="visually-hidden" data-i18n="Skip to content">Skip to content</a>
 
-    <div class="fg-avail">
-      <div class="fg-hub-wrap" id="fg-hub-wrap">
-        <svg class="fg-hub-svg" id="fg-hub-svg" aria-hidden="true"></svg>
-
-        <div class="fg-hub">
-          <div class="fg-hub-node" id="fg-hub-node"><span>Blockchain</span></div>
-        </div>
-
-        <div class="fg-avail-group" id="fg-group-exchanges">
-          <div class="fg-avail-group-label">Exchanges</div>
-          <div class="fg-avail-grid">
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">MEXC</div>
-              <div class="fg-avail-desc">Buy and trade FIRO directly against USDT.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">Biconomy</div>
-              <div class="fg-avail-desc">Trade FIRO and withdraw straight to a Spark address.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">CoinEx</div>
-              <div class="fg-avail-desc">FIRO/USDT and FIRO/BTC trading pairs.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">Nonkyc.io Exchange</div>
-              <div class="fg-avail-desc">Buy and trade FIRO against USDT.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="fg-avail-group" id="fg-group-wallets">
-          <div class="fg-avail-group-label">Wallets with Spark support</div>
-          <div class="fg-avail-grid">
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">Campfire</div>
-              <div class="fg-avail-desc">Official Firo wallet. Supports Spark Names human-readable private addresses.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">Stack Wallet</div>
-              <div class="fg-avail-desc">Multi-coin wallet with full Spark and Spark Names support.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">Firo Core (Firo-QT)</div>
-              <div class="fg-avail-desc">Official full-node desktop wallet. Spark is the default send/receive method.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="fg-avail-group" id="fg-group-swap">
-          <div class="fg-avail-group-label">Instant swap</div>
-          <div class="fg-avail-grid">
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">ChangeNOW</div>
-              <div class="fg-avail-desc">No-account crypto-to-crypto and fiat-to-FIRO swaps.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">SimpleSwap</div>
-              <div class="fg-avail-desc">No-account crypto swaps, linked directly from firo.org.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">StealthEX</div>
-              <div class="fg-avail-desc">No-account crypto-to-crypto swaps for FIRO.</div>
-            </div>
-            <div class="fg-avail-card">
-              <div class="fg-avail-name">SwapSpace</div>
-              <div class="fg-avail-desc">Swap aggregator comparing rates across providers for FIRO.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% else %}
-    <div class="fg-entry-logo">Firo<span style="color:var(--y)">Gate</span></div>
-    <p class="fg-entry-sub">Self-hosted Firo payment gateway</p>
-
-    <div class="fg-status-wrap">
-      <svg class="fg-status-svg" id="fg-status-svg" aria-hidden="true"></svg>
-      <div class="fg-status" id="fg-status-list">
-        <div class="fg-status-sq" data-id="api">
-          <span class="fg-status-label">API</span>
-          <span class="fg-status-bottom">
-            <span class="fg-status-dot" id="fg-status-api-dot"></span>
-            <span class="fg-status-val" id="fg-status-api-val">Checking…</span>
-          </span>
-        </div>
-        <div class="fg-status-sq" data-id="node">
-          <span class="fg-status-label">Firo Node</span>
-          <span class="fg-status-bottom">
-            <span class="fg-status-dot" id="fg-status-node-dot"></span>
-            <span class="fg-status-val" id="fg-status-node-val">Checking…</span>
-          </span>
-        </div>
-        <div class="fg-status-sq" data-id="db">
-          <span class="fg-status-label">Database</span>
-          <span class="fg-status-bottom">
-            <span class="fg-status-dot" id="fg-status-db-dot"></span>
-            <span class="fg-status-val" id="fg-status-db-val">Checking…</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="fg-entry-actions" id="fg-entry-actions"></div>
-    {% endif %}
+<header class="hm-nav">
+  <div class="hm-wrap hm-nav-inner">
+    <a href="#hm-main" class="hm-brand" aria-label="FiroGate CE home" data-i18n-aria-label="FiroGate CE home">
+      <span class="hm-brand-mark">
+        <svg viewBox="0 0 104.5 104" aria-hidden="true">
+          <style type="text/css">.cls-0{fill:#893641}.cls-1{fill:#8D2C37}.cls-2{fill:#FFFFFF}.cls-3{fill:#EDDEDE}.cls-4{fill:#DDCFCD}</style>
+          <path d="m87 1.4c2.9 0.2 4 0.5 7.4 2.4 2.3 1.3 4.2 3.4 5.8 5.5 3 4.4 2.9 9.7 3 15.7l-0.1 15h-0.1l0.1 44.9c0.3 6.3-4.3 12.6-10.1 15.7-1.8 0.8-4.4 1.8-6 2l-67.3 0.1c-3.7 0-5.3-0.3-8.8-2-1.8-0.9-1.8-0.9-4.9-3.7-1.1-1-1.4-1.5-2.3-3.3-1.3-2.6-2-4.7-2-6.9l-0.3-20.4c-0.2-1.6 0-5.1 0-6.3l-0.1-12.1c-0.2-1.5 0.1-4.6 0-7.7-0.1-3.4 0-4.4 0.1-10.3-0.2-1.3 0-5.9 0-12 1.1-5.8 4.5-12.3 10.9-14.9 1.9-0.7 4.2-1.7 5.8-1.8l30.5-0.1 38.4 0.2z" fill="#82333B"/>
+          <path class="cls-1" d="m86.4 1.6c6.4 0.2 13.5 5.9 15.6 11.8 1.2 3.2 1 10 1 13.6v55c0.1 4.1-0.1 11.4-6.7 15.9-3.7 2.6-6.7 3.7-10.3 3.7l-68 0.4c-5.4 0-11-2.9-13.5-6.9-1.5-2.4-2.6-6-2.7-8.2l-0.3-21v-47.3c0.2-6.6 5.7-13.9 12.1-15.8 2.4-0.8 4.2-1.1 5.5-1.2h67.3z"/>
+          <path d="m78.7 102.9-21.6-0.1h-35.8v-0.1l-5.2-0.2c-2.4-0.3-4.8-1.6-7.1-2.7l-4-3.9-0.2-0.4 5.6 3.1 6 2.4 24.2 0.2h43l3.2-0.1c5.2-0.7 8.4-2.4 11.2-5.1 1.9-2 3.2-5 4.5-6.8l0.7-4.2c-0.3 7.7-4.1 12.9-10.2 15.7h-0.3c-1.8 0.8-3.7 1.6-5.6 1.9l-8.3 0.1-0.1 0.2z" fill="#82343C"/>
+          <path class="cls-0" d="m1.3 17.9c1.1-6.3 4.8-12.4 11.1-14.9l5.1-1.6 1.5-0.1-3.5 1.1c-5.4 1.6-10.6 6.6-12.4 12.2l-1.1 4.4-0.6 9-0.1-10.1z"/>
+          <path class="cls-2" d="m4.3 75.3 24.2-0.1c2.1 0.1 2.9-1.4 4.3-4l6.2-11.7 0.8-2.1-13.6-0.1c-2.2-0.3-3.2-2.2-3.2-4.4v-6.5c0-2.1 1.4-4 3.5-4h21.1l14.5-28 2.3-3.5 1.4-0.8 23.4-0.1c3 2 8.6 9.6 10.7 13.9l-0.1 0.5-24 0.1c-1.8 0.1-3.2 2.8-3.9 4.3l-7.6 13.8 14.4-0.1c1.9 0.5 2.7 1.9 2.7 3.9l-0.1 7.2c-0.1 1.8-1.1 3.7-2.9 3.7l-21.7-0.3-15.3 29.1-1.7 2.9-24.8 0.6c-3.7-3.6-7.6-8.5-10.6-13.9z"/>
+          <path class="cls-3" d="m14.9 89.6-1.4-1.5 1.8 1.3 23-0.2 1.4-0.2 0.7-1.1s0.9 1.3-1.8 1.8l-23.7-0.1z"/>
+          <path class="cls-4" d="m4.3 75.3v-0.4l24.2-0.3c2 0.4 3.8-2.8 4.8-5l6.5-11.9v-0.9h0.5l-0.7 2.4-6.8 12.8c-1.1 1.9-2.2 3.6-4 3.5l-24.5-0.2z"/>
+          <path class="cls-0" d="m14.2 89.9c-4.1-3.8-7.3-8.8-10-13.5l0.1-1.2c2.3 3.7 6.1 9 10.6 13.2l0.1 1.5h-0.8z"/>
+          <path class="cls-0" d="m39 58.3-13.6-0.2c-2.7-0.1-3.1-3.1-3.1-6.3v-5.3c0-1.9 1.3-4.4 3.8-4.6h21.4l0.3 1-21.6-0.1c-1.4 0.5-3.1 1.5-3 3.5v7.2c0.6 4 2.7 3.4 5.2 3.6h11.4l-0.2 1.2h-0.6z"/>
+          <path class="cls-0" d="m39.2 90.4-24.9 0.1-0.1-0.9 23.2-0.1c2.2 0.2 3.2-1 3.9-2.4l15.3-30.4 21.5 0.2c1.9 0 2.7-1.8 2.8-3.7l0.1-6.5c0.1-1.8-1-3.6-2.4-4h-14.2v-0.7h14.2c2.3 0 3.7 2.2 3.7 4.3v7.1c-0.2 3.2-0.9 4.7-3.7 5l-21.6-0.4-14.8 30-3 2.4z"/>
+          <path class="cls-4" d="m47.8 42.9-0.3-0.8 15-28.3 1.9-2.9 1.1-0.9 0.4 0.6-1.2 0.9-16.9 31.4z"/>
+          <path class="cls-0" d="m65 10.3-1.4 1.1 1.5-1.7 1.2-0.6 23.3 0.1 0.8 0.7-24.1-0.1z"/>
+          <path class="cls-4" d="m64.4 42.7v-1l8.6-15.6 1.8-1.8 25.1-0.3-0.1 0.6-23.7 0.1c-2.2-0.1-3.4 3-4.7 5.7l-5.9 11.9z"/>
+          <path class="cls-0" d="m99.9 24.4c-0.9-2.7-6.7-10.7-10.3-13.9l0.5-0.4c3.2 3 7.9 8.5 9.8 13v1.3z"/>
+        </svg>
+      </span>
+      <span data-i18n="FiroGate CE">FiroGate CE</span>
+    </a>
+    <nav class="hm-nav-links" aria-label="Primary">
+      <a href="#hm-about" data-i18n="About">About</a>
+      <a href="#hm-capabilities" data-i18n="Capabilities">Capabilities</a>
+      <a href="#hm-developers" data-i18n="Developers">Developers</a>
+      <a href="#hm-get-started" data-i18n="Install">Install</a>
+    </nav>
+    <a class="btn btn-o" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+      <span data-i18n="GitHub">GitHub</span>
+    </a>
   </div>
-</div>
+</header>
+
+<main id="hm-main">
+
+  <section class="hm-hero">
+    <div class="hm-wrap">
+      <span class="hm-eyebrow"><span class="hm-dot"></span><span data-i18n="Apache 2.0 · Self-hosted">Apache 2.0 · Self-hosted</span></span>
+      <h1 data-i18n="An open-source payment gateway built for FIRO.">An open-source payment gateway built for FIRO.</h1>
+      <p class="hm-hero-detail" data-i18n="FiroGate CE gives you the infrastructure to detect, track, and confirm private FIRO (Spark) payments on servers you control, with no custody and no third party in the middle.">FiroGate CE gives you the infrastructure to detect, track, and confirm private FIRO (Spark) payments on servers you control, with no custody and no third party in the middle.</p>
+      <div class="hm-hero-actions">
+        <a class="btn btn-y" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+          <span data-i18n="View on GitHub">View on GitHub</span>
+        </a>
+        <a class="btn btn-o" href="#hm-get-started">
+          <span data-i18n="Get Started">Get Started</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="16" height="16"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="hm-hero-meta">
+        <span class="hm-hero-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span data-i18n="Source available">Source available</span>
+        </span>
+        <span class="hm-hero-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4 6.5v5c0 4.7 3.1 8.6 8 9.5 4.9-.9 8-4.8 8-9.5v-5L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span data-i18n="Non-custodial">Non-custodial</span>
+        </span>
+        <span class="hm-hero-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21C7.5 17.4 4 13.9 4 9.8 4 6.6 6.5 4 9.6 4c1.6 0 3 .7 3.9 1.9C14.4 4.7 15.8 4 17.4 4 20.5 4 23 6.6 23 9.8c0 4.1-3.5 7.6-8 11.2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span data-i18n="No vendor lock-in">No vendor lock-in</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="hm-section" id="hm-about">
+    <div class="hm-wrap">
+      <div class="hm-section-head">
+        <span class="hm-kicker" data-i18n="01 · What is FiroGate CE?">01 · What is FiroGate CE?</span>
+        <h2 data-i18n="A payment gateway that never holds your funds.">A payment gateway that never holds your funds.</h2>
+      </div>
+      <div class="hm-about-body">
+        <p data-i18n-html="FiroGate CE (Community Edition) is a <strong>payment gateway</strong> for FIRO that runs entirely on servers you control. It provides the payment infrastructure that applications and stores integrate with to detect and track private FIRO payments.">FiroGate CE (Community Edition) is a <strong>payment gateway</strong> for FIRO that runs entirely on servers you control. It provides the payment infrastructure that applications and stores integrate with to detect and track private FIRO payments.</p>
+        <p data-i18n-html="Instead of custody or spend authority, FiroGate CE connects to a Spark <strong>view key</strong>. That key can see incoming payments and nothing more, so funds always settle directly into your own wallet.">Instead of custody or spend authority, FiroGate CE connects to a Spark <strong>view key</strong>. That key can see incoming payments and nothing more, so funds always settle directly into your own wallet.</p>
+      </div>
+      <p class="hm-trust" data-i18n="Each checkout gets a fresh, one-time Spark address derived offline. Your instance watches the chain and confirms payments against your own Confirmation Policy. FiroGate CE never touches the funds it tracks.">Each checkout gets a fresh, one-time Spark address derived offline. Your instance watches the chain and confirms payments against your own Confirmation Policy. FiroGate CE never touches the funds it tracks.</p>
+    </div>
+  </section>
+
+  <section class="hm-section" id="hm-capabilities">
+    <div class="hm-wrap">
+      <div class="hm-section-head">
+        <span class="hm-kicker" data-i18n="02 · Key capabilities">02 · Key capabilities</span>
+        <h2 data-i18n="Everything a store needs to accept FIRO.">Everything a store needs to accept FIRO.</h2>
+        <p data-i18n="Core building blocks included in FiroGate CE, ready to run on your own infrastructure.">Core building blocks included in FiroGate CE, ready to run on your own infrastructure.</p>
+      </div>
+      <div class="hm-feature-grid">
+        <div class="hm-feature-card">
+          <h3 data-i18n="Payment detection">Payment detection</h3>
+          <p data-i18n="Watches the chain for incoming FIRO payments matched against your Spark view key.">Watches the chain for incoming FIRO payments matched against your Spark view key.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Invoice &amp; checkout tracking">Invoice &amp; checkout tracking</h3>
+          <p data-i18n="Hosted checkout pages and shareable Payment Links track each order end to end.">Hosted checkout pages and shareable Payment Links track each order end to end.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Payment confirmation">Payment confirmation</h3>
+          <p data-i18n="Confirms against a configurable Confirmation Policy, secured by Firo's ChainLocks.">Confirms against a configurable Confirmation Policy, secured by Firo's ChainLocks.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Blockchain scanning">Blockchain scanning</h3>
+          <p data-i18n-html="<code>blocknotify</code> wakes the scanner on every new block, so detection doesn't wait on a timer."><code>blocknotify</code> wakes the scanner on every new block, so detection doesn't wait on a timer.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Payment-state management">Payment-state management</h3>
+          <p data-i18n="REST API to create payments, check status, and list history from your own dashboard.">REST API to create payments, check status, and list history from your own dashboard.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Signed, retried webhooks">Signed, retried webhooks</h3>
+          <p data-i18n="HMAC-SHA256 signed webhooks with automatic retry keep your app in sync.">HMAC-SHA256 signed webhooks with automatic retry keep your app in sync.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Self-hostable">Self-hostable</h3>
+          <p data-i18n="Deploy with Docker on infrastructure you fully control.">Deploy with Docker on infrastructure you fully control.</p>
+        </div>
+        <div class="hm-feature-card">
+          <h3 data-i18n="Developer-friendly integration">Developer-friendly integration</h3>
+          <p data-i18n-html="Scoped, revokable API keys and an in-app API reference at <code>/docs</code>.">Scoped, revokable API keys and an in-app API reference at <code>/docs</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hm-section" id="hm-developers">
+    <div class="hm-wrap">
+      <div class="hm-dev-grid">
+        <div>
+          <span class="hm-kicker" data-i18n="03 · For developers">03 · For developers</span>
+          <h2 style="font-size:clamp(1.7rem,3.2vw,2.3rem);line-height:1.16;letter-spacing:-.01em;font-weight:700;color:var(--t1);margin:0 0 14px" data-i18n="Built to be used, inspected, and extended.">Built to be used, inspected, and extended.</h2>
+          <p style="color:var(--t2);line-height:1.65;font-size:.96rem;margin:0" data-i18n="FiroGate CE is source-available infrastructure, not a black box. The full payment engine is yours to run, read, and adapt.">FiroGate CE is source-available infrastructure, not a black box. The full payment engine is yours to run, read, and adapt.</p>
+        </div>
+        <ul class="hm-dev-list">
+          <li><span class="hm-dev-num">1</span><div data-i18n-html="<strong>Run it yourself</strong>Deploy with Docker on your own server, VPS, or Tor hidden service."><strong>Run it yourself</strong>Deploy with Docker on your own server, VPS, or Tor hidden service.</div></li>
+          <li><span class="hm-dev-num">2</span><div data-i18n-html="<strong>Inspect the source</strong>Every part of the payment flow is readable, with no hidden services and no telemetry you can't see."><strong>Inspect the source</strong>Every part of the payment flow is readable, with no hidden services and no telemetry you can't see.</div></li>
+          <li><span class="hm-dev-num">3</span><div data-i18n-html="<strong>Integrate the payment engine</strong>Use the REST API and signed webhooks to connect FiroGate CE to your own storefront or app."><strong>Integrate the payment engine</strong>Use the REST API and signed webhooks to connect FiroGate CE to your own storefront or app.</div></li>
+          <li><span class="hm-dev-num">4</span><div data-i18n-html="<strong>Modify and extend</strong>Adapt the checkout, confirmation policy, or API to fit how your store actually works."><strong>Modify and extend</strong>Adapt the checkout, confirmation policy, or API to fit how your store actually works.</div></li>
+          <li><span class="hm-dev-num">5</span><div data-i18n-html="<strong>Contribute improvements</strong>Open issues, submit pull requests, and help shape the project."><strong>Contribute improvements</strong>Open issues, submit pull requests, and help shape the project.</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="hm-section" id="hm-get-started">
+    <div class="hm-wrap">
+      <div class="hm-section-head">
+        <span class="hm-kicker" data-i18n="04 · Getting started">04 · Getting started</span>
+        <h2 data-i18n="Clone it, configure it, run it.">Clone it, configure it, run it.</h2>
+        <p data-i18n-html="FiroGate CE deploys with Docker Compose. Full setup steps live in <code>BUILD.md</code> in the repository.">FiroGate CE deploys with Docker Compose. Full setup steps live in <code>BUILD.md</code> in the repository.</p>
+      </div>
+
+      <div class="hm-code">
+        <div class="hm-code-head">
+          <span class="hm-code-dots"><span></span><span></span><span></span></span>
+          <span class="hm-code-title" data-i18n="terminal">terminal</span>
+          <button class="hm-copy-btn" id="hm-copy-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h9A1.5 1.5 0 0 1 15.5 5v1" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span id="hm-copy-label" data-i18n="Copy">Copy</span>
+          </button>
+        </div>
+        <pre class="hm-code-body" id="hm-code-body"><span class="hm-cm"># clone the repository</span>
+<span class="hm-fn">git</span> clone https://github.com/firogate/firogate-ce.git
+<span class="hm-fn">cd</span> firogate-ce
+
+<span class="hm-cm"># configure environment</span>
+<span class="hm-fn">cp</span> .env.example .env
+<span class="hm-cm"># set your Firo RPC credentials and OPERATOR_EMAILS</span>
+
+<span class="hm-cm"># run with Docker</span>
+<span class="hm-fn">docker</span> compose up -d</pre>
+      </div>
+
+      <p class="hm-install-note">
+        <span data-i18n="Full installation and build steps are documented in">Full installation and build steps are documented in</span>
+        <a href="https://github.com/firogate/firogate-ce/blob/main/BUILD.md" target="_blank" rel="noopener">BUILD.md</a>.
+        <span data-i18n="See">See</span>
+        <a href="https://github.com/firogate/firogate-ce/blob/main/AUDIT.md" target="_blank" rel="noopener">AUDIT.md</a>
+        <span data-i18n="for the full payment and wallet-connection trust model.">for the full payment and wallet-connection trust model.</span>
+      </p>
+    </div>
+  </section>
+
+</main>
 {% endblock %}
 {% block js %}
 <script>
 (function () {
-  var NS = "http://www.w3.org/2000/svg";
-  function drawStatusConnectors() {
-    var svg = document.getElementById('fg-status-svg');
-    var wrap = svg.closest('.fg-status-wrap');
-    if (!svg || !wrap) return;
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-    var boxes = Array.prototype.slice.call(document.querySelectorAll('.fg-status-sq'));
-    if (boxes.length < 2) return;
-    var containerRect = wrap.getBoundingClientRect();
-    var color = getComputedStyle(document.documentElement).getPropertyValue('--y').trim() || '#F5C542';
-
-    for (var i = 0; i < boxes.length - 1; i++) {
-      var r1 = boxes[i].getBoundingClientRect();
-      var r2 = boxes[i + 1].getBoundingClientRect();
-      var startX = r1.right - containerRect.left;
-      var startY = r1.top - containerRect.top + r1.height / 2;
-      var endX = r2.left - containerRect.left;
-      var endY = r2.top - containerRect.top + r2.height / 2;
-      var midX = startX + (endX - startX) / 2;
-      var d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
-
-      var path = document.createElementNS(NS, 'path');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', color);
-      path.setAttribute('stroke-width', '1.2');
-      path.setAttribute('stroke-dasharray', '3 4');
-      path.setAttribute('opacity', '0.16');
-      svg.appendChild(path);
-
-      var dot = document.createElementNS(NS, 'circle');
-      dot.setAttribute('r', '2.2');
-      dot.setAttribute('fill', color);
-      dot.setAttribute('opacity', '0.9');
-      var anim = document.createElementNS(NS, 'animateMotion');
-      anim.setAttribute('dur', (2.6 + i * 0.4) + 's');
-      anim.setAttribute('repeatCount', 'indefinite');
-      anim.setAttribute('path', d);
-      anim.setAttribute('begin', (i * 0.3) + 's');
-      dot.appendChild(anim);
-      svg.appendChild(dot);
+  var btn = document.getElementById('hm-copy-btn');
+  var label = document.getElementById('hm-copy-label');
+  var code = document.getElementById('hm-code-body');
+  if (!btn || !code) return;
+  btn.addEventListener('click', function () {
+    var text = code.innerText;
+    function done() {
+      label.textContent = window.t ? window.t('Copied') : 'Copied';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        label.textContent = window.t ? window.t('Copy') : 'Copy';
+        btn.classList.remove('copied');
+      }, 1800);
     }
-  }
-
-  var _statusRaf = null;
-  function scheduleDrawStatusConnectors() {
-    if (_statusRaf) cancelAnimationFrame(_statusRaf);
-    _statusRaf = requestAnimationFrame(drawStatusConnectors);
-  }
-  window.addEventListener('resize', scheduleDrawStatusConnectors);
-  setTimeout(scheduleDrawStatusConnectors, 60);
-  setTimeout(scheduleDrawStatusConnectors, 620);
-})();
-</script>
-<script>
-(function () {
-  var NS = "http://www.w3.org/2000/svg";
-  var COLORS = ['#F5C542', '#60A5FA', '#4ADE80'];
-
-  function buildPathD(startX, startY, endX, endY) {
-    var midY = startY + (endY - startY) * 0.5;
-    return 'M ' + startX + ' ' + startY + ' C ' + startX + ' ' + midY + ', ' + endX + ' ' + midY + ', ' + endX + ' ' + endY;
-  }
-
-  function drawHubConnectors() {
-    var svg = document.getElementById('fg-hub-svg');
-    var wrap = document.getElementById('fg-hub-wrap');
-    var hub = document.getElementById('fg-hub-node');
-    if (!svg || !wrap || !hub) return;
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-
-    var groups = [
-      document.getElementById('fg-group-exchanges'),
-      document.getElementById('fg-group-wallets'),
-      document.getElementById('fg-group-swap'),
-    ].filter(Boolean);
-    if (!groups.length) return;
-
-    var containerRect = wrap.getBoundingClientRect();
-    var hubRect = hub.getBoundingClientRect();
-    var startX = hubRect.left - containerRect.left + hubRect.width / 2;
-    var startY = hubRect.bottom - containerRect.top;
-
-    groups.forEach(function (group, gi) {
-      var cards = Array.prototype.slice.call(group.querySelectorAll('.fg-avail-card'));
-      if (!cards.length) return;
-      var color = COLORS[gi % COLORS.length];
-
-      cards.forEach(function (card, ci) {
-        var r = card.getBoundingClientRect();
-        var endX = r.left - containerRect.left + r.width / 2;
-        var endY = r.top - containerRect.top;
-        var d = buildPathD(startX, startY, endX, endY);
-        var idx = gi * 10 + ci;
-
-        var path = document.createElementNS(NS, 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '1');
-        path.setAttribute('stroke-dasharray', '3 5');
-        path.setAttribute('opacity', '0.1');
-        svg.appendChild(path);
-
-        var dot = document.createElementNS(NS, 'circle');
-        dot.setAttribute('r', '2.2');
-        dot.setAttribute('fill', color);
-        dot.setAttribute('opacity', '0.85');
-        var anim = document.createElementNS(NS, 'animateMotion');
-        anim.setAttribute('dur', (3.4 + (idx % 5) * 0.5) + 's');
-        anim.setAttribute('repeatCount', 'indefinite');
-        anim.setAttribute('path', d);
-        anim.setAttribute('begin', ((idx % 7) * 0.35) + 's');
-        dot.appendChild(anim);
-        svg.appendChild(dot);
-      });
-    });
-  }
-
-  var _hubRaf = null;
-  function scheduleDrawHubConnectors() {
-    if (_hubRaf) cancelAnimationFrame(_hubRaf);
-    _hubRaf = requestAnimationFrame(drawHubConnectors);
-  }
-  window.addEventListener('resize', scheduleDrawHubConnectors);
-  setTimeout(scheduleDrawHubConnectors, 60);
-  setTimeout(scheduleDrawHubConnectors, 620);
-})();
-</script>
-<script>
-(function () {
-  var authPagesHidden = {{ (auth_pages_hidden if auth_pages_hidden is defined else False) | tojson }};
-  if (authPagesHidden) return;
-
-  var dash = {{ dashboard_url | tojson }};
-  var login = {{ login_url | tojson }};
-
-  function setRow(prefix, ok, label) {
-    var dot = document.getElementById('fg-status-' + prefix + '-dot');
-    var val = document.getElementById('fg-status-' + prefix + '-val');
-    if (dot) dot.className = 'fg-status-dot ' + (ok ? 'ok' : 'bad');
-    if (val) val.textContent = label;
-  }
-
-  fetch('/health', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (d) {
-      setRow('api', true, 'Reachable');
-      setRow('node', !!(d && d.node === 'online'), (d && d.node === 'online') ? 'Connected' : 'Offline');
-      setRow('db', !!(d && d.db === 'ok'), (d && d.db === 'ok') ? 'Connected' : 'Error');
-    })
-    .catch(function () {
-      setRow('api', false, 'Unreachable');
-      setRow('node', false, 'Unknown');
-      setRow('db', false, 'Unknown');
-    });
-
-  var actions = document.getElementById('fg-entry-actions');
-  fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (me) {
-      if (me && me.id) {
-        actions.innerHTML = '<a href="' + dash + '" class="btn btn-y wf">Open Dashboard</a>';
-        return;
-      }
-      actions.innerHTML = '<a href="' + login + '" class="btn btn-y wf">Sign In</a>';
-    })
-    .catch(function () {
-      actions.innerHTML = '<a href="' + login + '" class="btn btn-y wf">Sign In</a>';
-    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  });
 })();
 </script>
 {% endblock %}

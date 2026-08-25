@@ -25,4 +25,7 @@ async def set_setting(db: AsyncSession, key: str, value: str) -> None:
 
 
 async def hide_auth_pages_enabled(db: AsyncSession) -> bool:
+    from app.core.config import get_settings
+    if get_settings().FORCE_AUTH_PAGES_VISIBLE:
+        return False
     return (await get_setting(db, HIDE_AUTH_PAGES_KEY, "0")) == "1"
