@@ -805,13 +805,6 @@ async def home(r: Request):
         is_operator = await _is_operator_request(r)
         return page("dashboard/index.html", r, is_operator=is_operator, show_market_price=await _dashboard_show_market_price(r), active_tab="home")
 
-    if not await _auth_pages_hidden() and r.query_params.get("ref") != "paylink":
-        from app.core.security import verify_access_token
-        tok = r.cookies.get("access_token") or ""
-        if not verify_access_token(tok):
-            from fastapi.responses import RedirectResponse
-            return RedirectResponse(url="/login", status_code=307)
-
     return await page_async("index.html", r)
 
 
@@ -878,11 +871,11 @@ async def payment_link_page(r: Request, slug: str):
             merchant_shows_price = bool(mres.scalar_one_or_none())
     if not link or not link.is_active:
         from fastapi.responses import RedirectResponse
-        return RedirectResponse("/?ref=paylink", status_code=302)
+        return RedirectResponse("/", status_code=302)
     now = datetime.now(_tz.utc)
     if link.expires_at and link.expires_at.replace(tzinfo=_tz.utc) < now:
         from fastapi.responses import RedirectResponse
-        return RedirectResponse("/?ref=paylink", status_code=302)
+        return RedirectResponse("/", status_code=302)
     return page(
         "paylink.html", r,
         link_slug          = link.slug,
