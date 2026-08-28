@@ -22,6 +22,10 @@ services:
     volumes:
       - firogate_data:/app/data
       - firogate_logs:/app/logs
+      # no --build needed the host filesystem rather than the frozen image contents.
+      - ./app:/app/app
+      - ./templates:/app/templates
+      - ./static:/app/static
     networks:
       - firogate_net
     healthcheck:
