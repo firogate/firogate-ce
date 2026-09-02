@@ -102,7 +102,8 @@ SECURITY.md
 ---
 for contACT 
 
-```-----BEGIN PGP PUBLIC KEY BLOCK-----
+```
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 mQINBGltbnsBEADrSTx4hoZQsDXIetH8Uh5EcZX079QqXLcrh/MsWsrWcIsBwNkf
 /Yq3pkI8thv4IvjX8Xs4x/fuPw75axbz4j/D3l3fPtidllXGEFedRcJqrGi+uVs0
 TuQCc7HOD4dxPNPtfs2dp7wdw4JBIg3/MU3uKZ7XJzwgIE9tP/GHmguiUZ8uvsbY
