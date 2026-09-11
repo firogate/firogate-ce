@@ -119,9 +119,9 @@ async def create_link(
         validate_amount(body.amount_firo)
 
     if body.success_url:
-        validate_url(body.success_url)
+        await validate_url(body.success_url)
     if body.cancel_url:
-        validate_url(body.cancel_url)
+        await validate_url(body.cancel_url)
 
     custom_slug_val = None
     if body.custom_slug:

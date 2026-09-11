@@ -8,8 +8,11 @@ user-supplied input before processing or storing.
 import re
 import ipaddress
 import socket
-from urllib.parse import urlparse
+import asyncio
+from urllib.parse import urlparse, urlunparse
 from fastapi import HTTPException
+
+_DNS_TIMEOUT = 3.0
 
 _RE_NULL      = re.compile(r"\x00")
 _RE_TRAVERSAL = re.compile(r"\.\./|\.\.\\", re.IGNORECASE)
@@ -84,7 +87,21 @@ def _ip_is_blocked(ip_str: str) -> bool:
     )
 
 
-def _host_is_blocked(host: str) -> bool:
+async def _resolve_ips(host: str) -> list[str]:
+    """Resolve `host` off the event loop with a bounded timeout, so a
+    blackholed/non-responding DNS name cannot stall the single uvicorn
+    worker's event loop for the full (~10-13s) glibc resolver timeout."""
+    try:
+        infos = await asyncio.wait_for(
+            asyncio.to_thread(socket.getaddrinfo, host, None),
+            timeout=_DNS_TIMEOUT,
+        )
+    except Exception:
+        return []
+    return [info[4][0] for info in infos]
+
+
+async def _host_is_blocked(host: str) -> bool:
     """Block obviously-internal hostnames and any host that resolves to a
     non-public IP. `.onion` hosts are allowed (reached only via the Tor proxy,
     not via local DNS) since they are not internal IPs."""
@@ -103,18 +120,16 @@ def _host_is_blocked(host: str) -> bool:
         pass
     # Otherwise resolve the DNS name and block if ANY resolved address is internal
     # (defends against DNS-rebinding to 127.0.0.1 / 169.254.169.254 / etc.).
-    try:
-        infos = socket.getaddrinfo(h, None)
-    except Exception:
+    ips = await _resolve_ips(h)
+    if not ips:
         return True  # cannot resolve → block
-    for info in infos:
-        addr = info[4][0]
+    for addr in ips:
         if _ip_is_blocked(addr):
             return True
     return False
 
 
-def validate_url(url: str | None, field: str = "URL") -> str | None:
+async def validate_url(url: str | None, field: str = "URL") -> str | None:
     if not url:
         return None
     url = url.strip()[:2048]
@@ -128,9 +143,42 @@ def validate_url(url: str | None, field: str = "URL") -> str | None:
     except Exception:
         raise HTTPException(400, f"{field} is not a valid URL")
     host = parsed.hostname or ""
-    if _host_is_blocked(host):
+    if await _host_is_blocked(host):
         raise HTTPException(400, f"{field} points to a disallowed (internal/private) host")
     return url
+
+
+async def resolve_pinned_target(url: str) -> tuple[str, str | None]:
+    """Resolve the host of an already-validated, direct (non-Tor) delivery URL
+    once, validate every returned address, and rewrite the URL's authority to
+    the validated IP. This closes the gap where a second DNS lookup at
+    connect time (DNS rebinding) could return a different, internal address
+    than the one that was validated.
+
+    Returns (delivery_url, sni_host). sni_host is the original hostname the
+    caller must use for TLS SNI / the Host header; it is None when no
+    rewrite happened (.onion hosts, literal IPs — nothing to pin)."""
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    if not host or host.endswith(".onion"):
+        return url, None
+    try:
+        ipaddress.ip_address(host)
+        return url, None
+    except ValueError:
+        pass
+    ips = await _resolve_ips(host)
+    if not ips:
+        raise HTTPException(400, "Host could not be resolved")
+    for addr in ips:
+        if _ip_is_blocked(addr):
+            raise HTTPException(400, "Host points to a disallowed (internal/private) host")
+    ip = ips[0]
+    netloc = f"[{ip}]" if ":" in ip else ip
+    if parsed.port:
+        netloc += f":{parsed.port}"
+    pinned_url = urlunparse(parsed._replace(netloc=netloc))
+    return pinned_url, host
 
 
 def validate_password(password: str) -> str:

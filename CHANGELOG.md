@@ -1,11 +1,28 @@
 # Changelog
 
-Current: **API v1.0** · **App 0.0.8**
+Current: **API v1.0** · **App 0.0.9**
 
 ---
 
-## [Unreleased] — App 0.0.9
-:)
+## [0.0.9] 2026-09 — App 0.0.9
+
+### API
+_No API changes._
+
+### App
+#### Fixed
+- Change Password: setting a new password identical to your current password is now rejected instead of silently accepted.
+
+#### Security
+- Webhook delivery now resolves and validates the destination host once and connects to that exact address, closing a DNS-rebinding path that could otherwise redirect a webhook to an internal service.
+- DNS lookups performed during webhook URL validation now run with a bounded timeout off the main request path, so a slow or unresponsive domain can no longer stall the server.
+- Tor/onion request detection now requires the request to actually originate from the local Tor proxy, so a spoofed Host header can no longer bypass login lockout, per-account rate limiting, or session binding.
+
+### Security Acknowledgements
+
+- Thanks to independent security researcher sbekk for responsibly
+  disclosing security issues and providing detailed reproduction steps
+  and recommendations.
 ---
 
 ## [0.0.8] 2026-08 — App 0.0.8
