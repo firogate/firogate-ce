@@ -139,7 +139,7 @@ async def update_webhook(
     user: User = Depends(get_current_user),
     db:   AsyncSession = Depends(get_db),
 ):
-    user.webhook_url = validate_url(body.webhook_url, "Webhook URL")
+    user.webhook_url = await validate_url(body.webhook_url, "Webhook URL")
     db.add(user)
     await db.commit()
     return {
@@ -246,6 +246,8 @@ async def change_password(
             raise HTTPException(400, "Current password is required.")
         if not verify_password(body.current_password, user.hashed_password):
             raise HTTPException(400, "Password incorrect")
+        if body.new_password == body.current_password:
+            raise HTTPException(400, "Password must differ from current")
 
     try:
         validate_password(body.new_password)
@@ -793,15 +795,20 @@ async def test_webhook(
     import json, time, hmac, hashlib
     from app.core.security import decrypt_field
     from app.core.validators import validate_url
-    from app.services.webhook import _build_client
+    from app.services.webhook import _build_client, _resolve_delivery
 
     # Re-validate at send time (not just at registration time) blocks
     # DNS-rebinding, where a domain resolved to a public IP when the webhook
     # URL was saved but now resolves to an internal/metadata address.
     try:
-        safe_url = validate_url(user.webhook_url, "webhook_url")
+        safe_url = await validate_url(user.webhook_url, "webhook_url")
     except HTTPException:
         raise HTTPException(400, "Webhook URL is no longer valid (points to a disallowed host).")
+
+    try:
+        delivery_url, extra_headers, extra_kwargs = await _resolve_delivery(safe_url)
+    except HTTPException:
+        return {"ok": False, "message": "Webhook host points to a disallowed (internal/private) host"}
 
     payload = {
         "event":      "test",
@@ -821,10 +828,11 @@ async def test_webhook(
             headers["X-FiroGate-Signature"] = sig
         except Exception:
             pass
+    headers.update(extra_headers)
 
     try:
         async with _build_client(safe_url) as client:
-            resp = await client.post(safe_url, content=body, headers=headers)
+            resp = await client.post(delivery_url, content=body, headers=headers, **extra_kwargs)
         return {
             "ok":          True,
             "status_code": resp.status_code,

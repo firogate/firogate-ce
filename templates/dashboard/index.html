@@ -3301,6 +3301,7 @@ async function changePassword() {
   if (!nw || !nw2)            { el.innerHTML = alertHTML(window.t ? window.t('Fill in both new-password fields.') : 'Fill in both new-password fields.', 'err'); return; }
   if (nw.length < 10)         { el.innerHTML = alertHTML(window.t ? window.t('New password must be at least 10 characters.') : 'New password must be at least 10 characters.', 'err'); return; }
   if (nw !== nw2)             { el.innerHTML = alertHTML(window.t ? window.t('New passwords do not match.') : 'New passwords do not match.', 'err'); return; }
+  if (_pwHasPassword && cur && nw === cur) { el.innerHTML = alertHTML(window.t ? window.t('Password must differ from current') : 'Password must differ from current', 'err'); return; }
 
   const body = { new_password: nw };
   if (_pwHasPassword) body.current_password = cur;

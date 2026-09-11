@@ -1,6 +1,7 @@
 import json
 import httpx
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlparse
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,6 +35,23 @@ def _build_client(url: str) -> httpx.AsyncClient:
         transport = httpx.AsyncHTTPTransport(proxy=s.tor_socks_url)
         return httpx.AsyncClient(timeout=30, transport=transport, follow_redirects=False)
     return httpx.AsyncClient(timeout=10, follow_redirects=False)
+
+
+async def _resolve_delivery(url: str) -> tuple[str, dict, dict]:
+    """Given an already-validated webhook URL, return (delivery_url,
+    extra_headers, extra_kwargs) for the httpx call. Tor deliveries are left
+    untouched since the SOCKS proxy resolves the hostname itself; direct
+    clearnet deliveries are pinned to the validated IP (see
+    validators.resolve_pinned_target) so a DNS answer that changes between
+    validation and connect can't redirect the request."""
+    s = get_settings()
+    if s.should_use_tor_for_url(url):
+        return url, {}, {}
+    from app.core.validators import resolve_pinned_target
+    delivery_url, sni_host = await resolve_pinned_target(url)
+    if not sni_host:
+        return delivery_url, {}, {}
+    return delivery_url, {"Host": urlparse(url).netloc}, {"extensions": {"sni_hostname": sni_host}}
 
 
 async def fire_webhook(db: AsyncSession, payment: Payment):
@@ -87,16 +105,19 @@ async def _send_webhook(
     # after that (DNS rebinding) before this delivery fires.
     try:
         from app.core.validators import validate_url as _validate_webhook_url
-        url = _validate_webhook_url(url, "webhook_url") or url
+        url = await _validate_webhook_url(url, "webhook_url") or url
+        delivery_url, extra_headers, extra_kwargs = await _resolve_delivery(url)
     except Exception as e:
         payment.webhook_response = "error: webhook URL points to a disallowed host"
         _schedule_retry(payment, attempts, "disallowed host")
         await db.commit()
         return
 
+    headers.update(extra_headers)
+
     try:
         async with _build_client(url) as c:
-            r = await c.post(url, json=payload, headers=headers)
+            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
 
         payment.webhook_sent     = True
         payment.webhook_sent_at  = datetime.now(timezone.utc)
@@ -252,16 +273,18 @@ async def fire_expired_webhook(payment: Payment):
             url     = merchant.webhook_url
             try:
                 from app.core.validators import validate_url as _validate_webhook_url
-                url = _validate_webhook_url(url, "webhook_url") or url
+                url = await _validate_webhook_url(url, "webhook_url") or url
+                delivery_url, extra_headers, extra_kwargs = await _resolve_delivery(url)
             except Exception:
                 logger.warning(f"fire_expired_webhook: webhook URL points to a disallowed host, skipping")
                 return
             payload = build_webhook_payload(base_payload)
             sig     = sign_webhook(payload, secret) if secret else ""
             headers = _build_headers("payment.expired", sig, payload)
+            headers.update(extra_headers)
 
             async with _build_client(url) as c:
-                r = await c.post(url, json=payload, headers=headers)
+                r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
             logger.info(f"Expired webhook (payment.expired) → {url[:50]} status={r.status_code}")
     except Exception as e:
         logger.warning(f"fire_expired_webhook failed: {e}")
@@ -294,17 +317,19 @@ async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelle
     url = merchant.webhook_url
     try:
         from app.core.validators import validate_url as _validate_webhook_url
-        url = _validate_webhook_url(url, "webhook_url") or url
+        url = await _validate_webhook_url(url, "webhook_url") or url
+        delivery_url, extra_headers, extra_kwargs = await _resolve_delivery(url)
     except Exception:
         logger.warning(f"fire_cancellation_webhook: webhook URL points to a disallowed host, skipping")
         return
     payload   = build_webhook_payload(base_payload)
     signature = sign_webhook(payload, secret) if secret else ""
     headers   = _build_headers("payment.cancelled", signature, payload)
+    headers.update(extra_headers)
 
     try:
         async with _build_client(url) as c:
-            r = await c.post(url, json=payload, headers=headers)
+            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
         logger.info(f"Cancellation webhook (payment.cancelled) → {url[:50]} status={r.status_code}")
     except Exception as e:
         _log_webhook_failure(url, str(e))
