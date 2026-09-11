@@ -15,27 +15,29 @@ from fastapi import Request
 def is_onion_request(request: Request) -> bool:
     """
     Detect if the request is coming through Tor/onion.
-    
-    Checks:
-    1. Host header ends with .onion
-    2. X-Forwarded-Host contains .onion
-    3. Custom header X-Onion-Request (set by reverse proxy)
-    4. Tor exit node indicators
+
+    The Tor hidden service reaches this app only via the local Tor daemon
+    connecting to 127.0.0.1 there is no other way for a genuine onion
+    request to arrive. Host / X-Forwarded-Host / the URL string are all
+    client-controlled and must never be trusted on their own for this
+    decision (they gate login lockout and session binding) an attacker on
+    the clearnet can set any of them. So every indicator below is gated on
+    the request actually having arrived from localhost, same as the
+    X-Onion-Request header already was.
     """
+    client_ip = request.client.host if request.client else ""
+    if client_ip not in ("127.0.0.1", "::1", ""):
+        return False
+
+    if request.headers.get("x-onion-request", "").lower() == "true":
+        return True
+
     host = request.headers.get("host", "")
     if host.endswith(".onion"):
         return True
 
     x_forwarded_host = request.headers.get("x-forwarded-host", "")
     if ".onion" in x_forwarded_host:
-        return True
-
-    # Only trust the custom onion header from localhost (set by the proxy) —
-    # if accepted from any IP, any client could spoof Tor mode to bypass
-    # session binding.
-    client_ip = request.client.host if request.client else ""
-    if (client_ip in ("127.0.0.1", "::1", "")
-            and request.headers.get("x-onion-request", "").lower() == "true"):
         return True
 
     url_str = str(request.url)

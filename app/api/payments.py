@@ -87,8 +87,8 @@ async def create_payment(
         body.order_id          = sanitize_str(body.order_id, 256)
         body.order_description = sanitize_str(body.order_description, 512)
         body.customer_email    = sanitize_str(body.customer_email, 254)
-        body.success_url       = validate_url(body.success_url, "success_url")
-        body.cancel_url        = validate_url(body.cancel_url, "cancel_url")
+        body.success_url       = await validate_url(body.success_url, "success_url")
+        body.cancel_url        = await validate_url(body.cancel_url, "cancel_url")
     except ValueError as e:
         raise HTTPException(422, str(e))
 
