@@ -87,7 +87,7 @@ async def list_links(
     )
     links = res.scalars().all()
     from app.core.config import get_settings
-    base = get_settings().BASE_URL or str(request.base_url)
+    base = get_settings().get_checkout_base_url(request.headers.get("host", ""))
     return {"links": [_link_dict(lnk, base) for lnk in links]}
 
 
@@ -170,7 +170,7 @@ async def create_link(
     await db.refresh(lnk)
 
     from app.core.config import get_settings
-    base = get_settings().BASE_URL or str(request.base_url)
+    base = get_settings().get_checkout_base_url(request.headers.get("host", ""))
     return _link_dict(lnk, base)
 
 
@@ -344,7 +344,10 @@ async def checkout_from_link(
 
     from app.core.security import generate_checkout_token as _gct
     _tok = _gct(str(payment.id), payment.created_at.isoformat() if payment.created_at else "")
-    checkout_url = settings.BASE_URL.rstrip("/") + f"/invoice/{payment.id}?t={_tok}"
+    _host = request.headers.get("host", "")
+    _src  = _host or request.headers.get("Origin") or ""
+    _base = settings.get_checkout_base_url(_src)
+    checkout_url = f"{_base}/invoice/{payment.id}?t={_tok}"
     return {
         "checkout_url":      checkout_url,
         "payment_id":        payment.id,
