@@ -244,7 +244,7 @@ async def change_password(
     if has_password:
         if not body.current_password:
             raise HTTPException(400, "Current password is required.")
-        if not verify_password(body.current_password, user.hashed_password):
+        if not await verify_password(body.current_password, user.hashed_password):
             raise HTTPException(400, "Password incorrect")
         if body.new_password == body.current_password:
             raise HTTPException(400, "Password must differ from current")
@@ -254,7 +254,7 @@ async def change_password(
     except ValueError as e:
         raise HTTPException(422, str(e))
 
-    user.hashed_password     = hash_password(body.new_password)
+    user.hashed_password     = await hash_password(body.new_password)
     user.password_changed_at = datetime.now(timezone.utc)
     db.add(user)
     await db.commit()

@@ -30,8 +30,7 @@ class FiroRPC:
             "headers":  {"Content-Type": "application/json"},
         }
 
-        # Tor cannot route to 127.0.0.1 / localhost, so only proxy remote nodes.
-        _localhost = {"127.0.0.1", "::1", "localhost"}
+        _localhost = {"127.0.0.1", "::1", "localhost", "host.docker.internal", "gateway.docker.internal"}
         _rpc_is_local = settings.FIRO_RPC_HOST in _localhost
 
         if settings.TOR_ENABLED and not _rpc_is_local:

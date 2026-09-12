@@ -291,7 +291,7 @@ async def _seed():
                 db.add(User(
                     username=settings.ADMIN_USERNAME.lower(),
                     email=(settings.ADMIN_EMAIL or f"{settings.ADMIN_USERNAME}@example.com"),
-                    hashed_password=hash_password(settings.ADMIN_PASSWORD),
+                    hashed_password=await hash_password(settings.ADMIN_PASSWORD),
                     role=UserRole.operator,
                     api_key=generate_api_key(),
                     requests_total=999999,

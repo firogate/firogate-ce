@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import hashlib
 import hmac
@@ -155,22 +156,26 @@ def _derive_cookie_domain(base_url: str) -> str:
 _SESSION_BIND_ALGO = "sha256"
 
 
-def hash_password(password: str) -> str:
-    """Hash a password using bcrypt (12 rounds). Truncates to 72 bytes —
-    bcrypt's hard limit to stay compatible with all bcrypt implementations."""
+def _hash_password_sync(password: str) -> str:
     pw = password.encode("utf-8")[:72]
     return bcrypt.hashpw(pw, bcrypt.gensalt(12)).decode("utf-8")
 
 
-def verify_password(plain: str, hashed: str) -> bool:
-    """Verify a plaintext password against a bcrypt hash. Returns False on any
-    error (bad hash, encoding issue, etc.) rather than raising."""
+def _verify_password_sync(plain: str, hashed: str) -> bool:
     if not plain or not hashed:
         return False
     try:
         return bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
     except (ValueError, TypeError):
         return False
+
+
+async def hash_password(password: str) -> str:
+    return await asyncio.to_thread(_hash_password_sync, password)
+
+
+async def verify_password(plain: str, hashed: str) -> bool:
+    return await asyncio.to_thread(_verify_password_sync, plain, hashed)
 
 
 def create_access_token(

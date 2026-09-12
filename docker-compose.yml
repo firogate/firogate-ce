@@ -3,22 +3,10 @@ services:
     build: .
     container_name: firogate
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8000:8000"
+    network_mode: host
     env_file:
       - .env
-    # Linux only, needed if your Firo node runs on the Docker host and
-    # FIRO_RPC_HOST=host.docker.internal in .env (Docker Desktop on Mac/
-    # Windows resolves this automatically, no need to uncomment there).
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    #
-    # Linux-only alternative to extra_hosts above: share the host's network
-    # stack directly so FIRO_RPC_HOST=127.0.0.1 (the default) just works,
-    # no host.docker.internal needed. Remove the ports: block below if you
-    # use this (not needed/ignored in host mode). Not supported the same
-    # way on Docker Desktop for Mac/Windows — see BUILD.md.
-    # network_mode: host
+    command: ["uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000", "--workers", "1"]
     volumes:
       - firogate_data:/app/data
       - firogate_logs:/app/logs
@@ -26,8 +14,6 @@ services:
       - ./app:/app/app
       - ./templates:/app/templates
       - ./static:/app/static
-    networks:
-      - firogate_net
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
       interval: 30s
@@ -40,7 +26,3 @@ volumes:
     driver: local
   firogate_logs:
     driver: local
-
-networks:
-  firogate_net:
-    driver: bridge

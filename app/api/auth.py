@@ -136,7 +136,7 @@ async def register(body: RegisterIn, request: Request, response: Response, db: A
         username=username,
         email=clean_email,   # None if not provided
         full_name=body.full_name,
-        hashed_password=hash_password(body.password),  # always stored, used as Tor login fallback
+        hashed_password=await hash_password(body.password),  # always stored, used as Tor login fallback
         role=UserRole.merchant,
         api_key=generate_api_key(),
         api_key_active=True,
@@ -239,7 +239,7 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
     elif user and user.firebase_uid and is_onion:
         # Tor path: Firebase is unreachable, use local password hash if available
         if user.hashed_password and not user.hashed_password.startswith("UNUSABLE"):
-            pw_ok = bool(verify_password(body.password, user.hashed_password) and user.is_active)
+            pw_ok = bool(await verify_password(body.password, user.hashed_password) and user.is_active)
         else:
             # Firebase-only account with no local password cannot log in via Tor.
             # Return a helpful error instead of a confusing 401.
@@ -249,7 +249,7 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
                 "Please register a new account with username + password while on Tor."
             )
     else:
-        pw_ok = bool(user and verify_password(body.password, user.hashed_password) and user.is_active)
+        pw_ok = bool(user and await verify_password(body.password, user.hashed_password) and user.is_active)
 
     if not pw_ok:
         if not is_onion and not (user and getattr(user, 'privacy_mode', False)):
@@ -359,7 +359,7 @@ async def register_number(request: Request, response: Response, db: AsyncSession
         username=username,
         email=None,
         hashed_password="UNUSABLE-" + secrets.token_hex(32),
-        account_number_hash=hash_password(raw_number),
+        account_number_hash=await hash_password(raw_number),
         account_number_lookup=lookup,
         account_number_enc=encrypt_field(raw_number),
         auth_method="account_number",
@@ -434,7 +434,7 @@ async def login_number(body: LoginNumberIn, response: Response, request: Request
     pw_ok = bool(
         user
         and user.account_number_hash
-        and verify_password(normalized, user.account_number_hash)
+        and await verify_password(normalized, user.account_number_hash)
         and user.is_active
     )
 
@@ -625,7 +625,7 @@ async def tfa_disable(request: Request, db: AsyncSession = Depends(get_db)):
     password  = body.get("password", "")
     totp_code = str(body.get("totp_code", "")).strip()
 
-    if not verify_password(password, u.hashed_password):
+    if not await verify_password(password, u.hashed_password):
         raise HTTPException(400, "Incorrect password")
 
     if u.totp_enabled and u.totp_secret_enc:

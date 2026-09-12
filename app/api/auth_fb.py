@@ -139,7 +139,7 @@ async def fb_google(body: GoogleLoginIn, response: Response, request: Request, d
             username=username,
             email=email,
             full_name=sanitize_str(name, 128) if name else None,
-            hashed_password=hash_password(secrets.token_urlsafe(32)),
+            hashed_password=await hash_password(secrets.token_urlsafe(32)),
             role=UserRole.merchant,
             api_key=generate_api_key(),
             api_key_active=True,
