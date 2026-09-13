@@ -32,7 +32,7 @@ We acknowledge reports as quickly as possible and work to resolve verified secur
 | Version | Status |
 |---------|--------|
 | Latest Release | ✅ Supported |
-| Older Releases | ❌ Unsupported |
+| Older Releases | ⚠️ Supported, but you should update via `git pull` |
 
 Always use the latest stable release.
 
@@ -56,7 +56,15 @@ When deploying FiroGate:
 
 Please allow us reasonable time to investigate and resolve reported vulnerabilities before making them public.
 
-We appreciate responsible disclosure and may credit researchers who report valid security issues.
+We appreciate responsible disclosure will work with researchers to understand and resolve valid security issues.
+
+Researchers may be credited in future security acknowledgements or advisories with their consent.
+
+## Security Research & Rewards
+
+FiroGate does not currently operate a paid bug bounty programme.
+
+Security research contributions are voluntary. We greatly appreciate researchers who choose to spend their time reviewing FiroGate, developing PoCs, and responsibly reporting security issues.
 
 ---
 
@@ -78,3 +86,12 @@ Out of scope:
 - Physical access attacks
 - Third-party software vulnerabilities
 - Server misconfiguration outside FiroGate itself
+## Testing Guidelines
+
+Please keep security testing limited to systems you own or are explicitly authorised to test.
+
+Do not access, modify, delete, or expose other users' data.
+
+Do not perform destructive testing or intentionally disrupt production services.
+
+For sensitive research, PoCs, or communications, please use the [PGP public key](https://raw.githubusercontent.com/firogate/firogate-ce/main/pgp/team_public_key.asc).
