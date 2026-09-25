@@ -18,6 +18,7 @@ venv/
 env/
 ENV/
 native/
+site/
 .git/
 .gitignore
 

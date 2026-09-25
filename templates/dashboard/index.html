@@ -1430,6 +1430,15 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
       <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n-html="When enabled, /login and /register return 404. Existing sessions keep working. If you get locked out, set <code style=&quot;font-family:var(--mono)&quot;>FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style=&quot;font-family:var(--mono)&quot;>.env</code> and restart to force both pages back on.">When enabled, /login and /register return 404. Existing sessions keep working. If you get locked out, set <code style="font-family:var(--mono)">FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style="font-family:var(--mono)">.env</code> and restart to force both pages back on.</p>
 
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">
+        <label for="diag-landing-home-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Use landing home page">Use landing home page</label>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+          <input type="checkbox" id="diag-landing-home-toggle" onchange="saveDiagSettings()" style="opacity:0;width:0;height:0;position:absolute">
+          <span id="diag-landing-home-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
+        </label>
+      </div>
+      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n="When enabled, the public home page (/) shows the landing home design instead of the default page.">When enabled, the public home page (/) shows the landing home design instead of the default page.</p>
+
       <div style="font-size:.85rem;color:var(--t1);margin-bottom:8px" data-i18n="Payment Confirmation Policy">Payment Confirmation Policy</div>
       <div id="diag-confirm-options" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="0" onchange="saveDiagSettings()"> <span><strong data-i18n="Instant">Instant</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="0 confirmations">0 confirmations</span></span></label>

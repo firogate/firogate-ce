@@ -1,0 +1,1150 @@
+const LOGO_SVG = `<svg viewBox="0 0 104.5 104" aria-hidden="true">
+  <path d="m87 1.4c2.9 0.2 4 0.5 7.4 2.4 2.3 1.3 4.2 3.4 5.8 5.5 3 4.4 2.9 9.7 3 15.7l-0.1 15h-0.1l0.1 44.9c0.3 6.3-4.3 12.6-10.1 15.7-1.8 0.8-4.4 1.8-6 2l-67.3 0.1c-3.7 0-5.3-0.3-8.8-2-1.8-0.9-1.8-0.9-4.9-3.7-1.1-1-1.4-1.5-2.3-3.3-1.3-2.6-2-4.7-2-6.9l-0.3-20.4c-0.2-1.6 0-5.1 0-6.3l-0.1-12.1c-0.2-1.5 0.1-4.6 0-7.7-0.1-3.4 0-4.4 0.1-10.3-0.2-1.3 0-5.9 0-12 1.1-5.8 4.5-12.3 10.9-14.9 1.9-0.7 4.2-1.7 5.8-1.8l30.5-0.1 38.4 0.2z" fill="#82333B"/>
+  <path d="m86.4 1.6c6.4 0.2 13.5 5.9 15.6 11.8 1.2 3.2 1 10 1 13.6v55c0.1 4.1-0.1 11.4-6.7 15.9-3.7 2.6-6.7 3.7-10.3 3.7l-68 0.4c-5.4 0-11-2.9-13.5-6.9-1.5-2.4-2.6-6-2.7-8.2l-0.3-21v-47.3c0.2-6.6 5.7-13.9 12.1-15.8 2.4-0.8 4.2-1.1 5.5-1.2h67.3z" fill="#8D2C37"/>
+  <path d="m78.7 102.9-21.6-0.1h-35.8v-0.1l-5.2-0.2c-2.4-0.3-4.8-1.6-7.1-2.7l-4-3.9-0.2-0.4 5.6 3.1 6 2.4 24.2 0.2h43l3.2-0.1c5.2-0.7 8.4-2.4 11.2-5.1 1.9-2 3.2-5 4.5-6.8l0.7-4.2c-0.3 7.7-4.1 12.9-10.2 15.7h-0.3c-1.8 0.8-3.7 1.6-5.6 1.9l-8.3 0.1-0.1 0.2z" fill="#82343C"/>
+  <path d="m1.3 17.9c1.1-6.3 4.8-12.4 11.1-14.9l5.1-1.6 1.5-0.1-3.5 1.1c-5.4 1.6-10.6 6.6-12.4 12.2l-1.1 4.4-0.6 9-0.1-10.1z" fill="#893641"/>
+  <path d="m4.3 75.3 24.2-0.1c2.1 0.1 2.9-1.4 4.3-4l6.2-11.7 0.8-2.1-13.6-0.1c-2.2-0.3-3.2-2.2-3.2-4.4v-6.5c0-2.1 1.4-4 3.5-4h21.1l14.5-28 2.3-3.5 1.4-0.8 23.4-0.1c3 2 8.6 9.6 10.7 13.9l-0.1 0.5-24 0.1c-1.8 0.1-3.2 2.8-3.9 4.3l-7.6 13.8 14.4-0.1c1.9 0.5 2.7 1.9 2.7 3.9l-0.1 7.2c-0.1 1.8-1.1 3.7-2.9 3.7l-21.7-0.3-15.3 29.1-1.7 2.9-24.8 0.6c-3.7-3.6-7.6-8.5-10.6-13.9z" fill="#FFFFFF"/>
+  <path d="m14.9 89.6-1.4-1.5 1.8 1.3 23-0.2 1.4-0.2 0.7-1.1s0.9 1.3-1.8 1.8l-23.7-0.1z" fill="#EDDEDE"/>
+  <path d="m4.3 75.3v-0.4l24.2-0.3c2 0.4 3.8-2.8 4.8-5l6.5-11.9v-0.9h0.5l-0.7 2.4-6.8 12.8c-1.1 1.9-2.2 3.6-4 3.5l-24.5-0.2z" fill="#DDCFCD"/>
+  <path d="m14.2 89.9c-4.1-3.8-7.3-8.8-10-13.5l0.1-1.2c2.3 3.7 6.1 9 10.6 13.2l0.1 1.5h-0.8z" fill="#893641"/>
+  <path d="m39 58.3-13.6-0.2c-2.7-0.1-3.1-3.1-3.1-6.3v-5.3c0-1.9 1.3-4.4 3.8-4.6h21.4l0.3 1-21.6-0.1c-1.4 0.5-3.1 1.5-3 3.5v7.2c0.6 4 2.7 3.4 5.2 3.6h11.4l-0.2 1.2h-0.6z" fill="#893641"/>
+  <path d="m39.2 90.4-24.9 0.1-0.1-0.9 23.2-0.1c2.2 0.2 3.2-1 3.9-2.4l15.3-30.4 21.5 0.2c1.9 0 2.7-1.8 2.8-3.7l0.1-6.5c0.1-1.8-1-3.6-2.4-4h-14.2v-0.7h14.2c2.3 0 3.7 2.2 3.7 4.3v7.1c-0.2 3.2-0.9 4.7-3.7 5l-21.6-0.4-14.8 30-3 2.4z" fill="#893641"/>
+  <path d="m47.8 42.9-0.3-0.8 15-28.3 1.9-2.9 1.1-0.9 0.4 0.6-1.2 0.9-16.9 31.4z" fill="#DDCFCD"/>
+  <path d="m65 10.3-1.4 1.1 1.5-1.7 1.2-0.6 23.3 0.1 0.8 0.7-24.1-0.1z" fill="#893641"/>
+  <path d="m64.4 42.7v-1l8.6-15.6 1.8-1.8 25.1-0.3-0.1 0.6-23.7 0.1c-2.2-0.1-3.4 3-4.7 5.7l-5.9 11.9z" fill="#DDCFCD"/>
+  <path d="m99.9 24.4c-0.9-2.7-6.7-10.7-10.3-13.9l0.5-0.4c3.2 3 7.9 8.5 9.8 13v1.3z" fill="#893641"/>
+</svg>`;
+
+const HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiroGate CE: Open-source payment gateway for FIRO</title>
+<meta name="description" content="FiroGate CE is an open-source, self-hosted payment gateway for FIRO. Detect, track, and process private FIRO payments on your own infrastructure.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 104.5 104'%3E%3Cpath d='m87 1.4c2.9 0.2 4 0.5 7.4 2.4 2.3 1.3 4.2 3.4 5.8 5.5 3 4.4 2.9 9.7 3 15.7l-0.1 15h-0.1l0.1 44.9c0.3 6.3-4.3 12.6-10.1 15.7-1.8 0.8-4.4 1.8-6 2l-67.3 0.1c-3.7 0-5.3-0.3-8.8-2-1.8-0.9-1.8-0.9-4.9-3.7-1.1-1-1.4-1.5-2.3-3.3-1.3-2.6-2-4.7-2-6.9l-0.3-20.4c-0.2-1.6 0-5.1 0-6.3l-0.1-12.1c-0.2-1.5 0.1-4.6 0-7.7-0.1-3.4 0-4.4 0.1-10.3-0.2-1.3 0-5.9 0-12 1.1-5.8 4.5-12.3 10.9-14.9 1.9-0.7 4.2-1.7 5.8-1.8l30.5-0.1 38.4 0.2z' fill='%2382333B'/%3E%3Cpath d='m86.4 1.6c6.4 0.2 13.5 5.9 15.6 11.8 1.2 3.2 1 10 1 13.6v55c0.1 4.1-0.1 11.4-6.7 15.9-3.7 2.6-6.7 3.7-10.3 3.7l-68 0.4c-5.4 0-11-2.9-13.5-6.9-1.5-2.4-2.6-6-2.7-8.2l-0.3-21v-47.3c0.2-6.6 5.7-13.9 12.1-15.8 2.4-0.8 4.2-1.1 5.5-1.2h67.3z' fill='%238D2C37'/%3E%3Cpath d='m78.7 102.9-21.6-0.1h-35.8v-0.1l-5.2-0.2c-2.4-0.3-4.8-1.6-7.1-2.7l-4-3.9-0.2-0.4 5.6 3.1 6 2.4 24.2 0.2h43l3.2-0.1c5.2-0.7 8.4-2.4 11.2-5.1 1.9-2 3.2-5 4.5-6.8l0.7-4.2c-0.3 7.7-4.1 12.9-10.2 15.7h-0.3c-1.8 0.8-3.7 1.6-5.6 1.9l-8.3 0.1-0.1 0.2z' fill='%2382343C'/%3E%3Cpath d='m1.3 17.9c1.1-6.3 4.8-12.4 11.1-14.9l5.1-1.6 1.5-0.1-3.5 1.1c-5.4 1.6-10.6 6.6-12.4 12.2l-1.1 4.4-0.6 9-0.1-10.1z' fill='%23893641'/%3E%3Cpath d='m4.3 75.3 24.2-0.1c2.1 0.1 2.9-1.4 4.3-4l6.2-11.7 0.8-2.1-13.6-0.1c-2.2-0.3-3.2-2.2-3.2-4.4v-6.5c0-2.1 1.4-4 3.5-4h21.1l14.5-28 2.3-3.5 1.4-0.8 23.4-0.1c3 2 8.6 9.6 10.7 13.9l-0.1 0.5-24 0.1c-1.8 0.1-3.2 2.8-3.9 4.3l-7.6 13.8 14.4-0.1c1.9 0.5 2.7 1.9 2.7 3.9l-0.1 7.2c-0.1 1.8-1.1 3.7-2.9 3.7l-21.7-0.3-15.3 29.1-1.7 2.9-24.8 0.6c-3.7-3.6-7.6-8.5-10.6-13.9z' fill='%23FFFFFF'/%3E%3Cpath d='m14.9 89.6-1.4-1.5 1.8 1.3 23-0.2 1.4-0.2 0.7-1.1s0.9 1.3-1.8 1.8l-23.7-0.1z' fill='%23EDDEDE'/%3E%3Cpath d='m4.3 75.3v-0.4l24.2-0.3c2 0.4 3.8-2.8 4.8-5l6.5-11.9v-0.9h0.5l-0.7 2.4-6.8 12.8c-1.1 1.9-2.2 3.6-4 3.5l-24.5-0.2z' fill='%23DDCFCD'/%3E%3Cpath d='m14.2 89.9c-4.1-3.8-7.3-8.8-10-13.5l0.1-1.2c2.3 3.7 6.1 9 10.6 13.2l0.1 1.5h-0.8z' fill='%23893641'/%3E%3Cpath d='m39 58.3-13.6-0.2c-2.7-0.1-3.1-3.1-3.1-6.3v-5.3c0-1.9 1.3-4.4 3.8-4.6h21.4l0.3 1-21.6-0.1c-1.4 0.5-3.1 1.5-3 3.5v7.2c0.6 4 2.7 3.4 5.2 3.6h11.4l-0.2 1.2h-0.6z' fill='%23893641'/%3E%3Cpath d='m39.2 90.4-24.9 0.1-0.1-0.9 23.2-0.1c2.2 0.2 3.2-1 3.9-2.4l15.3-30.4 21.5 0.2c1.9 0 2.7-1.8 2.8-3.7l0.1-6.5c0.1-1.8-1-3.6-2.4-4h-14.2v-0.7h14.2c2.3 0 3.7 2.2 3.7 4.3v7.1c-0.2 3.2-0.9 4.7-3.7 5l-21.6-0.4-14.8 30-3 2.4z' fill='%23893641'/%3E%3Cpath d='m47.8 42.9-0.3-0.8 15-28.3 1.9-2.9 1.1-0.9 0.4 0.6-1.2 0.9-16.9 31.4z' fill='%23DDCFCD'/%3E%3Cpath d='m65 10.3-1.4 1.1 1.5-1.7 1.2-0.6 23.3 0.1 0.8 0.7-24.1-0.1z' fill='%23893641'/%3E%3Cpath d='m64.4 42.7v-1l8.6-15.6 1.8-1.8 25.1-0.3-0.1 0.6-23.7 0.1c-2.2-0.1-3.4 3-4.7 5.7l-5.9 11.9z' fill='%23DDCFCD'/%3E%3Cpath d='m99.9 24.4c-0.9-2.7-6.7-10.7-10.3-13.9l0.5-0.4c3.2 3 7.9 8.5 9.8 13v1.3z' fill='%23893641'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --coffee-950: #050505;
+    --coffee-900: #0a0a0b;
+    --coffee-800: #121214;
+    --coffee-700: #18181b;
+    --coffee-600: #232326;
+    --coffee-500: #333338;
+    --coffee-400: #4b4b52;
+    --tan-400: #d4d4d8;
+    --tan-300: #e8e8ec;
+    --cream-100: #fafafa;
+    --cream-200: #f4f4f5;
+    --cream-300: #e4e4e7;
+    --ink: #0a0a0b;
+
+    --bg: var(--coffee-900);
+    --surface: var(--coffee-700);
+    --surface-raised: var(--coffee-800);
+    --border: rgba(228, 228, 231, 0.12);
+    --border-strong: rgba(228, 228, 231, 0.22);
+    --text-primary: #ffffff;
+    --text-secondary: #d4d4d8;
+    --text-muted: #a1a1aa;
+    --accent: var(--tan-400);
+    --accent-strong: var(--tan-300);
+    --accent-ink: var(--coffee-950);
+
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 4px;
+
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.55);
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-theme="light"] {
+    --bg: var(--cream-100);
+    --surface: #ffffff;
+    --surface-raised: var(--cream-200);
+    --border: rgba(10, 10, 11, 0.1);
+    --border-strong: rgba(10, 10, 11, 0.18);
+    --text-primary: #000000;
+    --text-secondary: #2b2b2f;
+    --text-muted: #55555b;
+    --accent: var(--coffee-500);
+    --accent-strong: #0a0a0b;
+    --accent-ink: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(10, 10, 11, 0.08);
+    --shadow-md: 0 10px 28px rgba(10, 10, 11, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  }
+
+  img, svg { max-width: 100%; display: block; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  /* ---------- Skip link ---------- */
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 10px 16px;
+    border-radius: 0 0 8px 0;
+    z-index: 200;
+    font-weight: 600;
+  }
+  .skip-link:focus { left: 0; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    background: var(--cream-100);
+    border: 1px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 4px;
+    overflow: hidden;
+  }
+  .brand-mark svg { width: 100%; height: 100%; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+  }
+  .nav-links a {
+    position: relative;
+    padding: 4px 0;
+    transition: color 0.15s var(--ease);
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 100%;
+    bottom: -2px;
+    height: 1px;
+    background: var(--accent);
+    transition: right 0.2s var(--ease);
+  }
+  .nav-links a:hover::after { right: 0; }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+  }
+
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+  .theme-toggle {
+    width: 38px; height: 38px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+  .theme-toggle:hover { color: var(--text-primary); border-color: var(--accent); }
+  .theme-toggle:active { transform: scale(0.94); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  .theme-toggle .sun { display: none; }
+  [data-theme="light"] .theme-toggle .moon { display: none; }
+  [data-theme="light"] .theme-toggle .sun { display: block; }
+
+  /* ---------- Hamburger / mobile menu button ---------- */
+  .menu-toggle {
+    width: 38px; height: 38px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
+  }
+  .menu-toggle:hover { border-color: var(--accent); }
+  .menu-toggle:active { transform: scale(0.94); }
+  .menu-toggle svg { width: 20px; height: 20px; }
+  @media (max-width: 860px) {
+    .menu-toggle { display: flex; }
+  }
+
+  /* ---------- Mobile sidebar ---------- */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+  }
+  .sidebar-overlay.is-open { opacity: 1; }
+  [hidden] { display: none !important; }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 84vw);
+    background: var(--surface);
+    border-left: 1px solid var(--border-strong);
+    z-index: 160;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.28s var(--ease);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.5);
+  }
+  .sidebar.is-open { transform: translateX(0); }
+  /* No-JS fallback: :target keeps the menu reachable via the hamburger link */
+  .sidebar:target { transform: translateX(0); }
+
+  .sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-close {
+    width: 34px; height: 34px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .sidebar-close:hover { color: var(--text-primary); border-color: var(--accent); }
+  .sidebar-close svg { width: 16px; height: 16px; }
+
+  .sidebar-links {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 8px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .sidebar-links a {
+    padding: 15px 12px;
+    font-size: 1.02rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    transition: color 0.15s var(--ease), padding-left 0.2s var(--ease);
+  }
+  .sidebar-links a:hover,
+  .sidebar-links a:focus-visible {
+    color: var(--accent);
+    padding-left: 18px;
+  }
+
+  .sidebar-foot {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar, .sidebar-overlay { transition: none; }
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease), background 0.15s var(--ease), border-color 0.15s var(--ease);
+    white-space: nowrap;
+  }
+  .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .btn:active { transform: translateY(1px); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover {
+    background: var(--accent-strong);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border);
+    padding: 9px 16px;
+    font-size: 0.85rem;
+  }
+  .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding: 96px 0 88px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    padding: 6px 12px;
+    border-radius: 3px;
+    margin-bottom: 22px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .hero-sub {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: var(--text-primary);
+    max-width: 20ch;
+    margin: 0 0 20px;
+  }
+  .hero-detail {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    max-width: 50ch;
+    margin: 0 0 36px;
+  }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+  .hero-meta {
+    display: flex;
+    gap: 22px;
+    margin-top: 36px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hero-meta::-webkit-scrollbar { display: none; }
+  .hero-meta-item {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .hero-meta-item svg { width: 14px; height: 14px; opacity: 0.8; flex-shrink: 0; }
+
+  @media (max-width: 480px) {
+    .hero-meta { gap: 16px; }
+    .hero-meta-item { font-size: 0.78rem; }
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  /* Default: fully visible (no-JS / no-IntersectionObserver baseline). */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  /* Only animate from hidden when JS confirms it can reveal elements. */
+  .js-reveal-ready .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+  }
+  .js-reveal-ready .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  .hero-grid > * { animation: rise 0.7s var(--ease) backwards; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section { padding: 88px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+
+  .section-head { max-width: 640px; margin-bottom: 52px; }
+  .section-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+  .section-head p {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* ---------- About ---------- */
+  .about-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+  @media (max-width: 800px) { .about-body { grid-template-columns: 1fr; } }
+  .about-body p {
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin: 0 0 18px;
+  }
+  .about-body p:last-child { margin-bottom: 0; }
+  .about-body strong { color: var(--text-primary); }
+
+  .trust-note {
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 18px;
+    font-size: 0.94rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ---------- Features grid ---------- */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  @media (max-width: 920px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .feature-grid { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--surface);
+    padding: 28px 24px;
+    transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+  .feature-card:hover {
+    background: var(--surface-raised);
+    transform: translateY(-2px);
+  }
+  .feature-card h3 {
+    font-size: 0.98rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .feature-card p {
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ---------- Developer section ---------- */
+  .dev-section { background: var(--surface); }
+  .dev-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 880px) { .dev-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  .dev-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; }
+  .dev-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+  .dev-list .num {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    width: 26px; height: 26px;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .dev-list strong { color: var(--text-primary); display: block; margin-bottom: 2px; }
+
+  /* ---------- Code block ---------- */
+  .code-block {
+    background: var(--coffee-950);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  [data-theme="light"] .code-block { background: #0a0a0b; }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(228, 228, 231, 0.1);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: rgba(228, 228, 231, 0.18);
+  }
+  .code-title {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: #a1a1aa;
+  }
+  .copy-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: transparent;
+    border: 1px solid rgba(228, 228, 231, 0.16);
+    color: #d4d4d8;
+    font-size: 0.76rem;
+    font-family: var(--font-body);
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+  .copy-btn:hover { color: var(--tan-300); border-color: var(--tan-400); }
+  .copy-btn svg { width: 13px; height: 13px; }
+  .copy-btn.copied { color: var(--tan-300); border-color: var(--tan-400); background: rgba(201, 163, 115, 0.08); }
+
+  .code-body {
+    padding: 20px 22px 24px;
+    margin: 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.85;
+    color: #f4f4f5;
+  }
+  .code-body .cm { color: #71717a; }
+  .code-body .fn { color: var(--tan-300); }
+
+  .install-note {
+    margin-top: 18px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .install-note a { color: var(--accent); border-bottom: 1px solid transparent; transition: border-color 0.15s var(--ease); }
+  .install-note a:hover { border-color: var(--accent); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 48px 0 40px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .footer-links {
+    display: flex;
+    gap: 28px;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
+  .footer-links a { transition: color 0.15s var(--ease); }
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-tips {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-tips-label {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin: 0 0 10px;
+  }
+  .tip-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 100%;
+  }
+  .tip-label {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+  .tip-address {
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    color: var(--text-primary);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 11px;
+    user-select: all;
+    -webkit-user-select: all;
+    cursor: text;
+    line-height: 1.4;
+  }
+  .tip-copy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .tip-copy:hover { color: var(--accent); border-color: var(--accent); }
+  .tip-copy svg { width: 14px; height: 14px; }
+  .tip-copy.copied { color: var(--accent); border-color: var(--accent); }
+
+  .footer-bottom {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 64px 0 56px; }
+    section { padding: 64px 0; }
+  }
+
+  /* Slightly larger, more confident type on desktop */
+  @media (min-width: 1024px) {
+    .hero-detail { font-size: 1.04rem; }
+    .section-head p { font-size: 1.08rem; }
+    .about-body p { font-size: 1.08rem; }
+    .feature-card h3 { font-size: 1.03rem; }
+    .feature-card p { font-size: 0.92rem; }
+    .dev-list li { font-size: 1.03rem; }
+    .nav-links { font-size: 0.96rem; }
+  }
+</style>
+</head>
+<body data-theme="dark">
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#main" class="brand" aria-label="FiroGate CE home">
+      <span class="brand-mark">${LOGO_SVG}</span>
+      FiroGate CE
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#developers">Developers</a>
+      <a href="#get-started">Install</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" type="button">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <a class="menu-toggle" id="menuToggle" href="#mobileSidebar" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebar">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+<aside class="sidebar" id="mobileSidebar" aria-label="Mobile navigation" aria-hidden="true">
+  <div class="sidebar-head">
+    <a class="sidebar-close" id="sidebarClose" href="#main" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </a>
+  </div>
+  <nav class="sidebar-links" aria-label="Primary mobile">
+    <a href="#about">About</a>
+    <a href="#capabilities">Capabilities</a>
+    <a href="#developers">Developers</a>
+    <a href="#get-started">Install</a>
+  </nav>
+  <div class="sidebar-foot">
+    <a class="btn btn-primary" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener" style="width:100%;">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Apache 2.0 · Self-hosted</span>
+        <h1 class="visually-hidden">FiroGate CE</h1>
+        <p class="hero-sub">An open-source payment gateway built for FIRO.</p>
+        <p class="hero-detail">FiroGate CE gives you the infrastructure to detect, track, and confirm private FIRO (Spark) payments on servers you control, with no custody and no third party in the middle.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+            View on GitHub
+          </a>
+          <a class="btn btn-outline" href="#get-started">
+            Get Started
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <div class="hero-meta">
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            Source available
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4 6.5v5c0 4.7 3.1 8.6 8 9.5 4.9-.9 8-4.8 8-9.5v-5L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            Non-custodial
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21C7.5 17.4 4 13.9 4 9.8 4 6.6 6.5 4 9.6 4c1.6 0 3 .7 3.9 1.9C14.4 4.7 15.8 4 17.4 4 20.5 4 23 6.6 23 9.8c0 4.1-3.5 7.6-8 11.2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            No vendor lock-in
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-kicker">01 • What is FiroGate CE?</span>
+        <h2>A payment gateway that never holds your funds.</h2>
+      </div>
+      <div class="about-body">
+        <p class="reveal">FiroGate CE (Community Edition) is a <strong>payment gateway</strong> for FIRO that runs entirely on servers you control. It provides the payment infrastructure that applications and stores integrate with to detect and track private FIRO payments.</p>
+        <p class="reveal">Instead of custody or spend authority, FiroGate CE connects to a Spark <strong>view key</strong>. That key can see incoming payments and nothing more, so funds always settle directly into your own wallet.</p>
+      </div>
+      <div class="trust-note reveal" style="margin-top:28px;">
+        Each checkout gets a fresh, one-time Spark address derived offline. Your instance watches the chain and confirms payments against your own Confirmation Policy. FiroGate CE never touches the funds it tracks.
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPABILITIES -->
+  <section id="capabilities">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-kicker">02 • Key capabilities</span>
+        <h2>Everything a store needs to accept FIRO.</h2>
+        <p>Core building blocks included in FiroGate CE, ready to run on your own infrastructure.</p>
+      </div>
+      <div class="feature-grid">
+
+        <div class="feature-card reveal">
+          <h3>Payment detection</h3>
+          <p>Watches the chain for incoming FIRO payments matched against your Spark view key.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Invoice &amp; checkout tracking</h3>
+          <p>Hosted checkout pages and shareable Payment Links track each order end to end.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Payment confirmation</h3>
+          <p>Confirms against a configurable Confirmation Policy, secured by Firo's ChainLocks.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Blockchain scanning</h3>
+          <p><code>blocknotify</code> wakes the scanner on every new block, so detection doesn't wait on a timer.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Payment-state management</h3>
+          <p>REST API to create payments, check status, and list history from your own dashboard.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Signed, retried webhooks</h3>
+          <p>HMAC-SHA256 signed webhooks with automatic retry keep your app in sync.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Self-hostable</h3>
+          <p>Deploy with Docker on infrastructure you fully control.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <h3>Developer-friendly integration</h3>
+          <p>Scoped, revokable API keys and an in-app API reference at <code>/docs</code>.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVELOPERS -->
+  <section id="developers" class="dev-section">
+    <div class="wrap">
+      <div class="dev-grid">
+        <div>
+          <span class="section-kicker reveal">03 • For developers</span>
+          <h2 class="reveal" style="font-family:var(--font-display); font-size:clamp(1.9rem,3.4vw,2.6rem); line-height:1.15; letter-spacing:-0.01em; margin:0 0 16px; font-weight:600;">Built to be used, inspected, and extended.</h2>
+          <p class="reveal" style="color:var(--text-secondary); line-height:1.65; font-size:1rem; margin:0;">FiroGate CE is source-available infrastructure, not a black box. The full payment engine is yours to run, read, and adapt.</p>
+        </div>
+        <ul class="dev-list reveal">
+          <li><span class="num">1</span><div><strong>Run it yourself</strong>Deploy with Docker on your own server, VPS, or Tor hidden service.</div></li>
+          <li><span class="num">2</span><div><strong>Inspect the source</strong>Every part of the payment flow is readable, with no hidden services and no telemetry you can't see.</div></li>
+          <li><span class="num">3</span><div><strong>Integrate the payment engine</strong>Use the REST API and signed webhooks to connect FiroGate CE to your own storefront or app.</div></li>
+          <li><span class="num">4</span><div><strong>Modify and extend</strong>Adapt the checkout, confirmation policy, or API to fit how your store actually works.</div></li>
+          <li><span class="num">5</span><div><strong>Contribute improvements</strong>Open issues, submit pull requests, and help shape the project.</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- GET STARTED -->
+  <section id="get-started">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-kicker">04 • Getting started</span>
+        <h2>Clone it, configure it, run it.</h2>
+        <p>FiroGate CE deploys with Docker Compose. Full setup steps live in <code>BUILD.md</code> in the repository.</p>
+      </div>
+
+      <div class="code-block reveal" style="max-width:640px;">
+        <div class="code-header">
+          <span class="code-dots"><span></span><span></span><span></span></span>
+          <span class="code-title">terminal</span>
+          <button class="copy-btn" id="copyBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h9A1.5 1.5 0 0 1 15.5 5v1" stroke="currentColor" stroke-width="1.6"/></svg>
+            <span id="copyLabel">Copy</span>
+          </button>
+        </div>
+        <pre class="code-body" id="codeBody"><span class="cm"># clone the repository</span>
+<span class="fn">git</span> clone https://github.com/firogate/firogate-ce.git
+<span class="fn">cd</span> firogate-ce
+
+<span class="cm"># configure environment</span>
+<span class="fn">cp</span> .env.example .env
+<span class="cm"># set your Firo RPC credentials and OPERATOR_EMAILS</span>
+
+<span class="cm"># run with Docker</span>
+<span class="fn">docker</span> compose up -d</pre>
+      </div>
+
+      <p class="install-note reveal">
+        Full installation and build steps are documented in
+        <a href="https://github.com/firogate/firogate-ce/blob/main/BUILD.md" target="_blank" rel="noopener">BUILD.md</a>.
+        See <a href="https://github.com/firogate/firogate-ce/blob/main/AUDIT.md" target="_blank" rel="noopener">AUDIT.md</a>
+        for the full payment and wallet-connection trust model.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/firogate/firogate-ce/blob/main/BUILD.md" target="_blank" rel="noopener">Build &amp; Run</a>
+        <a href="https://github.com/firogate/firogate-ce/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
+        <a href="https://github.com/firogate/firogate-ce/blob/main/LEGAL.md" target="_blank" rel="noopener">Legal</a>
+      </nav>
+    </div>
+
+    <div class="footer-tips">
+      <p class="footer-tips-label">Tips</p>
+      <div class="tip-row">
+        <span class="tip-label">Spark address:</span>
+        <code class="tip-address" id="tipAddress">@firogate</code>
+        <button class="tip-copy" id="tipCopyBtn" type="button" aria-label="Copy Spark address">
+          <svg class="tip-copy-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M6 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h9A1.5 1.5 0 0 1 15.5 5v1" stroke="currentColor" stroke-width="1.6"/></svg>
+          <svg class="tip-copy-check" viewBox="0 0 24 24" fill="none" aria-hidden="true" hidden><path d="M5 12.5 9.5 17 19 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>FiroGate CE Community Edition.</span>
+      <span>Non-custodial by design.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile sidebar navigation
+  (function () {
+    var menuBtn = document.getElementById('menuToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var sidebar = document.getElementById('mobileSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (!menuBtn || !sidebar || !overlay) return;
+
+    function openSidebar(e) {
+      if (e) e.preventDefault();
+      overlay.hidden = false;
+      requestAnimationFrame(function () {
+        sidebar.classList.add('is-open');
+        overlay.classList.add('is-open');
+      });
+      sidebar.setAttribute('aria-hidden', 'false');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeSidebar(e) {
+      if (e) e.preventDefault();
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-open');
+      sidebar.setAttribute('aria-hidden', 'true');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      menuBtn.focus();
+      setTimeout(function () { overlay.hidden = true; }, 260);
+    }
+
+    menuBtn.addEventListener('click', openSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', function () { closeSidebar(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('is-open')) closeSidebar();
+    });
+    sidebar.querySelectorAll('.sidebar-links a').forEach(function (link) {
+      link.addEventListener('click', function () { closeSidebar(); });
+    });
+  })();
+
+  // Theme toggle (defaults to dark, persists during session only)
+  (function () {
+    var body = document.body;
+    var toggle = document.getElementById('themeToggle');
+    if (!toggle) return;
+    var stored;
+    try { stored = sessionStorage.getItem('firogate-theme'); } catch (e) {}
+    if (stored === 'light') body.setAttribute('data-theme', 'light');
+    toggle.addEventListener('click', function () {
+      var isLight = body.getAttribute('data-theme') === 'light';
+      body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      try { sessionStorage.setItem('firogate-theme', isLight ? 'dark' : 'light'); } catch (e) {}
+    });
+  })();
+
+  // Copy-to-clipboard for the install snippet
+  (function () {
+    var btn = document.getElementById('copyBtn');
+    var label = document.getElementById('copyLabel');
+    var code = document.getElementById('codeBody');
+    if (!btn || !code) return;
+    btn.addEventListener('click', function () {
+      var text = code.innerText;
+      function done() {
+        label.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          label.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1800);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  })();
+
+  // Copy-to-clipboard for the Tips Spark address
+  (function () {
+    var btn = document.getElementById('tipCopyBtn');
+    var addr = document.getElementById('tipAddress');
+    if (!btn || !addr) return;
+    var icon = btn.querySelector('.tip-copy-icon');
+    var check = btn.querySelector('.tip-copy-check');
+    btn.addEventListener('click', function () {
+      var text = addr.textContent.trim();
+      function done() {
+        btn.classList.add('copied');
+        if (icon) icon.hidden = true;
+        if (check) check.hidden = false;
+        btn.setAttribute('aria-label', 'Copied');
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          if (icon) icon.hidden = false;
+          if (check) check.hidden = true;
+          btn.setAttribute('aria-label', 'Copy Spark address');
+        }, 1800);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  })();
+
+  // Scroll reveal: only enabled once JS confirms IntersectionObserver support,
+  // so the page is fully visible by default (no-JS / older browsers stay unaffected).
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || !els.length) return;
+    document.documentElement.classList.add('js-reveal-ready');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+</body>
+</html>`;
+
+export default {
+  async fetch(request) {
+    return new Response(HTML, {
+      headers: {
+        "content-type": "text/html; charset=UTF-8",
+        "cache-control": "public, max-age=300",
+      },
+    });
+  },
+};

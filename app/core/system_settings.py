@@ -6,6 +6,7 @@ from app.models.models import SystemConfig
 HIDE_AUTH_PAGES_KEY = "hide_auth_pages"
 REQUIRED_CONFIRMATIONS_KEY = "required_confirmations"
 PAYMENT_TIMEOUT_MINUTES_KEY = "payment_timeout_minutes"
+LANDING_HOME_KEY = "landing_home"
 
 
 async def get_setting(db: AsyncSession, key: str, default: str | None = None) -> str | None:
@@ -26,3 +27,7 @@ async def set_setting(db: AsyncSession, key: str, value: str) -> None:
 
 async def hide_auth_pages_enabled(db: AsyncSession) -> bool:
     return (await get_setting(db, HIDE_AUTH_PAGES_KEY, "0")) == "1"
+
+
+async def landing_home_enabled(db: AsyncSession) -> bool:
+    return (await get_setting(db, LANDING_HOME_KEY, "0")) == "1"
