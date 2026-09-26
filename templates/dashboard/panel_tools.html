@@ -325,6 +325,13 @@ async function loadDiagSettings() {
       hideSlider.style.background = d.hide_auth_pages ? '#F5C542' : 'var(--bg4)';
       hideSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (d.hide_auth_pages ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
     }
+    const landingToggle = document.getElementById('diag-landing-home-toggle');
+    const landingSlider = document.getElementById('diag-landing-home-slider');
+    if (landingToggle) landingToggle.checked = !!d.landing_home;
+    if (landingSlider) {
+      landingSlider.style.background = d.landing_home ? '#F5C542' : 'var(--bg4)';
+      landingSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (d.landing_home ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
+    }
     const radio = document.querySelector('input[name="diag-confirm"][value="' + d.required_confirmations + '"]');
     if (radio) radio.checked = true;
   } catch (e) {}
@@ -335,12 +342,18 @@ async function saveDiagSettings() {
   if (ab) ab.innerHTML = '';
   const hideToggle = document.getElementById('diag-hide-auth-toggle');
   const hideSlider = document.getElementById('diag-hide-auth-slider');
+  const landingToggle = document.getElementById('diag-landing-home-toggle');
+  const landingSlider = document.getElementById('diag-landing-home-slider');
   const checkedRadio = document.querySelector('input[name="diag-confirm"]:checked');
   if (hideSlider) {
     hideSlider.style.background = hideToggle.checked ? '#F5C542' : 'var(--bg4)';
     hideSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (hideToggle.checked ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
   }
-  const body = { hide_auth_pages: !!hideToggle?.checked };
+  if (landingSlider) {
+    landingSlider.style.background = landingToggle.checked ? '#F5C542' : 'var(--bg4)';
+    landingSlider.innerHTML = '<span style="position:absolute;height:18px;width:18px;left:' + (landingToggle.checked ? '23px' : '3px') + ';bottom:2px;background:white;border-radius:50%;transition:.2s"></span>';
+  }
+  const body = { hide_auth_pages: !!hideToggle?.checked, landing_home: !!landingToggle?.checked };
   if (checkedRadio) body.required_confirmations = parseInt(checkedRadio.value, 10);
   try {
     const r = await panelFetch('/api/panel/settings', {

@@ -11,6 +11,7 @@ from app.core.config import get_settings
 from app.core.security import verify_access_token
 from app.core.system_settings import (
     HIDE_AUTH_PAGES_KEY, REQUIRED_CONFIRMATIONS_KEY, PAYMENT_TIMEOUT_MINUTES_KEY,
+    LANDING_HOME_KEY,
     get_setting, set_setting,
 )
 from app.models.models import User, UserRole, Payment
@@ -117,6 +118,7 @@ async def get_settings_bundle(
         "hide_auth_pages": (await get_setting(db, HIDE_AUTH_PAGES_KEY, "0")) == "1",
         "required_confirmations": int(await get_setting(db, REQUIRED_CONFIRMATIONS_KEY, str(settings.REQUIRED_CONFIRMATIONS))),
         "payment_timeout_minutes": int(await get_setting(db, PAYMENT_TIMEOUT_MINUTES_KEY, str(settings.PAYMENT_TIMEOUT_MINUTES))),
+        "landing_home": (await get_setting(db, LANDING_HOME_KEY, "0")) == "1",
     }
 
 
@@ -124,6 +126,7 @@ class SettingsIn(BaseModel):
     hide_auth_pages: bool | None = None
     required_confirmations: int | None = None
     payment_timeout_minutes: int | None = None
+    landing_home: bool | None = None
 
 
 @router.patch("/settings")
@@ -142,6 +145,8 @@ async def update_settings_bundle(
         if not (1 <= body.payment_timeout_minutes <= 1440):
             raise HTTPException(422, "payment_timeout_minutes must be between 1 and 1440")
         await set_setting(db, PAYMENT_TIMEOUT_MINUTES_KEY, str(body.payment_timeout_minutes))
+    if body.landing_home is not None:
+        await set_setting(db, LANDING_HOME_KEY, "1" if body.landing_home else "0")
     return await get_settings_bundle(operator, db)
 
 

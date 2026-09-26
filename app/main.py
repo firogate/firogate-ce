@@ -798,12 +798,22 @@ async def _dashboard_show_market_price(r: Request) -> bool:
         return False
 
 
+async def _landing_home_enabled() -> bool:
+    from app.core.database import AsyncSessionLocal
+    from app.core.system_settings import landing_home_enabled
+    async with AsyncSessionLocal() as db:
+        return await landing_home_enabled(db)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(r: Request):
     # If request is from dashboard subdomain root → serve dashboard, not landing page
     if _is_dashboard_host(r):
         is_operator = await _is_operator_request(r)
         return page("dashboard/index.html", r, is_operator=is_operator, show_market_price=await _dashboard_show_market_price(r), active_tab="home")
+
+    if await _landing_home_enabled():
+        return templates.TemplateResponse("landing_home.html", {"request": r})
 
     return await page_async("index.html", r)
 
