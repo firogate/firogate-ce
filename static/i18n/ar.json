@@ -2776,5 +2776,9 @@
   "Webhook URL cleared.": "تم مسح رابط الويب هوك.",
   "Analytics reset.": "أُعيدت التحليلات.",
   "Background uploaded.": "رُفعت الخلفية.",
-  "Logo uploaded.": "رُفع الشعار."
+  "Logo uploaded.": "رُفع الشعار.",
+  "Restart the dashboard walkthrough at any time.": "أعد تشغيل جولة لوحة التحكم في أي وقت.",
+  "No API keys yet.": "لا توجد مفاتيح API بعد.",
+  "No payment links yet. Create your first one above.": "لا توجد روابط دفع بعد. أنشئ أول رابط لك أعلاه.",
+  "Click \"+ New Link\" to create one.": "انقر على \"رابط جديد +\" لإنشاء واحد."
 }
