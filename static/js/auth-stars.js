@@ -8,8 +8,8 @@
   var particleCount = 40;
   var flareCount = 16;
   var motion = 0.05;
-  var color = '#F5C542';
-  var colorPalette = ['#F5C542', '#EFCB68', '#B82334', '#D94F5C', '#E8A33D', '#F5C542'];
+  var color = '#2CC8CD';
+  var colorPalette = ['#00A2A7', '#2CC8CD', '#7FE3E6', '#FD4F17', '#FF8A5C', '#00A2A7'];
   var particleSizeBase = 2;
   var particleSizeMultiplier = 0.5;
   var flareSizeBase = 100;
@@ -265,7 +265,7 @@
       context.moveTo(pts[i][0], pts[i][1]);
       context.lineTo(pts[i + 1][0], pts[i + 1][1]);
     }
-    context.strokeStyle = '#F5C542';
+    context.strokeStyle = '#2CC8CD';
     context.lineWidth = lineWidth;
     context.stroke();
     context.closePath();

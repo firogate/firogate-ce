@@ -22,8 +22,8 @@ from app.models.models import User
 from app.api.users import get_current_user
 from app.models.models import UserRole
 from app.services.themes import (
-    PRESETS, SAFE_FONTS, SAFE_BUTTON_STYLES,
-    validate_theme_input, resolve_theme, theme_from_user,
+    PRESETS, SAFE_FONTS, SAFE_BUTTON_STYLES, DEFAULT_THEME_ID,
+    validate_theme_input, resolve_theme, theme_from_user, effective_theme_id,
 )
 
 router = APIRouter(prefix="/api/theme", tags=["theme"])
@@ -81,7 +81,7 @@ async def get_theme(
     theme = theme_from_user(user)
     return {
         "settings": {
-            "theme_id":                user.theme_id or "dark_gold",
+            "theme_id":                effective_theme_id(user),
             "theme_accent":            user.theme_accent,
             "theme_bg":                user.theme_bg,
             "theme_surface":           user.theme_surface,
@@ -140,10 +140,10 @@ async def reset_theme(
     ]
     for f in theme_fields:
         setattr(user, f, None)
-    user.theme_id = "dark_gold"
+    user.theme_id = DEFAULT_THEME_ID
     db.add(user)
     await db.commit()
-    return {"ok": True, "theme_id": "dark_gold"}
+    return {"ok": True, "theme_id": DEFAULT_THEME_ID}
 
 
 @router.post("/preview")
@@ -157,7 +157,7 @@ async def preview_theme(
     """
     safe = validate_theme_input(body.model_dump())
     overrides = {k.replace("theme_", ""): v for k, v in safe.items() if v is not None}
-    theme_id = safe.get("theme_id") or user.theme_id or "dark_gold"
+    theme_id = safe.get("theme_id") or effective_theme_id(user)
     resolved = resolve_theme(theme_id, overrides)
     return {"resolved": resolved}
 

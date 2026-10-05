@@ -57,7 +57,24 @@ SAFE_FONTS: dict[str, str] = {
 
 SAFE_BUTTON_STYLES = {"rounded", "sharp", "pill"}
 
+DEFAULT_THEME_ID = "firogate"
+
 PRESETS: dict[str, dict] = {
+    "firogate": {
+        "label":       "FiroGate",
+        "description": "Dark with FiroGate teal",
+        "accent":      "#00A2A7",
+        "bg":          "#0B0D0E",
+        "surface":     "#141719",
+        "text":        "#E8EEEE",
+        "text_muted":  "#7C8689",
+        "border":      "#22272A",
+        "success":     "#22C55E",
+        "error":       "#F2604F",
+        "radius":      "12",
+        "font":        "inter",
+        "button_style":"rounded",
+    },
     "dark_gold": {
         "label":       "Dark Gold",
         "description": "Premium dark with gold accents",
@@ -225,7 +242,7 @@ def resolve_theme(
     Returns a dict of safe CSS variable values for the checkout page.
     Presets define all base values; overrides replace specific keys.
     """
-    base = PRESETS.get(theme_id or "dark_gold", PRESETS["dark_gold"]).copy()
+    base = PRESETS.get(theme_id or DEFAULT_THEME_ID, PRESETS[DEFAULT_THEME_ID]).copy()
 
     if _safe_hex(overrides.get("accent")):
         base["accent"] = _safe_hex(overrides["accent"])
@@ -412,6 +429,24 @@ def _safe_bg_image(v):
     return f"data:{out_mime};base64,{_b64.b64encode(comp).decode()}"
 
 
+_LEGACY_DEFAULT_THEME_ID = "dark_gold"
+_CUSTOM_THEME_FIELDS = (
+    "theme_accent", "theme_bg", "theme_surface", "theme_text",
+    "theme_radius", "theme_font", "theme_button_style", "theme_v2_colors_json",
+)
+
+
+def effective_theme_id(user) -> str:
+    # "dark_gold" used to be the column default, so a stored dark_gold with no
+    # custom colors means the merchant never picked a theme, not that they chose gold.
+    tid = getattr(user, "theme_id", None) or DEFAULT_THEME_ID
+    if tid == _LEGACY_DEFAULT_THEME_ID and not any(
+        getattr(user, f, None) for f in _CUSTOM_THEME_FIELDS
+    ):
+        return DEFAULT_THEME_ID
+    return tid
+
+
 def theme_from_user(user) -> dict:
     """Build resolved theme dict from a User model instance."""
     overrides = {
@@ -423,7 +458,7 @@ def theme_from_user(user) -> dict:
         "font":         user.theme_font,
         "button_style": user.theme_button_style,
     }
-    theme = resolve_theme(user.theme_id, overrides)
+    theme = resolve_theme(effective_theme_id(user), overrides)
     theme["checkout_title"]    = _safe_text(user.theme_checkout_title, 80) or ""
     theme["checkout_subtitle"] = _safe_text(user.theme_checkout_subtitle, 120) or ""
     theme["success_msg"]       = _safe_text(user.theme_success_msg, 200) or ""
@@ -432,7 +467,7 @@ def theme_from_user(user) -> dict:
     theme["cancel_position"]   = _safe_position(user.theme_cancel_position) or "bottom"
     theme["bg_image"]          = _safe_bg_image(user.theme_bg_image) or ""
     theme["bg_overlay"]        = _safe_overlay(user.theme_bg_overlay) or "70"
-    theme["theme_id"]          = user.theme_id or "dark_gold"
+    theme["theme_id"]          = effective_theme_id(user)
     raw_layout = getattr(user, "checkout_layout", None) or "stripe"
     theme["checkout_layout"] = raw_layout if raw_layout in _VALID_LAYOUTS else "stripe"
     theme["v2_colors"] = _parse_v2_colors(getattr(user, "theme_v2_colors_json", None))
