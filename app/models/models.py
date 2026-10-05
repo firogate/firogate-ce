@@ -143,7 +143,7 @@ class User(Base):
     brand_text                   = Column(String(7), nullable=True)
 
     checkout_layout              = Column(String(16),  nullable=True, default="stripe")
-    theme_id                     = Column(String(32),  nullable=True, default="dark_gold")
+    theme_id                     = Column(String(32),  nullable=True, default="firogate")
     theme_accent                 = Column(String(7),   nullable=True)
     theme_bg                     = Column(String(7),   nullable=True)
     theme_surface                = Column(String(7),   nullable=True)

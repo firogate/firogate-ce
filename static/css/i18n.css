@@ -181,7 +181,6 @@ html[dir="rtl"] .main {
 
 html[dir="rtl"] .sb-nav .ni,
 html[dir="rtl"] .sb-foot .ni {
-  flex-direction: row-reverse;
   text-align: right;
 }
 
@@ -574,11 +573,11 @@ html[data-theme="light"] .fg-curr-price-line {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(141,27,40,.2) transparent;
+  scrollbar-color: rgba(var(--brand-rgb),.25) transparent;
 }
 .fg-curr-list::-webkit-scrollbar       { width: 3px; }
 .fg-curr-list::-webkit-scrollbar-track { background: transparent; }
-.fg-curr-list::-webkit-scrollbar-thumb { background: rgba(141,27,40,.2); border-radius: 2px; }
+.fg-curr-list::-webkit-scrollbar-thumb { background: rgba(var(--brand-rgb),.25); border-radius: 2px; }
 
 .fg-curr-item {
   display: flex;

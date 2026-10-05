@@ -9,7 +9,7 @@
 .fg-ai-label{font-size:.7rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
 .fg-ai-name{font-size:1.05rem;font-weight:700;color:var(--white)}
 .fg-ai-actions{display:flex;flex-direction:column;gap:7px;width:100%;margin-top:4px}
-.fg-ai-btn-dash{display:block;background:var(--y);color:#1a1510;font-weight:700;font-size:.9rem;padding:12px;border-radius:0;text-decoration:none;text-align:center;transition:opacity .15s}
+.fg-ai-btn-dash{display:block;background:var(--y);color:var(--y-ink);font-weight:700;font-size:.9rem;padding:12px;border-radius:var(--rBtn);text-decoration:none;text-align:center;transition:opacity .15s}
 .fg-ai-btn-dash:hover{opacity:.88}
 .fg-ai-btn-switch{background:none;border:1px solid var(--bw2,rgba(255,255,255,.1));color:var(--t1);font-size:.82rem;font-weight:600;padding:10px;border-radius:10px;cursor:pointer;transition:border-color .15s,color .15s;width:100%;font-family:inherit}
 .fg-ai-btn-switch:hover{border-color:var(--y);color:var(--y)}
@@ -49,7 +49,7 @@ html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a0
 {% endblock %}
 {% block body %}
 <canvas id="stars"></canvas>
-<div class="auth-page-wrap" style="position:relative;z-index:1;background:radial-gradient(ellipse at 50% 0%,rgba(245,197,66,.06) 0%,transparent 55%)">
+<div class="auth-page-wrap" style="position:relative;z-index:1;background:radial-gradient(ellipse at 50% 0%,rgba(var(--brand-rgb),.07) 0%,transparent 55%)">
   <div class="auth-split">
   <div class="auth-left">
 
@@ -144,7 +144,7 @@ html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a0
     display:flex;
     align-items:center;
     justify-content:center;
-    margin:0 auto 12px"> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C542" stroke-width="2">
+    margin:0 auto 12px"> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <circle cx="12" cy="10" r="3"/>
             </svg>

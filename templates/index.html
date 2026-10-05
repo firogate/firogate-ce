@@ -241,7 +241,7 @@
     var boxes = Array.prototype.slice.call(document.querySelectorAll('.fg-status-sq'));
     if (boxes.length < 2) return;
     var containerRect = wrap.getBoundingClientRect();
-    var color = getComputedStyle(document.documentElement).getPropertyValue('--y').trim() || '#F5C542';
+    var color = getComputedStyle(document.documentElement).getPropertyValue('--y').trim() || '#00A2A7';
 
     for (var i = 0; i < boxes.length - 1; i++) {
       var r1 = boxes[i].getBoundingClientRect();
@@ -289,7 +289,7 @@
 <script>
 (function () {
   var NS = "http://www.w3.org/2000/svg";
-  var COLORS = ['#F5C542', '#60A5FA', '#4ADE80'];
+  var COLORS = ['#00A2A7', '#FD4F17', '#22C55E'];
 
   function buildPathD(startX, startY, endX, endY) {
     var midY = startY + (endY - startY) * 0.5;

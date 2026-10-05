@@ -36,7 +36,7 @@
       d.style.animation  = 'none';
       _dotTimer = setTimeout(function() { d.style.opacity = '0'; }, 2500);
     } else if (state === 'sync') {
-      d.style.background = '#F5C542';
+      d.style.background = 'var(--warn)';
       d.style.opacity    = '1';
       d.style.animation  = '_fgpulse 1.2s ease-in-out infinite';
     } else {
