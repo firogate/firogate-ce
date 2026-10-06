@@ -2722,3 +2722,50 @@ input[type="checkbox"]:focus-visible + span[id$="-slider"] {
 input[type="radio"], input[type="checkbox"], input[type="range"], progress {
   accent-color: var(--brand);
 }
+/* some toggles also get a script-made knob; keep only the CSS one (follows :checked and RTL) */
+input[type="checkbox"] + span[id$="-slider"] > span { display: none !important; }
+/* Arabic text is taller; when the nav overflows, scroll it instead of squashing rows */
+.sb-nav > * { flex-shrink: 0; }
+.sidebar .ni, #ds-trigger { line-height: 1.35; }
+
+/* ---- toasts: success / error / warning / info ---- */
+#tc { right: auto; inset-inline-end: 20px; bottom: 20px; gap: 10px; }
+.toast,
+.toast:nth-child(odd),
+.toast:nth-child(even) {
+  position: relative; overflow: hidden;
+  align-items: flex-start;
+  min-width: 280px; max-width: 380px;
+  padding: 12px 12px 12px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--bw2);
+  border-radius: 12px;
+  box-shadow: var(--sh);
+  font-size: .86rem; line-height: 1.45;
+  color: var(--t1);
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+.toast::before {
+  content: ''; position: absolute; inset-block: 0; inset-inline-start: 0;
+  width: 3px; background: var(--toast-c, var(--brand));
+}
+.toast.t-ok   { --toast-c: var(--g); }
+.toast.t-err  { --toast-c: var(--red); }
+.toast.t-warn { --toast-c: var(--warn); }
+.toast.t-info { --toast-c: var(--brand-2); }
+html[data-theme="light"] .toast.t-info { --toast-c: var(--brand); }
+.toast .t-ico { color: var(--toast-c); display: inline-flex; margin-top: 1px; }
+.toast .t-ico svg { width: 16px; height: 16px; }
+.toast .t-msg { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.toast .t-x {
+  background: none; border: 0; cursor: pointer;
+  color: var(--t3); font-size: 1.15rem; line-height: 1;
+  padding: 0 2px; margin-inline-start: 6px;
+}
+.toast .t-x:hover { color: var(--t1); }
+.toast.out { opacity: 0; transform: translateY(6px); }
+@media (max-width: 640px) {
+  #tc { bottom: 84px; inset-inline: 10px; }
+  .toast, .toast:nth-child(odd), .toast:nth-child(even) { min-width: 0; max-width: none; }
+}
+

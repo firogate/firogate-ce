@@ -341,9 +341,9 @@ html[data-theme="light"] #sb-profile-popup{
     <div id="ob-body">
       <div class="ob-step on" data-step="0">
         <h4 data-i18n="Welcome to your FiroGate dashboard">Welcome to your FiroGate dashboard</h4>
-        <p data-i18n="This is a self-hosted, single-operator instance. Once you've finished setting up your wallet and API keys, lock the instance down so no one else can register or sign in.">This is a self-hosted, single-operator instance. Once you've finished setting up your wallet and API keys, lock the instance down so no one else can register or sign in.</p>
+        <p data-i18n="Single-operator instance. After setting up your wallet and API keys, lock it so nobody else can register or sign in.">Single-operator instance. After setting up your wallet and API keys, lock it so nobody else can register or sign in.</p>
         <div class="ob-note">
-          <p data-i18n-html="Go to <strong>Security &rarr; Diagnostics</strong> and turn on <strong>&quot;Disable public login &amp; register pages.&quot;</strong> Your own session keeps working; the public pages stop responding.">Go to <strong>Security &rarr; Diagnostics</strong> and turn on <strong>"Disable public login &amp; register pages."</strong> Your own session keeps working; the public pages stop responding.</p>
+          <p data-i18n-html="Go to <strong>Security &rarr; Diagnostics</strong> and turn on <strong>Disable public login &amp; register pages</strong>. Your session keeps working.">Go to <strong>Security &rarr; Diagnostics</strong> and turn on <strong>Disable public login &amp; register pages</strong>. Your session keeps working.</p>
         </div>
       </div>
       <div class="ob-step" data-step="1">
@@ -356,7 +356,7 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
       <div class="ob-step" data-step="3">
         <h4 data-i18n="Wallet">Wallet</h4>
-        <p data-i18n="Connect your Spark view key so FiroGate can detect and confirm payments to your wallet.">Connect your Spark view key so FiroGate can detect and confirm payments to your wallet.</p>
+        <p data-i18n="Connect your Spark view key so FiroGate can detect payments to your wallet.">Connect your Spark view key so FiroGate can detect payments to your wallet.</p>
       </div>
       <div class="ob-step" data-step="4">
         <h4 data-i18n="API">API</h4>
@@ -368,7 +368,7 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
       <div class="ob-step" data-step="6">
         <h4 data-i18n="Security">Security</h4>
-        <p data-i18n="Password, two-factor authentication, Telegram alerts, and the Diagnostics panel with the public-access lockdown switch.">Password, two-factor authentication, Telegram alerts, and the Diagnostics panel with the public-access lockdown switch.</p>
+        <p data-i18n="Password, 2FA, Telegram alerts and Diagnostics with the lockdown switch.">Password, 2FA, Telegram alerts and Diagnostics with the lockdown switch.</p>
       </div>
       <div class="ob-step" data-step="7">
         <h4 data-i18n="Account">Account</h4>
@@ -899,7 +899,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
       <div>
         <h3 style="margin:0 0 4px" data-i18n="Payment Links">Payment Links</h3>
-        <p style="margin:0;font-size:.82rem;color:var(--t1)" data-i18n="Shareable checkout links no API or code needed. Ideal for invoices, social selling, or one-off payments.">Shareable checkout links no API or code needed. Ideal for invoices, social selling, or one-off payments.</p>
+        <p style="margin:0;font-size:.82rem;color:var(--t1)" data-i18n="Checkout links you can share, with no code needed. For invoices, social sales or one-off payments.">Checkout links you can share, with no code needed. For invoices, social sales or one-off payments.</p>
       </div>
       <button class="btn btn-y btn-sm" onclick="openPL()" style="flex-shrink:0">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1064,12 +1064,8 @@ html[data-theme="light"] #sb-profile-popup{
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span data-i18n="Reset all analytics?">Reset all analytics?</span>
     </h3>
-    <p style="font-size:.83rem;color:var(--t1);margin:0 0 8px;line-height:1.55" data-i18n-html="This permanently clears your sales history, revenue charts, order counts, and success-rate data everything under <strong style=&quot;color:var(--white)&quot;>My Analytics</strong> will start over from zero, from today.">
-      This permanently clears your sales history, revenue charts, order counts, and success-rate data everything under <strong style="color:var(--white)">My Analytics</strong> will start over from zero, from today.
-    </p>
-    <p style="font-size:.82rem;color:var(--t1);margin:0 0 16px;line-height:1.5" data-i18n-html="Your actual payments and payment links are <strong style=&quot;color:var(--t1)&quot;>not</strong> affected or deleted only the aggregated analytics numbers are cleared. This cannot be undone.">
-      Your actual payments and payment links are <strong style="color:var(--t1)">not</strong> affected or deleted only the aggregated analytics numbers are cleared. This cannot be undone.
-    </p>
+    <p style="font-size:.83rem;color:var(--t1);margin:0 0 8px;line-height:1.55" data-i18n-html="Clears your sales history, charts and counts. <strong style=&quot;color:var(--white)&quot;>My Analytics</strong> restarts from zero today.">Clears your sales history, charts and counts. <strong style="color:var(--white)">My Analytics</strong> restarts from zero today.</p>
+    <p style="font-size:.82rem;color:var(--t1);margin:0 0 16px;line-height:1.5" data-i18n-html="Your payments and payment links are <strong style=&quot;color:var(--t1)&quot;>not</strong> affected. Only analytics numbers are cleared. This cannot be undone.">Your payments and payment links are <strong style="color:var(--t1)">not</strong> affected. Only analytics numbers are cleared. This cannot be undone.</p>
     <label style="display:block;font-size:.75rem;color:var(--t3);margin-bottom:6px"><span data-i18n="Type (imperative, reset-confirm)">Type</span> <strong class="no-i18n" style="color:var(--white);font-family:var(--mono)">RESET</strong> to confirm</label>
     <input id="reset-analytics-confirm" class="finput" style="margin-bottom:16px" placeholder="RESET" autocomplete="off" oninput="_updateResetAnalyticsBtn()">
     <div style="display:flex;gap:8px">
@@ -1162,11 +1158,7 @@ html[data-theme="light"] #sb-profile-popup{
         <h3 style="margin:0;font-size:.95rem" data-i18n="Telegram Notifications">Telegram Notifications</h3>
         <span id="tgn-badge" style="margin-left:auto;font-size:.7rem;padding:3px 10px;border-radius:20px;background:var(--bg4);color:var(--t3);border:1px solid var(--bw)" data-i18n="Loading…">Loading…</span>
       </div>
-      <p style="font-size:.82rem;color:var(--t1);margin-bottom:14px" data-i18n-html="Get payment alerts instantly in Telegram. Tap Connect, then press <strong>Start</strong> in the bot chat that's it. Works for every account, even if you didn't register with Telegram.">
-        Get payment alerts instantly in Telegram. Tap Connect, then press
-        <strong>Start</strong> in the bot chat that's it. Works for every account,
-        even if you didn't register with Telegram.
-      </p>
+      <p style="font-size:.82rem;color:var(--t1);margin-bottom:14px" data-i18n-html="Get payment alerts in Telegram. Tap Connect, then press <strong>Start</strong> in the bot chat.">Get payment alerts in Telegram. Tap Connect, then press <strong>Start</strong> in the bot chat.</p>
       <div id="tgn-ab"></div>
       <div id="tgn-disconnected" style="display:none">
         <button class="btn btn-y btn-sm" id="tgn-connect-btn" onclick="tgnConnect()" data-i18n="Connect Telegram">Connect Telegram</button>
@@ -1388,7 +1380,7 @@ html[data-theme="light"] #sb-profile-popup{
           <span id="market-price-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
         </label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Live market prices are retrieved securely by your FiroGate server through NGINX and cached locally. Your browser never communicates directly with external market providers.">Live market prices are retrieved securely by your FiroGate server through NGINX and cached locally. Your browser never communicates directly with external market providers.</p>
+      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Prices are fetched by your server and cached. Your browser never contacts price providers.">Prices are fetched by your server and cached. Your browser never contacts price providers.</p>
     </div>
     </div>
 
@@ -1428,7 +1420,7 @@ html[data-theme="light"] #sb-profile-popup{
           <span id="diag-hide-auth-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
         </label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n-html="When enabled, /login and /register return 404. Existing sessions keep working. If you get locked out, set <code style=&quot;font-family:var(--mono)&quot;>FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style=&quot;font-family:var(--mono)&quot;>.env</code> and restart to force both pages back on.">When enabled, /login and /register return 404. Existing sessions keep working. If you get locked out, set <code style="font-family:var(--mono)">FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style="font-family:var(--mono)">.env</code> and restart to force both pages back on.</p>
+      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n-html="When on, /login and /register show a 404 page. Current sessions keep working. Locked out? Set <code style=&quot;font-family:var(--mono)&quot;>FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style=&quot;font-family:var(--mono)&quot;>.env</code> and restart.">When on, /login and /register show a 404 page. Current sessions keep working. Locked out? Set <code style="font-family:var(--mono)">FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style="font-family:var(--mono)">.env</code> and restart.</p>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">
         <label for="diag-landing-home-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Use landing home page">Use landing home page</label>
@@ -1437,7 +1429,7 @@ html[data-theme="light"] #sb-profile-popup{
           <span id="diag-landing-home-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
         </label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n="When enabled, the public home page (/) shows the landing home design instead of the default page.">When enabled, the public home page (/) shows the landing home design instead of the default page.</p>
+      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n="When on, the public home page (/) shows the landing page.">When on, the public home page (/) shows the landing page.</p>
 
       <div style="font-size:.85rem;color:var(--t1);margin-bottom:8px" data-i18n="Payment Confirmation Policy">Payment Confirmation Policy</div>
       <div id="diag-confirm-options" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
@@ -1446,7 +1438,7 @@ html[data-theme="light"] #sb-profile-popup{
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="3" onchange="saveDiagSettings()"> <span><strong data-i18n="Standard">Standard</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="3 confirmations">3 confirmations</span></span></label>
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="6" onchange="saveDiagSettings()"> <span><strong data-i18n="Secure">Secure</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="6 confirmations">6 confirmations</span></span></label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Minimum blockchain confirmations required before a payment is marked confirmed. Applies to new payments only.">Minimum blockchain confirmations required before a payment is marked confirmed. Applies to new payments only.</p>
+      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Minimum confirmations before a payment counts as confirmed. Applies to new payments only.">Minimum confirmations before a payment counts as confirmed. Applies to new payments only.</p>
     </div>
     </div>
     {% endif %}
