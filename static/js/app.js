@@ -189,25 +189,55 @@ const Auth = {
 
 const Toast = {
   _el:null,
-  _c(){if(!this._el){this._el=document.getElementById('tc')||Object.assign(document.createElement('div'),{id:'tc'});document.body.appendChild(this._el)}return this._el},
-  show(msg,type='info',dur=3500){
-    const icons={success:IC.check,error:IC.x,warning:IC.warn,info:IC.info};
-    const colors={success:'var(--green)',error:'var(--red)',warning:'var(--yellow)',info:'var(--blue)'};
+  _max:4,
+  _c(){
+    if(!this._el){
+      this._el=document.getElementById('tc')||Object.assign(document.createElement('div'),{id:'tc'});
+      this._el.setAttribute('aria-live','polite');
+      document.body.appendChild(this._el);
+    }
+    return this._el;
+  },
+  show(msg,type='info',dur){
+    const kind={success:'ok',error:'err',warning:'warn',info:'info'}[type]||'info';
+    const icons={ok:IC.check,err:IC.x,warn:IC.warn,info:IC.info};
+    const ms=dur||(kind==='err'?6000:kind==='warn'?5000:3500);
+    const text=String(msg==null?'':msg);
+    const c=this._c();
+    for(const old of c.querySelectorAll('.toast')){
+      if(old.dataset.kind===kind&&old.dataset.msg===text){this._arm(old,ms);return old;}
+    }
     const t=document.createElement('div');
-    t.className=`toast t-${type==='success'?'ok':type==='error'?'err':'warn'}`;
-    const iconSpan=document.createElement('span');
-    iconSpan.style.color=colors[type]||'var(--blue)';
-    iconSpan.innerHTML=icons[type]||IC.info;
-    const msgSpan=document.createElement('span');
-    msgSpan.style.flex='1';
-    msgSpan.textContent=msg;
-    const closeBtn=document.createElement('button');
-    closeBtn.setAttribute('style','background:none;border:none;color:var(--g3);cursor:pointer;line-height:1;padding:0 0 0 8px;font-size:1.1rem');
-    closeBtn.textContent='×';
-    closeBtn.addEventListener('click',()=>t.remove());
-    t.appendChild(iconSpan);t.appendChild(msgSpan);t.appendChild(closeBtn);
-    this._c().appendChild(t);
-    setTimeout(()=>{t.style.transition='opacity .28s';t.style.opacity='0';setTimeout(()=>t.remove(),280)},dur);
+    t.className='toast t-'+kind;
+    t.dataset.kind=kind;
+    t.dataset.msg=text;
+    t.setAttribute('role',kind==='err'||kind==='warn'?'alert':'status');
+    const ico=document.createElement('span');
+    ico.className='t-ico';
+    ico.innerHTML=icons[kind];
+    const body=document.createElement('span');
+    body.className='t-msg';
+    body.textContent=text;
+    const x=document.createElement('button');
+    x.type='button';
+    x.className='t-x';
+    x.setAttribute('aria-label',window.t?window.t('Close'):'Close');
+    x.textContent='\u00d7';
+    x.addEventListener('click',()=>this._close(t));
+    t.append(ico,body,x);
+    c.appendChild(t);
+    const all=c.querySelectorAll('.toast');
+    if(all.length>this._max)this._close(all[0]);
+    this._arm(t,ms);
+    return t;
+  },
+  _arm(t,ms){clearTimeout(t._timer);t._timer=setTimeout(()=>this._close(t),ms);},
+  _close(t){
+    if(!t||t._closing)return;
+    t._closing=true;
+    clearTimeout(t._timer);
+    t.classList.add('out');
+    setTimeout(()=>t.remove(),260);
   },
   success:(m,d)=>Toast.show(m,'success',d),
   error:(m,d)=>Toast.show(m,'error',d),
