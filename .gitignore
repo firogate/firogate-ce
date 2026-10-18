@@ -24,3 +24,5 @@ ENV/
 *.swp
 *.swo
 .DS_Store
+
+.wrangler/
