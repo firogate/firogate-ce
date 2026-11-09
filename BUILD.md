@@ -99,6 +99,14 @@ rpcallowip=172.16.0.0/12
 
 That covers Docker's default bridge network range — narrow it to FiroGate's actual container IP/subnet where possible instead of leaving it wide open. Restart `firod` after editing `firo.conf`.
 
+**Transparent payments (xpub).** To take transparent Firo payments from a wallet xpub, also add this to `firo.conf`:
+
+```
+addressindex=1
+```
+
+The first start after adding it needs `firod -reindex` (this can take hours). Without the index FiroGate still works, but it falls back to watch-only addresses in the node wallet, which is slower. The Diagnostics page shows which mode is running.
+
 ## Updating
 
 ```bash
