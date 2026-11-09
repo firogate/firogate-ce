@@ -118,7 +118,7 @@ html[data-theme="light"]{
 .wallet-opt span:nth-child(2){flex:1;text-align:start}
 .wallet-opt-badge{font-size:.6rem;padding:3px 8px;border-radius:20px;background:rgba(155,28,46,.15);color:#e87080;font-weight:700}
 
-#ob-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+#ob-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.35);backdrop-filter:none;-webkit-backdrop-filter:none;display:none;align-items:center;justify-content:center;padding:20px}
 #ob-overlay.open{display:flex}
 #ob-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:16px;width:100%;max-width:520px;max-height:min(640px,90vh);display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.5)}
 #ob-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--bw)}
@@ -142,7 +142,7 @@ html[data-theme="light"]{
   #ob-actions{justify-content:flex-end}
 }
 
-#ds-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding-top:80px}
+#ds-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:none;display:none;align-items:flex-start;justify-content:center;padding-top:80px}
 #ds-overlay.open{display:flex}
 #ds-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:16px 6px 14px 8px;width:100%;max-width:600px;box-shadow:0 24px 64px rgba(0,0,0,.55);overflow:hidden;animation:ds-in .15s ease}
 @keyframes ds-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
@@ -405,80 +405,79 @@ html[data-theme="light"] #sb-profile-popup{
 <aside class="sidebar" id="main-sidebar">
   <div class="sb-logo">
     <div class="sb-logo-row" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-      <a href="{{ base_url }}" class="logo sb-logo-full" style="font-size:.95rem;text-decoration:none;display:inline-flex;align-items:center">
-       <svg width="70" height="28" viewBox="0 0 150 30">
-  <style type="text/css">.cls-0 {fill:url(#SVGID_1_);stroke:#DAD9D9;stroke-width:0.39;stroke-miterlimit:10;}
-.cls-1 {fill:#BBBDBF;}</style>
-  <linearGradient id="SVGID_1_" x1="1.758" x2="144.8" y1="6.964" y2="28.19" gradientUnits="userSpaceOnUse">
-    <stop stop-color="#E7E6E4" offset="0"/>
-    <stop stop-color="#F2F1EF" offset=".25"/>
-    <stop stop-color="#E9E8E6" offset=".5"/>
-    <stop stop-color="#F0F0EE" offset=".75"/>
-    <stop stop-color="#E5E4E2" offset="1"/>
-  </linearGradient>
-  <path class="cls-0" d="m4.1 4.6h15.9v3.7h-11.4v6.9h9.9v3.8h-9.9v8.9h-4.5v-23.3zm19.2-0.5c0-1.5 1.2-2.7 2.8-2.7s3.1 1.1 3.1 2.7c0 1.5-1.2 2.8-2.9 2.8s-3-1.3-3-2.8zm0.5 6h4.7v18.1h-4.7v-18.1zm10 0h4.6v2.2l0.2 0.1c1.1-1.4 2.8-2.7 5-2.7h0.8v4.6h-1.1c-2.1 0-3.8 1-4.7 2.8v11.1h-4.8v-18.1zm22.3-0.4c5.2 0 9.4 3.5 9.4 9.3s-4.2 9.4-9.4 9.4-9.5-3.6-9.5-9.4 4.2-9.3 9.5-9.3zm0 14.9c2.8 0 4.6-2.1 4.6-5.3s-1.8-5.5-4.6-5.5-4.7 2.2-4.7 5.5c0 3.2 1.8 5.3 4.7 5.3zm24.5-20.8c3.5 0 6.3 1.2 9.1 3.5l-2.8 3.2c-1.6-1.2-3.3-2.3-6.2-2.3-4.2 0-7.3 3.3-7.3 8.1 0 5.2 3 8 7 8 1.6 0 3.1-0.4 4.5-1v-7.1h4.7v9.4c-1.9 1.5-5.1 2.9-9 2.9-6.5 0-12-4.2-12-12.1 0-7.4 5.2-12.6 12-12.6zm24.8 13.8v-0.8c0-1.9-1.5-3.2-3.8-3.2-2 0-3.6 0.6-5.4 1.5l-1.7-3.2c2.2-1.3 4.4-2.2 7.1-2.2 4.6 0 8.7 1.8 8.7 7v11.5h-4.3v-1.9c-1.3 1.5-3.2 2.2-5.4 2.2-3.5 0-6.9-1.4-6.9-5.5s3.9-5.4 7.4-5.4h4.3zm-3.9 7.7c1.7 0 3.2-0.7 3.9-1.9v-3.1h-3.3c-2.3 0-3.6 0.9-3.6 2.6s1.1 2.4 3 2.4zm14.7-11.3h-2.6v-3.6h2.6v-4.8h4.8v4.8h4.5v3.6h-4.5v8c0 1.8 0.9 2.6 2.4 2.6 0.7 0 1.6-0.1 2.3-0.4l0.9 3.3c-1 0.6-2.5 0.9-3.7 0.9-3.5 0-6.7-1.3-6.7-6v-8.4zm21.2-4.4c5.4 0 8.4 4.1 8.4 9v2h-12.4c0.1 2.6 2.2 4.1 4.9 4.1 1.7 0 3.2-0.5 4-1.6l2.3 2.7c-1.7 1.9-4 2.7-6.9 2.7-5.8 0-9.1-3.8-9.1-9.3 0-5.3 3.5-9.6 8.8-9.6zm-4.1 8h8.1c-0.1-2.2-1.5-4.3-4-4.3s-4 2-4.1 4.3z"/>
-  <path class="cls-1" d="m20.1 4.6"/>
-</svg>
-      </a>
+      <a href="{{ base_url }}" class="logo sb-logo-full sb-wordmark" style="text-decoration:none" data-no-i18n>Firo<b>Gate</b></a>
       <button class="sb-toggle" id="sb-toggle-btn" onclick="sbToggle()" title="Toggle sidebar" data-i18n-title="Toggle sidebar">
-        <svg id="sb-toggle-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        {{ icon('panel-left', 'ico') }}
       </button>
     </div>
   </div>
   <nav class="sb-nav">
     <button id="ds-trigger" onclick="dsOpen()" title="Search" data-i18n-title="Search">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      {{ icon('search', 'ico') }}
       <span class="ni-label"><span data-i18n="Search…">Search…</span> <span id="ds-trigger-kbd">Ctrl K</span></span>
     </button>
 
+    <div class="sb-sect" data-i18n="Main">Main</div>
     <div class="ni-group" data-ni-node="home">
       <div class="ni-row">
-    <button class="ni mob-hide active" id="sb-home" title="Overview" data-i18n-title="Overview" onclick="go('home','sb-home','mb-home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <button class="ni tone-teal mob-hide active" id="sb-home" title="Overview" data-i18n-title="Overview" onclick="go('home','sb-home','mb-home')">
+      {{ icon('house', 'ico') }}
       <span class="ni-label" data-i18n="Overview">Overview</span>
+    </button>
+      </div>
+    </div>
+    <div class="ni-group" data-ni-node="pays">
+      <div class="ni-row">
+    <button class="ni tone-green mob-hide" id="sb-pays" title="Payments" data-i18n-title="Payments" onclick="go('pays','sb-pays','mb-pays')">
+      {{ icon('credit-card', 'ico') }}
+      <span class="ni-label" data-i18n="Payments">Payments</span>
     </button>
       </div>
     </div>
     <div class="ni-group" data-ni-node="analytics">
       <div class="ni-row">
-    <button class="ni mob-hide" id="sb-analytics" title="Analytics" data-i18n-title="Analytics" onclick="go('analytics','sb-analytics','mb-analytics')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+    <button class="ni tone-violet mob-hide" id="sb-analytics" title="Analytics" data-i18n-title="Analytics" onclick="go('analytics','sb-analytics','mb-analytics')">
+      {{ icon('chart-column', 'ico') }}
       <span class="ni-label" data-i18n="Analytics">Analytics</span>
     </button>
       </div>
     </div>
     <div class="ni-group" data-ni-node="wallet">
       <div class="ni-row">
-    <button class="ni mob-hide" id="sb-wallet" title="Wallet" data-i18n-title="Wallet" onclick="go('wallet','sb-wallet','mb-wallet')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M15 15a1.5 1.5 0 1 0 3 0a1.5 1.5 0 0 0-3 0"/><path d="M3 12V6c2.105.621 6.576 1.427 12.004 1.803c2.921.202 4.382.303 5.189 1.174c.807.87.807 2.273.807 5.078v2.013c0 2.889 0 4.333-.984 5.232c-.983.899-2.324.768-5.005.506a62 62 0 0 1-2.011-.23"/><path d="M17.626 8c.377-1.423.72-4.012-.299-5.297c-.645-.815-1.605-.736-2.545-.654c-4.944.435-8.437 1.318-10.389 1.918C3.553 4.225 3 5.045 3 5.96M11 18H7m0 0H3m4 0v4m0-4v-4"/></g></svg>
+    <button class="ni tone-orange mob-hide" id="sb-wallet" title="Wallet" data-i18n-title="Wallet" onclick="go('wallet','sb-wallet','mb-wallet')">
+      {{ icon('wallet', 'ico') }}
       <span class="ni-label" data-i18n="Wallet">Wallet</span>
     </button>
       </div>
     </div>
-    <div class="ni-group" data-ni-node="pays">
+    <div class="ni-group" data-ni-node="recurring">
       <div class="ni-row">
-    <button class="ni mob-hide" id="sb-pays" title="Payments" data-i18n-title="Payments" onclick="go('pays','sb-pays','mb-pays')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      <span class="ni-label" data-i18n="Payments">Payments</span>
+    <button class="ni tone-pink" id="sb-recurring" title="Recurring" data-i18n-title="Recurring" onclick="go('recurring','sb-recurring',null)">
+      {{ icon('repeat', 'ico') }}
+      <span class="ni-label" data-i18n="Recurring">Recurring</span>
     </button>
       </div>
     </div>
+
+    <div class="sb-sect" data-i18n="Developers">Developers</div>
     <div class="ni-group" data-ni-node="api">
       <div class="ni-row">
-    <button class="ni" id="sb-api" title="API & Webhooks" data-i18n-title="API & Webhooks" onclick="go('api','sb-api','mb-api')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    <button class="ni tone-blue" id="sb-api" title="API & Webhooks" data-i18n-title="API & Webhooks" onclick="go('api','sb-api','mb-api')">
+      {{ icon('code-xml', 'ico') }}
       <span class="ni-label" data-i18n="API & Webhooks">API & Webhooks</span>
     </button>
       </div>
     </div>
+
+    <div class="sb-sect" data-i18n="Account">Account</div>
     <div class="ni-group" data-ni-node="sec">
       <div class="ni-row">
-    <button class="ni" id="sb-sec" title="Security" data-i18n-title="Security" onclick="go('sec','sb-sec','mb-sec')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span class="ni-label" data-i18n="Security">Security</span>
+    <button class="ni tone-teal" id="sb-sec" title="Settings" data-i18n-title="Settings" onclick="go('sec','sb-sec','mb-sec')">
+      {{ icon('settings', 'ico') }}
+      <span class="ni-label" data-i18n="Settings">Settings</span>
     </button>
         <button type="button" class="ni-chev" data-ni-toggle="sec" aria-expanded="false" title="Expand" data-i18n-title="Expand">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          {{ icon('chevron-right', 'ico') }}
         </button>
       </div>
       <div class="ni-children">
@@ -486,7 +485,7 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="sec-appname">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('appname')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                {{ icon('tag', 'ico') }}
                 <span class="ni-label" data-i18n="App Name">App Name</span>
               </button>
             </div>
@@ -494,7 +493,7 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="sec-notify">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('notify')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                {{ icon('bell', 'ico') }}
                 <span class="ni-label" data-i18n="Notifications">Notifications</span>
               </button>
             </div>
@@ -502,7 +501,7 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="sec-theme">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('theme')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+                {{ icon('palette', 'ico') }}
                 <span class="ni-label" data-i18n="Checkout Theme">Checkout Theme</span>
               </button>
             </div>
@@ -510,7 +509,7 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="sec-privacy">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('privacy')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                {{ icon('eye-off', 'ico') }}
                 <span class="ni-label" data-i18n="Privacy">Privacy</span>
               </button>
             </div>
@@ -519,7 +518,7 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="sec-diag">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('diag')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                {{ icon('activity', 'ico') }}
                 <span class="ni-label" data-i18n="Diagnostics">Diagnostics</span>
               </button>
             </div>
@@ -530,12 +529,12 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="account">
       <div class="ni-row">
-    <button class="ni" id="sb-account" title="Account" data-i18n-title="Account" onclick="go('account','sb-account',null)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+    <button class="ni tone-amber" id="sb-account" title="Account" data-i18n-title="Account" onclick="go('account','sb-account',null)">
+      {{ icon('user-cog', 'ico') }}
       <span class="ni-label" data-i18n="Account">Account</span>
     </button>
         <button type="button" class="ni-chev" data-ni-toggle="account" aria-expanded="false" title="Expand" data-i18n-title="Expand">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          {{ icon('chevron-right', 'ico') }}
         </button>
       </div>
       <div class="ni-children">
@@ -543,15 +542,15 @@ html[data-theme="light"] #sb-profile-popup{
           <div class="ni-group" data-ni-node="account-password">
             <div class="ni-row">
               <button class="ni" onclick="go('account','sb-account',null);secTab('password')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                <span class="ni-label" data-i18n="Change Password">Change Password</span>
+                {{ icon('key-round', 'ico') }}
+                <span class="ni-label" data-i18n="Password">Password</span>
               </button>
             </div>
           </div>
           <div class="ni-group" data-ni-node="account-tfa">
             <div class="ni-row">
               <button class="ni" onclick="go('account','sb-account',null);secTab('tfa')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                {{ icon('smartphone', 'ico') }}
                 <span class="ni-label" data-i18n="Secure 2FA">Secure 2FA</span>
               </button>
             </div>
@@ -562,7 +561,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="ni-group" data-ni-node="about">
       <div class="ni-row">
     <a href="/about" class="ni" title="About" data-i18n-title="About" style="text-decoration:none">
-      <svg width="15" height="15" viewBox="0 0 512 512"><path fill="currentColor" fill-rule="evenodd" d="M256 42.667C138.18 42.667 42.667 138.179 42.667 256c0 117.82 95.513 213.334 213.333 213.334c117.822 0 213.334-95.513 213.334-213.334S373.822 42.667 256 42.667m0 384c-94.105 0-170.666-76.561-170.666-170.667S161.894 85.334 256 85.334c94.107 0 170.667 76.56 170.667 170.666S350.107 426.667 256 426.667m26.714-256c0 15.468-11.262 26.667-26.497 26.667c-15.851 0-26.837-11.2-26.837-26.963c0-15.15 11.283-26.37 26.837-26.37c15.235 0 26.497 11.22 26.497 26.666m-48 64h42.666v128h-42.666z"/></svg>
+      {{ icon('info', 'ico') }}
       <span class="ni-label" data-i18n="About">About</span>
     </a>
       </div>
@@ -570,11 +569,11 @@ html[data-theme="light"] #sb-profile-popup{
   </nav>
   <div class="sb-foot" style="border-top:1px solid var(--bw);padding-top:6px;margin-top:2px">
     <button class="ni" id="sb-profile-btn" title="Profile" data-i18n-title="Profile" onclick="sbProfileToggle(event)" style="gap:10px;position:relative">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18" style="flex-shrink:0;opacity:.75"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      {{ icon('user', 'ico') }}
       <span class="ni-label" id="sb-uname" style="flex:1;font-size:.82rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
-      <svg class="ni-label" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" style="flex-shrink:0;opacity:.4"><polyline points="18 15 12 9 6 15"/></svg>
+      {{ icon('chevron-up', 'ico ni-label') }}
     </button>
-    <div class="ni-label" style="padding:2px 10px 4px;font-size:.62rem;color:var(--t4);letter-spacing:.04em">v0.0.5</div>
+    <div class="ni-label sb-version" data-no-i18n>v{{ app_version }}</div>
   </div>
 </aside>
 
@@ -595,7 +594,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
   <div class="sb-pop-div"></div>
   <button class="ni sb-pop-item" onclick="Auth.logout()" style="color:var(--red)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    {{ icon('log-out', 'ico') }}
     <span data-i18n="Sign Out">Sign Out</span>
   </button>
 </div>
@@ -605,7 +604,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-home" class="tab fi">
   <div class="ph">
-    <h2 data-i18n="Overview">Overview</h2>
+    <div class="ph-title tone-teal"><div><h2 data-i18n="Overview">Overview</h2><p class="ph-sub" data-i18n="Your sales and latest payments at a glance.">Your sales and latest payments at a glance.</p></div></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn btn-o btn-sm" onclick="loadAll()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
@@ -617,16 +616,16 @@ html[data-theme="light"] #sb-profile-popup{
   
   <div class="grid g-4 g2" style="margin-bottom:20px">
 
-    <div class="sc" style="border-color:var(--y)">
-      <div class="sc-label" data-i18n="Total Sales">Total Sales</div>
-      <div id="ov-balance" class="sc-val skel-shimmer" style="color:var(--y)">—</div>
+    <div class="sc tone-amber">
+      <div class="sc-head">{{ icon('coins', 'ico') }}<div class="sc-label" data-i18n="Total Sales">Total Sales</div></div>
+      <div id="ov-balance" class="sc-val skel-shimmer">—</div>
       <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="FIRO invoiced">FIRO invoiced</div>
       <span id="ov-balance-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
       <svg id="ov-balance-spark" class="an-spark flat" viewBox="0 0 100 22" preserveAspectRatio="none" style="display:none"><polyline points=""/></svg>
     </div>
-    <div class="sc" style="border-color:var(--g)">
-      <div class="sc-label" data-i18n="Total Received">Total Received</div>
-      <div id="ov-earned" class="sc-val skel-shimmer" style="color:var(--g)">—</div>
+    <div class="sc tone-green">
+      <div class="sc-head">{{ icon('circle-check', 'ico') }}<div class="sc-label" data-i18n="Total Received">Total Received</div></div>
+      <div id="ov-earned" class="sc-val skel-shimmer">—</div>
       <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="confirmed on-chain">confirmed on-chain</div>
       <span id="ov-earned-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
       <svg id="ov-earned-spark" class="an-spark flat" viewBox="0 0 100 22" preserveAspectRatio="none" style="display:none"><polyline points=""/></svg>
@@ -656,7 +655,7 @@ html[data-theme="light"] #sb-profile-popup{
   {% if is_operator %}{{ paneltools.panel_nh_mini() }}{% endif %}
 
   <div class="ph">
-    <h2 data-i18n="My Analytics">My Analytics</h2>
+    <div class="ph-title tone-violet"><div><h2 data-i18n="Analytics">Analytics</h2><p class="ph-sub" data-i18n="How your sales change over time.">How your sales change over time.</p></div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <select id="user-analytics-period" class="finput fselect" style="display:none" onchange="loadUserAnalytics()">
         <option value="today" data-i18n="Today">Today</option>
@@ -680,42 +679,45 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 
   <div class="grid g-4 g2" style="margin-bottom:16px" data-testid="user-analytics-cards">
-    <div class="sc" style="border-color:var(--y)">
-      <div class="sc-label" data-i18n="Total Sales">Total Sales</div>
-      <div id="uan-revenue" class="sc-val skel-shimmer" style="color:var(--y);font-size:1.1rem">—</div>
+    <div class="sc tone-amber">
+      <div class="sc-head">{{ icon('coins', 'ico') }}<div class="sc-label" data-i18n="Total Sales">Total Sales</div></div>
+      <div id="uan-revenue" class="sc-val skel-shimmer">—</div>
       <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="FIRO invoiced">FIRO invoiced</div>
       <span id="uan-revenue-delta" class="an-delta flat" style="display:none"></span>
     </div>
-    <div class="sc" style="border-color:var(--g)">
-      <div class="sc-label" data-i18n="Total Received">Total Received</div>
-      <div id="uan-received" class="sc-val skel-shimmer" style="color:var(--g)">—</div>
+    <div class="sc tone-green">
+      <div class="sc-head">{{ icon('circle-check', 'ico') }}<div class="sc-label" data-i18n="Total Received">Total Received</div></div>
+      <div id="uan-received" class="sc-val skel-shimmer">—</div>
       <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="confirmed on-chain">confirmed on-chain</div>
     </div>
-    <div class="sc">
-      <div class="sc-label" data-i18n="Orders">Orders</div>
+    <div class="sc tone-blue">
+      <div class="sc-head">{{ icon('shopping-bag', 'ico') }}<div class="sc-label" data-i18n="Orders">Orders</div></div>
       <div id="uan-orders" class="sc-val skel-shimmer">—</div>
       <span id="uan-orders-delta" class="an-delta flat" style="display:none"></span>
     </div>
-    <div class="sc" style="border-color:var(--g)">
-      <div class="sc-label" data-i18n="Success Rate">Success Rate</div>
-      <div id="uan-success-rate" class="sc-val skel-shimmer" style="color:var(--g)">—</div>
+    <div class="sc tone-teal">
+      <div class="sc-head">{{ icon('percent', 'ico') }}<div class="sc-label" data-i18n="Success Rate">Success Rate</div></div>
+      <div id="uan-success-rate" class="sc-val skel-shimmer">—</div>
       <span id="uan-success-rate-delta" class="an-delta flat" style="display:none"></span>
     </div>
   </div>
   <div class="grid g-4 g2" style="margin-bottom:22px">
-    <div class="sc" style="border-color:var(--g)">
-      <div class="sc-label" data-i18n="Confirmed">Confirmed</div>
-      <div id="uan-success" class="sc-val skel-shimmer" style="color:var(--g)">—</div>
+    <div class="sc tone-green">
+      <div class="sc-head">{{ icon('badge-check', 'ico') }}<div class="sc-label" data-i18n="Confirmed">Confirmed</div></div>
+      <div id="uan-success" class="sc-val skel-shimmer">—</div>
     </div>
-    <div class="sc" style="border-color:var(--red)">
-      <div class="sc-label" data-i18n="Failed">Failed</div>
-      <div id="uan-failed" class="sc-val skel-shimmer" style="color:var(--red)">—</div>
+    <div class="sc tone-pink">
+      <div class="sc-head">{{ icon('circle-x', 'ico') }}<div class="sc-label" data-i18n="Failed">Failed</div></div>
+      <div id="uan-failed" class="sc-val skel-shimmer">—</div>
     </div>
-    <div class="sc">
-      <div class="sc-label" data-i18n="Avg Order Value">Avg Order Value</div>
+    <div class="sc tone-violet">
+      <div class="sc-head">{{ icon('scale', 'ico') }}<div class="sc-label" data-i18n="Avg Order Value">Avg Order Value</div></div>
       <div id="uan-avg-order" class="sc-val skel-shimmer">—</div>
     </div>
-    <div class="sc"></div>
+    <div class="sc tone-orange">
+      <div class="sc-head">{{ icon('undo-2', 'ico') }}<div class="sc-label" data-i18n="Refunded">Refunded</div></div>
+      <div id="uan-refunded" class="sc-val">—</div>
+    </div>
   </div>
 
   <div class="charts-2col">
@@ -809,7 +811,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-wallet" class="tab" style="display:none">
   <div class="wallet-col" style="max-width:640px">
-  <div class="ph"><h2 data-i18n="Private Firo Payments">Private Firo Payments</h2></div>
+  <div class="ph"><div class="ph-title tone-orange"><div><h2 data-i18n="Wallet">Wallet</h2><p class="ph-sub" data-i18n="Connect your Spark wallet to get paid privately.">Connect your Spark wallet to get paid privately.</p></div></div></div>
 
   <div id="spark-loading">
     <div class="card" style="text-align:center;padding:36px 20px">
@@ -886,7 +888,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-api" class="tab" style="display:none">
   <div class="ph">
-    <h2 data-i18n="API & Webhooks">API & Webhooks</h2>
+    <div class="ph-title tone-blue"><div><h2 data-i18n="API & Webhooks">API & Webhooks</h2><p class="ph-sub" data-i18n="Payment links, API keys and webhooks.">Payment links, API keys and webhooks.</p></div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <a href="/docs" class="btn btn-o btn-sm" target="_blank" style="text-decoration:none">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -998,7 +1000,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-create-key" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center;padding:20px">
+<div id="modal-create-key" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:9000;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:420px;position:relative">
     <button onclick="closeCreateKeyModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:1.2rem;line-height:1">✕</button>
     <h3 style="margin:0 0 6px" data-i18n="Create API Key">Create API Key</h3>
@@ -1016,7 +1018,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-key-secret" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9001;align-items:center;justify-content:center;padding:20px">
+<div id="modal-key-secret" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:9001;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:480px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
       <h3 style="margin:0;color:#22C55E" data-i18n="API Key Created">API Key Created</h3>
@@ -1046,7 +1048,24 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-revoke" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9002;align-items:center;justify-content:center;padding:20px">
+<div id="modal-refund" class="fg-modal" style="display:none" onclick="if(event.target===this)closeRefundModal()">
+  <div class="fg-modal-box">
+    <h3 style="margin:0 0 6px" data-i18n="Record a refund">Record a refund</h3>
+    <p class="rc-note" data-i18n="FiroGate can't send money. Send the FIRO back from your own wallet, then record it here.">FiroGate can't send money. Send the FIRO back from your own wallet, then record it here.</p>
+    <div class="rf-summary" id="rf-summary"></div>
+    <div class="fg"><label class="flabel" for="rf-amount" data-i18n="Amount (FIRO)">Amount (FIRO)</label>
+      <div style="display:flex;gap:8px"><input id="rf-amount" class="finput" type="number" min="0" step="any"><button class="btn btn-o btn-sm" type="button" onclick="rfFull()" data-i18n="Full">Full</button></div></div>
+    <div class="fg"><label class="flabel" for="rf-txid" data-i18n="TX hash (optional)">TX hash (optional)</label><input id="rf-txid" class="finput" maxlength="64" style="font-family:var(--mono)"></div>
+    <div class="fg"><label class="flabel" for="rf-reason" data-i18n="Reason (optional)">Reason (optional)</label><input id="rf-reason" class="finput" maxlength="280"></div>
+    <div class="rc-actions">
+      <button class="btn btn-y" id="rf-save" onclick="rfSave()" data-i18n="Save refund">Save refund</button>
+      <button class="btn btn-o" onclick="closeRefundModal()" data-i18n="Close">Close</button>
+    </div>
+    <div id="rf-history" class="rf-history"></div>
+  </div>
+</div>
+
+<div id="modal-revoke" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:9002;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:380px">
     <h3 style="margin:0 0 8px;color:var(--red)" data-i18n="Revoke API Key?">Revoke API Key?</h3>
     <p style="font-size:.84rem;color:var(--t1);margin:0 0 6px"><span data-i18n="Key:">Key:</span> <strong id="revoke-key-name" style="color:var(--white)"></strong></p>
@@ -1058,7 +1077,7 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
-<div id="modal-reset-analytics" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9101;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeResetAnalyticsModal()">
+<div id="modal-reset-analytics" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:9101;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeResetAnalyticsModal()">
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:400px">
     <h3 style="margin:0 0 10px;color:var(--red);display:flex;align-items:center;gap:8px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -1077,7 +1096,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-pays" class="tab" style="display:none">
   <div class="ph">
-    <h2 data-i18n="Payments">Payments</h2>
+    <div class="ph-title tone-green"><div><h2 data-i18n="Payments">Payments</h2><p class="ph-sub" data-i18n="Every payment, with filters and export.">Every payment, with filters and export.</p></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <select id="pay-filter" class="finput fselect" style="width:150px;max-width:150px;min-width:150px" onchange="loadPays()">
         <option value="" data-i18n="All statuses">All statuses</option>
@@ -1130,7 +1149,7 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-sec" class="tab" style="display:none">
-  <div class="ph"><h2 id="sec-section-title" data-i18n="Security">Security</h2></div>
+  <div class="ph"><div class="ph-title tone-teal"><div><h2 id="sec-section-title" data-i18n="Settings">Settings</h2><p class="ph-sub" data-i18n="App name, alerts, checkout look and privacy.">App name, alerts, checkout look and privacy.</p></div></div></div>
   <div id="sec-wrap">
 
     <div class="sec-pane" id="sec-pane-appname">
@@ -1386,23 +1405,44 @@ html[data-theme="light"] #sb-profile-popup{
 
     {% if is_operator %}
     <div class="sec-pane" id="sec-pane-diag" style="display:none">
-    <div class="card" style="margin-bottom:18px" data-testid="diag-health-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <h3 style="margin:0;font-size:.95rem" data-i18n="Merchant Health">Merchant Health</h3>
+    <div data-testid="diag-health-card">
+      <div class="dx-toolbar">
+        <span class="dx-checked" id="dx-checked"></span>
+        <button class="btn btn-o btn-sm" id="dx-copy" onclick="dxCopyReport()">{{ icon('copy', 'ico ico-sm') }}<span data-i18n="Copy report">Copy report</span></button>
+        <button class="btn btn-o btn-sm" id="diag-refresh" onclick="loadDiagnostics(true)">{{ icon('refresh-cw', 'ico ico-sm') }}<span data-i18n="Refresh">Refresh</span></button>
+      </div>
+      <div class="dx-hero" id="dx-hero" data-status="loading">
+        <div class="dx-score"><span id="diag-score">--</span><small>%</small></div>
+        <div class="dx-hero-main">
+          <div class="dx-status" id="dx-status">…</div>
+          <div class="dx-sub" id="dx-sub"></div>
+          <div class="dx-bar"><i id="diag-score-bar"></i></div>
         </div>
-        <button class="op-nh-refresh" id="diag-refresh" aria-label="Refresh diagnostics" data-i18n-aria-label="Refresh diagnostics" onclick="loadDiagnostics()">
-          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-2.6-6.4M21 4v5h-5"/></svg>
-        </button>
+        <div class="dx-counts" id="dx-counts"></div>
       </div>
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
-        <span id="diag-score" style="font-size:2rem;font-weight:800;font-family:var(--mono);color:var(--white)">—</span>
-        <span style="font-size:.8rem;color:var(--t3)" data-i18n="system health">system health</span>
+      <div id="diag-grid"></div>
+      <div class="dx-cols">
+        <section class="card dx-card">
+          <header><h3 data-i18n="Firo node">Firo node</h3><span class="dx-pill" id="dx-node-pill">--</span><span class="dx-pill" id="dx-chain" hidden></span></header>
+          <div class="dx-stats" id="dx-node-stats"></div>
+          <div class="dx-meter"><div class="dx-meter-top"><span data-i18n="Sync">Sync</span><b id="dx-syncpct">--</b></div><div class="dx-track"><i id="dx-sync"></i></div></div>
+        </section>
+        <section class="card dx-card">
+          <header><h3 data-i18n="Server">Server</h3><span class="dx-pill lv-off" id="dx-db-kind" data-no-i18n>--</span></header>
+          <div class="dx-stats" id="dx-sys-stats"></div>
+          <div class="dx-meter"><div class="dx-meter-top"><span data-i18n="Disk used">Disk used</span><b id="dx-disk-txt">--</b></div><div class="dx-track"><i id="dx-disk"></i></div></div>
+          <div class="dx-meter"><div class="dx-meter-top"><span data-i18n="Memory used">Memory used</span><b id="dx-mem-txt">--</b></div><div class="dx-track"><i id="dx-mem"></i></div></div>
+        </section>
       </div>
-      <div class="op-syncbar" style="margin-bottom:18px"><div class="op-syncfill" id="diag-score-bar"></div></div>
-      <div id="diag-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="color:var(--t3);font-size:.8rem;grid-column:1/-1" data-i18n="Loading…">Loading…</div>
+      <div class="dx-cols">
+        <section class="card dx-card">
+          <header><h3 data-i18n="Payments">Payments</h3><span class="dx-muted" data-i18n="last 24 h">last 24 h</span></header>
+          <div class="dx-stats" id="dx-pay-stats"></div>
+        </section>
+        <section class="card dx-card">
+          <header><h3 data-i18n="Background jobs">Background jobs</h3><span class="dx-muted" id="dx-jobs-sum"></span></header>
+          <div id="dx-jobs" class="dx-jobs"></div>
+        </section>
       </div>
     </div>
 
@@ -1447,8 +1487,39 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 </div>
 
+<div id="t-recurring" class="tab" style="display:none">
+  <div class="ph">
+    <div class="ph-title tone-pink"><div><h2 data-i18n="Recurring">Recurring</h2><p class="ph-sub" data-i18n="Bill customers every week, month or year.">Bill customers every week, month or year.</p></div></div>
+    <button class="btn btn-y btn-sm" id="rc-new-btn" onclick="rcToggleForm(true)">{{ icon('plus', 'ico ico-sm') }}<span data-i18n="New recurring payment">New recurring payment</span></button>
+  </div>
+
+  <div class="card rc-form" id="rc-form" style="display:none">
+    <h3 class="card-title" data-i18n="New recurring payment">New recurring payment</h3>
+    <p class="rc-note" data-i18n="Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet.">Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet.</p>
+    <div class="rc-grid">
+      <div class="fg"><label class="flabel" for="rc-title" data-i18n="Name">Name</label><input id="rc-title" class="finput" maxlength="128" placeholder="Website hosting" data-i18n-placeholder="Website hosting"></div>
+      <div class="fg"><label class="flabel" for="rc-amount" data-i18n="Amount (FIRO)">Amount (FIRO)</label><input id="rc-amount" class="finput" type="number" min="0.0001" step="any" placeholder="1.5"></div>
+      <div class="fg"><label class="flabel" for="rc-interval" data-i18n="Every">Every</label>
+        <select id="rc-interval" class="finput fselect"><option value="week" data-i18n="Week">Week</option><option value="month" selected data-i18n="Month">Month</option><option value="year" data-i18n="Year">Year</option></select></div>
+      <div class="fg"><label class="flabel" for="rc-start" data-i18n="First invoice on">First invoice on</label><input id="rc-start" class="finput" type="date"></div>
+      <div class="fg"><label class="flabel" for="rc-email" data-i18n="Customer email">Customer email</label><input id="rc-email" class="finput" type="email" maxlength="254" placeholder="customer@example.com"></div>
+      <div class="fg"><label class="flabel" for="rc-name" data-i18n="Customer name (optional)">Customer name (optional)</label><input id="rc-name" class="finput" maxlength="128"></div>
+      <div class="fg"><label class="flabel" for="rc-max" data-i18n="How many times (optional)">How many times (optional)</label><input id="rc-max" class="finput" type="number" min="1" max="1000" step="1" placeholder="∞"></div>
+      <div class="fg"><label class="flabel" for="rc-desc" data-i18n="Note on the pay page (optional)">Note on the pay page (optional)</label><input id="rc-desc" class="finput" maxlength="512"></div>
+    </div>
+    <div class="rc-actions">
+      <button class="btn btn-y" id="rc-save" onclick="rcCreate()" data-i18n="Save">Save</button>
+      <button class="btn btn-o" onclick="rcToggleForm(false)" data-i18n="Cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="rc-list"><div class="empty-state"><div class="es-hint" data-i18n="Loading…">Loading…</div></div></div>
+  </div>
+</div>
+
 <div id="t-account" class="tab" style="display:none">
-  <div class="ph"><h2 data-i18n="Account Settings">Account Settings</h2></div>
+  <div class="ph"><div class="ph-title tone-amber"><div><h2 data-i18n="Account">Account</h2><p class="ph-sub" data-i18n="Your reports, password and 2FA.">Your reports, password and 2FA.</p></div></div></div>
   <div id="account-wrap">
 
     <div class="sec-nav">
@@ -1682,7 +1753,7 @@ html[data-theme="light"] .ag-input::placeholder{color:rgba(20,12,0,.4)}
 
 <div id="mob-overlay" class="mob-overlay" onclick="closeSidebar()"></div>
 
-<div id="pl-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);padding:16px;overflow-y:auto" onclick="if(event.target===this)closePL()">
+<div id="pl-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.75);backdrop-filter:none;padding:16px;overflow-y:auto" onclick="if(event.target===this)closePL()">
   <div style="max-width:620px;margin:40px auto;background:var(--bg2);border:1px solid var(--bw);border-radius:18px 6px 14px 8px;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bw)">
       <div>
@@ -2046,7 +2117,7 @@ function maybeSuggest2FA(profile) {
 function show2FANudge(opts) {
   const ov = document.createElement('div');
   ov.id = 'fg-2fa-nudge';
-  ov.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fg2faFade .25s ease';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.72);backdrop-filter:none;display:flex;align-items:center;justify-content:center;padding:20px;animation:fg2faFade .25s ease';
   ov.innerHTML = `
     <style>
       @keyframes fg2faFade { from {opacity:0} to {opacity:1} }
@@ -2167,6 +2238,17 @@ const SEC_SECTION_TITLES = {
   onboarding: 'Getting Started',
   diag:     'Diagnostics',
 };
+const SEC_SECTION_SUBS = {
+  appname:  'The name customers see on checkout and receipts.',
+  notify:   'Where and how you get payment alerts.',
+  theme:    'Colors, fonts and layout of your checkout page.',
+  privacy:  'Prices, data and what this app can see.',
+  password: 'Change the password you sign in with.',
+  tfa:      'Add a code from your phone to every sign-in.',
+  reports:  'Problems and ideas you sent us.',
+  onboarding: 'A short tour of the main steps.',
+  diag:     'Node, server and payment health. Updates every 30 seconds.',
+};
 function _secSectionTitle(id) {
   var s = SEC_SECTION_TITLES[id];
   return s && window.t ? window.t(s) : s;
@@ -2179,10 +2261,18 @@ function secTab(id) {
   const scope = pane.closest('#sec-wrap, #account-wrap') || document;
   scope.querySelectorAll('.sec-pane').forEach(p => p.style.display = 'none');
   pane.style.display = '';
-  scope.classList.toggle('sec-wrap-wide', id === 'theme');
+  scope.classList.toggle('sec-wrap-wide', id === 'theme' || id === 'diag');
 
   const titleEl = scope.parentElement && scope.parentElement.querySelector('.ph h2');
-  if (titleEl && SEC_SECTION_TITLES[id]) titleEl.textContent = _secSectionTitle(id);
+  if (titleEl && SEC_SECTION_TITLES[id]) {
+    titleEl.setAttribute('data-i18n', SEC_SECTION_TITLES[id]);
+    titleEl.textContent = _secSectionTitle(id);
+  }
+  const subEl = scope.parentElement && scope.parentElement.querySelector('.ph .ph-sub');
+  if (subEl && SEC_SECTION_SUBS[id]) {
+    subEl.setAttribute('data-i18n', SEC_SECTION_SUBS[id]);
+    subEl.textContent = window.t ? window.t(SEC_SECTION_SUBS[id]) : SEC_SECTION_SUBS[id];
+  }
 
   if (id === 'diag') {
     if (typeof loadDiagnostics === 'function') loadDiagnostics();
@@ -2311,6 +2401,7 @@ function go(name, sbId, mobId) {
   if (name === 'account') { if (typeof loadMyReports === 'function') loadMyReports(); load2FA(); }
   if (name === 'wallet') { loadSparkStatus(); }
   if (name === 'api')  { loadApiTab(); }
+  if (name === 'recurring') { loadRecurring(); }
 
   if (name === 'analytics') {
     requestAnimationFrame(function() { loadUserAnalytics(); });
@@ -2331,6 +2422,7 @@ function go(name, sbId, mobId) {
     sec:       '/security',
     account:   '/account',
     analytics: '/analytics',
+    recurring: '/recurring',
   } : {
     home:      '/dashboard/home',
     api:       '/dashboard/api',
@@ -2340,6 +2432,7 @@ function go(name, sbId, mobId) {
     sec:       '/dashboard/security',
     account:   '/dashboard/account',
     analytics: '/dashboard/analytics',
+    recurring: '/dashboard/recurring',
   };
   try { history.pushState(null, '', pathMap[name] || (_onDashboardSubdomain ? '/' : '/dashboard')); } catch(e) {}
 }
@@ -2386,7 +2479,7 @@ async function loadApiKeys() {
         ? '<span class="badge b-active">' + IC.dot + _t('Active') + '</span>'
         : '<span class="badge b-inactive">' + IC.dot + _t('Revoked') + '</span>';
       var actions = k.status === 'active'
-        ? '<button class="tw-link-danger" onclick="openRevokeModal(\'' + k.id + '\',\'' + esc(k.name) + '\')">' + _t('Revoke') + '</button>'
+        ? '<button class="tw-link-danger" data-key-id="' + esc(k.id) + '" data-key-name="' + esc(k.name) + '" onclick="openRevokeModal(this.dataset.keyId, this.dataset.keyName)">' + _t('Revoke') + '</button>'
         : '<span style="font-size:.75rem;color:var(--t4)">' + _t('Revoked') + '</span>';
       return '<tr>' +
         '<td style="font-weight:600;font-size:.82rem">' + esc(k.name) + '</td>' +
@@ -2706,7 +2799,7 @@ async function loadRecentPays() {
         <button class="pdt-cb${sel?' on':''}" data-cb="${escHtml(p.payment_id)}"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
         <span style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span class="pdt-mono">'+truncate(p.payment_id,10)+'</span>'}</span>
         <span class="pdt-mono">${fmtFiro(p.amount_firo)}</span>
-        <span>${badge(p.status)}</span>
+        <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
         <div class="pdt-detail">
           <div class="pdt-fields">
@@ -2716,6 +2809,7 @@ async function loadRecentPays() {
             <div><span class="k">${window.t?window.t('From:'):'From:'}</span>${p.customer_email ? escHtml(p.customer_email) : '<span style="opacity:.7">'+(window.t?window.t('Anonymous'):'Anonymous')+'</span>'}</div>
             ${p.payer_note ? '<div class="note"><span class="k">'+(window.t?window.t('Note:'):'Note:')+'</span>“'+escHtml(p.payer_note)+'”</div>' : ''}
           </div>
+          ${p.status==='confirmed' ? '<button class="pdt-view-btn" data-pay-id="'+escHtml(p.payment_id)+'" onclick="event.stopPropagation();openRefundModal(this.dataset.payId)">'+escHtml(_ft('Refund'))+'</button>' : ''}
           ${(p.status==='pending'||p.status==='confirming') ? '<a href="/invoice/'+escHtml(p.payment_id)+'?t='+escHtml(p.checkout_token||'')+'" target="_blank" class="pdt-view-btn">'+(window.t?window.t('View checkout'):'View checkout')+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>' : ''}
         </div>
       </div>`,
@@ -2813,7 +2907,7 @@ async function loadPays(overrideSearch) {
         <span class="pdt-mono pdt-hide-mobile">${truncate(p.payment_id,10)}</span>
         <span class="pdt-hide-mobile" style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span style="color:var(--t3)">—</span>'}</span>
         <span class="pdt-mono">${fmtFiro(p.amount_firo)}</span>
-        <span>${badge(p.status)}</span>
+        <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
         <div class="pdt-detail">
           <div class="pdt-fields">
@@ -2825,6 +2919,7 @@ async function loadPays(overrideSearch) {
             ${p.txid ? '<div><span class="k">'+(window.t?window.t('Txid:'):'Txid:')+'</span>'+truncate(p.txid,16)+'</div>' : ''}
             ${p.payer_note ? '<div class="note"><span class="k">'+(window.t?window.t('Note:'):'Note:')+'</span>“'+escHtml(p.payer_note)+'”</div>' : ''}
           </div>
+          ${p.status==='confirmed' ? '<button class="pdt-view-btn" data-pay-id="'+escHtml(p.payment_id)+'" onclick="event.stopPropagation();openRefundModal(this.dataset.payId)">'+escHtml(_ft('Refund'))+'</button>' : ''}
           ${(p.status==='pending'||p.status==='confirming') ? '<a href="/invoice/'+escHtml(p.payment_id)+'?t='+escHtml(p.checkout_token||'')+'" target="_blank" class="pdt-view-btn">'+(window.t?window.t('View checkout'):'View checkout')+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>' : ''}
         </div>
       </div>`,
@@ -3654,6 +3749,7 @@ loadAll().then(() => {
     'security':  ['sec',       'sb-sec',       null],
     'account':   ['account',   'sb-account',   null],
     'analytics': ['analytics', 'sb-analytics', null],
+    'recurring': ['recurring', 'sb-recurring', null],
   };
 
   const _onDashboardSubdomain = (
@@ -3667,7 +3763,7 @@ loadAll().then(() => {
     const slugToTab = {
       '': 'home', 'home': 'home', 'api': 'api',
       'payments': 'payments', 'wallet': 'wallet',
-      'security': 'security', 'account': 'account', 'analytics': 'analytics',
+      'security': 'security', 'account': 'account', 'analytics': 'analytics', 'recurring': 'recurring',
     };
     serverTab = slugToTab[slug] || 'home';
   } else {
@@ -3676,7 +3772,7 @@ loadAll().then(() => {
 
   const legacyHash = window.location.hash.replace('#', '');
   const legacyHashMap = { sec:'security', account:'account', api:'api', pays:'payments',
-    wallet:'wallet', home:'home', analytics:'analytics' };
+    wallet:'wallet', home:'home', analytics:'analytics', recurring:'recurring' };
 
   const _qsTab = new URLSearchParams(window.location.search).get('tab');
   const _qsTabMapped = _qsTab && legacyHashMap[_qsTab] ? legacyHashMap[_qsTab] : null;
@@ -3697,6 +3793,159 @@ loadAll().then(() => {
   go(tab, sb, mb);
 });
 
+
+function _ft(x){ return window.t ? window.t(x) : x; }
+
+var RC_EVERY = { week: 'Every week', month: 'Every month', year: 'Every year' };
+function rcToggleForm(open) {
+  var f = document.getElementById('rc-form');
+  if (!f) return;
+  f.style.display = open ? '' : 'none';
+  if (open) {
+    var d = document.getElementById('rc-start');
+    if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+    setTimeout(function(){ var t = document.getElementById('rc-title'); if (t) t.focus(); }, 50);
+  }
+}
+async function loadRecurring() {
+  var box = document.getElementById('rc-list');
+  if (!box) return;
+  var d = await API.get('/api/recurring');
+  if (!d || d.error) {
+    box.innerHTML = '<div class="empty-state"><div class="es-title">' + escHtml(_ft('Could not load recurring payments.')) + '</div></div>';
+    if (d && d.error) Toast.error(d.error);
+    return;
+  }
+  if (!d.length) {
+    box.innerHTML = '<div class="empty-state">{{ icon("repeat", "ico es-ico") }}<div class="es-title">' + escHtml(_ft('No recurring payments yet.')) + '</div><div class="es-hint">' + escHtml(_ft('Create one to bill a customer on a schedule.')) + '</div></div>';
+    return;
+  }
+  box.innerHTML = d.map(function(p) {
+    var done = !p.is_active && p.max_runs && p.runs_count >= p.max_runs;
+    var st = done ? ['off', 'Finished'] : (p.is_active ? ['ok', 'Active'] : ['warn', 'Paused']);
+    var runs = p.runs_count + (p.max_runs ? ' / ' + p.max_runs : '');
+    return '<div class="rc-row" data-id="' + escHtml(p.id) + '">'
+      + '<div class="rc-main"><div class="rc-title">' + escHtml(p.title) + '</div>'
+      + '<div class="rc-sub">' + escHtml(p.customer_name ? p.customer_name + ' · ' + p.customer_email : p.customer_email) + '</div>'
+      + (p.last_error ? '<div class="rc-err">' + escHtml(_ft(p.last_error)) + '</div>' : '') + '</div>'
+      + '<div class="rc-amt"><b>' + escHtml(fmtFiro(p.amount_firo)) + '</b><span>' + escHtml(_ft(RC_EVERY[p.interval] || p.interval)) + '</span></div>'
+      + '<div class="rc-next"><span class="rc-k">' + escHtml(_ft('Next invoice')) + '</span>' + (p.is_active ? escHtml(fmtDate(p.next_run_at)) : '—')
+      + '<span class="rc-k">' + escHtml(_ft('Sent')) + ': ' + escHtml(runs) + '</span></div>'
+      + '<span class="dx-pill lv-' + st[0] + '">' + escHtml(_ft(st[1])) + '</span>'
+      + '<div class="rc-btns">'
+      + (p.is_active ? '<button class="btn btn-o btn-sm" data-rc="send">' + escHtml(_ft('Send now')) + '</button>' : '')
+      + (p.last_pay_url ? '<button class="btn btn-o btn-sm" data-rc="copy" data-url="' + escHtml(p.last_pay_url) + '">' + escHtml(_ft('Copy link')) + '</button>' : '')
+      + (done ? '' : '<button class="btn btn-o btn-sm" data-rc="' + (p.is_active ? 'pause' : 'resume') + '">' + escHtml(_ft(p.is_active ? 'Pause' : 'Resume')) + '</button>')
+      + '<button class="btn btn-o btn-sm rc-del" data-rc="delete">' + escHtml(_ft('Delete')) + '</button>'
+      + '</div></div>';
+  }).join('');
+}
+async function rcCreate() {
+  var v = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  var title = v('rc-title'), amount = parseFloat(v('rc-amount')), email = v('rc-email');
+  if (!title) { Toast.warning(_ft('Add a name for this payment.')); return; }
+  if (!(amount > 0)) { Toast.warning(_ft('Enter an amount in FIRO.')); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { Toast.warning(_ft('Enter a valid customer email.')); return; }
+  var body = { title: title, amount_firo: amount, interval: v('rc-interval') || 'month', customer_email: email,
+    customer_name: v('rc-name') || null, description: v('rc-desc') || null };
+  var start = v('rc-start');
+  if (start && start !== new Date().toISOString().slice(0, 10)) body.start_at = start + 'T09:00:00';
+  var max = parseInt(v('rc-max'), 10);
+  if (max > 0) body.max_runs = max;
+  var btn = document.getElementById('rc-save');
+  btn.disabled = true;
+  var r = await API.post('/api/recurring', body);
+  btn.disabled = false;
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not save.')); return; }
+  Toast.success(_ft('Recurring payment saved'));
+  ['rc-title','rc-amount','rc-email','rc-name','rc-max','rc-desc','rc-start'].forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+  rcToggleForm(false);
+  loadRecurring();
+}
+document.addEventListener('click', async function(e) {
+  var b = e.target.closest('[data-rc]');
+  if (!b) return;
+  var row = b.closest('.rc-row'); if (!row) return;
+  var id = row.getAttribute('data-id'), act = b.getAttribute('data-rc'), r;
+  if (act === 'copy') { copyText(b.getAttribute('data-url'), _ft('Link copied')); return; }
+  if (act === 'delete' && !confirm(_ft('Delete this recurring payment? Links already sent keep working.'))) return;
+  b.disabled = true;
+  if (act === 'send') r = await API.post('/api/recurring/' + encodeURIComponent(id) + '/send-now', {});
+  else if (act === 'pause' || act === 'resume') r = await API.patch('/api/recurring/' + encodeURIComponent(id), { is_active: act === 'resume' });
+  else if (act === 'delete') r = await API.json('DELETE', '/api/recurring/' + encodeURIComponent(id));
+  b.disabled = false;
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Something went wrong.')); return; }
+  if (act === 'send') Toast.success(_ft(r.emailed ? 'Invoice sent to the customer' : 'Pay link made. Email is off, so copy and send it yourself.'));
+  if (act === 'pause') Toast.info(_ft('Paused'));
+  if (act === 'resume') Toast.success(_ft('Resumed'));
+  if (act === 'delete') Toast.success(_ft('Deleted'));
+  loadRecurring();
+});
+
+function refundTag(p) {
+  var rf = parseFloat(p && p.refunded_firo || 0);
+  if (!(rf > 0)) return '';
+  var paid = parseFloat(p.amount_received || p.amount_firo || 0);
+  var full = rf >= paid - 1e-8;
+  return ' <span class="rf-tag' + (full ? ' full' : '') + '">' + escHtml(_ft(full ? 'Refunded' : 'Part refunded')) + '</span>';
+}
+var _rfPayment = null;
+async function openRefundModal(paymentId) {
+  _rfPayment = paymentId;
+  var m = document.getElementById('modal-refund');
+  if (!m) return;
+  ['rf-amount','rf-txid','rf-reason'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('rf-summary').textContent = _ft('Loading…');
+  document.getElementById('rf-history').innerHTML = '';
+  m.style.display = 'flex';
+  await _rfLoad();
+}
+function closeRefundModal() { var m = document.getElementById('modal-refund'); if (m) m.style.display = 'none'; _rfPayment = null; }
+var _rfLeft = 0;
+async function _rfLoad() {
+  var d = await API.get('/api/payments/' + encodeURIComponent(_rfPayment) + '/refunds');
+  if (!d || d.error) { document.getElementById('rf-summary').textContent = (d && d.error) || _ft('Could not load refunds.'); return; }
+  _rfLeft = d.refundable_firo;
+  document.getElementById('rf-summary').innerHTML =
+    '<span><em>' + escHtml(_ft('Paid')) + '</em><b>' + escHtml(fmtFiro(d.paid_firo)) + '</b></span>'
+    + '<span><em>' + escHtml(_ft('Refunded')) + '</em><b>' + escHtml(fmtFiro(d.refunded_firo)) + '</b></span>'
+    + '<span><em>' + escHtml(_ft('Left')) + '</em><b>' + escHtml(fmtFiro(d.refundable_firo)) + '</b></span>';
+  document.getElementById('rf-history').innerHTML = (d.refunds || []).map(function(r) {
+    return '<div class="rf-item"><div><b>' + escHtml(fmtFiro(r.amount_firo)) + '</b> · ' + escHtml(fmtDate(r.created_at))
+      + (r.reason ? '<div class="rf-reason">' + escHtml(r.reason) + '</div>' : '')
+      + (r.txid ? '<div class="rf-tx">' + escHtml(r.txid.slice(0, 16)) + '…</div>' : '') + '</div>'
+      + '<button class="btn btn-o btn-sm" data-rf-del="' + escHtml(r.id) + '">' + escHtml(_ft('Remove')) + '</button></div>';
+  }).join('');
+  var save = document.getElementById('rf-save');
+  if (save) save.disabled = !(_rfLeft > 0);
+}
+function rfFull() { document.getElementById('rf-amount').value = _rfLeft > 0 ? String(_rfLeft) : ''; }
+async function rfSave() {
+  var amount = parseFloat(document.getElementById('rf-amount').value);
+  var txid = document.getElementById('rf-txid').value.trim();
+  var reason = document.getElementById('rf-reason').value.trim();
+  if (!(amount > 0)) { Toast.warning(_ft('Enter the refund amount.')); return; }
+  if (amount > _rfLeft + 1e-8) { Toast.warning(_ft('That is more than is left to refund.')); return; }
+  if (txid && !/^[0-9a-fA-F]{64}$/.test(txid)) { Toast.warning(_ft('TX hash must be 64 hex characters.')); return; }
+  var btn = document.getElementById('rf-save'); btn.disabled = true;
+  var r = await API.post('/api/payments/' + encodeURIComponent(_rfPayment) + '/refunds', { amount_firo: amount, txid: txid || null, reason: reason || null });
+  btn.disabled = false;
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not save the refund.')); return; }
+  Toast.success(_ft(r.fully_refunded ? 'Refund saved. Payment fully refunded.' : 'Refund saved'));
+  ['rf-amount','rf-txid','rf-reason'].forEach(function(id){ document.getElementById(id).value = ''; });
+  await _rfLoad();
+  if (typeof loadPays === 'function') loadPays();
+}
+document.addEventListener('click', async function(e) {
+  var b = e.target.closest('[data-rf-del]');
+  if (!b) return;
+  if (!confirm(_ft('Remove this refund record?'))) return;
+  var r = await API.json('DELETE', '/api/refunds/' + encodeURIComponent(b.getAttribute('data-rf-del')));
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not remove it.')); return; }
+  Toast.info(_ft('Refund record removed'));
+  await _rfLoad();
+  if (typeof loadPays === 'function') loadPays();
+});
 
 {% if is_operator %}{{ paneltools.panel_script() }}{% endif %}
 
@@ -3997,6 +4246,16 @@ async function loadUserAnalytics() {
   anCountTo(document.getElementById('uan-failed'),     faiVal, 800, 0, '');
   anCountTo(document.getElementById('uan-success-rate'), srVal, 900, 1, '%');
   anCountTo(document.getElementById('uan-avg-order'),  aovVal, 900, aovVal >= 0.01 ? 2 : 4, ' FIRO');
+  (function(){
+    var per = (document.getElementById('user-analytics-period') || {}).value || '7d';
+    var days = per === 'today' ? 1 : (parseInt(per, 10) || 7);
+    API.get('/api/refunds/summary?days=' + days).then(function(rs){
+      var el = document.getElementById('uan-refunded');
+      if (!el) return;
+      if (!rs || rs.error) { el.textContent = '—'; return; }
+      anCountTo(el, rs.period_firo, 800, rs.period_firo >= 0.01 ? 2 : 4, ' FIRO');
+    });
+  })();
 
   _renderDelta('uan-revenue-delta',      data.deltas && data.deltas.gross_sales_firo);
   _renderDelta('uan-orders-delta',       data.deltas && data.deltas.orders_count);
@@ -4460,7 +4719,7 @@ function _initLayoutPicker(currentLayout) {
       upBtn.style.cssText = 'position:absolute;top:4px;right:4px;z-index:4'
         +';background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.18);border-radius:6px'
         +';padding:3px 7px;cursor:pointer;display:flex;align-items:center;gap:4px'
-        +';font-size:.62rem;color:#fff;backdrop-filter:blur(6px)'
+        +';font-size:.62rem;color:#fff;backdrop-filter:none'
         +';opacity:0;transition:opacity .15s;pointer-events:none';
       upBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' + (window.t ? window.t('Screenshot') : 'Screenshot');
       thumb.appendChild(upBtn);
