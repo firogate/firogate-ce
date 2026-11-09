@@ -373,6 +373,10 @@ async function doLoginNumber(ev) {
       body: JSON.stringify({ account_number: numberRaw })
     });
     const data = await r.json().catch(() => ({}));
+    if (r.status === 403 && data.detail === '2FA code required') {
+      _show2FAStep('/api/auth/login-number', { account_number: numberRaw });
+      btn.disabled = false; btn.innerHTML = 'Sign In'; return;
+    }
     if (!r.ok) {
       alertE.innerHTML = alertHTML(data.detail || 'Invalid account number', 'err');
       btn.disabled = false; btn.innerHTML = 'Sign In'; return;
@@ -459,10 +463,7 @@ async function doLogin(ev) {
     });
     const data = await r.json().catch(()=>({}));
     if (r.status === 403 || data.requires_2fa === true) {
-      window._legacyPending = { username: ident, password: pass };
-      document.getElementById('step-login').style.display='none';
-      document.getElementById('step-2fa').style.display='block';
-      setTimeout(()=>document.getElementById('inp-totp').focus(),100);
+      _show2FAStep('/api/auth/login', { username: ident, password: pass });
       btn.disabled=false; btn.innerHTML='Sign In'; return;
     }
     if (!r.ok) {
@@ -495,10 +496,10 @@ async function doVerify2FA() {
   btn.disabled=true; btn.innerHTML='<span class="spin"></span> ' + (window.t ? window.t('Verifying…') : 'Verifying…'); alertE.innerHTML='';
 
   try {
-    const leg = window._legacyPending || {};
-    const resp = await fetch('/api/auth/login', {
+    const pend = window._pending2fa || { url: '/api/auth/login', body: {} };
+    const resp = await fetch(pend.url, {
       method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ username: leg.username, password: leg.password, totp_code: code })
+      body: JSON.stringify(Object.assign({}, pend.body, { totp_code: code }))
     });
     const data = await resp.json().catch(()=>({}));
     if (!resp.ok) {
@@ -515,8 +516,15 @@ async function doVerify2FA() {
   }
 }
 
+function _show2FAStep(url, body){
+  window._pending2fa = { url: url, body: body };
+  document.getElementById('step-login').style.display='none';
+  document.getElementById('step-2fa').style.display='block';
+  setTimeout(()=>document.getElementById('inp-totp').focus(),100);
+}
+
 function backToLogin(){
-  window._legacyPending=null;
+  window._pending2fa=null;
   document.getElementById('step-2fa').style.display='none';
   document.getElementById('step-login').style.display='block';
   document.getElementById('tfa-alert').innerHTML=''; document.getElementById('inp-totp').value='';
@@ -581,6 +589,11 @@ async function _finishGoogle(res, alertE, gbtn, orig) {
       body: JSON.stringify({ id_token: idToken })
     });
     const data = await r.json().catch(()=>({}));
+    if (r.status === 403 && data.detail === '2FA code required') {
+      _show2FAStep('/api/auth/fb/google', { id_token: idToken });
+      gbtn.disabled=false; gbtn.innerHTML = orig;
+      return;
+    }
     if (!r.ok) {
       alertE.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
       gbtn.disabled=false; gbtn.innerHTML = orig;

@@ -765,11 +765,8 @@ async def _is_operator_request(r: Request) -> bool:
             u = res.scalar_one_or_none()
             if not u or not u.is_active:
                 return False
-            if u.role == UserRole.operator:
-                return True
-            if settings.is_operator_email(u.email) or settings.is_operator_username(u.username):
-                return True
-        return False
+            from app.core.operator_access import resolve_operator
+            return await resolve_operator(u, db)
     except Exception:
         return False
 

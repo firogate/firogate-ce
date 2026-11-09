@@ -32,7 +32,8 @@ async def require_operator(request: Request, db: AsyncSession = Depends(get_db))
     u = (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
     if not u or not u.is_active:
         raise HTTPException(401, "not authenticated")
-    if u.role != UserRole.operator and not (settings.is_operator_email(u.email or "") or settings.is_operator_username(u.username or "")):
+    from app.core.operator_access import resolve_operator
+    if not await resolve_operator(u, db):
         raise HTTPException(403, "operator only")
     if settings.PANEL_REQUIRE_2FA and not u.totp_enabled:
         raise HTTPException(403, "2fa_required: enable two-factor authentication to access these settings")

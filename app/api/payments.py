@@ -49,7 +49,8 @@ async def get_merchant(
 
 
 def require_api_permission(permission: str):
-    async def _check(request: Request, db: AsyncSession = Depends(get_db)):
+    async def _check(request: Request, db: AsyncSession = Depends(get_db),
+                     merchant: User = Depends(get_merchant)):
         api_key_row = getattr(request.state, "api_key_row", None)
         if api_key_row is None:
             return
