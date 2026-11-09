@@ -164,6 +164,7 @@ _JOBS = (
     ("accounting_check", "Accounting check"),
     ("db_cleanup", "Database cleanup"),
     ("recurring_billing", "Recurring payments"),
+    ("xpub_watcher", "Xpub watcher"),
 )
 _STUCK_PENDING_GRACE = timedelta(minutes=15)
 _STUCK_CONFIRMING_AFTER = timedelta(hours=3)
@@ -486,6 +487,13 @@ def _build_checks(node, db, act, sysinfo, jobs, price, tor_ok) -> list[dict]:
         failed = pay.get("webhook_failed_24h", 0)
         add("webhooks", "Webhooks (24 h)", "ok" if failed == 0 else "warn",
             "All delivered" if failed == 0 else f"{failed} failed", group="payments")
+    from app.services.xpub_watcher import watcher_state
+    ws = watcher_state()
+    if ws.get("mode"):
+        if ws["mode"] == "index":
+            add("xpub", "Xpub payments", "ok", "Address index", group="payments")
+        else:
+            add("xpub", "Xpub payments", "warn", "Using wallet watch-only. Start firod with -addressindex=1.", group="payments")
     tg = settings.telegram_bot_enabled
     add("telegram", "Telegram alerts", "ok" if tg else "off", "On" if tg else "Off", group="services")
     if tor_ok is None:

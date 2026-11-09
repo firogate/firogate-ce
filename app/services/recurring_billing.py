@@ -8,7 +8,6 @@ from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.models.models import PaymentLink, RecurringPlan, User
-from app.models.spark import SparkWalletConnection
 
 INTERVALS = ("week", "month", "year")
 
@@ -35,11 +34,8 @@ def _aware(dt: datetime | None) -> datetime | None:
 
 
 async def _wallet_ready(db, merchant_id: str) -> bool:
-    res = await db.execute(select(SparkWalletConnection.id).where(
-        SparkWalletConnection.merchant_id == merchant_id,
-        SparkWalletConnection.is_active == True,
-    ).limit(1))
-    return res.scalar_one_or_none() is not None
+    from app.api.spark_connect_helpers import merchant_can_receive
+    return await merchant_can_receive(db, merchant_id)
 
 
 async def _email_customer(merchant: User, plan: RecurringPlan, url: str, due_by: datetime) -> bool:

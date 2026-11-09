@@ -120,6 +120,9 @@ class User(Base):
     privacy_mode                 = Column(Boolean, default=False)
     created_via_onion            = Column(Boolean, default=False)
     show_market_price            = Column(Boolean, default=False, nullable=False)
+    pay_spark_enabled            = Column(Boolean, default=True, nullable=False)
+    pay_transparent_enabled      = Column(Boolean, default=True, nullable=False)
+    pay_default_method           = Column(String(16), default="spark", nullable=False)
 
     firebase_uid                 = Column(String(128), unique=True, nullable=True, index=True)
     telegram_id                  = Column(String(32),  unique=True, nullable=True, index=True)
@@ -221,6 +224,10 @@ class Payment(Base):
     # detected (prevents double-crediting the same coin). Column kept for
     # historical rows predating the Spark-only migration.
     address_type            = Column(String(16), default="spark", nullable=False)
+    derivation_index        = Column(Integer, nullable=True)
+    spark_address           = Column(String(512), nullable=True)
+    transparent_address     = Column(String(64), nullable=True, index=True)
+    transparent_received    = Column(Float, nullable=True)
     spark_diversifier       = Column(Integer, nullable=True)
     spark_coin_tag          = Column(String(128), nullable=True)
     spark_owner_id          = Column(String, nullable=True)
@@ -498,3 +505,16 @@ class RecurringPlan(Base):
     max_runs       = Column(Integer, nullable=True)
     last_error     = Column(String(200), nullable=True)
     created_at     = Column(DateTime(timezone=True), default=_now)
+
+
+class XpubWalletConnection(Base):
+    __tablename__ = "xpub_wallet_connections"
+
+    id               = Column(String(36), primary_key=True, default=_uuid)
+    merchant_id      = Column(String, ForeignKey("users.id"), nullable=False, unique=True, index=True)
+    xpub_enc         = Column(Text, nullable=False)
+    network          = Column(String(16), nullable=False, default="mainnet")
+    first_address    = Column(String(64), nullable=True)
+    next_index       = Column(Integer, nullable=False, default=0)
+    is_active        = Column(Boolean, nullable=False, default=True)
+    connected_at     = Column(DateTime(timezone=True), default=_now)

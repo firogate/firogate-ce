@@ -810,80 +810,68 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-wallet" class="tab" style="display:none">
-  <div class="wallet-col" style="max-width:640px">
-  <div class="ph"><div class="ph-title tone-orange"><div><h2 data-i18n="Wallet">Wallet</h2><p class="ph-sub" data-i18n="Connect your Spark wallet to get paid privately.">Connect your Spark wallet to get paid privately.</p></div></div></div>
+  <div class="ph"><div class="ph-title tone-orange"><div><h2 data-i18n="Payment methods">Payment methods</h2><p class="ph-sub" data-i18n="Choose how customers pay you.">Choose how customers pay you.</p></div></div></div>
 
-  <div id="spark-loading">
-    <div class="card" style="text-align:center;padding:36px 20px">
-      <div class="skel-block" style="width:56px;height:56px;border-radius:14px;margin:0 auto 16px"></div>
-      <div class="skel-line" style="width:220px;height:16px;margin:0 auto 10px"></div>
-      <div class="skel-line" style="width:320px;height:11px;margin:0 auto 6px"></div>
-      <div class="skel-line" style="width:280px;height:11px;margin:0 auto 18px"></div>
-      <div class="skel-block" style="width:100%;max-width:420px;height:40px;margin:0 auto"></div>
-    </div>
-  </div>
+  <div class="pm-grid">
+    <section class="pm-card" id="pm-spark">
+      <header class="pm-top">
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-no-i18n>Spark</h3><span class="pm-tag" data-i18n="Private">Private</span></div>
+        <button type="button" class="pm-switch" id="pm-spark-toggle" role="switch" aria-checked="false" aria-label="Spark" onclick="pmToggle('spark', this)"><i></i></button>
+      </header>
+      <p class="pm-line" data-i18n="Customers pay privately. Amounts stay hidden.">Customers pay privately. Amounts stay hidden.</p>
 
-  <div id="spark-empty" style="display:none">
-    <div class="card" style="text-align:center;padding:36px 20px">
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t2);margin:0 auto 18px">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <div id="spark-loading"><div class="skel-line" style="width:60%;height:12px;margin:14px 0"></div></div>
+
+      <div id="spark-empty" style="display:none">
+        <label class="flabel" for="spark-viewkey-input" data-i18n="Spark view key">Spark view key</label>
+        <textarea id="spark-viewkey-input" class="finput pm-input" rows="3" spellcheck="false" autocomplete="off" placeholder="Paste your Spark full view key (hex)…" data-i18n-placeholder="Paste your Spark full view key (hex)…"></textarea>
+        <div class="pm-hint" data-i18n="Wallet: Settings → Spark View Key">Wallet: Settings → Spark View Key</div>
+        <div id="spark-connect-alert"></div>
+        <button class="btn btn-y pm-btn" onclick="connectSparkViewKey()" id="spark-connect-btn" data-i18n="Connect">Connect</button>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
-        <h3 style="margin:0;font-size:1rem" data-i18n="Accept Private Firo Payments">Accept Private Firo Payments</h3>
-        <span style="font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);border:1px solid var(--bw);border-radius:4px;padding:2px 6px" data-i18n="Read Only">Read Only</span>
+
+      <div id="spark-connected" style="display:none">
+        <div class="pm-status"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span><span class="pm-meta"><span id="spark-network">mainnet</span><span id="spark-key-suffix"></span></span></div>
+        <button class="pm-remove" onclick="disconnectSpark()" data-i18n="Remove">Remove</button>
       </div>
-      <p style="font-size:.8rem;color:var(--t1);max-width:420px;margin:0 auto 18px;line-height:1.6" data-i18n-html="spark_connect_explainer">
-        Export your Spark <strong>full view key</strong> from your own wallet (Campfire: Settings
-        &rarr; Wallet Settings &rarr; Spark View Key) and paste it below. This key can only see
-        your Firo transactions and amounts &mdash; it grants <strong>zero spend authority</strong>.
-        FiroGate can never move your funds with it.
-      </p>
-      <div style="max-width:420px;margin:0 auto;text-align:start">
-        <div class="fg" style="margin-bottom:10px">
-          <label class="flabel" data-i18n="Spark View Key">Spark View Key</label>
-          <textarea id="spark-viewkey-input" class="finput" rows="3" placeholder="Paste your Spark full view key (hex)…" style="font-family:var(--mono);font-size:.76rem;resize:vertical" data-i18n-placeholder="Paste your Spark full view key (hex)…"></textarea>
+    </section>
+
+    <section class="pm-card" id="pm-transparent">
+      <header class="pm-top">
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-i18n="Transparent">Transparent</h3><span class="pm-tag pm-tag-pub" data-i18n="Public">Public</span></div>
+        <button type="button" class="pm-switch" id="pm-transparent-toggle" role="switch" aria-checked="false" aria-label="Transparent" onclick="pmToggle('transparent', this)"><i></i></button>
+      </header>
+      <p class="pm-line" data-i18n="Works with any Firo wallet. New address for every order.">Works with any Firo wallet. New address for every order.</p>
+
+      <div id="xp-empty">
+        <label class="flabel" for="xp-input" data-i18n="Wallet xpub">Wallet xpub</label>
+        <textarea id="xp-input" class="finput pm-input" rows="3" spellcheck="false" autocomplete="off" placeholder="xpub6…"></textarea>
+        <div class="pm-hint" data-i18n="Wallet: Settings → Wallet xpub">Wallet: Settings → Wallet xpub</div>
+        <div id="xp-preview" class="xp-preview" style="display:none"></div>
+        <div class="pm-actions">
+          <button class="btn btn-o pm-btn" id="xp-check-btn" onclick="xpPreview()" data-i18n="Check">Check</button>
+          <button class="btn btn-y pm-btn" id="xp-connect-btn" onclick="xpConnect()" data-i18n="Connect">Connect</button>
         </div>
-        <div id="spark-connect-alert" style="margin-bottom:8px"></div>
-        <button class="btn btn-y" onclick="connectSparkViewKey()" id="spark-connect-btn" data-i18n="Connect Spark View Key">Connect Spark View Key</button>
       </div>
+
+      <div id="xp-connected" style="display:none">
+        <div class="pm-status"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span><span class="pm-meta" id="xp-net"></span></div>
+        <div class="pm-kv"><span data-i18n="First address">First address</span><code id="xp-first"></code></div>
+        <div class="pm-kv"><span data-i18n="Addresses used">Addresses used</span><b id="xp-used"></b></div>
+        <button class="pm-remove" onclick="xpDisconnect()" data-i18n="Remove">Remove</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="pm-default" id="pm-default" style="display:none">
+    <span data-i18n="Show first at checkout">Show first at checkout</span>
+    <div class="pm-seg" role="radiogroup">
+      <button type="button" data-pm-default="spark" onclick="pmDefault('spark')" data-no-i18n>Spark</button>
+      <button type="button" data-pm-default="transparent" onclick="pmDefault('transparent')" data-i18n="Transparent">Transparent</button>
     </div>
   </div>
 
-  <div id="spark-connected" style="display:none">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:12px;background:rgba(155,28,46,.14);border:1px solid rgba(155,28,46,.3);display:flex;align-items:center;justify-content:center">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          </div>
-          <div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-size:1rem;font-weight:700" data-i18n="Spark View Key">Spark View Key</div>
-              <span style="display:inline-flex;align-items:center;gap:4px;font-size:.62rem;font-weight:700;color:var(--g);background:rgba(63,185,80,.14);border:1px solid rgba(63,185,80,.3);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em">
-                <span style="width:6px;height:6px;border-radius:50%;background:var(--g);display:inline-block"></span><span data-i18n="Connected">Connected</span>
-              </span>
-            </div>
-            <div style="font-size:.72rem;color:var(--t3);font-family:var(--mono)">
-              <span id="spark-network">testnet</span>
-              <span id="spark-key-suffix"></span>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-o btn-sm" onclick="disconnectSpark()" style="color:var(--red);border-color:var(--red)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-          <span data-i18n="Remove">Remove</span>
-        </button>
-      </div>
-    </div>
-    <div class="card">
-      <div style="font-size:.78rem;color:var(--t1);line-height:1.7" data-i18n-html="spark_connected_note">
-        FiroGate scans the network with your view key to detect payments &mdash;
-        it never has spend authority. All new payments are routed to your Firo address automatically.
-      </div>
-    </div>
-  </div>
-  </div>
+  <p class="pm-foot" data-i18n="FiroGate only watches. It can never move your funds.">FiroGate only watches. It can never move your funds.</p>
 </div>
 
 <div id="t-api" class="tab" style="display:none">
@@ -2337,8 +2325,9 @@ async function connectSparkViewKey() {
     if (r && r.connected) {
       if (al) al.innerHTML = '';
       if (input) input.value = '';
-      if (typeof Toast !== 'undefined' && Toast.info) Toast.info(window.t ? window.t('Wallet connected') : 'Wallet connected');
+      Toast.success(window.t ? window.t('Connected') : 'Connected');
       loadSparkStatus();
+      loadXpubStatus();
     } else {
       const _msg = (r && (r.detail || r.error)) || (window.t ? window.t('Could not connect wallet.') : 'Could not connect wallet.');
       if (al) al.innerHTML = alertHTML(_msg, 'err');
@@ -2347,18 +2336,19 @@ async function connectSparkViewKey() {
     const _msg = (e && e.detail) || (window.t ? window.t('Could not connect wallet. Check the format and try again.') : 'Could not connect wallet. Check the format and try again.');
     if (al) al.innerHTML = alertHTML(_msg, 'err');
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = window.t ? window.t('Connect Spark View Key') : 'Connect Spark View Key'; }
+    if (btn) { btn.disabled = false; btn.textContent = window.t ? window.t('Connect') : 'Connect'; }
   }
 }
 
 async function disconnectSpark() {
-  const _confirmMsg = window.t ? window.t('Remove your connected wallet? FiroGate will stop detecting payments for this account.') : 'Remove your connected wallet? FiroGate will stop detecting payments for this account.';
+  const _confirmMsg = window.t ? window.t('Remove Spark? Open orders still work.') : 'Remove Spark? Open orders still work.';
   if (!confirm(_confirmMsg)) return;
   try {
     await API.post('/spark/disconnect', {});
-    if (typeof Toast !== 'undefined' && Toast.info) Toast.info(window.t ? window.t('Wallet removed') : 'Wallet removed');
+    Toast.info(window.t ? window.t('Removed') : 'Removed');
   } catch (e) {}
   loadSparkStatus();
+  loadXpubStatus();
 }
 
 function go(name, sbId, mobId) {
@@ -2399,7 +2389,7 @@ function go(name, sbId, mobId) {
 
   if (name === 'pays') loadPays();
   if (name === 'account') { if (typeof loadMyReports === 'function') loadMyReports(); load2FA(); }
-  if (name === 'wallet') { loadSparkStatus(); }
+  if (name === 'wallet') { loadSparkStatus(); loadXpubStatus(); }
   if (name === 'api')  { loadApiTab(); }
   if (name === 'recurring') { loadRecurring(); }
 
@@ -3947,6 +3937,80 @@ document.addEventListener('click', async function(e) {
   if (typeof loadPays === 'function') loadPays();
 });
 
+
+var _pmState = null;
+async function loadXpubStatus() {
+  var d = await API.get('/api/xpub/status');
+  if (!d || d.error) return;
+  _pmState = d;
+  document.getElementById('xp-empty').style.display = d.connected ? 'none' : '';
+  document.getElementById('xp-connected').style.display = d.connected ? '' : 'none';
+  if (d.connected) {
+    document.getElementById('xp-first').textContent = d.first_address || '';
+    document.getElementById('xp-used').textContent = String(d.addresses_used);
+    document.getElementById('xp-net').textContent = d.network === 'testnet' ? 'Testnet' : 'Mainnet';
+  }
+  var sw = function(id, connected, on){
+    var b = document.getElementById(id);
+    b.setAttribute('aria-checked', connected && on ? 'true' : 'false');
+    b.disabled = !connected;
+    b.closest('.pm-card').classList.toggle('pm-off', connected && !on);
+    b.closest('.pm-card').classList.toggle('pm-on', connected && on);
+  };
+  sw('pm-spark-toggle', d.spark_connected, d.spark_enabled);
+  sw('pm-transparent-toggle', d.connected, d.transparent_enabled);
+  var both = d.spark_connected && d.connected && d.spark_enabled && d.transparent_enabled;
+  document.getElementById('pm-default').style.display = both ? '' : 'none';
+  document.querySelectorAll('[data-pm-default]').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-pm-default') === d.default_method);
+  });
+}
+async function pmToggle(method, btn) {
+  if (btn.disabled) return;
+  var on = btn.getAttribute('aria-checked') !== 'true';
+  var body = {}; body[method + '_enabled'] = on;
+  btn.setAttribute('aria-checked', on ? 'true' : 'false');
+  var r = await API.patch('/api/xpub/methods', body);
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not save.')); loadXpubStatus(); return; }
+  Toast.success(_ft(on ? 'Turned on' : 'Turned off'));
+  loadXpubStatus();
+}
+async function pmDefault(method) {
+  var r = await API.patch('/api/xpub/methods', { default_method: method });
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not save.')); return; }
+  Toast.success(_ft('Saved'));
+  loadXpubStatus();
+}
+
+async function xpPreview() {
+  var v = document.getElementById('xp-input').value.trim();
+  if (!v) { Toast.warning(_ft('Paste your xpub first.')); return; }
+  var r = await API.post('/api/xpub/preview', { xpub: v });
+  var box = document.getElementById('xp-preview');
+  if (!r || r.error) { box.style.display = 'none'; Toast.error((r && r.error) || _ft('Could not read this xpub.')); return; }
+  box.innerHTML = '<div class="xp-k">' + escHtml(_ft('Should match your wallet')) + '</div>'
+    + r.addresses.map(function(a, i){ return '<code>' + i + '. ' + escHtml(a) + '</code>'; }).join('');
+  box.style.display = '';
+}
+async function xpConnect() {
+  var v = document.getElementById('xp-input').value.trim();
+  if (!v) { Toast.warning(_ft('Paste your xpub first.')); return; }
+  var btn = document.getElementById('xp-connect-btn'); btn.disabled = true;
+  var r = await API.post('/api/xpub/connect', { xpub: v });
+  btn.disabled = false;
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Could not connect this xpub.')); return; }
+  document.getElementById('xp-input').value = '';
+  document.getElementById('xp-preview').style.display = 'none';
+  Toast.success(_ft('Connected'));
+  loadXpubStatus();
+}
+async function xpDisconnect() {
+  if (!confirm(_ft('Remove this xpub? Open orders still work.'))) return;
+  var r = await API.post('/api/xpub/disconnect', {});
+  if (!r || r.error) { Toast.error((r && r.error) || _ft('Something went wrong.')); return; }
+  Toast.info(_ft('Removed'));
+  loadXpubStatus();
+}
 {% if is_operator %}{{ paneltools.panel_script() }}{% endif %}
 
 function fmtFiro(val, opts) {
