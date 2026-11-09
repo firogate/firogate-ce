@@ -52,10 +52,10 @@ def require_api_permission(permission: str):
     async def _check(request: Request, db: AsyncSession = Depends(get_db),
                      merchant: User = Depends(get_merchant)):
         api_key_row = getattr(request.state, "api_key_row", None)
-        if api_key_row is None:
-            return
-        from app.core.api_permissions import check_api_permission
-        await check_api_permission(api_key_row, permission, db)
+        if api_key_row is not None:
+            from app.core.api_permissions import check_api_permission
+            await check_api_permission(api_key_row, permission, db)
+        return merchant
     return _check
 
 
@@ -221,7 +221,10 @@ async def list_payments(
     # This list is always scoped to the authenticated merchant's own payments
     # (merchant_id == merchant.id above), so full=True (email/payer_note) is
     # not a cross-merchant exposure risk.
-    return [_fmt(p, full=True) for p in res.scalars().all()]
+    rows = res.scalars().all()
+    from app.api.refunds import refund_totals
+    refunded = await refund_totals(db, [p.id for p in rows])
+    return [dict(_fmt(p, full=True), refunded_firo=refunded.get(p.id, 0.0)) for p in rows]
 
 
 @router.get("/search", dependencies=[Depends(require_api_permission("read_invoice"))])
@@ -430,7 +433,9 @@ async def get_payment(
     )
     p = res.scalar_one_or_none()
     if not p: raise HTTPException(404, "Payment not found")
-    return _fmt(p, full=True)
+    from app.api.refunds import refund_totals
+    refunded = await refund_totals(db, [p.id])
+    return dict(_fmt(p, full=True), refunded_firo=refunded.get(p.id, 0.0))
 
 
 def _fmt(p: Payment, full: bool = False) -> dict:

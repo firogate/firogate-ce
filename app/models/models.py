@@ -464,3 +464,37 @@ class ApiKey(Base):
     scopes      = Column(String(512), nullable=True, default="*")
 
 
+
+
+class Refund(Base):
+    __tablename__ = "refunds"
+
+    id          = Column(String(36), primary_key=True, default=_uuid)
+    payment_id  = Column(String, ForeignKey("payments.id", ondelete="CASCADE"), nullable=False, index=True)
+    merchant_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    amount_firo = Column(Float, nullable=False)
+    txid        = Column(String(64), nullable=True)
+    reason      = Column(String(280), nullable=True)
+    created_at  = Column(DateTime(timezone=True), default=_now, index=True)
+
+
+class RecurringPlan(Base):
+    __tablename__ = "recurring_plans"
+
+    id             = Column(String(36), primary_key=True, default=_uuid)
+    merchant_id    = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    title          = Column(String(128), nullable=False)
+    description    = Column(String(512), nullable=True)
+    amount_firo    = Column(Float, nullable=False)
+    interval       = Column(String(8), nullable=False, default="month")
+    customer_email = Column(String(254), nullable=False)
+    customer_name  = Column(String(128), nullable=True)
+    is_active      = Column(Boolean, default=True, nullable=False)
+    next_run_at    = Column(DateTime(timezone=True), nullable=False, index=True)
+    last_run_at    = Column(DateTime(timezone=True), nullable=True)
+    last_link_id   = Column(String(36), nullable=True)
+    anchor_day     = Column(Integer, nullable=True)
+    runs_count     = Column(Integer, default=0, nullable=False)
+    max_runs       = Column(Integer, nullable=True)
+    last_error     = Column(String(200), nullable=True)
+    created_at     = Column(DateTime(timezone=True), default=_now)
