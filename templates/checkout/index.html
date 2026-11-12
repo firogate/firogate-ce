@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block body_class %}is-checkout{% endblock %}
 {% block title %}Payment{% endblock %}
 {% block extra_css %}
 {% if preview_layout is defined and preview_layout and preview_layout != 'stripe' %}
@@ -400,7 +401,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 
 #v2-themes .t-news{width:100%;max-width:520px;font-family:'Noto Sans Arabic','Cormorant Garamond',serif;color:#1c1a17;line-height:1.4}
 .t-news .page{background:#fbf8f0;padding:24px 26px 22px;box-shadow:0 24px 50px -18px rgba(0,0,0,.55);position:relative}
-.t-news .mast{display:flex;justify-content:space-between;align-items:baseline;font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase}
+.t-news .mast{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase}
 .t-news .title{font-weight:700;font-size:36px;text-align:center;letter-spacing:1px;border-top:2.5px solid #1c1a17;border-bottom:1px solid #1c1a17;padding:8px 0 6px;margin:8px 0 3px}
 .t-news .title i{color:#B82334;font-style:normal}
 .t-news .under{border-bottom:2.5px solid #1c1a17;text-align:center;font:600 9.5px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:6px;margin-bottom:16px;color:#6b665c}
@@ -1771,9 +1772,13 @@ html[data-theme="light"] .fg-notice-k{color:#A86400}
 .t-vin .cwm button.on b{color:#e8a087}
 
 body[data-checkout-theme] .fg-curr-fixed{display:none!important}
-body.fg-curr-off .cw{display:none!important}
-body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{display:none!important}
-body.fg-curr-off #th-brut .grid .cell:has(.v2-fiat){display:none!important}
+body.fg-curr-off .cw,body.fg-price-none .cw{display:none!important}
+body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price,
+body.fg-price-none .fiat,body.fg-price-none .v2-fiat,body.fg-price-none #st-usd-price,
+body.fg-curr-off .v2-fiat-wrap,body.fg-price-none .v2-fiat-wrap{display:none!important}
+body.fg-curr-off #th-brut .grid,body.fg-price-none #th-brut .grid,
+body.fg-curr-off .row:has(> .v2-fiat),body.fg-price-none .row:has(> .v2-fiat),
+body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:has(> .v2-fiat){display:none!important}
 </style>
 {% endblock %}
 {% block body %}
@@ -2128,7 +2133,7 @@ body.fg-curr-off #th-brut .grid .cell:has(.v2-fiat){display:none!important}
 <section class="theme" id="th-news"><div class="t-news"><div class="page">
   <div class="mast"><span>Checkout</span><span class="v2-date">—</span><span>Non-Custodial</span></div>
   <div class="title">CHECKOUT</div>
-  <div class="under">Printed on the blockchain · Price <span class="v2-amount skel-shimmer">—</span> FIRO (<span class="v2-fiat skel-shimmer">—</span>)</div>
+  <div class="under">Printed on the blockchain · Price <span class="v2-amount skel-shimmer">—</span> FIRO<span class="v2-fiat-wrap"> (<span class="v2-fiat skel-shimmer">—</span>)</span></div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="head">INVOICE AWAITS PAYMENT</div>
   <div class="deck"><span class="v2-merchant">Store</span> issues invoice № <span class="v2-order">—</span>; funds to travel directly to merchant.</div>
@@ -2959,6 +2964,7 @@ async function init() {
           _applyV2Colors(_previewLayout, _v2ForLayout);
         } catch(e) {}
         fetch('/api/price').then(function(r){ return r.ok ? r.json() : null; }).then(function(pd){
+          document.body.classList.toggle('fg-price-none', !(pd && pd.price));
           if (!pd || !pd.price) return;
           window._dashPrice = pd.price;
           var activeV2 = document.querySelector('#v2-themes .theme.on');
@@ -2966,7 +2972,7 @@ async function init() {
             var fiatStr = _fiatFromFiro(4.275, pd.price);
             activeV2.querySelectorAll('.v2-fiat').forEach(function(el){ el.classList.remove('skel-shimmer'); el.textContent = fiatStr; });
           }
-        }).catch(function(){});
+        }).catch(function(){ document.body.classList.add('fg-price-none'); });
       }
       if (_previewLive) {
         var expAt = new Date(Date.now() + 900000).toISOString();
@@ -3462,6 +3468,7 @@ function _v2InitTheme(layout) {
     fiatAmt = _fiatFromFiro(payData.amount_firo, window._dashPrice);
   }
   sec.querySelectorAll('.v2-fiat').forEach(function(el){ el.classList.remove('skel-shimmer'); el.textContent = fiatAmt; });
+  document.body.classList.toggle('fg-price-none', fiatAmt === '—');
 
   var logo = (payData.merchant_logo || '').trim();
   sec.querySelectorAll('.v2-merchant-initial').forEach(function(avEl) {
@@ -3845,6 +3852,7 @@ async function fetchFreshPrice(firoAmount) {
     var price = data.price;
     if (!price || !firoAmount) return;
     window._dashPrice = price;
+    document.body.classList.remove('fg-price-none');
     var activeV2 = document.querySelector('#v2-themes .theme.on');
     if (activeV2 && payData) {
       var fiatStr = _fiatFromFiro(payData.amount_firo, price);

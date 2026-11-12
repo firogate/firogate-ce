@@ -1473,5 +1473,9 @@
   "expired": "истёк",
   "merchant": "продавец",
   "System UI": "Системный шрифт",
-  "Monospace": "Моноширинный"
+  "Monospace": "Моноширинный",
+  "Send it back from your wallet first.": "Сначала верните их со своего кошелька.",
+  "Apps using this key stop working.": "Приложения с этим ключом перестанут работать.",
+  "Set one to sign in with email.": "Задайте его, чтобы входить по почте.",
+  "2–40 characters": "2–40 символов"
 }

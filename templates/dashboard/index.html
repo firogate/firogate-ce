@@ -50,7 +50,7 @@ html[data-theme="light"]{
 .hm-cell[data-lv="2"]{background:rgba(var(--brand-rgb),.48)}
 .hm-cell[data-lv="3"]{background:rgba(var(--brand-rgb),.72)}
 .hm-cell[data-lv="4"]{background:var(--brand)}
-.hm-cell::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%) translateY(4px);background:var(--bg2,#1a1a1a);border:1px solid var(--bw,rgba(255,255,255,.08));color:var(--white,#fff);font-size:10.5px;padding:5px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;z-index:60;transition:opacity .2s,transform .25s cubic-bezier(.2,.9,.3,1);box-shadow:0 8px 20px -8px rgba(0,0,0,.7)}
+.hm-cell::after{content:attr(data-hm);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%) translateY(4px);background:var(--bg2,#1a1a1a);border:1px solid var(--bw,rgba(255,255,255,.08));color:var(--white,#fff);font-size:10.5px;padding:5px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;z-index:60;transition:opacity .2s,transform .25s cubic-bezier(.2,.9,.3,1);box-shadow:0 8px 20px -8px rgba(0,0,0,.7)}
 .hm-cell:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
 .hm-legend{display:flex;align-items:center;gap:5px;justify-content:space-between;margin-top:9px;font-size:10px;color:var(--ck-muted)}
 .hm-legend .hm-hint{display:flex;align-items:center;gap:4px}
@@ -420,7 +420,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="sb-sect" data-i18n="Main">Main</div>
     <div class="ni-group" data-ni-node="home">
       <div class="ni-row">
-    <button class="ni tone-teal mob-hide active" id="sb-home" title="Overview" data-i18n-title="Overview" onclick="go('home','sb-home','mb-home')">
+    <button class="ni tone-teal mob-hide active" id="sb-home" data-tip="Your sales and latest payments at a glance." onclick="go('home','sb-home','mb-home')">
       {{ icon('house', 'ico') }}
       <span class="ni-label" data-i18n="Overview">Overview</span>
     </button>
@@ -428,7 +428,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="pays">
       <div class="ni-row">
-    <button class="ni tone-green mob-hide" id="sb-pays" title="Payments" data-i18n-title="Payments" onclick="go('pays','sb-pays','mb-pays')">
+    <button class="ni tone-green mob-hide" id="sb-pays" data-tip="Every payment, with filters and export." onclick="go('pays','sb-pays','mb-pays')">
       {{ icon('credit-card', 'ico') }}
       <span class="ni-label" data-i18n="Payments">Payments</span>
     </button>
@@ -436,7 +436,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="analytics">
       <div class="ni-row">
-    <button class="ni tone-violet mob-hide" id="sb-analytics" title="Analytics" data-i18n-title="Analytics" onclick="go('analytics','sb-analytics','mb-analytics')">
+    <button class="ni tone-violet mob-hide" id="sb-analytics" data-tip="How your sales change over time." onclick="go('analytics','sb-analytics','mb-analytics')">
       {{ icon('chart-column', 'ico') }}
       <span class="ni-label" data-i18n="Analytics">Analytics</span>
     </button>
@@ -444,7 +444,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="wallet">
       <div class="ni-row">
-    <button class="ni tone-orange mob-hide" id="sb-wallet" title="Wallet" data-i18n-title="Wallet" onclick="go('wallet','sb-wallet','mb-wallet')">
+    <button class="ni tone-orange mob-hide" id="sb-wallet" data-tip="Choose how customers pay you." onclick="go('wallet','sb-wallet','mb-wallet')">
       {{ icon('wallet', 'ico') }}
       <span class="ni-label" data-i18n="Wallet">Wallet</span>
     </button>
@@ -452,7 +452,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="recurring">
       <div class="ni-row">
-    <button class="ni tone-pink" id="sb-recurring" title="Recurring" data-i18n-title="Recurring" onclick="go('recurring','sb-recurring',null)">
+    <button class="ni tone-pink" id="sb-recurring" data-tip="Bill customers every week, month or year." onclick="go('recurring','sb-recurring',null)">
       {{ icon('repeat', 'ico') }}
       <span class="ni-label" data-i18n="Recurring">Recurring</span>
     </button>
@@ -462,7 +462,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="sb-sect" data-i18n="Developers">Developers</div>
     <div class="ni-group" data-ni-node="api">
       <div class="ni-row">
-    <button class="ni tone-blue" id="sb-api" title="API & Webhooks" data-i18n-title="API & Webhooks" onclick="go('api','sb-api','mb-api')">
+    <button class="ni tone-blue" id="sb-api" data-tip="Payment links, API keys and webhooks." onclick="go('api','sb-api','mb-api')">
       {{ icon('code-xml', 'ico') }}
       <span class="ni-label" data-i18n="API & Webhooks">API & Webhooks</span>
     </button>
@@ -472,7 +472,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="sb-sect" data-i18n="Account">Account</div>
     <div class="ni-group" data-ni-node="sec">
       <div class="ni-row">
-    <button class="ni tone-teal" id="sb-sec" title="Settings" data-i18n-title="Settings" onclick="go('sec','sb-sec','mb-sec')">
+    <button class="ni tone-teal" id="sb-sec" data-tip="App name, alerts, checkout look and privacy." onclick="go('sec','sb-sec','mb-sec')">
       {{ icon('settings', 'ico') }}
       <span class="ni-label" data-i18n="Settings">Settings</span>
     </button>
@@ -529,7 +529,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
     <div class="ni-group" data-ni-node="account">
       <div class="ni-row">
-    <button class="ni tone-amber" id="sb-account" title="Account" data-i18n-title="Account" onclick="go('account','sb-account',null)">
+    <button class="ni tone-amber" id="sb-account" data-tip="Your reports, password and 2FA." onclick="go('account','sb-account',null)">
       {{ icon('user-cog', 'ico') }}
       <span class="ni-label" data-i18n="Account">Account</span>
     </button>
@@ -604,7 +604,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-home" class="tab fi">
   <div class="ph">
-    <div class="ph-title tone-teal"><div><h2 data-i18n="Overview">Overview</h2><p class="ph-sub" data-i18n="Your sales and latest payments at a glance.">Your sales and latest payments at a glance.</p></div></div>
+    <div class="ph-title tone-teal"><div><h2 data-i18n="Overview">Overview</h2></div></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="btn btn-o btn-sm" onclick="loadAll()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
@@ -655,7 +655,7 @@ html[data-theme="light"] #sb-profile-popup{
   {% if is_operator %}{{ paneltools.panel_nh_mini() }}{% endif %}
 
   <div class="ph">
-    <div class="ph-title tone-violet"><div><h2 data-i18n="Analytics">Analytics</h2><p class="ph-sub" data-i18n="How your sales change over time.">How your sales change over time.</p></div></div>
+    <div class="ph-title tone-violet"><div><h2 data-i18n="Analytics">Analytics</h2></div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <select id="user-analytics-period" class="finput fselect" style="display:none" onchange="loadUserAnalytics()">
         <option value="today" data-i18n="Today">Today</option>
@@ -810,15 +810,14 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-wallet" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-orange"><div><h2 data-i18n="Payment methods">Payment methods</h2><p class="ph-sub" data-i18n="Choose how customers pay you.">Choose how customers pay you.</p></div></div></div>
+  <div class="ph"><div class="ph-title tone-orange"><div><h2 tabindex="0" style="cursor:help" data-tip="FiroGate only watches. It can never move your funds." data-i18n="Payment methods">Payment methods</h2></div></div></div>
 
   <div class="pm-grid">
     <section class="pm-card" id="pm-spark">
       <header class="pm-top">
-        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-no-i18n>Spark</h3><span class="pm-tag" data-i18n="Private">Private</span></div>
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-no-i18n>Spark</h3><span class="pm-tag" tabindex="0" data-tip="Customers pay privately. Amounts stay hidden." data-i18n="Private">Private</span></div>
         <button type="button" class="pm-switch" id="pm-spark-toggle" role="switch" aria-checked="false" aria-label="Spark" onclick="pmToggle('spark', this)"><i></i></button>
       </header>
-      <p class="pm-line" data-i18n="Customers pay privately. Amounts stay hidden.">Customers pay privately. Amounts stay hidden.</p>
 
       <div id="spark-loading"><div class="skel-line" style="width:60%;height:12px;margin:14px 0"></div></div>
 
@@ -838,10 +837,9 @@ html[data-theme="light"] #sb-profile-popup{
 
     <section class="pm-card" id="pm-transparent">
       <header class="pm-top">
-        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-i18n="Transparent">Transparent</h3><span class="pm-tag pm-tag-pub" data-i18n="Public">Public</span></div>
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-i18n="Transparent">Transparent</h3><span class="pm-tag pm-tag-pub" tabindex="0" data-tip="Works with any Firo wallet. New address for every order." data-i18n="Public">Public</span></div>
         <button type="button" class="pm-switch" id="pm-transparent-toggle" role="switch" aria-checked="false" aria-label="Transparent" onclick="pmToggle('transparent', this)"><i></i></button>
       </header>
-      <p class="pm-line" data-i18n="Works with any Firo wallet. New address for every order.">Works with any Firo wallet. New address for every order.</p>
 
       <div id="xp-empty">
         <label class="flabel" for="xp-input" data-i18n="Wallet xpub">Wallet xpub</label>
@@ -871,12 +869,11 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
   </div>
 
-  <p class="pm-foot" data-i18n="FiroGate only watches. It can never move your funds.">FiroGate only watches. It can never move your funds.</p>
 </div>
 
 <div id="t-api" class="tab" style="display:none">
   <div class="ph">
-    <div class="ph-title tone-blue"><div><h2 data-i18n="API & Webhooks">API & Webhooks</h2><p class="ph-sub" data-i18n="Payment links, API keys and webhooks.">Payment links, API keys and webhooks.</p></div></div>
+    <div class="ph-title tone-blue"><div><h2 data-i18n="API & Webhooks">API & Webhooks</h2></div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <a href="/docs" class="btn btn-o btn-sm" target="_blank" style="text-decoration:none">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -888,8 +885,7 @@ html[data-theme="light"] #sb-profile-popup{
   <div class="card" id="pl-section" style="margin-bottom:20px">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
       <div>
-        <h3 style="margin:0 0 4px" data-i18n="Payment Links">Payment Links</h3>
-        <p style="margin:0;font-size:.82rem;color:var(--t1)" data-i18n="Checkout links you can share, with no code needed. For invoices, social sales or one-off payments.">Checkout links you can share, with no code needed. For invoices, social sales or one-off payments.</p>
+        <h3 class="tip-i" tabindex="0" style="margin:0 0 4px" data-tip="Checkout links you can share, with no code needed. For invoices, social sales or one-off payments." data-i18n="Payment Links">Payment Links</h3>
       </div>
       <button class="btn btn-y btn-sm" onclick="openPL()" style="flex-shrink:0">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -920,12 +916,11 @@ html[data-theme="light"] #sb-profile-popup{
   <div class="card" style="margin-bottom:20px">
     <div style="margin-bottom:20px">
       <h3 style="margin:0 0 4px" data-i18n="Webhook">Webhook</h3>
-      <p style="margin:0;font-size:.82rem;color:var(--t1)" data-i18n="Add your store or app link">Add your store or app link</p>
     </div>
     <div id="webhook-ab" style="margin-bottom:10px"></div>
     <div style="display:grid;gap:16px;max-width:560px">
       <div class="fg" style="margin:0">
-        <label class="flabel" data-i18n="Endpoint URL">Endpoint URL</label>
+        <div class="flabel-row"><label class="flabel" data-i18n="Endpoint URL">Endpoint URL</label><span class="tip-i tip-only" tabindex="0" data-tip="Add your store or app link" aria-label="Info"></span></div>
         <input type="url" id="webhook-url" class="finput"
           placeholder="https://your-store.com  OR  https://app.yourstore.com/Khalid-app"
           style="font-family:var(--mono);font-size:.82rem">
@@ -992,9 +987,8 @@ html[data-theme="light"] #sb-profile-popup{
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:420px;position:relative">
     <button onclick="closeCreateKeyModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:1.2rem;line-height:1">✕</button>
     <h3 style="margin:0 0 6px" data-i18n="Create API Key">Create API Key</h3>
-    <p style="margin:0 0 20px;font-size:.82rem;color:var(--t1)" data-i18n="Give this key a name to identify its purpose.">Give this key a name to identify its purpose.</p>
     <div class="fg" style="margin-bottom:16px">
-      <label class="flabel" data-i18n="Key Name">Key Name</label>
+      <div class="flabel-row"><label class="flabel" data-i18n="Key Name">Key Name</label><span class="tip-i tip-only" tabindex="0" data-tip="Give this key a name to identify its purpose." aria-label="Info"></span></div>
       <input type="text" id="new-key-name" class="finput" placeholder="e.g. Production, Mobile App, Staging" data-i18n-placeholder="e.g. Production, Mobile App, Staging"
         maxlength="64" oninput="this.value=this.value.replace(/[<>&\x22']/g,'')">
     </div>
@@ -1039,7 +1033,7 @@ html[data-theme="light"] #sb-profile-popup{
 <div id="modal-refund" class="fg-modal" style="display:none" onclick="if(event.target===this)closeRefundModal()">
   <div class="fg-modal-box">
     <h3 style="margin:0 0 6px" data-i18n="Record a refund">Record a refund</h3>
-    <p class="rc-note" data-i18n="FiroGate can't send money. Send the FIRO back from your own wallet, then record it here.">FiroGate can't send money. Send the FIRO back from your own wallet, then record it here.</p>
+    <p class="rc-note" data-i18n="Send it back from your wallet first.">Send it back from your wallet first.</p>
     <div class="rf-summary" id="rf-summary"></div>
     <div class="fg"><label class="flabel" for="rf-amount" data-i18n="Amount (FIRO)">Amount (FIRO)</label>
       <div style="display:flex;gap:8px"><input id="rf-amount" class="finput" type="number" min="0" step="any"><button class="btn btn-o btn-sm" type="button" onclick="rfFull()" data-i18n="Full">Full</button></div></div>
@@ -1057,7 +1051,7 @@ html[data-theme="light"] #sb-profile-popup{
   <div style="background:var(--bg2);border:1px solid var(--bw);border-radius:14px;padding:28px;width:100%;max-width:380px">
     <h3 style="margin:0 0 8px;color:var(--red)" data-i18n="Revoke API Key?">Revoke API Key?</h3>
     <p style="font-size:.84rem;color:var(--t1);margin:0 0 6px"><span data-i18n="Key:">Key:</span> <strong id="revoke-key-name" style="color:var(--white)"></strong></p>
-    <p style="font-size:.82rem;color:var(--t1);margin:0 0 20px" data-i18n="Any integrations using this key will stop working immediately. This cannot be undone.">Any integrations using this key will stop working immediately. This cannot be undone.</p>
+    <p style="font-size:.82rem;color:var(--t1);margin:0 0 20px" data-i18n="Apps using this key stop working.">Apps using this key stop working.</p>
     <div style="display:flex;gap:8px">
       <button class="btn wf" onclick="confirmRevoke()" style="background:var(--red);color:#fff;border-color:var(--red)" data-i18n="Revoke Key">Revoke Key</button>
       <button class="btn btn-o btn-sm" onclick="closeRevokeModal()" data-i18n="Cancel">Cancel</button>
@@ -1084,7 +1078,7 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-pays" class="tab" style="display:none">
   <div class="ph">
-    <div class="ph-title tone-green"><div><h2 data-i18n="Payments">Payments</h2><p class="ph-sub" data-i18n="Every payment, with filters and export.">Every payment, with filters and export.</p></div></div>
+    <div class="ph-title tone-green"><div><h2 data-i18n="Payments">Payments</h2></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <select id="pay-filter" class="finput fselect" style="width:150px;max-width:150px;min-width:150px" onchange="loadPays()">
         <option value="" data-i18n="All statuses">All statuses</option>
@@ -1118,7 +1112,7 @@ html[data-theme="light"] #sb-profile-popup{
         <button class="pdt-sort pdt-hide-mobile" data-k="order"><span data-i18n="Order">Order</span><span class="arr">↑</span></button>
         <button class="pdt-sort" data-k="amt"><span data-i18n="Amount">Amount</span><span class="arr">↑</span></button>
         <span data-i18n="Status">Status</span>
-        <button class="pdt-sort" data-k="date"><span data-i18n="Date">Date</span><span class="arr">↑</span></button>
+        <button class="pdt-sort pdt-hide-mobile" data-k="date"><span data-i18n="Date">Date</span><span class="arr">↑</span></button>
       </div>
       <div id="pays-tb"></div>
       <div class="pdt-bulk" id="paysBulk">
@@ -1137,21 +1131,20 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-sec" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-teal"><div><h2 id="sec-section-title" data-i18n="Settings">Settings</h2><p class="ph-sub" data-i18n="App name, alerts, checkout look and privacy.">App name, alerts, checkout look and privacy.</p></div></div></div>
+  <div class="ph"><div class="ph-title tone-teal"><div><h2 id="sec-section-title" data-i18n="Settings">Settings</h2></div></div></div>
   <div id="sec-wrap">
 
     <div class="sec-pane" id="sec-pane-appname">
     <div class="card" style="margin-bottom:18px;border-radius:18px 6px 14px 8px" data-testid="app-name-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <h3 style="margin:0" data-i18n="App / Store Name">App / Store Name</h3>
+        <h3 class="tip-i" tabindex="0" style="margin:0" data-tip="This is the name shown on your checkout pages and customer receipts." data-i18n="App / Store Name">App / Store Name</h3>
         <span id="an-status-badge" style="display:none;font-size:.7rem;padding:3px 9px;border-radius:20px"></span>
       </div>
-      <p id="an-hint" style="color:var(--t1);font-size:.82rem;margin:0 0 14px 0" data-i18n="This is the name shown on your checkout pages and customer receipts.">This is the name shown on your checkout pages and customer receipts.</p>
+      <p id="an-hint" class="dash-note"></p>
       <div id="an-alert"></div>
       <div class="fg">
-        <label class="flabel" data-i18n="App / Store Name">App / Store Name</label>
-        <input type="text" id="an-input" class="finput" maxlength="40" placeholder="e.g. Acme Store" data-i18n-placeholder="e.g. Acme Store" data-testid="app-name-input">
-        <span class="fhint" data-i18n-html="2&ndash;40 characters. Letters, numbers, spaces and <code>. _ - &amp; ' ( )</code>">2–40 characters. Letters, numbers, spaces and <code>. _ - &amp; ' ( )</code></span>
+        <input type="text" id="an-input" aria-label="App / Store Name" data-i18n-aria-label="App / Store Name" class="finput" maxlength="40" placeholder="e.g. Acme Store" data-i18n-placeholder="e.g. Acme Store" data-testid="app-name-input">
+        <span class="fhint" data-i18n="2–40 characters">2–40 characters</span>
       </div>
       <button id="an-btn" class="btn btn-y mt3" onclick="saveAppName()" data-testid="app-name-save-btn" data-i18n="Save">Save</button>
       <button id="an-report" type="button" class="btn btn-gh mt3" style="margin-inline-start:8px;display:none" onclick="goReport()" data-testid="app-name-report-btn" data-i18n="Request a change">Request a change</button>
@@ -1162,7 +1155,7 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="card" style="margin-bottom:18px;border-radius:14px 6px 14px 6px" data-testid="tg-notify-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#2AABEE" d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm4.962 7.224c.1-.002.321.023.465.14a.5.5 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        <h3 style="margin:0;font-size:.95rem" data-i18n="Telegram Notifications">Telegram Notifications</h3>
+        <h3 class="tip-i" tabindex="0" style="margin:0;font-size:.95rem" data-tip="Payment alerts are sent to Telegram only." data-i18n="Telegram Notifications">Telegram Notifications</h3>
         <span id="tgn-badge" style="margin-left:auto;font-size:.7rem;padding:3px 10px;border-radius:20px;background:var(--bg4);color:var(--t3);border:1px solid var(--bw)" data-i18n="Loading…">Loading…</span>
       </div>
       <p style="font-size:.82rem;color:var(--t1);margin-bottom:14px" data-i18n-html="Get payment alerts in Telegram. Tap Connect, then press <strong>Start</strong> in the bot chat.">Get payment alerts in Telegram. Tap Connect, then press <strong>Start</strong> in the bot chat.</p>
@@ -1178,7 +1171,6 @@ html[data-theme="light"] #sb-profile-popup{
             <span id="tgn-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
           </label>
         </div>
-        <p style="font-size:.75rem;color:var(--t1);margin-bottom:12px" data-i18n="Payment alerts are sent to Telegram only.">Payment alerts are sent to Telegram only.</p>
         <button class="btn btn-o btn-sm" onclick="tgnDisconnect()" data-i18n="Disconnect">Disconnect</button>
       </div>
     </div>
@@ -1381,13 +1373,12 @@ html[data-theme="light"] #sb-profile-popup{
         <h3 style="margin:0;font-size:.95rem" data-i18n="Privacy">Privacy</h3>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
-        <label for="market-price-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Show Live FIRO Market Price">Show Live FIRO Market Price</label>
+        <label for="market-price-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Show Live FIRO Market Price">Show Live FIRO Market Price</label><span class="tip-i tip-only" tabindex="0" data-tip="Prices are fetched by your server and cached. Your browser never contacts price providers." aria-label="Info"></span>
         <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
           <input type="checkbox" id="market-price-toggle" onchange="saveMarketPriceSetting()" style="opacity:0;width:0;height:0;position:absolute">
           <span id="market-price-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
         </label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Prices are fetched by your server and cached. Your browser never contacts price providers.">Prices are fetched by your server and cached. Your browser never contacts price providers.</p>
     </div>
     </div>
 
@@ -1451,22 +1442,20 @@ html[data-theme="light"] #sb-profile-popup{
       <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n-html="When on, /login and /register show a 404 page. Current sessions keep working. Locked out? Set <code style=&quot;font-family:var(--mono)&quot;>FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style=&quot;font-family:var(--mono)&quot;>.env</code> and restart.">When on, /login and /register show a 404 page. Current sessions keep working. Locked out? Set <code style="font-family:var(--mono)">FORCE_AUTH_PAGES_VISIBLE=true</code> in <code style="font-family:var(--mono)">.env</code> and restart.</p>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">
-        <label for="diag-landing-home-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Use landing home page">Use landing home page</label>
+        <label for="diag-landing-home-toggle" style="font-size:.85rem;color:var(--t1)" data-i18n="Use landing home page">Use landing home page</label><span class="tip-i tip-only" tabindex="0" data-tip="When on, the public home page (/) shows the landing page." aria-label="Info"></span>
         <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
           <input type="checkbox" id="diag-landing-home-toggle" onchange="saveDiagSettings()" style="opacity:0;width:0;height:0;position:absolute">
           <span id="diag-landing-home-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.2s;border:1px solid var(--bw)"></span>
         </label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0 0 18px 0" data-i18n="When on, the public home page (/) shows the landing page.">When on, the public home page (/) shows the landing page.</p>
 
-      <div style="font-size:.85rem;color:var(--t1);margin-bottom:8px" data-i18n="Payment Confirmation Policy">Payment Confirmation Policy</div>
+      <div class="tip-i" tabindex="0" style="font-size:.85rem;color:var(--t1);margin-bottom:8px" data-tip="Minimum confirmations before a payment counts as confirmed. Applies to new payments only." data-i18n="Payment Confirmation Policy">Payment Confirmation Policy</div>
       <div id="diag-confirm-options" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="0" onchange="saveDiagSettings()"> <span><strong data-i18n="Instant">Instant</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="0 confirmations">0 confirmations</span></span></label>
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="1" onchange="saveDiagSettings()"> <span><strong data-i18n="Fast">Fast</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="1 confirmation">1 confirmation</span></span></label>
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="3" onchange="saveDiagSettings()"> <span><strong data-i18n="Standard">Standard</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="3 confirmations">3 confirmations</span></span></label>
         <label class="diag-radio-opt"><input type="radio" name="diag-confirm" value="6" onchange="saveDiagSettings()"> <span><strong data-i18n="Secure">Secure</strong><br><span style="color:var(--t3);font-size:.75rem" data-i18n="6 confirmations">6 confirmations</span></span></label>
       </div>
-      <p style="font-size:.78rem;color:var(--t3);line-height:1.6;margin:0" data-i18n="Minimum confirmations before a payment counts as confirmed. Applies to new payments only.">Minimum confirmations before a payment counts as confirmed. Applies to new payments only.</p>
     </div>
     </div>
     {% endif %}
@@ -1477,13 +1466,12 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-recurring" class="tab" style="display:none">
   <div class="ph">
-    <div class="ph-title tone-pink"><div><h2 data-i18n="Recurring">Recurring</h2><p class="ph-sub" data-i18n="Bill customers every week, month or year.">Bill customers every week, month or year.</p></div></div>
-    <button class="btn btn-y btn-sm" id="rc-new-btn" onclick="rcToggleForm(true)">{{ icon('plus', 'ico ico-sm') }}<span data-i18n="New recurring payment">New recurring payment</span></button>
+    <div class="ph-title tone-pink"><div><h2 data-i18n="Recurring">Recurring</h2></div></div>
+    <button class="btn btn-y btn-sm" id="rc-new-btn" data-tip="Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet." onclick="rcToggleForm(true)">{{ icon('plus', 'ico ico-sm') }}<span data-i18n="New recurring payment">New recurring payment</span></button>
   </div>
 
   <div class="card rc-form" id="rc-form" style="display:none">
     <h3 class="card-title" data-i18n="New recurring payment">New recurring payment</h3>
-    <p class="rc-note" data-i18n="Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet.">Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet.</p>
     <div class="rc-grid">
       <div class="fg"><label class="flabel" for="rc-title" data-i18n="Name">Name</label><input id="rc-title" class="finput" maxlength="128" placeholder="Website hosting" data-i18n-placeholder="Website hosting"></div>
       <div class="fg"><label class="flabel" for="rc-amount" data-i18n="Amount (FIRO)">Amount (FIRO)</label><input id="rc-amount" class="finput" type="number" min="0.0001" step="any" placeholder="1.5"></div>
@@ -1507,15 +1495,15 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-account" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-amber"><div><h2 data-i18n="Account">Account</h2><p class="ph-sub" data-i18n="Your reports, password and 2FA.">Your reports, password and 2FA.</p></div></div></div>
+  <div class="ph"><div class="ph-title tone-amber"><div><h2 data-i18n="Account">Account</h2></div></div></div>
   <div id="account-wrap">
 
     <div class="sec-nav">
-      <button class="sec-tab active" data-sec="reports" onclick="secTab('reports')">
+      <button class="sec-tab active" data-sec="reports" data-tip="Track your support tickets and app-name change requests." onclick="secTab('reports')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         <span data-i18n="My Reports">My Reports</span>
       </button>
-      <button class="sec-tab" data-sec="onboarding" onclick="secTab('onboarding')">
+      <button class="sec-tab" data-sec="onboarding" data-tip="Restart the dashboard walkthrough at any time." onclick="secTab('onboarding')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span data-i18n="Getting Started">Getting Started</span>
       </button>
@@ -1530,7 +1518,6 @@ html[data-theme="light"] #sb-profile-popup{
           <button class="btn btn-y btn-sm" onclick="toggleReportForm()" id="new-report-btn" data-testid="my-reports-new" data-i18n="+ New report">+ New report</button>
         </div>
       </div>
-      <p style="color:var(--t1);font-size:.82rem;margin:0 0 12px 0" data-i18n="Track your support tickets and app-name change requests.">Track your support tickets and app-name change requests.</p>
 
       <div id="report-form-wrap">
         <div id="report-form-alert"></div>
@@ -1569,7 +1556,6 @@ html[data-theme="light"] #sb-profile-popup{
     <div class="sec-pane" id="sec-pane-onboarding" style="display:none">
     <div class="card" style="margin-bottom:18px;border-radius:18px 6px 14px 8px">
       <h3 style="margin:0 0 8px" data-i18n="Getting Started">Getting Started</h3>
-      <p style="color:var(--t1);font-size:.82rem;margin:0 0 14px 0" data-i18n="Restart the dashboard walkthrough at any time.">Restart the dashboard walkthrough at any time.</p>
       <button class="btn btn-y" onclick="obRestart()" data-i18n="Restart Tour">Restart Tour</button>
     </div>
     </div>
@@ -1580,7 +1566,7 @@ html[data-theme="light"] #sb-profile-popup{
         <h3 id="pw-title" style="margin:0" data-i18n="Change Password">Change Password</h3>
         <span id="pw-status-badge" style="display:none;font-size:.7rem;padding:3px 9px;border-radius:4px;background:rgba(var(--warn-rgb),.12);color:var(--warn);border:1px solid rgba(var(--warn-rgb),.28)" data-i18n="Google account">Google account</span>
       </div>
-      <p id="pw-subtitle" style="color:var(--t1);font-size:.82rem;margin:0 0 10px 0" data-i18n="Update the password you use to sign in.">Update the password you use to sign in.</p>
+      <p id="pw-subtitle" class="dash-note"></p>
       <div id="pw-ab"></div>
       <div class="fg" id="pw-cur-row">
         <label class="flabel" data-i18n="Current Password">Current Password</label>
@@ -1746,7 +1732,6 @@ html[data-theme="light"] .ag-input::placeholder{color:rgba(20,12,0,.4)}
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--bw)">
       <div>
         <h3 style="margin:0" data-i18n="Payment Links">Payment Links</h3>
-        <p style="margin:4px 0 0;font-size:.78rem;color:var(--t1)" data-i18n="Shareable checkout links no code needed">Shareable checkout links no code needed</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-y btn-sm" onclick="showCreatePL()" data-i18n="+ New Link">+ New Link</button>
@@ -1947,6 +1932,20 @@ document.addEventListener('DOMContentLoaded', function() {
   moveMobNavIndicator(active);
   void ind.offsetWidth;
   ind.style.transition = '';
+});
+
+function labelTables() {
+  document.querySelectorAll('.tw table:not([data-labeled])').forEach(function(tbl) {
+    var heads = Array.prototype.map.call(tbl.querySelectorAll('thead th'), function(th) { return th.textContent.trim(); });
+    tbl.querySelectorAll('tbody tr').forEach(function(tr) {
+      Array.prototype.forEach.call(tr.children, function(td, i) { td.setAttribute('data-label', heads[i] || ''); });
+    });
+    tbl.setAttribute('data-labeled', '');
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  labelTables();
+  new MutationObserver(labelTables).observe(document.querySelector('.main') || document.body, { childList: true, subtree: true });
 });
 
 function toggleSidebar() {
@@ -3085,7 +3084,7 @@ async function loadAppName() {
     badge.style.color      = 'var(--warn)';
     badge.style.border     = '1px solid rgba(var(--warn-rgb),.28)';
     badge.textContent      = _t('Not set yet');
-    hint.textContent       = _t('Set your app/store name. This will appear on checkout and receipts.');
+    hint.textContent       = '';
     reportB.style.display  = 'none';
   } else if (canSet) {
     var freeLeft = (typeof r.free_remaining === 'number') ? r.free_remaining : null;
@@ -3096,9 +3095,7 @@ async function loadAppName() {
     badge.textContent      = freeLeft !== null && freeLeft > 0
       ? (freeLeft + ' ' + _t('free change(s) left'))
       : _t('You can change your name now');
-    hint.textContent = freeLeft !== null && freeLeft > 0
-      ? (_t('You have') + ' ' + freeLeft + ' ' + _t('instant name change(s) left. After that, one change every') + ' ' + (r.cooldown_days || 14) + ' ' + _t('days.'))
-      : (_t('You can change your name once every ') + (r.cooldown_days || 14) + ' ' + _t('days.'));
+    hint.textContent = '';
     reportB.style.display  = 'none';
   } else {
 
@@ -3369,9 +3366,7 @@ async function loadPasswordStatus() {
     var _t = function(x) { return window.t ? window.t(x) : x; };
     document.getElementById('pw-cur-row').style.display = _pwHasPassword ? '' : 'none';
     document.getElementById('pw-title').textContent  = _pwHasPassword ? _t('Change Password') : _t('Create Password');
-    document.getElementById('pw-subtitle').textContent = _pwHasPassword
-      ? _t('Update the password you use to sign in.')
-      : _t('You signed up with Google set a password so you can also sign in with email.');
+    document.getElementById('pw-subtitle').textContent = _pwHasPassword ? '' : _t('Set one to sign in with email.');
     document.getElementById('pw-btn').textContent = _pwHasPassword ? _t('Update Password') : _t('Create Password');
     const badge = document.getElementById('pw-status-badge');
     if (hasFb && !_pwHasPassword) { badge.style.display = ''; badge.textContent = _t('No password set'); }
@@ -4231,19 +4226,29 @@ function _drawHeatmap(dates, orders) {
   if (skelEl) skelEl.remove();
   if (!gridEl || !scrollEl) return;
   if (!dates || !dates.length) { gridEl.innerHTML=''; return; }
+  var firstActive = orders.findIndex(function(v){ return parseInt(v||0) > 0; });
+  var startIdx = Math.max(0, Math.min(firstActive < 0 ? dates.length : firstActive, dates.length - 182));
+  startIdx -= startIdx % 7;
+  dates = dates.slice(startIdx);
+  orders = orders.slice(startIdx);
   var vals = orders.map(function(v){ return parseInt(v||0); });
   var max = Math.max.apply(null, vals) || 1;
   var total = vals.reduce(function(a,b){ return a+b; }, 0);
-  if (totalEl) totalEl.textContent = total + ' ' + (window.t ? window.t('payments') : 'payments');
+  if (totalEl) totalEl.textContent = total + ' ' + (total === 1 ? (window.t ? window.t('payment') : 'payment') : (window.t ? window.t('payments') : 'payments'));
   gridEl.classList.remove('in');
   gridEl.innerHTML = dates.map(function(d,i){
     var v = vals[i];
     var lv = v === 0 ? 0 : Math.max(1, Math.ceil(v / max * 4));
     var tip = v + ' ' + (v === 1 ? (window.t ? window.t('payment') : 'payment') : (window.t ? window.t('payments') : 'payments')) + ' · ' + d;
-    return '<div class="hm-cell" data-lv="'+lv+'" data-tip="'+tip+'" style="transition-delay:'+(Math.min(i,120)*6)+'ms"></div>';
+    return '<div class="hm-cell" data-lv="'+lv+'" data-hm="'+tip+'" style="transition-delay:'+(Math.min(i,120)*6)+'ms"></div>';
   }).join('');
   requestAnimationFrame(function(){ requestAnimationFrame(function(){ gridEl.classList.add('in'); }); });
-  scrollEl.scrollLeft = 0;
+  var toLatest = function(){
+    var end = scrollEl.scrollWidth - scrollEl.clientWidth;
+    scrollEl.scrollLeft = getComputedStyle(scrollEl).direction === 'rtl' ? -end : end;
+  };
+  toLatest();
+  requestAnimationFrame(toLatest);
   _dragScroll(scrollEl);
 }
 

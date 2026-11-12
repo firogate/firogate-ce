@@ -328,7 +328,7 @@ html[data-theme="light"] .pl-foot{ background:rgba(0,0,0,.03); }
     <div class="zone" id="zoneFixed">
       <div class="amt-num">{{ link_amount }} <span class="amt-num-unit">Firo</span></div>
       <div class="amt-unit">FIRO · Fixed amount</div>
-      <div{{ ' style="display:none"' | safe if not show_market_price }}>
+      <div id="pl-equiv-wrap"{{ ' style="display:none"' | safe if not show_market_price }}>
         <span class="equiv loading" id="pl-equiv-price">
 
           <span id="pl-equiv-loading-txt">Loading price…</span>
@@ -498,10 +498,14 @@ async function loadPrice() {
   if (!SHOW_MARKET_PRICE || document.hidden) return;
   try {
     var r = await fetch('/api/price?fresh=true');
-    if (!r.ok) return;
-    var d = await r.json();
-    if (d.price) { _plPrice = parseFloat(d.price); updateEquiv(); }
-  } catch (_) {}
+    var d = r.ok ? await r.json() : null;
+    if (d && d.price) { _plPrice = parseFloat(d.price); updateEquiv(); }
+    else if (!_plPrice) hidePrice();
+  } catch (_) { if (!_plPrice) hidePrice(); }
+}
+function hidePrice() {
+  var w = document.getElementById('pl-equiv-wrap');
+  if (w) w.style.display = 'none';
 }
 function startPriceLoop() {
   if (!SHOW_MARKET_PRICE) return;

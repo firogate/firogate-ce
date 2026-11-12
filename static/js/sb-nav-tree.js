@@ -99,5 +99,30 @@
     expandActiveAncestors();
   });
 
+  var TAP_SEL = '.sidebar .ni, #ds-trigger, .sb-toggle, .mobnav .mb, #sb-profile-popup .ni';
+  var SHAPES = 'path, line, polyline, polygon, rect, circle, ellipse';
+  var calm = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+  function tapIcon(svg) {
+    if (calm && calm.matches) return;
+    if (!svg._fxReady) {
+      svg._fxReady = true;
+      svg.querySelectorAll(SHAPES).forEach(function (s) { s.setAttribute('pathLength', '1'); });
+      svg.addEventListener('animationend', function (e) {
+        if (e.target === svg) svg.classList.remove('ico-tap');
+      });
+    }
+    svg.classList.remove('ico-tap');
+    void svg.getBoundingClientRect();
+    svg.classList.add('ico-tap');
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest(TAP_SEL) : null;
+    if (!btn) return;
+    var svg = btn.querySelector(':scope > svg');
+    if (svg) tapIcon(svg);
+  });
+
   window.sbNavTree = { toggleGroup: toggleGroup, expandAncestors: expandAncestors };
 })();

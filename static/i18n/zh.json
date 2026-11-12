@@ -1473,5 +1473,9 @@
   "expired": "已过期",
   "merchant": "商家",
   "System UI": "系统字体",
-  "Monospace": "等宽字体"
+  "Monospace": "等宽字体",
+  "Send it back from your wallet first.": "请先从您的钱包退回。",
+  "Apps using this key stop working.": "使用此密钥的应用将停止工作。",
+  "Set one to sign in with email.": "设置后即可用邮箱登录。",
+  "2–40 characters": "2–40 个字符"
 }

@@ -1473,5 +1473,9 @@
   "expired": "abgelaufen",
   "merchant": "Händler",
   "System UI": "Systemschrift",
-  "Monospace": "Monospace"
+  "Monospace": "Monospace",
+  "Send it back from your wallet first.": "Senden Sie es zuerst aus Ihrer Wallet zurück.",
+  "Apps using this key stop working.": "Apps mit diesem Schlüssel funktionieren nicht mehr.",
+  "Set one to sign in with email.": "Legen Sie eines fest, um sich per E-Mail anzumelden.",
+  "2–40 characters": "2–40 Zeichen"
 }
