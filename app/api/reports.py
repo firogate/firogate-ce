@@ -64,8 +64,10 @@ async def _require_operator(request: Request, db: AsyncSession) -> User:
     user = await _current_user(request, db)
     if not user:
         raise HTTPException(401, "Authentication required")
-    from app.core.operator_access import resolve_operator
-    if not await resolve_operator(user, db):
+    from app.core.config import get_settings
+    ops = {e.strip().lower() for e in (get_settings().OPERATOR_EMAILS or "").split(",") if e.strip()}
+    is_operator = (user.role == UserRole.operator) or ((user.email or "").lower() in ops)
+    if not is_operator:
         raise HTTPException(403, "Operator access required")
     return user
 

@@ -150,7 +150,7 @@ async def _run_spark_scan(db: AsyncSession):
         # be resolved to an order without a query per coin.
         res_pay = await db.execute(
             select(Payment).where(
-                Payment.spark_diversifier.is_not(None),
+                Payment.address_type == "spark",
                 Payment.status.in_([PaymentStatus.pending, PaymentStatus.confirming]),
             )
         )
@@ -229,7 +229,7 @@ async def _run_spark_scan(db: AsyncSession):
         from app.services.payment_monitor import _confirm_payment
         res_confirming = await db.execute(
             select(Payment).where(
-                Payment.spark_diversifier.is_not(None),
+                Payment.address_type == "spark",
                 Payment.status == PaymentStatus.confirming,
                 Payment.txid.is_not(None),
             )

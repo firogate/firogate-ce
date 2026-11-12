@@ -97,7 +97,6 @@ async def fb_config():
 
 class GoogleLoginIn(BaseModel):
     id_token: str
-    totp_code: str | None = None
 
 
 @router.post("/google", dependencies=[Depends(rate_limit_auth)])
@@ -118,8 +117,6 @@ async def fb_google(body: GoogleLoginIn, response: Response, request: Request, d
     name  = claims.get("name") or ""
     if not uid or not email:
         raise HTTPException(401, "Invalid Google session.")
-    if claims.get("email_verified") is False:
-        raise HTTPException(401, "Your Google email is not verified.")
 
     # Find by firebase_uid or email; auto-create on first sign-in
     res = await db.execute(select(User).where(User.firebase_uid == uid))
@@ -133,8 +130,6 @@ async def fb_google(body: GoogleLoginIn, response: Response, request: Request, d
         if await hide_auth_pages_enabled(db):
             raise HTTPException(404)
         username = _re.sub(r"[^a-z0-9_\-]", "-", email.split("@", 1)[0].lower())[:32] or f"user-{secrets.token_hex(3)}"
-        if get_settings().is_operator_username(username):
-            username = f"{username[:26]}-{secrets.token_hex(2)}"
         for _ in range(6):
             res = await db.execute(select(User).where(User.username == username))
             if not res.scalar_one_or_none():
@@ -165,10 +160,6 @@ async def fb_google(body: GoogleLoginIn, response: Response, request: Request, d
         except Exception:
             pass
     else:
-        if user.firebase_uid and user.firebase_uid != uid:
-            raise HTTPException(409, "This email is linked to a different Google account.")
-        if not user.firebase_uid and not user.email_verified:
-            raise HTTPException(409, "This email already has a password account. Sign in with your password instead.")
         if not user.firebase_uid:
             user.firebase_uid = uid
         user.email_verified = True
@@ -176,9 +167,6 @@ async def fb_google(body: GoogleLoginIn, response: Response, request: Request, d
 
     if not user.is_active:
         raise HTTPException(401, "Account is inactive.")
-
-    from app.api.auth import verify_login_totp
-    verify_login_totp(user, body.totp_code)
 
     from app.core.security import record_login_meta
     record_login_meta(user, request)

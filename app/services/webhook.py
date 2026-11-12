@@ -335,36 +335,3 @@ async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelle
         _log_webhook_failure(url, str(e))
 
 
-
-
-async def fire_event_webhook(merchant_id: str, event: str, base_payload: dict) -> None:
-    from app.core.database import AsyncSessionLocal
-    try:
-        async with AsyncSessionLocal() as db:
-            res = await db.execute(select(User).where(User.id == merchant_id))
-            merchant = res.scalar_one_or_none()
-            if not merchant or not merchant.webhook_url:
-                return
-            secret = ""
-            if merchant.webhook_secret_enc:
-                try:
-                    secret = decrypt_field(merchant.webhook_secret_enc)
-                except Exception:
-                    pass
-        url = merchant.webhook_url
-        try:
-            from app.core.validators import validate_url as _validate_webhook_url
-            url = await _validate_webhook_url(url, "webhook_url") or url
-            delivery_url, extra_headers, extra_kwargs = await _resolve_delivery(url)
-        except Exception:
-            logger.warning(f"fire_event_webhook({event}): webhook URL points to a disallowed host, skipping")
-            return
-        payload = build_webhook_payload(dict(base_payload, event=event))
-        sig = sign_webhook(payload, secret) if secret else ""
-        headers = _build_headers(event, sig, payload)
-        headers.update(extra_headers)
-        async with _build_client(url) as c:
-            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
-        logger.info(f"Event webhook ({event}) → {url[:50]} status={r.status_code}")
-    except Exception as e:
-        logger.warning(f"fire_event_webhook({event}) failed: {e}")

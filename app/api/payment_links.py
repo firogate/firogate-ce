@@ -36,8 +36,13 @@ async def _require_wallet(
     db: AsyncSession = Depends(get_db),
     merchant: User = Depends(_merchant),
 ) -> User:
-    from app.api.spark_connect_helpers import merchant_can_receive
-    if not await merchant_can_receive(db, merchant.id):
+    res = await db.execute(
+        select(SparkWalletConnection).where(
+            SparkWalletConnection.merchant_id == merchant.id,
+            SparkWalletConnection.is_active == True,
+        )
+    )
+    if res.scalar_one_or_none() is None:
         raise HTTPException(409, "Connect your wallet before creating payment links.")
     return merchant
 
@@ -324,8 +329,9 @@ async def checkout_from_link(
     db.add(payment)
     await db.flush()
 
-    from app.api.spark_connect_helpers import get_next_receive_address
-    address = await get_next_receive_address(db, merchant.id, payment)
+    from app.api.spark_connect_helpers import get_next_spark_address
+    address = await get_next_spark_address(db, merchant.id, payment)
+    payment.address_type = "spark"
     payment.receiving_address = address
 
     # uses_count is a display counter, incremented on each attempt (not used for blocking)

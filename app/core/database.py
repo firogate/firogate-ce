@@ -128,9 +128,6 @@ def _ensure_user_columns(sync_conn) -> None:
         ("blocked_by",                    "VARCHAR(36)"),
         ("spark_connect_enabled",         "BOOLEAN"),
         ("show_market_price",             "BOOLEAN DEFAULT 0 NOT NULL"),
-        ("pay_spark_enabled",             "BOOLEAN DEFAULT 1 NOT NULL"),
-        ("pay_transparent_enabled",       "BOOLEAN DEFAULT 1 NOT NULL"),
-        ("pay_default_method",            "VARCHAR(16) DEFAULT 'spark' NOT NULL"),
         # Merchant Setup checklist: existing accounts are unlocked by
         # default same as new registrations (auth.py /register sets this
         # explicitly too) operators can still lock individual accounts
@@ -441,10 +438,6 @@ def _ensure_payment_spark_columns(sync_conn) -> None:
         ("spark_owner_id",    "VARCHAR"),
         ("spark_coin_tags_json", "TEXT"),
         ("start_block_height", "INTEGER"),
-        ("derivation_index", "INTEGER"),
-        ("spark_address", "VARCHAR(512)"),
-        ("transparent_address", "VARCHAR(64)"),
-        ("transparent_received", "FLOAT"),
     ]
     for col, ddl in additions:
         if col not in existing:

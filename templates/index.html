@@ -33,40 +33,79 @@
   --fg-ent-text2:#2b2b2f;
 }
 
-.fg-entry{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px 64px;background:var(--fg-ent-bg)}
-.fg-entry-card{width:100%;max-width:400px}
-.fg-entry-card.fg-wide{max-width:760px}
-.fg-entry-logo{font-weight:800;font-size:2rem;letter-spacing:-.02em;color:var(--fg-ent-text);text-align:center;margin-bottom:28px}
+.fg-entry{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px 20px 64px;background:var(--fg-ent-bg)}
+.fg-entry-card{width:100%;max-width:520px;text-align:center}
+.fg-entry-card.fg-wide{max-width:1100px}
+.fg-entry-logo{font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--fg-ent-text);margin-bottom:6px}
+.fg-entry-sub{color:var(--fg-ent-text2);font-size:.85rem;margin-bottom:32px}
 
-.fg-st{background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);border-radius:16px;margin-bottom:16px}
-.fg-st-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px}
-.fg-st-row + .fg-st-row{border-top:1px solid var(--fg-ent-border)}
-.fg-st-name{font-size:.92rem;font-weight:600;color:var(--fg-ent-text)}
-.fg-st-val{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--fg-ent-text2)}
-.fg-st-dot{width:8px;height:8px;border-radius:50%;background:var(--fg-ent-border)}
-.fg-st-dot.ok{background:var(--g,#22c55e)}
-.fg-st-dot.bad{background:var(--red,#ef4444)}
-.fg-st-val.bad{color:var(--red,#ef4444)}
-.fg-entry-actions{display:flex;flex-direction:column;gap:10px}
-.fg-entry-actions .btn{padding:14px 18px;border-radius:14px;font-size:.95rem}
-
-.fg-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
-.fg-topbar .fg-entry-logo{margin:0;font-size:1.6rem}
-.fg-topbar-btn{
-  display:inline-flex;align-items:center;padding:9px 16px;border-radius:12px;
-  background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
-  color:var(--fg-ent-text);font-size:.82rem;font-weight:600;text-decoration:none;
-  transition:border-color .15s ease,color .15s ease;
+.fg-status-wrap{position:relative;margin-bottom:26px}
+.fg-status-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.fg-status{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.fg-status-sq{
+  position:relative;text-align:left;
+  aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;
+  border-radius:var(--rA);background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
+  padding:14px;cursor:default;
+  transition:border-color .15s ease;
 }
-.fg-topbar-btn:hover{border-color:var(--brand);color:var(--brand)}
-.fg-avail-title{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;color:var(--fg-ent-text);margin:0 0 18px}
-.fg-avail-group{margin-bottom:22px}
-.fg-avail-label{font-size:.7rem;font-weight:700;color:var(--fg-ent-text2);text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px 4px}
-.fg-avail-list{background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);border-radius:16px;display:grid;grid-template-columns:1fr}
-@media (min-width:600px){.fg-avail-list{grid-template-columns:1fr 1fr}}
-.fg-avail-item{padding:14px 18px;font-size:.9rem;font-weight:600;color:var(--fg-ent-text);border-top:1px solid var(--fg-ent-border);cursor:help}
-.fg-avail-item:first-child{border-top:none}
-@media (min-width:600px){.fg-avail-item:nth-child(2){border-top:none}.fg-avail-item:nth-child(even){border-inline-start:1px solid var(--fg-ent-border)}}
+.fg-status-sq:hover{border-color:var(--y)}
+.fg-status-label{font-size:.74rem;color:var(--fg-ent-text);font-weight:600;letter-spacing:-.005em}
+.fg-status-bottom{display:flex;align-items:center;gap:6px}
+.fg-status-dot{position:relative;width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--y)}
+.fg-status-dot.ok{background:var(--g,#22c55e)}
+.fg-status-dot.bad{background:var(--red,#ef4444)}
+.fg-status-val{font-size:.72rem;color:var(--fg-ent-text2);font-family:var(--mono)}
+
+.fg-entry-actions{display:flex;flex-direction:column;gap:10px}
+.fg-topbar{
+  display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;
+  margin-bottom:6px;
+}
+.fg-topbar-brand{font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--fg-ent-text)}
+.fg-topbar-mid{font-size:.72rem;font-weight:700;color:var(--fg-ent-text);text-transform:uppercase;letter-spacing:.1em;text-align:center}
+.fg-topbar-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:8px 18px;border-radius:var(--rBtn);
+  background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
+  color:var(--fg-ent-text);font-size:.8rem;font-weight:600;text-decoration:none;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;
+}
+.fg-topbar-btn:hover{background:var(--y);border-color:var(--y);color:var(--y-ink)}
+@media (min-width:640px){
+  .fg-topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:left;margin-bottom:16px;gap:12px}
+  .fg-topbar-brand{text-align:left}
+  .fg-topbar-mid{text-align:center}
+  .fg-topbar-btn{justify-self:end}
+}
+
+.fg-avail{margin-top:36px;padding-top:28px;border-top:1px solid var(--fg-ent-border);text-align:left;width:100%}
+
+.fg-hub-wrap{position:relative}
+.fg-hub-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.fg-hub{position:relative;z-index:2;display:flex;justify-content:center;margin-bottom:30px}
+.fg-hub-node{
+  display:flex;align-items:center;justify-content:center;
+  min-width:104px;height:52px;border-radius:var(--rA);padding:0 20px;
+  background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);
+  font-weight:800;font-size:.86rem;letter-spacing:-.01em;color:var(--fg-ent-text);white-space:nowrap;
+}
+.fg-hub-node span{color:var(--fg-ent-text)}
+
+.fg-avail-group{position:relative;z-index:2;margin-bottom:26px}
+.fg-avail-group:last-child{margin-bottom:20px}
+.fg-avail-group-label{font-size:.68rem;color:var(--fg-ent-text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;text-align:center}
+.fg-avail-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:560px){.fg-avail-grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:860px){.fg-avail-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:1100px){.fg-avail-grid{grid-template-columns:repeat(4,1fr)}}
+.fg-avail-card{
+  border-radius:var(--rA);background:var(--fg-ent-card);border:1px solid var(--fg-ent-border);padding:14px 16px;
+  transition:border-color .15s ease;
+}
+.fg-avail-card:hover{border-color:var(--y)}
+.fg-avail-name{font-size:.84rem;font-weight:700;color:var(--fg-ent-text);margin-bottom:4px}
+.fg-avail-desc{font-size:.74rem;color:var(--fg-ent-text2);line-height:1.55}
 </style>
 {% endblock %}
 {% block body %}
@@ -74,52 +113,114 @@
   <div class="fg-entry-card{{ ' fg-wide' if auth_pages_hidden else '' }}">
     {% if auth_pages_hidden %}
     <div class="fg-topbar">
-      <div class="fg-entry-logo" data-no-i18n>Firo<span style="color:var(--brand)">Gate</span></div>
+      <div class="fg-topbar-brand">Firo<span style="color:var(--y)">Gate</span></div>
+      <span class="fg-topbar-mid">Where to get FIRO</span>
       <a class="fg-topbar-btn" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">Open-source</a>
     </div>
-    <h1 class="fg-avail-title">Where to get FIRO</h1>
-      <div class="fg-avail-group">
-        <div class="fg-avail-label">Exchanges</div>
-        <div class="fg-avail-list">
-          <div class="fg-avail-item" data-no-i18n data-tip="Buy and trade FIRO directly against USDT.">MEXC</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="Trade FIRO and withdraw straight to a Spark address.">Biconomy</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="FIRO/USDT and FIRO/BTC trading pairs.">CoinEx</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="Buy and trade FIRO against USDT.">Nonkyc.io Exchange</div>
-        </div>
-      </div>
-      <div class="fg-avail-group">
-        <div class="fg-avail-label">Wallets with Spark support</div>
-        <div class="fg-avail-list">
-          <div class="fg-avail-item" data-no-i18n data-tip="Official Firo wallet. Supports Spark Names human-readable private addresses.">Campfire</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="Multi-coin wallet with full Spark and Spark Names support.">Stack Wallet</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="Official full-node desktop wallet. Spark is the default send/receive method.">Firo Core (Firo-QT)</div>
-        </div>
-      </div>
-      <div class="fg-avail-group">
-        <div class="fg-avail-label">Instant swap</div>
-        <div class="fg-avail-list">
-          <div class="fg-avail-item" data-no-i18n data-tip="No-account crypto-to-crypto and fiat-to-FIRO swaps.">ChangeNOW</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="No-account crypto swaps, linked directly from firo.org.">SimpleSwap</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="No-account crypto-to-crypto swaps for FIRO.">StealthEX</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="No-account crypto-to-crypto swaps for FIRO.">Buyfiro.app</div>
-          <div class="fg-avail-item" data-no-i18n data-tip="Swap aggregator comparing rates across providers for FIRO.">SwapSpace</div>
-        </div>
-      </div>
-    {% else %}
-    <div class="fg-entry-logo" data-no-i18n>Firo<span style="color:var(--brand)">Gate</span></div>
 
-    <div class="fg-st" id="fg-status-list">
-      <div class="fg-st-row">
-        <span class="fg-st-name">API</span>
-        <span class="fg-st-val" id="fg-status-api-val"><span class="fg-st-dot" id="fg-status-api-dot"></span><span>Checking…</span></span>
+    <div class="fg-avail">
+      <div class="fg-hub-wrap" id="fg-hub-wrap">
+        <svg class="fg-hub-svg" id="fg-hub-svg" aria-hidden="true"></svg>
+
+        <div class="fg-hub">
+          <div class="fg-hub-node" id="fg-hub-node"><span>Blockchain</span></div>
+        </div>
+
+        <div class="fg-avail-group" id="fg-group-exchanges">
+          <div class="fg-avail-group-label">Exchanges</div>
+          <div class="fg-avail-grid">
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">MEXC</div>
+              <div class="fg-avail-desc">Buy and trade FIRO directly against USDT.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">Biconomy</div>
+              <div class="fg-avail-desc">Trade FIRO and withdraw straight to a Spark address.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">CoinEx</div>
+              <div class="fg-avail-desc">FIRO/USDT and FIRO/BTC trading pairs.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">Nonkyc.io Exchange</div>
+              <div class="fg-avail-desc">Buy and trade FIRO against USDT.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fg-avail-group" id="fg-group-wallets">
+          <div class="fg-avail-group-label">Wallets with Spark support</div>
+          <div class="fg-avail-grid">
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">Campfire</div>
+              <div class="fg-avail-desc">Official Firo wallet. Supports Spark Names human-readable private addresses.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">Stack Wallet</div>
+              <div class="fg-avail-desc">Multi-coin wallet with full Spark and Spark Names support.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">Firo Core (Firo-QT)</div>
+              <div class="fg-avail-desc">Official full-node desktop wallet. Spark is the default send/receive method.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fg-avail-group" id="fg-group-swap">
+          <div class="fg-avail-group-label">Instant swap</div>
+          <div class="fg-avail-grid">
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">ChangeNOW</div>
+              <div class="fg-avail-desc">No-account crypto-to-crypto and fiat-to-FIRO swaps.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">SimpleSwap</div>
+              <div class="fg-avail-desc">No-account crypto swaps, linked directly from firo.org.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">StealthEX</div>
+              <div class="fg-avail-desc">No-account crypto-to-crypto swaps for FIRO.</div>
+            </div>
+              <div class="fg-avail-card">
+              <div class="fg-avail-name">Buyfiro.app</div>
+              <div class="fg-avail-desc">No-account crypto-to-crypto swaps for FIRO.</div>
+            </div>
+            <div class="fg-avail-card">
+              <div class="fg-avail-name">SwapSpace</div>
+              <div class="fg-avail-desc">Swap aggregator comparing rates across providers for FIRO.</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="fg-st-row">
-        <span class="fg-st-name">Firo Node</span>
-        <span class="fg-st-val" id="fg-status-node-val"><span class="fg-st-dot" id="fg-status-node-dot"></span><span>Checking…</span></span>
-      </div>
-      <div class="fg-st-row">
-        <span class="fg-st-name">Database</span>
-        <span class="fg-st-val" id="fg-status-db-val"><span class="fg-st-dot" id="fg-status-db-dot"></span><span>Checking…</span></span>
+    </div>
+    {% else %}
+    <div class="fg-entry-logo">Firo<span style="color:var(--y)">Gate</span></div>
+    <p class="fg-entry-sub">Self-hosted Firo payment gateway</p>
+
+    <div class="fg-status-wrap">
+      <svg class="fg-status-svg" id="fg-status-svg" aria-hidden="true"></svg>
+      <div class="fg-status" id="fg-status-list">
+        <div class="fg-status-sq" data-id="api">
+          <span class="fg-status-label">API</span>
+          <span class="fg-status-bottom">
+            <span class="fg-status-dot" id="fg-status-api-dot"></span>
+            <span class="fg-status-val" id="fg-status-api-val">Checking…</span>
+          </span>
+        </div>
+        <div class="fg-status-sq" data-id="node">
+          <span class="fg-status-label">Firo Node</span>
+          <span class="fg-status-bottom">
+            <span class="fg-status-dot" id="fg-status-node-dot"></span>
+            <span class="fg-status-val" id="fg-status-node-val">Checking…</span>
+          </span>
+        </div>
+        <div class="fg-status-sq" data-id="db">
+          <span class="fg-status-label">Database</span>
+          <span class="fg-status-bottom">
+            <span class="fg-status-dot" id="fg-status-db-dot"></span>
+            <span class="fg-status-val" id="fg-status-db-val">Checking…</span>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -131,6 +232,137 @@
 {% block js %}
 <script>
 (function () {
+  var NS = "http://www.w3.org/2000/svg";
+  function drawStatusConnectors() {
+    var svg = document.getElementById('fg-status-svg');
+    var wrap = svg.closest('.fg-status-wrap');
+    if (!svg || !wrap) return;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.fg-status-sq'));
+    if (boxes.length < 2) return;
+    var containerRect = wrap.getBoundingClientRect();
+    var color = getComputedStyle(document.documentElement).getPropertyValue('--y').trim() || '#00A2A7';
+
+    for (var i = 0; i < boxes.length - 1; i++) {
+      var r1 = boxes[i].getBoundingClientRect();
+      var r2 = boxes[i + 1].getBoundingClientRect();
+      var startX = r1.right - containerRect.left;
+      var startY = r1.top - containerRect.top + r1.height / 2;
+      var endX = r2.left - containerRect.left;
+      var endY = r2.top - containerRect.top + r2.height / 2;
+      var midX = startX + (endX - startX) / 2;
+      var d = 'M ' + startX + ' ' + startY + ' C ' + midX + ' ' + startY + ', ' + midX + ' ' + endY + ', ' + endX + ' ' + endY;
+
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', color);
+      path.setAttribute('stroke-width', '1.2');
+      path.setAttribute('stroke-dasharray', '3 4');
+      path.setAttribute('opacity', '0.16');
+      svg.appendChild(path);
+
+      var dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('r', '2.2');
+      dot.setAttribute('fill', color);
+      dot.setAttribute('opacity', '0.9');
+      var anim = document.createElementNS(NS, 'animateMotion');
+      anim.setAttribute('dur', (2.6 + i * 0.4) + 's');
+      anim.setAttribute('repeatCount', 'indefinite');
+      anim.setAttribute('path', d);
+      anim.setAttribute('begin', (i * 0.3) + 's');
+      dot.appendChild(anim);
+      svg.appendChild(dot);
+    }
+  }
+
+  var _statusRaf = null;
+  function scheduleDrawStatusConnectors() {
+    if (_statusRaf) cancelAnimationFrame(_statusRaf);
+    _statusRaf = requestAnimationFrame(drawStatusConnectors);
+  }
+  window.addEventListener('resize', scheduleDrawStatusConnectors);
+  setTimeout(scheduleDrawStatusConnectors, 60);
+  setTimeout(scheduleDrawStatusConnectors, 620);
+})();
+</script>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var COLORS = ['#00A2A7', '#FD4F17', '#22C55E'];
+
+  function buildPathD(startX, startY, endX, endY) {
+    var midY = startY + (endY - startY) * 0.5;
+    return 'M ' + startX + ' ' + startY + ' C ' + startX + ' ' + midY + ', ' + endX + ' ' + midY + ', ' + endX + ' ' + endY;
+  }
+
+  function drawHubConnectors() {
+    var svg = document.getElementById('fg-hub-svg');
+    var wrap = document.getElementById('fg-hub-wrap');
+    var hub = document.getElementById('fg-hub-node');
+    if (!svg || !wrap || !hub) return;
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    var groups = [
+      document.getElementById('fg-group-exchanges'),
+      document.getElementById('fg-group-wallets'),
+      document.getElementById('fg-group-swap'),
+    ].filter(Boolean);
+    if (!groups.length) return;
+
+    var containerRect = wrap.getBoundingClientRect();
+    var hubRect = hub.getBoundingClientRect();
+    var startX = hubRect.left - containerRect.left + hubRect.width / 2;
+    var startY = hubRect.bottom - containerRect.top;
+
+    groups.forEach(function (group, gi) {
+      var cards = Array.prototype.slice.call(group.querySelectorAll('.fg-avail-card'));
+      if (!cards.length) return;
+      var color = COLORS[gi % COLORS.length];
+
+      cards.forEach(function (card, ci) {
+        var r = card.getBoundingClientRect();
+        var endX = r.left - containerRect.left + r.width / 2;
+        var endY = r.top - containerRect.top;
+        var d = buildPathD(startX, startY, endX, endY);
+        var idx = gi * 10 + ci;
+
+        var path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '1');
+        path.setAttribute('stroke-dasharray', '3 5');
+        path.setAttribute('opacity', '0.1');
+        svg.appendChild(path);
+
+        var dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('r', '2.2');
+        dot.setAttribute('fill', color);
+        dot.setAttribute('opacity', '0.85');
+        var anim = document.createElementNS(NS, 'animateMotion');
+        anim.setAttribute('dur', (3.4 + (idx % 5) * 0.5) + 's');
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('path', d);
+        anim.setAttribute('begin', ((idx % 7) * 0.35) + 's');
+        dot.appendChild(anim);
+        svg.appendChild(dot);
+      });
+    });
+  }
+
+  var _hubRaf = null;
+  function scheduleDrawHubConnectors() {
+    if (_hubRaf) cancelAnimationFrame(_hubRaf);
+    _hubRaf = requestAnimationFrame(drawHubConnectors);
+  }
+  window.addEventListener('resize', scheduleDrawHubConnectors);
+  setTimeout(scheduleDrawHubConnectors, 60);
+  setTimeout(scheduleDrawHubConnectors, 620);
+})();
+</script>
+<script>
+(function () {
   var authPagesHidden = {{ (auth_pages_hidden if auth_pages_hidden is defined else False) | tojson }};
   if (authPagesHidden) return;
 
@@ -140,8 +372,8 @@
   function setRow(prefix, ok, label) {
     var dot = document.getElementById('fg-status-' + prefix + '-dot');
     var val = document.getElementById('fg-status-' + prefix + '-val');
-    if (dot) dot.className = 'fg-st-dot ' + (ok ? 'ok' : 'bad');
-    if (val) { val.classList.toggle('bad', !ok); val.lastElementChild.textContent = label; }
+    if (dot) dot.className = 'fg-status-dot ' + (ok ? 'ok' : 'bad');
+    if (val) val.textContent = label;
   }
 
   fetch('/health', { cache: 'no-store' })

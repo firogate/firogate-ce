@@ -760,7 +760,6 @@ const HTML = `<!DOCTYPE html>
       <a href="#capabilities">Capabilities</a>
       <a href="#developers">Developers</a>
       <a href="#get-started">Install</a>
-      <a href="https://demo.firogate.com" target="_blank" rel="noopener">Demo</a>
     </nav>
     <div class="nav-actions">
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" type="button">
@@ -788,7 +787,6 @@ const HTML = `<!DOCTYPE html>
     <a href="#get-started">Install</a>
   </nav>
   <div class="sidebar-foot">
-    <a class="btn btn-outline" href="https://demo.firogate.com" target="_blank" rel="noopener" style="width:100%;margin-bottom:10px;">Try the demo</a>
     <a class="btn btn-primary" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener" style="width:100%;">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
       View on GitHub
@@ -810,9 +808,6 @@ const HTML = `<!DOCTYPE html>
           <a class="btn btn-primary" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.5 0-.24-.01-1.04-.01-1.88-2.78.61-3.37-1.2-3.37-1.2-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .28.18.61.69.5A10.02 10.02 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
             View on GitHub
-          </a>
-          <a class="btn btn-outline" href="https://demo.firogate.com" target="_blank" rel="noopener">
-            Try the demo
           </a>
           <a class="btn btn-outline" href="#get-started">
             Get Started

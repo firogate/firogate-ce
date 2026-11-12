@@ -62,7 +62,6 @@ class VerifyIn(BaseModel):
     address:   str
     signature: str
     label:     str | None = None
-    totp_code: str | None = None
 
 
 def _valid_firo_address(a: str) -> bool:
@@ -132,9 +131,6 @@ async def wallet_verify(
 
     if not user.is_active:
         raise HTTPException(401, "Account is inactive.")
-
-    from app.api.auth import verify_login_totp
-    verify_login_totp(user, body.totp_code)
 
     from app.core.security import record_login_meta
     record_login_meta(user, request)

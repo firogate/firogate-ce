@@ -24,8 +24,18 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     u = res.scalar_one_or_none()
     if not u or not u.is_active: raise HTTPException(401)
 
-    from app.core.operator_access import resolve_operator
-    await resolve_operator(u, db)
+    # Operator-email auto-promotion: if this user's email is listed in the
+    # OPERATOR_EMAILS env var but the DB still has them as a merchant, flip
+    # the role to operator once. Happens lazily on the next request (e.g.
+    # the dashboard's /profile call) so brand new operators don't need a
+    # restart or manual DB edit.
+    from app.core.config import get_settings
+    _s = get_settings()
+    if u.role != UserRole.operator and (_s.is_operator_email(u.email) or _s.is_operator_username(u.username)):
+        u.role = UserRole.operator
+        db.add(u)
+        await db.commit()
+        await db.refresh(u)
     return u
 
 

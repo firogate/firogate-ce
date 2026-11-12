@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% block body_class %}is-checkout{% endblock %}
 {% block title %}Payment{% endblock %}
 {% block extra_css %}
 {% if preview_layout is defined and preview_layout and preview_layout != 'stripe' %}
@@ -401,7 +400,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 
 #v2-themes .t-news{width:100%;max-width:520px;font-family:'Noto Sans Arabic','Cormorant Garamond',serif;color:#1c1a17;line-height:1.4}
 .t-news .page{background:#fbf8f0;padding:24px 26px 22px;box-shadow:0 24px 50px -18px rgba(0,0,0,.55);position:relative}
-.t-news .mast{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase}
+.t-news .mast{display:flex;justify-content:space-between;align-items:baseline;font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase}
 .t-news .title{font-weight:700;font-size:36px;text-align:center;letter-spacing:1px;border-top:2.5px solid #1c1a17;border-bottom:1px solid #1c1a17;padding:8px 0 6px;margin:8px 0 3px}
 .t-news .title i{color:#B82334;font-style:normal}
 .t-news .under{border-bottom:2.5px solid #1c1a17;text-align:center;font:600 9.5px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:6px;margin-bottom:16px;color:#6b665c}
@@ -1482,36 +1481,6 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 [dir="rtl"] .t-cyber .addr{flex-direction:row-reverse}
 [dir="rtl"] .t-cyber .core{flex-direction:row-reverse}
 
-.fg-method{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;margin:0 0 10px;border-radius:12px;
-  background:var(--bg3,#1a1e20);border:1px solid var(--bw,rgba(255,255,255,.08))}
-.fg-method::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 5px);border-radius:9px;
-  background:var(--kit-accent,#00A2A7);box-shadow:0 6px 18px color-mix(in srgb,var(--kit-accent,#00A2A7) 35%,transparent);
-  transition:transform .32s cubic-bezier(.3,.7,.3,1)}
-.fg-method[data-cur="transparent"]::before{transform:translateX(calc(100% + 4px))}
-[dir="rtl"] .fg-method::before{left:auto;right:3px}
-[dir="rtl"] .fg-method[data-cur="transparent"]::before{transform:translateX(calc(-100% - 4px))}
-.fg-method button{position:relative;z-index:1}
-.st-qr-box img{transition:opacity .25s ease,transform .25s ease}
-.st-qr-box.swap img{opacity:0;transform:scale(.94)}
-@media (prefers-reduced-motion:reduce){.fg-method::before,.st-qr-box img{transition:none}}
-.fg-method button{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 8px;border:0;border-radius:9px;
-  background:none;color:var(--t2,#9aa4a6);cursor:pointer;font:inherit;transition:background-color .18s,color .18s}
-.fg-method .m-name{font-size:.86rem;font-weight:700;letter-spacing:-.01em}
-.fg-method .m-sub{font-size:.68rem;opacity:.8}
-.fg-method button:hover{color:var(--t1,#e8eeee)}
-.fg-method button.on{color:var(--th-accent-ink,#fff)}
-.fg-method.fg-method-float{background:var(--th-surface,var(--bg2,#141719));border-color:var(--th-border,rgba(255,255,255,.08))}
-.fg-method.fg-method-float button{color:color-mix(in srgb,var(--th-text,#e8eeee) 68%,transparent)}
-.fg-method.fg-method-float button.on{color:var(--th-accent-ink,#fff)}
-.fg-method button:focus-visible{outline:2px solid var(--kit-accent,#00A2A7);outline-offset:2px}
-.fg-method.busy{opacity:.6;pointer-events:none}
-.fg-method.fg-method-float{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:80;width:min(300px,calc(100vw - 20px));
-  margin:0;background:var(--bg2,#141719);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-body.fg-float-on{padding-bottom:58px}
-.fg-notice{background:rgba(245,165,36,.07);border:1px solid rgba(245,165,36,.35);color:var(--t1,#e8eeee)}
-.fg-notice-txt{font-weight:400;line-height:1.45;color:var(--t2,#9aa4a6)}
-.fg-notice-k{color:#F5A524;text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;margin-inline-end:4px}
-html[data-theme="light"] .fg-notice-k{color:#A86400}
 :root{
   --kit-ruby:#C8211A;--kit-ruby-bright:#F2604F;--kit-ruby-glow:rgba(242,96,79,.45);
   --kit-accent:var(--th-accent,#00A2A7);
@@ -1772,13 +1741,9 @@ html[data-theme="light"] .fg-notice-k{color:#A86400}
 .t-vin .cwm button.on b{color:#e8a087}
 
 body[data-checkout-theme] .fg-curr-fixed{display:none!important}
-body.fg-curr-off .cw,body.fg-price-none .cw{display:none!important}
-body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price,
-body.fg-price-none .fiat,body.fg-price-none .v2-fiat,body.fg-price-none #st-usd-price,
-body.fg-curr-off .v2-fiat-wrap,body.fg-price-none .v2-fiat-wrap{display:none!important}
-body.fg-curr-off #th-brut .grid,body.fg-price-none #th-brut .grid,
-body.fg-curr-off .row:has(> .v2-fiat),body.fg-price-none .row:has(> .v2-fiat),
-body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:has(> .v2-fiat){display:none!important}
+body.fg-curr-off .cw{display:none!important}
+body.fg-curr-off .fiat,body.fg-curr-off .v2-fiat,body.fg-curr-off #st-usd-price{display:none!important}
+body.fg-curr-off #th-brut .grid .cell:has(.v2-fiat){display:none!important}
 </style>
 {% endblock %}
 {% block body %}
@@ -1824,12 +1789,12 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
       </div>
       <div class="st-brand" data-testid="st-merchant-brand">
         <div class="st-brand-logo" id="st-brand-logo">S</div>
-        <div class="st-brand-name" id="st-brand-name" data-testid="st-merchant-name" data-no-i18n>Store</div>
+        <div class="st-brand-name" id="st-brand-name" data-testid="st-merchant-name">Store</div>
       </div>
 
       <div>
-        <div class="st-desc" id="st-desc-label" data-testid="st-order-label">Payment to <span id="st-desc-merchant" data-no-i18n>Store</span></div>
-        <div id="st-order-title" class="st-desc skel-shimmer" style="color:var(--t1);font-size:1rem;font-weight:500;text-transform:none;letter-spacing:0;margin-top:4px" data-testid="st-order-title" data-no-i18n>—</div>
+        <div class="st-desc" id="st-desc-label" data-testid="st-order-label">Payment to <span id="st-desc-merchant">Store</span></div>
+        <div id="st-order-title" class="st-desc skel-shimmer" style="color:var(--t1);font-size:1rem;font-weight:500;text-transform:none;letter-spacing:0;margin-top:4px" data-testid="st-order-title">—</div>
         <div class="st-amount skel-shimmer" id="st-amount" data-testid="st-amount">—</div>
         <div class="st-amount-sub">FIRO</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;flex-wrap:wrap">
@@ -1878,10 +1843,10 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
           <span style="font-size:.8rem;color:#ef4444;line-height:1.4"><strong>Under Maintenance</strong> The payment processor is temporarily offline. <strong>Do not send FIRO yet.</strong> Please wait and refresh in a few minutes.</span>
         </div>
 
-        <div id="addr-warn-banner" class="fg-notice" style="border-radius:12px;padding:9px 12px;margin-bottom:16px;display:flex;align-items:center;gap:9px;font-size:.74rem;font-weight:600">
+        <div id="addr-warn-banner" style="background:#92400e;border:1px solid #f59e0b;border-radius:10px;padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:600;color:#fde68a">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.4" style="flex-shrink:0"><path d="M12 9v4m0 4h.01M10.29 3.86l-8.18 14.18A2 2 0 0 0 3.82 21h16.36a2 2 0 0 0 1.71-2.96L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-          <span class="fg-notice-txt"><strong class="fg-notice-k">Notice</strong> Send to the correct address below. Payments sent elsewhere can't be recovered.</span>
-          <button onclick="dismissAddrWarnBanner()" title="Dismiss" style="margin-left:auto;width:20px;height:20px;border-radius:50%;border:none;background:transparent;color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;padding:0;flex-shrink:0" aria-label="Dismiss address warning banner">✕</button>
+          <span style="color:#fde68a;font-weight:400;line-height:1.4"><strong style="color:#f59e0b;text-transform:uppercase;letter-spacing:.06em">Notice</strong> Send to the correct address below. Payments sent elsewhere can't be recovered.</span>
+          <button onclick="dismissAddrWarnBanner()" title="Dismiss" style="margin-left:auto;width:20px;height:20px;border-radius:50%;border:none;background:rgba(251,191,36,0.15);color:#0e0206;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;padding:0;flex-shrink:0" aria-label="Dismiss address warning banner">✕</button>
         </div>
         <script>
           (function(){
@@ -1909,15 +1874,6 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
           <div class="row"><span data-i18n="Total">Total</span><span id="pay-amt-total">—</span></div>
           <div class="row"><span data-i18n="Received">Received</span><span id="pay-amt-received">—</span></div>
           <div class="row"><span data-i18n="Remaining">Remaining</span><span id="pay-amt-remaining">—</span></div>
-        </div>
-
-        <div class="fg-method" id="fg-method" role="tablist" aria-label="Payment method" style="display:none">
-          <button type="button" role="tab" data-method="spark" onclick="pickMethod('spark')">
-            <span class="m-name" data-no-i18n>Spark</span><span class="m-sub" data-i18n="Private">Private</span>
-          </button>
-          <button type="button" role="tab" data-method="transparent" onclick="pickMethod('transparent')">
-            <span class="m-name" data-i18n="Transparent">Transparent</span><span class="m-sub" data-i18n="Any wallet">Any wallet</span>
-          </button>
         </div>
 
         <div class="st-qr-card">
@@ -2133,7 +2089,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 <section class="theme" id="th-news"><div class="t-news"><div class="page">
   <div class="mast"><span>Checkout</span><span class="v2-date">—</span><span>Non-Custodial</span></div>
   <div class="title">CHECKOUT</div>
-  <div class="under">Printed on the blockchain · Price <span class="v2-amount skel-shimmer">—</span> FIRO<span class="v2-fiat-wrap"> (<span class="v2-fiat skel-shimmer">—</span>)</span></div>
+  <div class="under">Printed on the blockchain · Price <span class="v2-amount skel-shimmer">—</span> FIRO (<span class="v2-fiat skel-shimmer">—</span>)</div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="head">INVOICE AWAITS PAYMENT</div>
   <div class="deck"><span class="v2-merchant">Store</span> issues invoice № <span class="v2-order">—</span>; funds to travel directly to merchant.</div>
@@ -2183,7 +2139,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
     <dl>
       <dt>Expires</dt><dd class="timer">—</dd>
       <dt>Address</dt><dd class="mono addr-txt">—</dd>
-      <dt></dt><dd><button class="cp" data-copy data-i18n="Copy address">Copy address</button></dd>
+      <dt></dt><dd><button class="cp" data-copy>Copy address</button></dd>
     </dl>
     <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#111111" data-light="#ffffff"></svg></div>
   </div>
@@ -2224,7 +2180,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
       <div><div class="k">Order</div><div class="v v2-order">—</div></div>
     </div>
     <div class="addr">SEND TO: <span class="addr-txt">—</span></div>
-    <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
+    <button class="cp" data-copy>Copy address</button>
   </div>
   <div class="stub">
     <div class="k">Scan to pay</div>
@@ -2330,7 +2286,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="row">
     <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#101322" data-light="#ffffff"></svg></div>
-    <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy data-i18n="Copy address">Copy address</button></div>
+    <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy>Copy address</button></div>
   </div>
   <div class="meta"><span>≈ <b class="v2-fiat skel-shimmer">—</b></span><span>expires <b class="timer">—</b></span></div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
@@ -2417,7 +2373,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#2a2320" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
-  <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
+  <button class="cp" data-copy>Copy address</button>
   <div class="tm">expires in <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><div class="scene">
@@ -2446,7 +2402,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#5c2340" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
-  <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
+  <button class="cp" data-copy>Copy address</button>
   <div class="tm">the jar closes in <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><div class="pcC"><i><svg viewBox="0 0 120 120"><path d="M36 64l16 16 32-38"/></svg></i></div><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
@@ -2481,7 +2437,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#6b4d8f" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
-  <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
+  <button class="cp" data-copy>Copy address</button>
   <div class="tm">the magic fades in <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><div class="dstars"><i class="dstar"></i><i class="dstar"></i><i class="dstar"></i><i class="dstar"></i></div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
@@ -2495,7 +2451,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="row">
     <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#141414" data-light="#ffffff"></svg></div>
-    <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy data-i18n="Copy address">Copy address</button></div>
+    <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy>Copy address</button></div>
   </div>
   <div class="tm">TIME LEFT <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
@@ -2527,7 +2483,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
     <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
     <div class="row">
       <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#17181c" data-light="#ffffff"></svg></div>
-      <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy data-i18n="Copy address">Copy address</button></div>
+      <div class="addr"><span class="addr-txt">—</span><br><button class="cp" data-copy>Copy address</button></div>
     </div>
     <div class="tm">TIME LEFT <b class="timer">—</b></div>
     <button class="cxbtn" data-cancel>Cancel order</button>
@@ -2557,7 +2513,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#2b2118" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
-  <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
+  <button class="cp" data-copy>Copy address</button>
   <div class="tm">TIME LEFT <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
@@ -2964,7 +2920,6 @@ async function init() {
           _applyV2Colors(_previewLayout, _v2ForLayout);
         } catch(e) {}
         fetch('/api/price').then(function(r){ return r.ok ? r.json() : null; }).then(function(pd){
-          document.body.classList.toggle('fg-price-none', !(pd && pd.price));
           if (!pd || !pd.price) return;
           window._dashPrice = pd.price;
           var activeV2 = document.querySelector('#v2-themes .theme.on');
@@ -2972,7 +2927,7 @@ async function init() {
             var fiatStr = _fiatFromFiro(4.275, pd.price);
             activeV2.querySelectorAll('.v2-fiat').forEach(function(el){ el.classList.remove('skel-shimmer'); el.textContent = fiatStr; });
           }
-        }).catch(function(){ document.body.classList.add('fg-price-none'); });
+        }).catch(function(){});
       }
       if (_previewLive) {
         var expAt = new Date(Date.now() + 900000).toISOString();
@@ -3115,8 +3070,8 @@ function applyMerchantBranding(d) {
       s.style.color = 'var(--t3)'; s.textContent = 'Plan Purchase';
       descLabel.appendChild(s);
     } else if (rawName && rawName !== 'Merchant') {
-      descLabel.appendChild(document.createTextNode(((T[currentLang] || T.en).payTo || 'Payment to') + ' '));
-      s.id = 'st-desc-merchant'; s.setAttribute('data-no-i18n', ''); s.textContent = name;
+      descLabel.appendChild(document.createTextNode('Payment to '));
+      s.id = 'st-desc-merchant'; s.textContent = name;
       descLabel.appendChild(s);
     } else {
       s.style.color = 'var(--t3)'; s.textContent = 'Secure Payment';
@@ -3168,12 +3123,7 @@ function _applyThemeVars(t) {
     root.style.setProperty('--th-font', t.font_stack);
   }
 
-  if (safeHex(t.accent)) {
-    root.style.setProperty('--y', safeHex(t.accent));
-    var _ac = safeHex(t.accent);
-    var _lum = (parseInt(_ac.slice(1,3),16)*299 + parseInt(_ac.slice(3,5),16)*587 + parseInt(_ac.slice(5,7),16)*114) / 1000;
-    root.style.setProperty('--th-accent-ink', _lum > 160 ? '#111111' : '#FFFFFF');
-  }
+  if (safeHex(t.accent)) root.style.setProperty('--y', safeHex(t.accent));
 
   if (t.checkout_layout && t.checkout_layout !== 'stripe') {
     _switchCheckoutLayout(t.checkout_layout);
@@ -3444,7 +3394,6 @@ function _v2InitTheme(layout) {
     orderId = orderId.replace(/^plan:/i, '').replace(/[_-]/g, ' ')
       .replace(/\b\w/g, function(c){ return c.toUpperCase(); }) + ' Plan';
   }
-  sec.querySelectorAll('.v2-merchant, .v2-merchant-short, .v2-merchant-code, .v2-order').forEach(function(el){ el.setAttribute('data-no-i18n', ''); });
   sec.querySelectorAll('.v2-merchant').forEach(function(el){ el.textContent = merch; });
   sec.querySelectorAll('.v2-merchant-short').forEach(function(el){ el.textContent = merch.substring(0,12).toUpperCase(); });
   sec.querySelectorAll('.v2-merchant-code').forEach(function(el){ el.textContent = merch.replace(/[^A-Za-z]/g,'').substring(0,3).toUpperCase() || 'MRC'; });
@@ -3468,7 +3417,6 @@ function _v2InitTheme(layout) {
     fiatAmt = _fiatFromFiro(payData.amount_firo, window._dashPrice);
   }
   sec.querySelectorAll('.v2-fiat').forEach(function(el){ el.classList.remove('skel-shimmer'); el.textContent = fiatAmt; });
-  document.body.classList.toggle('fg-price-none', fiatAmt === '—');
 
   var logo = (payData.merchant_logo || '').trim();
   sec.querySelectorAll('.v2-merchant-initial').forEach(function(avEl) {
@@ -3482,15 +3430,15 @@ function _v2InitTheme(layout) {
 
   var _t = (payData && payData.theme) || {};
   if (_t.checkout_title) {
-    sec.querySelectorAll('.v2-checkout-title').forEach(function(el){ el.setAttribute('data-no-i18n', ''); el.textContent = _t.checkout_title; });
+    sec.querySelectorAll('.v2-checkout-title').forEach(function(el){ el.textContent = _t.checkout_title; });
   }
   if (_t.success_msg) {
     var _successDone = sec.querySelector('.done:not(.isx) .dt1');
-    if (_successDone) { _successDone.setAttribute('data-no-i18n', ''); _successDone.textContent = _t.success_msg; }
+    if (_successDone) _successDone.textContent = _t.success_msg;
   }
   if (_t.cancel_msg) {
     var _cancelDone = sec.querySelector('.done.isx .dt1');
-    if (_cancelDone) { _cancelDone.setAttribute('data-no-i18n', ''); _cancelDone.textContent = _t.cancel_msg; }
+    if (_cancelDone) _cancelDone.textContent = _t.cancel_msg;
   }
 
   _v2FillQRCodes(sec, addr);
@@ -3668,68 +3616,11 @@ async function submitEmail() {
   showPaymentStep();
 }
 
-function _renderMethods(d) {
-  var el = document.getElementById('fg-method');
-  if (!el) return;
-  var ms = (d && d.methods) || [];
-  var open = d && (d.status === 'pending' || d.status === 'confirming') && !(d.amount_received > 0);
-  if (ms.length < 2 || !open) { el.style.display = 'none'; document.body.classList.remove('fg-float-on'); return; }
-  var cur = d.address_type || 'spark';
-  el.setAttribute('data-cur', cur);
-  el.querySelectorAll('button[data-method]').forEach(function(b){
-    var on = b.getAttribute('data-method') === cur;
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  var alt = typeof _checkoutLayoutActive !== 'undefined' && _checkoutLayoutActive && _checkoutLayoutActive !== 'stripe';
-  if (alt && el.parentNode !== document.body) document.body.appendChild(el);
-  el.classList.toggle('fg-method-float', !!alt);
-  document.body.classList.toggle('fg-float-on', !!alt);
-  el.style.display = 'grid';
-}
-
-async function pickMethod(m) {
-  if (!payData || payData.address_type === m) return;
-  var el = document.getElementById('fg-method');
-  if (el) el.classList.add('busy');
-  try {
-    var r = await fetch('/api/payments/public/' + PAYMENT_ID + '/method', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Checkout-Token': CHECKOUT_TOKEN },
-      body: JSON.stringify({ method: m })
-    });
-    var d = await r.json().catch(function(){ return {}; });
-    if (!r.ok) throw new Error(d.detail || 'error');
-    payData.address_type = d.method;
-    payData.receiving_address = d.receiving_address;
-    var at = document.getElementById('pay-addr-text');
-    if (at) at.textContent = d.receiving_address;
-    var sb = document.getElementById('st-spark-badge');
-    if (sb) sb.style.display = d.method === 'spark' ? 'flex' : 'none';
-    var box = document.getElementById('qr-box');
-    if (box) box.classList.add('swap');
-    el.setAttribute('data-cur', d.method);
-    await loadQRCode();
-    setTimeout(function(){ if (box) box.classList.remove('swap'); }, 60);
-    if (window._updateAltLayout) window._updateAltLayout(payData);
-    if (typeof _v2FillQRCodes === 'function' && typeof _V2_THEME_MAP !== 'undefined' && _checkoutLayoutActive && _V2_THEME_MAP[_checkoutLayoutActive]) {
-      var sec = document.getElementById(_V2_THEME_MAP[_checkoutLayoutActive].id);
-      if (sec) _v2FillQRCodes(sec, d.receiving_address);
-    }
-    _renderMethods(payData);
-  } catch (e) {
-    if (window.fgShowToast) fgShowToast({ type: 'error', title: (window.t ? window.t('Could not switch. Try again.') : 'Could not switch. Try again.') });
-  } finally {
-    if (el) el.classList.remove('busy');
-  }
-}
-
 function showPaymentStep() {
   const d = payData;
-  _renderMethods(d);
   document.getElementById('pay-addr-text').textContent = d.receiving_address || '—';
   const sparkBadge = document.getElementById('st-spark-badge');
-  if (sparkBadge) sparkBadge.style.display = (d.address_type || 'spark') === 'spark' ? 'flex' : 'none';
+  if (sparkBadge) sparkBadge.style.display = 'flex';
   const confs = d.confirmations || 0;
   const req   = d.required_confirmations || 2;
   if (window.fgSetConfs) fgSetConfs(confs, req);
@@ -3771,7 +3662,6 @@ function _startSSEStream() {
     updateProgress(restData);
     updateCancelButton(restData.status);
     payData = restData;
-    _renderMethods(payData);
   });
 }
 
@@ -3852,7 +3742,6 @@ async function fetchFreshPrice(firoAmount) {
     var price = data.price;
     if (!price || !firoAmount) return;
     window._dashPrice = price;
-    document.body.classList.remove('fg-price-none');
     var activeV2 = document.querySelector('#v2-themes .theme.on');
     if (activeV2 && payData) {
       var fiatStr = _fiatFromFiro(payData.amount_firo, price);

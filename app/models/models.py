@@ -120,9 +120,6 @@ class User(Base):
     privacy_mode                 = Column(Boolean, default=False)
     created_via_onion            = Column(Boolean, default=False)
     show_market_price            = Column(Boolean, default=False, nullable=False)
-    pay_spark_enabled            = Column(Boolean, default=True, nullable=False)
-    pay_transparent_enabled      = Column(Boolean, default=True, nullable=False)
-    pay_default_method           = Column(String(16), default="spark", nullable=False)
 
     firebase_uid                 = Column(String(128), unique=True, nullable=True, index=True)
     telegram_id                  = Column(String(32),  unique=True, nullable=True, index=True)
@@ -224,10 +221,6 @@ class Payment(Base):
     # detected (prevents double-crediting the same coin). Column kept for
     # historical rows predating the Spark-only migration.
     address_type            = Column(String(16), default="spark", nullable=False)
-    derivation_index        = Column(Integer, nullable=True)
-    spark_address           = Column(String(512), nullable=True)
-    transparent_address     = Column(String(64), nullable=True, index=True)
-    transparent_received    = Column(Float, nullable=True)
     spark_diversifier       = Column(Integer, nullable=True)
     spark_coin_tag          = Column(String(128), nullable=True)
     spark_owner_id          = Column(String, nullable=True)
@@ -471,50 +464,3 @@ class ApiKey(Base):
     scopes      = Column(String(512), nullable=True, default="*")
 
 
-
-
-class Refund(Base):
-    __tablename__ = "refunds"
-
-    id          = Column(String(36), primary_key=True, default=_uuid)
-    payment_id  = Column(String, ForeignKey("payments.id", ondelete="CASCADE"), nullable=False, index=True)
-    merchant_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-    amount_firo = Column(Float, nullable=False)
-    txid        = Column(String(64), nullable=True)
-    reason      = Column(String(280), nullable=True)
-    created_at  = Column(DateTime(timezone=True), default=_now, index=True)
-
-
-class RecurringPlan(Base):
-    __tablename__ = "recurring_plans"
-
-    id             = Column(String(36), primary_key=True, default=_uuid)
-    merchant_id    = Column(String, ForeignKey("users.id"), nullable=False, index=True)
-    title          = Column(String(128), nullable=False)
-    description    = Column(String(512), nullable=True)
-    amount_firo    = Column(Float, nullable=False)
-    interval       = Column(String(8), nullable=False, default="month")
-    customer_email = Column(String(254), nullable=False)
-    customer_name  = Column(String(128), nullable=True)
-    is_active      = Column(Boolean, default=True, nullable=False)
-    next_run_at    = Column(DateTime(timezone=True), nullable=False, index=True)
-    last_run_at    = Column(DateTime(timezone=True), nullable=True)
-    last_link_id   = Column(String(36), nullable=True)
-    anchor_day     = Column(Integer, nullable=True)
-    runs_count     = Column(Integer, default=0, nullable=False)
-    max_runs       = Column(Integer, nullable=True)
-    last_error     = Column(String(200), nullable=True)
-    created_at     = Column(DateTime(timezone=True), default=_now)
-
-
-class XpubWalletConnection(Base):
-    __tablename__ = "xpub_wallet_connections"
-
-    id               = Column(String(36), primary_key=True, default=_uuid)
-    merchant_id      = Column(String, ForeignKey("users.id"), nullable=False, unique=True, index=True)
-    xpub_enc         = Column(Text, nullable=False)
-    network          = Column(String(16), nullable=False, default="mainnet")
-    first_address    = Column(String(64), nullable=True)
-    next_index       = Column(Integer, nullable=False, default=0)
-    is_active        = Column(Boolean, nullable=False, default=True)
-    connected_at     = Column(DateTime(timezone=True), default=_now)

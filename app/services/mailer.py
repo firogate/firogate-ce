@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import html as _html
-
 from typing import Tuple, Optional
 
 import httpx
@@ -10,7 +8,7 @@ from loguru import logger
 from app.core.config import get_settings
 
 APP_NAME_DEFAULT = "FiroGate"
-ACCENT = "#00757B"
+ACCENT = "#B82334"
 TEXT = "#111111"
 MUTED = "#666666"
 BORDER = "#dddddd"
@@ -126,31 +124,29 @@ async def send_payment_receipt_email(
         when = confirmed_at_iso.replace("T", " ").split(".")[0] + " UTC"
 
     short_order = (order_id or "").strip()
-    e = _html.escape
-    h_merchant, h_product, h_order, h_txid = e(safe_merchant), e(product), e(short_order), e(txid or "")
 
     lines_html = [f"<p style='margin:0 0 4px 0'><strong>Amount paid:</strong> {amount} {currency}</p>"]
-    lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Product:</strong> {h_product}</p>")
+    lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Product:</strong> {product}</p>")
     if short_order:
-        lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Order ID:</strong> {h_order}</p>")
+        lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Order ID:</strong> {short_order}</p>")
     if txid:
         if explorer_url:
             lines_html.append(
                 f"<p style='margin:0 0 4px 0'><strong>Transaction:</strong> "
-                f"<a href=\"{e(explorer_url, quote=True)}\" style=\"color:{ACCENT}\">{h_txid}</a></p>"
+                f"<a href=\"{explorer_url}\" style=\"color:{ACCENT}\">{txid}</a></p>"
             )
         else:
-            lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Transaction:</strong> {h_txid}</p>")
+            lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Transaction:</strong> {txid}</p>")
     if when:
-        lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Date:</strong> {e(when)}</p>")
+        lines_html.append(f"<p style='margin:0 0 4px 0'><strong>Date:</strong> {when}</p>")
 
     body_html = (
-        f"<p style='margin:0 0 12px 0'>Your payment to {h_merchant} has been confirmed.</p>"
+        f"<p style='margin:0 0 12px 0'>Your payment to {safe_merchant} has been confirmed.</p>"
         + "".join(lines_html)
     )
 
     html, plain = _wrap(
-        title=f"{h_merchant} Payment confirmation",
+        title=f"{safe_merchant} Payment confirmation",
         heading="Payment confirmed",
         body_html=body_html,
     )

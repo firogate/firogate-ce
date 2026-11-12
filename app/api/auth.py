@@ -7,7 +7,6 @@ import re as _re
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import (
     hash_password, verify_password, create_access_token, verify_access_token,
@@ -57,8 +56,17 @@ async def _get_current_user(request: Request, db: AsyncSession) -> User:
     if not u or not u.is_active:
         raise HTTPException(401, "User not found or inactive")
 
-    from app.core.operator_access import resolve_operator
-    await resolve_operator(u, db)
+    # Operator-email auto-promotion (mirrors the logic in app.api.users.get_current_user).
+    # /api/auth/me is the single source of truth the panel uses to check
+    # role, so if we don't promote here the panel will see role=merchant
+    # even for a user listed in OPERATOR_EMAILS, and kick them back to /dashboard.
+    from app.core.config import get_settings as _gs
+    _s = _gs()
+    if u.role != UserRole.operator and (_s.is_operator_email(u.email) or _s.is_operator_username(u.username)):
+        u.role = UserRole.operator
+        db.add(u)
+        await db.commit()
+        await db.refresh(u)
     return u
 
 
@@ -109,8 +117,6 @@ async def register(body: RegisterIn, request: Request, response: Response, db: A
     else:
         username = (clean_email.split("@", 1)[0] if clean_email else f"user-{secrets.token_hex(3)}").lower()
         username = _re.sub(r"[^a-z0-9_\-]", "-", username)[:32] or f"user-{secrets.token_hex(3)}"
-        if get_settings().is_operator_username(username):
-            username = f"{username[:26]}-{secrets.token_hex(2)}"
         for _ in range(6):
             res = await db.execute(select(User).where(User.username == username))
             if not res.scalar_one_or_none():
@@ -251,13 +257,37 @@ async def login(body: LoginIn, response: Response, request: Request, db: AsyncSe
         await db.commit()
         raise HTTPException(401, "Invalid credentials")
 
-    try:
-        verify_login_totp(user, body.totp_code)
-    except HTTPException:
-        if not is_onion and not user.privacy_mode:
-            db.add(LoginAttempt(username=body.username, ip_address=ip, success=False))
-        await db.commit()
-        raise
+    if user.totp_enabled and user.totp_secret_enc:
+        code = (body.totp_code or "").strip()
+        if not code:
+            if not is_onion and not user.privacy_mode:
+                db.add(LoginAttempt(username=body.username, ip_address=ip, success=False))
+            await db.commit()
+            raise HTTPException(403, "2FA code required")
+
+        from app.core.totp import verify_totp_code, decrypt_totp_secret, current_totp_step
+        from app.core.security import get_fernet
+        try:
+            fernet = get_fernet()
+            secret = decrypt_totp_secret(user.totp_secret_enc, fernet)
+            if not secret:
+                raise ValueError("Failed to decrypt")
+        except Exception:
+            raise HTTPException(500, "2FA configuration error")
+
+        totp_ok = verify_totp_code(secret, code, last_step=user.totp_last_step)
+        backup_ok = (not totp_ok) and _use_backup_code(user, code)
+
+        if not totp_ok and not backup_ok:
+            if not is_onion and not user.privacy_mode:
+                db.add(LoginAttempt(username=body.username, ip_address=ip, success=False))
+            await db.commit()
+            raise HTTPException(401, "Invalid 2FA code")
+
+        if totp_ok:
+            step = current_totp_step(secret, code)
+            if step is not None:
+                user.totp_last_step = step
 
     from app.core.security import record_login_meta
     record_login_meta(user, request)
@@ -368,7 +398,6 @@ async def register_number(request: Request, response: Response, db: AsyncSession
 
 class LoginNumberIn(BaseModel):
     account_number: str
-    totp_code: str | None = None
 
 
 @router.post("/login-number", dependencies=[Depends(rate_limit_auth)])
@@ -415,14 +444,6 @@ async def login_number(body: LoginNumberIn, response: Response, request: Request
             await db.commit()
         raise HTTPException(401, "Invalid account number")
 
-    try:
-        verify_login_totp(user, body.totp_code)
-    except HTTPException:
-        if not is_onion:
-            db.add(LoginAttempt(username="acct-number", ip_address=ip, success=False))
-        await db.commit()
-        raise
-
     record_login_meta(user, request)
 
     ua = request.headers.get("user-agent", "")
@@ -447,29 +468,6 @@ async def login_number(body: LoginNumberIn, response: Response, request: Request
         "is_onion_session":  is_onion,
         "privacy_warning":   privacy_state.get("access_warning"),
     }
-
-
-def verify_login_totp(user: User, code: str | None) -> None:
-    if not (user.totp_enabled and user.totp_secret_enc):
-        return
-    code = (code or "").strip()
-    if not code:
-        raise HTTPException(403, "2FA code required")
-    from app.core.totp import verify_totp_code, decrypt_totp_secret, current_totp_step
-    from app.core.security import get_fernet
-    try:
-        secret = decrypt_totp_secret(user.totp_secret_enc, get_fernet())
-        if not secret:
-            raise ValueError("Failed to decrypt")
-    except Exception:
-        raise HTTPException(500, "2FA configuration error")
-    totp_ok = verify_totp_code(secret, code, last_step=user.totp_last_step)
-    if not totp_ok and not _use_backup_code(user, code):
-        raise HTTPException(401, "Invalid 2FA code")
-    if totp_ok:
-        step = current_totp_step(secret, code)
-        if step is not None:
-            user.totp_last_step = step
 
 
 def _use_backup_code(user: User, code: str) -> bool:
@@ -563,8 +561,6 @@ async def tfa_status(request: Request, db: AsyncSession = Depends(get_db)):
 @router.post("/2fa/setup")
 async def tfa_setup(request: Request, db: AsyncSession = Depends(get_db)):
     u = await _get_current_user(request, db)
-    if u.totp_enabled:
-        raise HTTPException(409, "2FA is already on. Turn it off first to set it up again.")
     from app.core.totp import init_totp_for_user
     from app.core.security import get_fernet
 

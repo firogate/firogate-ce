@@ -691,9 +691,6 @@ pre::-webkit-scrollbar-track{background:transparent}
       <a href="#list-payments"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>List Payments</a>
       <a href="#cancel-payment"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel Payment</a>
       <a href="#webhook"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"/><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1A4 4 0 0 1 14 3a4 4 0 0 1 1.83 7.55"/><path d="m20.5 5.5 1.5-3"/></svg>Webhooks</a>
-      <a href="#payment-methods"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Payment Methods<span class="sidebar-tag">NEW</span></a>
-      <a href="#refunds"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>Refunds<span class="sidebar-tag">NEW</span></a>
-      <a href="#recurring"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Recurring<span class="sidebar-tag">NEW</span></a>
       <a href="#marketplace"><svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Marketplace</a>
     </div>
   </div>
@@ -860,14 +857,6 @@ pre::-webkit-scrollbar-track{background:transparent}
 <pre><span class="k">GET</span> /api/payments/
 <span class="n">X-API-Key:</span> <span class="s">fgate_your_api_key_here</span></pre>
 <p>Get your API key from the <strong>Dashboard → API & Webhooks</strong> tab.</p>
-<h3>Key permissions</h3>
-<p>Keys made in the dashboard can do everything. Keys made with <code>POST /api/keys</code> and a <code>permissions</code> list can only do what you allow. Any other call returns <code>403</code>.</p>
-<div class="field"><span class="field-name">create_invoice</span><span class="field-type">write</span><span class="field-desc">Create payments</span></div>
-<div class="field"><span class="field-name">read_invoice</span><span class="field-type">read</span><span class="field-desc">Read payments, search, export and refund lists</span></div>
-<div class="field"><span class="field-name">read_analytics</span><span class="field-type">read</span><span class="field-desc">Summaries, sales by vendor and refund totals</span></div>
-<div class="field"><span class="field-name">wallet_connect</span><span class="field-type">write</span><span class="field-desc">Connect, check or remove the Spark view key</span></div>
-<div class="field"><span class="field-name">manage_refunds</span><span class="field-type">write</span><span class="field-desc">Record or remove refunds<span class="badge-new">New</span></span></div>
-<div class="field"><span class="field-name">manage_recurring</span><span class="field-type">write</span><span class="field-desc">Create and manage recurring payments<span class="badge-new">New</span></span></div>
 
 
 <h2 id="errors">Error Codes</h2>
@@ -1036,8 +1025,6 @@ pre::-webkit-scrollbar-track{background:transparent}
 <div class="field"><span class="field-name">payment.confirmed</span><span class="field-type" style="color:var(--t1);font-size:1.2rem;line-height:1;padding:0;margin:0">●</span><span class="field-desc">Payment received and confirmed on blockchain</span></div>
 <div class="field"><span class="field-name">payment.expired</span><span class="field-type" style="color:var(--red);font-size:1.1rem;line-height:1;padding:0;margin:0">✕</span><span class="field-desc">Payment window closed with no (or insufficient) funds received<span class="badge-new">New</span></span></div>
 <div class="field"><span class="field-name">payment.cancelled</span><span class="field-type" style="color:var(--t4);font-size:1.1rem;line-height:1;padding:0;margin:0">✕</span><span class="field-desc">Payment cancelled by buyer before completion</span></div>
-<div class="field"><span class="field-name">payment.refunded</span><span class="field-type" style="color:var(--t2);font-size:1.1rem;line-height:1;padding:0;margin:0">↺</span><span class="field-desc">You recorded a refund for a confirmed payment<span class="badge-new">New</span></span></div>
-<div class="field"><span class="field-name">recurring.invoice_created</span><span class="field-type" style="color:var(--t2);font-size:1.1rem;line-height:1;padding:0;margin:0">⟳</span><span class="field-desc">A recurring payment made this period's pay link<span class="badge-new">New</span></span></div>
 
 <div class="alert alert-info" style="margin:12px 0">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 0 1 1 1v5a1 1 0 0 1-2 0v-5a1 1 0 0 1 1-1z"/></svg>
@@ -1103,84 +1090,6 @@ pre::-webkit-scrollbar-track{background:transparent}
   <span class="n">"expired_at"</span>:   <span class="s">"2026-05-21T14:50:00Z"</span>,
   <span class="n">"metadata"</span>:    { <span class="n">"seller_id"</span>: <span class="s">"seller_42"</span> }
 }</pre>
-
-<h3>payment.refunded payload</h3>
-<pre>{
-  <span class="n">"event"</span>:               <span class="s">"payment.refunded"</span>,
-  <span class="n">"payment_id"</span>:          <span class="s">"193d7d11-5ade-4993..."</span>,
-  <span class="n">"order_id"</span>:            <span class="s">"ORD-1234"</span>,
-  <span class="n">"refund_id"</span>:           <span class="s">"8f2c..."</span>,
-  <span class="n">"amount_firo"</span>:         <span class="v">0.5</span>,
-  <span class="n">"refunded_total_firo"</span>: <span class="v">0.5</span>,
-  <span class="n">"fully_refunded"</span>:      <span class="v">false</span>,
-  <span class="n">"txid"</span>:                <span class="v">null</span>,
-  <span class="n">"reason"</span>:              <span class="s">"Damaged item"</span>,
-  <span class="n">"refunded_at"</span>:         <span class="s">"2026-11-09T10:00:00Z"</span>
-}</pre>
-
-<h2 id="payment-methods">Payment Methods (Spark and xpub)</h2>
-<p>Accept Spark, transparent Firo, or both. For transparent payments, connect your wallet's account xpub (path <code>m/44'/136'/0'</code>). Each order gets the next address on <code>0/i</code>. FiroGate can only watch these addresses, never spend. Needs the <code>wallet_connect</code> permission.</p>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/xpub/preview</span></div>
-  <p>Body <code>{"xpub": "xpub6..."}</code>. Returns the first 3 addresses so you can match them with your wallet.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/xpub/connect</span></div>
-  <p>Saves the xpub (encrypted). Private keys (xprv) are refused.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge get">GET</span><span class="endpoint-path">/api/xpub/status</span></div>
-  <p>What is connected, which methods are on, and which one checkout shows first.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge patch">PATCH</span><span class="endpoint-path">/api/xpub/methods</span></div>
-  <p>Body <code>{"spark_enabled": true, "transparent_enabled": true, "default_method": "spark"}</code>. At least one connected method must stay on.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/xpub/disconnect</span></div>
-  <p>Stops using the xpub for new orders. Open orders keep working.</p>
-</div>
-<p>When both methods are on, every payment lists its addresses in <code>methods</code>, and the checkout lets the customer switch. Money sent to either address counts.</p>
-<div class="alert alert-info" style="margin:12px 0">Transparent payments are detected through the node's address index. Run <code>firod</code> with <code>-addressindex=1</code> for the fastest detection.</div>
-
-<h2 id="refunds">Refunds</h2>
-<p>FiroGate never holds or sends funds. Send the refund from your own wallet, then record it so your dashboard, exports and webhooks stay correct. Needs the <code>manage_refunds</code> permission (reading needs <code>read_invoice</code>).</p>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/payments/{payment_id}/refunds</span></div>
-  <p>Record a refund for a confirmed payment. Body: <code>amount_firo</code> (required, up to what is left), <code>txid</code> (optional, 64 hex), <code>reason</code> (optional, 280 chars).</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge get">GET</span><span class="endpoint-path">/api/payments/{payment_id}/refunds</span></div>
-  <p>Paid amount, refunded total, amount left and the list of refunds.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge delete">DELETE</span><span class="endpoint-path">/api/refunds/{refund_id}</span></div>
-  <p>Remove a refund record you added by mistake.</p>
-</div>
-<p>Payments from <code>GET /api/payments/</code> and <code>GET /api/payments/{id}</code> now include <code>refunded_firo</code>.</p>
-
-<h2 id="recurring">Recurring Payments</h2>
-<p>Bill a customer every week, month or year. Each period FiroGate makes a pay link, emails it to the customer and sends <code>recurring.invoice_created</code>. Needs the <code>manage_recurring</code> permission.</p>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/recurring</span></div>
-  <p>Body: <code>title</code>, <code>amount_firo</code>, <code>interval</code> (<code>week</code>, <code>month</code>, <code>year</code>), <code>customer_email</code>, and optional <code>customer_name</code>, <code>description</code>, <code>start_at</code> (ISO date), <code>max_runs</code>.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge get">GET</span><span class="endpoint-path">/api/recurring</span></div>
-  <p>All your recurring payments with next date, how many were sent and the last pay link.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge post">POST</span><span class="endpoint-path">/api/recurring/{id}/send-now</span></div>
-  <p>Make and send this period's pay link right away.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge patch">PATCH</span><span class="endpoint-path">/api/recurring/{id}</span></div>
-  <p>Pause or resume with <code>{"is_active": false}</code>.</p>
-</div>
-<div class="endpoint">
-  <div class="endpoint-header"><span class="badge delete">DELETE</span><span class="endpoint-path">/api/recurring/{id}</span></div>
-  <p>Stop and delete. Links already sent keep working until they expire.</p>
-</div>
 
 <h2 id="marketplace">Marketplace &amp; Seller Tracking</h2>
 <p>Use the <code>metadata</code> field to track seller/vendor context through every payment and webhook. FiroGate stores whatever you send and echoes it back in all events including retries.</p>

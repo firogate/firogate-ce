@@ -124,16 +124,13 @@ async function _loadNodeHealth() {
   try {
     var r = await fetch('/api/health');
     var d = r.ok ? await r.json() : null;
-    if (d && d.block_height != null) {
-      var syncing = d.sync_progress != null && d.sync_progress < 0.999;
-      dot.className   = 'nh-mini-dot ' + (syncing ? 'checking' : 'ok');
-      label.textContent = syncing
-        ? ((window.t ? window.t('Firo node syncing') : 'Firo node syncing') + ' ' + Math.floor(d.sync_progress * 100) + '%')
-        : (window.t ? window.t('Firo node synced') : 'Firo node synced');
-      block.textContent = 'Block #' + Number(d.block_height).toLocaleString();
+    if (d && d.status === 'ok') {
+      dot.className   = 'nh-mini-dot ok';
+      label.textContent = 'Firo node synced';
+      if (d.block_height) block.textContent = 'Block #' + Number(d.block_height).toLocaleString();
     } else {
       dot.className   = 'nh-mini-dot err';
-      label.textContent = window.t ? window.t('Firo node offline. Payments may be delayed.') : 'Firo node offline. Payments may be delayed.';
+      label.textContent = 'Node offline payments may be delayed';
       block.textContent = '';
     }
   } catch(e) {
@@ -184,7 +181,7 @@ async function panelLoadNodeHealth() {
   try {
     const r = await fetch('/api/health');
     const d = r.ok ? await r.json() : null;
-    if (d && d.block_height != null) {
+    if (d && d.status === 'ok') {
       if (live) { live.className = 'op-nh-live'; live.innerHTML = '<i></i>NODE ONLINE'; }
       set('op-nh-height', d.block_height ? Number(d.block_height).toLocaleString() : '—');
       set('op-nh-peers',  d.peers != null ? d.peers : '—');
@@ -280,197 +277,40 @@ _registerPanelRefresher('analytics', function() {
 }, 45000);
 _registerPanelRefresher('sec', function() {
   if (document.getElementById('sec-pane-diag')?.style.display !== 'none') loadDiagnostics();
-}, 30000);
+}, 60000);
 
-var _dxLast = null, _dxBusy = false;
-function _dxT(x){ return window.t ? window.t(x) : x; }
-function _dxBytes(n){
-  if (n == null) return '--';
-  var u = ['B','KB','MB','GB','TB'], i = 0; n = Number(n);
-  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
-  return (n >= 100 || i === 0 ? n.toFixed(0) : n.toFixed(1)) + ' ' + u[i];
-}
-function _dxDur(sec){
-  if (sec == null) return '--';
-  sec = Math.max(0, Math.round(sec));
-  if (sec < 60) return sec + 's';
-  if (sec < 3600) return Math.floor(sec / 60) + ' min';
-  if (sec < 86400) return Math.floor(sec / 3600) + ' h ' + Math.floor(sec % 3600 / 60) + ' min';
-  return Math.floor(sec / 86400) + ' d ' + Math.floor(sec % 86400 / 3600) + ' h';
-}
-function _dxIn(iso){
-  var sec = (new Date(iso).getTime() - Date.now()) / 1000;
-  if (isNaN(sec)) return '--';
-  return sec <= 1 ? _dxT('now') : _dxT('in') + ' ' + _dxDur(sec).replace(/ \d+ min$/, '');
-}
-function _dxNum(n){ return n == null ? '--' : Number(n).toLocaleString(); }
-function _dxStat(label, value, tone, sub){
-  return '<div class="dx-stat' + (tone ? ' lv-' + tone : '') + '"><div class="dx-k">' + escHtml(_dxT(label)) + '</div>'
-    + '<div class="dx-v">' + value + '</div>' + (sub ? '<div class="dx-s">' + sub + '</div>' : '') + '</div>';
-}
-function _dxMeter(fillId, txtId, used, total){
-  var fill = document.getElementById(fillId), txt = document.getElementById(txtId);
-  if (!fill || !txt) return;
-  if (!total) { fill.style.width = '0'; fill.className = ''; txt.textContent = '--'; return; }
-  var pct = Math.max(0, Math.min(100, used / total * 100));
-  fill.style.width = pct.toFixed(1) + '%';
-  fill.className = pct >= 90 ? 'lv-bad' : (pct >= 80 ? 'lv-warn' : 'lv-ok');
-  txt.textContent = _dxBytes(used) + ' / ' + _dxBytes(total) + ' · ' + pct.toFixed(0) + '%';
-}
-function _dxRender(d){
-  _dxLast = d;
-  var checks = d.checks || [];
-  var lv = function(l){ return checks.filter(function(c){ return c.level === l; }); };
-  var bad = lv('bad'), warn = lv('warn'), ok = lv('ok');
-  var hero = document.getElementById('dx-hero');
-  hero.setAttribute('data-status', d.status);
-  document.getElementById('diag-score').textContent = d.score;
-  document.getElementById('diag-score-bar').style.width = d.score + '%';
-  document.getElementById('dx-status').textContent = _dxT(d.status === 'healthy' ? 'All systems healthy'
-    : (d.status === 'attention' ? 'Running, but some things need a look' : 'Something is down'));
-  var names = bad.concat(warn).map(function(c){ return _dxT(c.name); });
-  document.getElementById('dx-sub').textContent = names.length
-    ? names.slice(0, 4).join(', ') + (names.length > 4 ? ' +' + (names.length - 4) : '')
-    : _dxT('Every check passed.');
-  document.getElementById('dx-counts').innerHTML = '<span class="lv-ok"><b>' + ok.length + '</b> ' + escHtml(_dxT('OK')) + '</span>'
-    + (warn.length ? '<span class="lv-warn"><b>' + warn.length + '</b> ' + escHtml(_dxT('to check')) + '</span>' : '')
-    + (bad.length ? '<span class="lv-bad"><b>' + bad.length + '</b> ' + escHtml(_dxT('failing')) + '</span>' : '');
-  var LV = {ok: 'OK', warn: 'Check', bad: 'Failing', off: 'Off'};
-  var groups = [['core', 'System'], ['payments', 'Payments'], ['services', 'Services']];
-  document.getElementById('diag-grid').innerHTML = groups.map(function(g){
-    var items = checks.filter(function(c){ return c.group === g[0]; });
-    if (!items.length) return '';
-    return '<div class="dx-group"><div class="dx-group-label">' + escHtml(_dxT(g[1])) + '</div><div class="dx-grid">'
-      + items.map(function(c){
-        return '<div class="dx-check lv-' + c.level + '" title="' + escHtml(c.detail || '') + '"><span class="dx-dot"></span>'
-          + '<div class="dx-check-txt"><div class="dx-check-name">' + escHtml(_dxT(c.name)) + '</div>'
-          + (c.detail ? '<div class="dx-check-detail">' + escHtml(c.detail) + '</div>' : '') + '</div>'
-          + '<span class="dx-check-lv">' + escHtml(_dxT(LV[c.level])) + '</span></div>';
-      }).join('') + '</div></div>';
-  }).join('');
-
-  var n = d.node || {};
-  var pill = document.getElementById('dx-node-pill');
-  pill.className = 'dx-pill ' + (n.online ? 'lv-ok' : 'lv-bad');
-  pill.textContent = _dxT(n.online ? 'Online' : 'Offline');
-  var ch = document.getElementById('dx-chain');
-  if (n.chain) {
-    var isTest = n.chain !== 'main', mismatch = isTest !== (n.expected_chain === 'test');
-    ch.hidden = false;
-    ch.className = 'dx-pill ' + (mismatch ? 'lv-bad' : (isTest ? 'lv-warn' : 'lv-off'));
-    ch.textContent = mismatch ? (_dxT('Wrong network') + ': ' + n.chain) : (isTest ? 'Testnet' : 'Mainnet');
-  } else ch.hidden = true;
-  var behind = (n.headers && n.height && n.headers > n.height) ? (_dxNum(n.headers - n.height) + ' ' + _dxT('behind')) : '';
-  document.getElementById('dx-node-stats').innerHTML =
-      _dxStat('Block height', _dxNum(n.height), null, escHtml(behind))
-    + _dxStat('Last block', n.last_block_age_s != null ? _dxDur(n.last_block_age_s) : '--', n.last_block_age_s > 3600 ? 'warn' : null)
-    + _dxStat('Peers', _dxNum(n.peers), n.online && n.peers === 0 ? 'bad' : (n.online && n.peers != null && n.peers < 3 ? 'warn' : null))
-    + _dxStat('Mempool', _dxNum(n.mempool), null, n.mempool_bytes ? _dxBytes(n.mempool_bytes) : '')
-    + _dxStat('Spark group', n.spark_coin_id != null ? String(n.spark_coin_id) : '--')
-    + _dxStat('RPC speed', n.latency_ms != null ? n.latency_ms + ' ms' : '--')
-    + '<div class="dx-stat dx-stat-wide"><div class="dx-k">' + escHtml(_dxT('Version')) + '</div><div class="dx-v dx-v-sm">' + escHtml(n.version || '--') + '</div></div>'
-    + (!n.online && n.error ? '<div class="dx-note lv-bad">' + escHtml(n.error) + '</div>' : '');
-  var syncPct = n.online ? Math.min(100, (n.sync || 0) * 100) : 0;
-  var sf = document.getElementById('dx-sync');
-  sf.style.width = syncPct.toFixed(1) + '%';
-  sf.className = !n.online ? '' : (syncPct >= 99.9 ? 'lv-ok' : 'lv-warn');
-  document.getElementById('dx-syncpct').textContent = n.online ? (syncPct >= 99.95 ? '100%' : syncPct.toFixed(2) + '%') : '--';
-
-  var sy = d.system || {}, db = d.database || {};
-  document.getElementById('dx-db-kind').textContent = db.kind || '--';
-  document.getElementById('dx-sys-stats').innerHTML =
-      _dxStat('Uptime', _dxDur(sy.uptime_s))
-    + _dxStat('App version', escHtml(sy.app_version || '--'))
-    + _dxStat('Database', db.ok ? db.latency_ms + ' ms' : _dxT('Down'), db.ok ? null : 'bad', db.size_bytes != null ? _dxBytes(db.size_bytes) : '')
-    + _dxStat('App memory', _dxBytes(sy.rss_bytes))
-    + _dxStat('Load', sy.load ? sy.load[0].toFixed(2) : '--', sy.load && sy.cpu_count && sy.load[0] > sy.cpu_count ? 'warn' : null, sy.cpu_count ? sy.cpu_count + ' CPU' : '')
-    + _dxStat('Python', escHtml(sy.python || '--'));
-  _dxMeter('dx-disk', 'dx-disk-txt', sy.disk_total != null ? sy.disk_total - sy.disk_free : null, sy.disk_total);
-  _dxMeter('dx-mem', 'dx-mem-txt', sy.mem_total && sy.mem_available != null ? sy.mem_total - sy.mem_available : null, sy.mem_total);
-
-  var a = d.activity || {}, p = a.payments || {};
-  document.getElementById('dx-pay-stats').innerHTML =
-      _dxStat('Created', _dxNum(p.created_24h))
-    + _dxStat('Confirmed', _dxNum(p.confirmed_24h), p.confirmed_24h ? 'ok' : null)
-    + _dxStat('Pending now', _dxNum(p.pending))
-    + _dxStat('Confirming now', _dxNum(p.confirming))
-    + _dxStat('Stuck', _dxNum(p.stuck), p.stuck ? 'warn' : null)
-    + _dxStat('Webhook failures', _dxNum(p.webhook_failed_24h), p.webhook_failed_24h ? 'warn' : null)
-    + (a.error ? '<div class="dx-note lv-bad">' + escHtml(a.error) + '</div>' : '');
-
-  var j = d.jobs || {}, list = j.jobs || [];
-  var running = list.filter(function(x){ return x.registered && !x.paused; }).length;
-  document.getElementById('dx-jobs-sum').textContent = j.running ? (running + ' / ' + list.length) : _dxT('Scheduler stopped');
-  document.getElementById('dx-jobs').innerHTML = list.map(function(x){
-    var st = (!j.running || !x.registered) ? ['bad', 'Not running'] : (x.paused ? ['warn', 'Paused'] : ['ok', 'Running']);
-    var every = !x.every ? '' : (/^daily/.test(x.every) ? _dxT('Daily') + x.every.slice(5) : _dxT('Every') + ' ' + x.every);
-    return '<div class="dx-job"><div><div class="dx-job-name">' + escHtml(_dxT(x.label)) + '</div><div class="dx-job-every">' + escHtml(every) + '</div></div>'
-      + '<span class="dx-job-next" title="' + escHtml(x.next_run || '') + '">' + (x.next_run ? escHtml(_dxIn(x.next_run)) : '--') + '</span>'
-      + '<span class="dx-pill lv-' + st[0] + '">' + escHtml(_dxT(st[1])) + '</span></div>';
-  }).join('');
-  document.getElementById('dx-checked').textContent = _dxT('Checked') + ' ' + new Date(d.checked_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
-}
-
-async function loadDiagnostics(manual) {
-  if (!document.getElementById('diag-grid') || _dxBusy) return;
-  _dxBusy = true;
-  var btn = document.getElementById('diag-refresh');
+async function loadDiagnostics() {
+  const grid  = document.getElementById('diag-grid');
+  const score = document.getElementById('diag-score');
+  const bar   = document.getElementById('diag-score-bar');
+  const btn   = document.getElementById('diag-refresh');
+  if (!grid) return;
   if (btn) btn.classList.add('spin');
   try {
-    var r = await panelFetch('/api/panel/diagnostics');
+    const r = await panelFetch('/api/panel/diagnostics');
     if (!r.ok) {
-      var detail = '';
+      let detail = '';
       try { detail = (await r.json()).detail || ''; } catch(_) {}
-      document.getElementById('dx-hero').setAttribute('data-status', 'problem');
-      document.getElementById('dx-status').textContent = detail.indexOf('2fa_required') === 0
-        ? _dxT('Turn on 2FA to see diagnostics.') : _dxT('Diagnostics unavailable.');
-      if (manual) Toast.error(_dxT('Diagnostics unavailable.'));
+      grid.innerHTML = detail.startsWith('2fa_required')
+        ? '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Turn on two-factor authentication in <a href="#" onclick="secTab(\'tfa\');return false" style="color:var(--y)">Security</a> to unlock Merchant Health.</div>'
+        : '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Diagnostics unavailable.</div>';
       return;
     }
-    var d = await r.json();
-    _dxRender(d);
-    if (manual) {
-      var nb = (d.checks || []).filter(function(c){ return c.level === 'bad'; }).length;
-      var nw = (d.checks || []).filter(function(c){ return c.level === 'warn'; }).length;
-      if (nb) Toast.error(nb + ' ' + _dxT('checks failing'));
-      else if (nw) Toast.warning(nw + ' ' + _dxT('checks need a look'));
-      else Toast.success(_dxT('All checks passed'));
-    }
+    const d = await r.json();
+    if (score) score.textContent = d.score + '%';
+    if (bar) bar.style.width = d.score + '%';
+    grid.innerHTML = (d.checks || []).map(c => {
+      const dotClass = c.healthy ? 'ok' : 'bad';
+      return '<div class="diag-check">'
+        + '<span class="diag-check-dot ' + dotClass + '"></span>'
+        + '<span class="diag-check-label">' + escHtml(c.name) + '</span>'
+        + (c.detail ? '<span class="diag-check-val">' + escHtml(c.detail) + '</span>' : '')
+        + '</div>';
+    }).join('');
   } catch (e) {
-    document.getElementById('dx-status').textContent = _dxT('Diagnostics unavailable.');
-    if (manual) Toast.error(_dxT('Diagnostics unavailable.'));
-  } finally {
-    _dxBusy = false;
-    if (btn) btn.classList.remove('spin');
+    grid.innerHTML = '<div style="color:var(--t3);font-size:.8rem;grid-column:1/-1">Diagnostics unavailable.</div>';
   }
-}
-
-function dxCopyReport() {
-  var d = _dxLast;
-  if (!d) { Toast.warning(_dxT('Wait for the first check, then copy.')); return; }
-  var tag = {ok: 'OK  ', warn: 'WARN', bad: 'FAIL', off: 'OFF '};
-  var q = function(v){ return v == null ? '?' : v; };
-  var L = ['FiroGate CE diagnostics', 'Checked: ' + d.checked_at, 'Score: ' + d.score + '% (' + d.status + ')', ''];
-  (d.checks || []).forEach(function(c){ L.push('[' + tag[c.level] + '] ' + c.name + (c.detail ? ': ' + c.detail : '')); });
-  var n = d.node || {}, sy = d.system || {}, p = (d.activity || {}).payments || {};
-  L.push('');
-  L.push('Node: ' + (n.online ? 'online' : 'offline') + ', chain ' + q(n.chain) + ', height ' + q(n.height) + ', peers ' + q(n.peers) + ', version ' + q(n.version));
-  L.push('Server: uptime ' + _dxDur(sy.uptime_s) + ', app ' + q(sy.app_version) + ', Python ' + q(sy.python) + ', load ' + (sy.load ? sy.load.join(' / ') : '?'));
-  L.push('Payments (24 h): created ' + q(p.created_24h) + ', confirmed ' + q(p.confirmed_24h) + ', stuck ' + q(p.stuck) + ', webhook failures ' + q(p.webhook_failed_24h));
-  ((d.jobs || {}).jobs || []).forEach(function(x){ L.push('Job ' + x.id + ': ' + (x.registered ? (x.paused ? 'paused' : 'running') : 'missing') + (x.every ? ', ' + x.every : '')); });
-  var txt = L.join('\n');
-  var done = function(){ Toast.success(_dxT('Report copied')); };
-  var fallback = function(){
-    var ta = document.createElement('textarea');
-    ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
-    document.body.appendChild(ta); ta.select();
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch(_) {}
-    ta.remove();
-    if (ok) done(); else Toast.error(_dxT('Copy failed. Your browser blocked it.'));
-  };
-  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(done, fallback);
-  else fallback();
+  if (btn) btn.classList.remove('spin');
 }
 
 async function loadDiagSettings() {
