@@ -3390,7 +3390,7 @@ function _switchCheckoutLayout(layout) {
 
   document.body.setAttribute('data-checkout-theme', layout);
   if (typeof _cwCloseAll === 'function') _cwCloseAll();
-
+  if (typeof payData !== 'undefined' && payData && typeof _renderMethods === 'function') _renderMethods(payData);
 }
 
 document.addEventListener('click', function(e) {

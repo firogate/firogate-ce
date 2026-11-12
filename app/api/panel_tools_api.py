@@ -123,7 +123,7 @@ async def get_settings_bundle(
         "hide_auth_pages": (await get_setting(db, HIDE_AUTH_PAGES_KEY, "0")) == "1",
         "required_confirmations": int(await get_setting(db, REQUIRED_CONFIRMATIONS_KEY, str(settings.REQUIRED_CONFIRMATIONS))),
         "payment_timeout_minutes": int(await get_setting(db, PAYMENT_TIMEOUT_MINUTES_KEY, str(settings.PAYMENT_TIMEOUT_MINUTES))),
-        "landing_home": (await get_setting(db, LANDING_HOME_KEY, "0")) == "1",
+        "landing_home": (await get_setting(db, LANDING_HOME_KEY, "1")) == "1",
     }
 
 

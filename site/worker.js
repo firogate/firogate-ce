@@ -744,6 +744,29 @@ const HTML = `<!DOCTYPE html>
     .dev-list li { font-size: 1.03rem; }
     .nav-links { font-size: 0.96rem; }
   }
+
+  .only-light { display: none !important; }
+  [data-theme="light"] .only-light { display: block !important; }
+  [data-theme="light"] .only-dark { display: none !important; }
+  .preview { padding-top: 8px; }
+  .shots { position: relative; }
+  .shot { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .shot img, .phone img { display: block; width: 100%; height: auto; }
+  .shots .phone { position: absolute; right: -14px; bottom: -24px; width: 22%; min-width: 150px; }
+  .phone { border: 1px solid var(--border-strong); border-radius: 28px; background: #000; padding: 6px; overflow: hidden; }
+  .phone img { border-radius: 22px; aspect-ratio: 390 / 740; object-fit: cover; object-position: top; }
+  .styles-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 64px; }
+  .styles-row figure { margin: 0; text-align: center; }
+  .styles-row figcaption { margin-top: 10px; font-size: 0.86rem; color: var(--text-muted); }
+  .wide-shots { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-top: 64px; align-items: start; }
+  .wide-shots .phone { width: 100%; max-width: 240px; margin: 0 auto; }
+  @media (max-width: 760px) {
+    .shots .phone { width: 34%; min-width: 0; right: -6px; bottom: -16px; border-radius: 20px; padding: 4px; }
+    .shots .phone img { border-radius: 16px; }
+    .styles-row { grid-template-columns: repeat(2, 1fr); margin-top: 40px; }
+    .wide-shots { grid-template-columns: 1fr; margin-top: 40px; }
+    .wide-shots .phone { max-width: 200px; }
+  }
 </style>
 </head>
 <body data-theme="dark">
@@ -833,6 +856,37 @@ const HTML = `<!DOCTYPE html>
             No vendor lock-in
           </span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREVIEW -->
+  <section class="preview" id="preview">
+    <div class="wrap">
+      <div class="shots reveal">
+        <div class="shot">
+          <img class="only-dark" src="/dash-dark.webp" width="1800" height="1125" alt="FiroGate dashboard with sales and recent payments" loading="lazy">
+          <img class="only-light" src="/dash-light.webp" width="1800" height="1125" alt="FiroGate dashboard with sales and recent payments" loading="lazy">
+        </div>
+        <div class="phone">
+          <img src="/checkout-fintech.webp" width="600" height="1298" alt="FiroGate checkout on a phone with QR code" loading="lazy">
+        </div>
+      </div>
+      <div class="wide-shots reveal">
+        <div class="shot">
+          <img class="only-dark" src="/analytics-dark.webp" width="1800" height="1125" alt="Analytics page with sales chart" loading="lazy">
+          <img class="only-light" src="/analytics-light.webp" width="1800" height="1125" alt="Analytics page with sales chart" loading="lazy">
+        </div>
+        <div class="phone">
+          <img class="only-dark" src="/paylink-dark.webp" width="600" height="1298" alt="Pay link page on a phone" loading="lazy">
+          <img class="only-light" src="/paylink-light.webp" width="600" height="1298" alt="Pay link page on a phone" loading="lazy">
+        </div>
+      </div>
+      <div class="styles-row reveal">
+        <figure><div class="phone"><img src="/checkout-receipt.webp" width="600" height="1298" alt="Receipt checkout" loading="lazy"></div><figcaption>Receipt</figcaption></figure>
+        <figure><div class="phone"><img src="/checkout-brutalist.webp" width="600" height="1298" alt="Brutalist checkout" loading="lazy"></div><figcaption>Brutalist</figcaption></figure>
+        <figure><div class="phone"><img src="/checkout-newspaper.webp" width="600" height="1298" alt="Newspaper checkout" loading="lazy"></div><figcaption>Newspaper</figcaption></figure>
+        <figure><div class="phone"><img src="/checkout-zen.webp" width="600" height="1298" alt="Zen checkout" loading="lazy"></div><figcaption>Zen</figcaption></figure>
       </div>
     </div>
   </section>
@@ -1144,7 +1198,12 @@ const HTML = `<!DOCTYPE html>
 </html>`;
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
+    const path = new URL(request.url).pathname;
+    if (path !== "/" && env.ASSETS) {
+      const asset = await env.ASSETS.fetch(request);
+      if (asset.status !== 404) return asset;
+    }
     return new Response(HTML, {
       headers: {
         "content-type": "text/html; charset=UTF-8",

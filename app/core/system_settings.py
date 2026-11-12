@@ -30,4 +30,4 @@ async def hide_auth_pages_enabled(db: AsyncSession) -> bool:
 
 
 async def landing_home_enabled(db: AsyncSession) -> bool:
-    return (await get_setting(db, LANDING_HOME_KEY, "0")) == "1"
+    return (await get_setting(db, LANDING_HOME_KEY, "1")) == "1"
