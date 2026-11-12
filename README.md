@@ -2,6 +2,7 @@
   <h1>FiroGate</h1>
   <p><strong>Self-hosted, non-custodial private (Spark) Firo payment gateway</strong></p>
   <p>
+    <a href="https://demo.firogate.com"><strong>Live demo</strong></a> ·
     <a href="BUILD.md">Build & Run</a> ·
     <a href="AUDIT.md">Audit</a> ·
     <a href="SECURITY.md">Security</a> ·
@@ -18,13 +19,22 @@
 
 Accept private Firo (Spark) payments on your own server. FiroGate never holds funds and never holds spend authority: you connect a Spark **view key**, which can see incoming payments and nothing more.
 
+**Try it first:** [demo.firogate.com](https://demo.firogate.com) runs the real dashboard and checkout with fake FIRO. Its code is at [firogate/demo](https://github.com/firogate/demo).
+
 <div align="center">
   <br>
-  <img src="docs/screenshots/checkout-theme.png" alt="Checkout themes" width="800">
-  <p><em>30+ checkout themes, pick a look and it's live, no CSS</em></p>
+  <img src="static/images/landing/dash-dark.webp" alt="FiroGate dashboard" width="800">
+  <p><em>Dashboard: sales, payments and refunds in one place</em></p>
   <br>
-  <img src="docs/screenshots/anlaychart.png" alt="Analytics dashboard" width="800">
-  <p><em>Built-in analytics: sales, confirmations, success rate, CSV export</em></p>
+  <img src="static/images/landing/checkout-fintech.webp" alt="Fintech checkout" width="150">
+  <img src="static/images/landing/checkout-receipt.webp" alt="Receipt checkout" width="150">
+  <img src="static/images/landing/checkout-brutalist.webp" alt="Brutalist checkout" width="150">
+  <img src="static/images/landing/checkout-newspaper.webp" alt="Newspaper checkout" width="150">
+  <img src="static/images/landing/checkout-zen.webp" alt="Zen checkout" width="150">
+  <p><em>25 checkout styles with your colours, logo and store name</em></p>
+  <br>
+  <img src="static/images/landing/analytics-dark.webp" alt="Analytics" width="800">
+  <p><em>Analytics: sales volume, payment activity and success rate</em></p>
 </div>
 
 ## How it works

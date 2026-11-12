@@ -1,6 +1,35 @@
 # Changelog
 
-Current: **API v1.0** · **App 0.1.0**
+Current: **API v1.0** · **App 0.1.2**
+
+---
+
+## [0.1.2] 2026-11 App 0.1.2
+
+[Live demo](https://demo.firogate.com) · [Demo source](https://github.com/firogate/demo)
+
+### API
+_No API changes._
+
+### App
+#### Added
+- [Live demo](https://demo.firogate.com): try the dashboard, checkout and API with fake FIRO. No install.
+- Tips on hover explain pages, cards and settings. On phones, tap the ⓘ.
+- Sidebar icons animate once when tapped.
+- New landing page with real screenshots of the dashboard and checkout.
+
+#### Changed
+- Flat design: no shadows or glow.
+- Shorter text: explanations moved into tips.
+- The home status page is one simple list.
+- Phones: titles and buttons fit, tables turn into cards, and the bottom bar floats.
+
+#### Fixed
+- The Changelog page no longer crashes.
+- Checkout hides the empty price box when there is no live price, in all 25 styles.
+- Pay links no longer get stuck on "Loading price…".
+- Payment Activity opens on today, not on 2023.
+- The folded sidebar shows the Settings and Account icons.
 
 ---
 

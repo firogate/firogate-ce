@@ -6,11 +6,22 @@ from pathlib import Path
 CHANGELOG_PATH = Path(__file__).resolve().parent.parent.parent / "CHANGELOG.md"
 
 _INLINE_CODE = re.compile(r"`([^`]+)`")
+_LINK = re.compile(r"\[([^\]]+)\]\((https://[^\s)]+)\)")
+
+
+def _link(m) -> str:
+    text, url = m.group(1), html.unescape(m.group(2))
+    return f'<a href="{html.escape(url, quote=True)}" target="_blank" rel="noopener">{text}</a>'
 
 
 def _inline(text: str) -> str:
     escaped = html.escape(text)
+    escaped = _LINK.sub(_link, escaped)
     return _INLINE_CODE.sub(lambda m: f"<code>{m.group(1)}</code>", escaped)
+
+
+def _links(line: str) -> list[dict]:
+    return [{"text": t.strip(), "url": u} for t, u in _LINK.findall(line)]
 
 
 def _parse_release_header(line: str):
@@ -50,13 +61,17 @@ def parse_changelog():
 
         header = _parse_release_header(line)
         if header:
-            current_release = {**header, "tracks": {"API": [], "App": []}}
+            current_release = {**header, "links": [], "tracks": {"API": [], "App": []}}
             releases.append(current_release)
             current_track = None
             current_group = None
             continue
 
         if current_release is None:
+            continue
+
+        if current_track is None and _links(line):
+            current_release["links"].extend(_links(line))
             continue
 
         track_m = re.match(r"^###\s+(API|App)\s*$", line)
