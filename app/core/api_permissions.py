@@ -5,6 +5,8 @@ PERMISSION_CHOICES = [
     "read_invoice",
     "read_analytics",
     "wallet_connect",
+    "manage_refunds",
+    "manage_recurring",
 ]
 
 

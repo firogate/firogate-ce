@@ -1,6 +1,77 @@
 # Changelog
 
-Current: **API v1.0** · **App 0.0.9**
+Current: **API v1.0** · **App 0.1.2**
+
+---
+
+## [0.1.2] 2026-11 App 0.1.2
+
+[Live demo](https://demo.firogate.com) · [Demo source](https://github.com/firogate/demo)
+
+### API
+_No API changes._
+
+### App
+#### Added
+- [Live demo](https://demo.firogate.com): try the dashboard, checkout and API with fake FIRO. No install.
+- Tips on hover explain pages, cards and settings. On phones, tap the ⓘ.
+- Sidebar icons animate once when tapped.
+- New landing page with real screenshots of the dashboard and checkout.
+
+#### Changed
+- Flat design: no shadows or glow.
+- Shorter text: explanations moved into tips.
+- The home status page is one simple list.
+- Phones: titles and buttons fit, tables turn into cards, and the bottom bar floats.
+
+#### Fixed
+- The Changelog page no longer crashes.
+- Checkout hides the empty price box when there is no live price, in all 25 styles.
+- Pay links no longer get stuck on "Loading price…".
+- Payment Activity opens on today, not on 2023.
+- The folded sidebar shows the Settings and Account icons.
+
+---
+
+## [0.1.0] 2026-11 App 0.1.0
+
+### API
+#### Added
+- Transparent payments from a wallet xpub. Connect it with `POST /api/xpub/connect`; each order gets its own Firo address.
+- Choose payment methods with `PATCH /api/xpub/methods`: Spark, transparent or both, and which one checkout shows first.
+- Payments list their available addresses in `methods`, and customers can switch on the checkout with `POST /api/payments/public/{id}/method`.
+- Refunds: `POST /api/payments/{id}/refunds`, `GET /api/payments/{id}/refunds`, `DELETE /api/refunds/{id}`, `GET /api/refunds/summary`. Payments now include `refunded_firo`.
+- Recurring payments: `GET/POST /api/recurring`, `PATCH /api/recurring/{id}`, `POST /api/recurring/{id}/send-now`, `DELETE /api/recurring/{id}`.
+- Webhooks `payment.refunded` and `recurring.invoice_created`.
+- API key permissions `manage_refunds` and `manage_recurring`.
+
+#### Fixed
+- API key permissions are now enforced. A key limited to reading could still create invoices or change the wallet.
+
+### App
+#### Added
+- Payment methods page: turn Spark and transparent payments on or off, and pick what checkout shows first.
+- Checkout lets customers switch between Spark and transparent when both are on.
+- Recurring page: bill customers every week, month or year with an emailed pay link.
+- Record refunds on confirmed payments and see the refunded total in Analytics.
+- Diagnostics shows node, server, background jobs and payment health, with a copy report button.
+- Full German, Russian and Chinese translations for the dashboard.
+
+#### Changed
+- New design: sidebar with sections, page titles with a short purpose line, colored stat cards and the FiroGate teal palette.
+- Calmer checkout notice, and no blur effects in the dashboard.
+
+#### Fixed
+- The node status no longer says synced when the node is offline.
+- The sidebar shows the real app version.
+- Monthly recurring dates keep their day of the month.
+
+#### Security
+- Only one account can claim the operator role without a verified email, and auto-made usernames never match an operator name.
+- Google sign-in no longer joins an existing password account whose email was never verified.
+- 2FA is now required on Google, account number and wallet sign-in, not only password sign-in.
+- Setting up 2FA can no longer silently turn off 2FA that is already on.
+- Receipt emails escape store and product names.
 
 ---
 

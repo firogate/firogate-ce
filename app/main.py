@@ -15,6 +15,9 @@ from app.core.database import create_tables
 from app.core.rate_limit import rate_limit_relaxed
 from app.core import i18n as fg_i18n
 from app.api import auth, auth_fb, telegram_webhook, payments, users, analytics
+from app.api import refunds as refunds_api
+from app.api import recurring as recurring_api
+from app.api import xpub_connect as xpub_api
 from app.api import spark_connect
 from app.api import wallet_auth
 from app.api import i18n as i18n_api
@@ -166,6 +169,9 @@ def _bust(path: str) -> str:
 
 
 templates.env.filters["bust"] = _bust
+from app.core.icons import icon as _icon
+templates.env.globals["icon"] = _icon
+templates.env.globals["app_version"] = APP_VERSION
 
 
 @asynccontextmanager
@@ -228,6 +234,10 @@ async def lifespan(app: FastAPI):
 
     from app.services.accounting_verification import run_scheduled_verification
     scheduler.add_job(run_scheduled_verification, "cron", hour="*/6", minute=0, id="accounting_check")
+    from app.services.recurring_billing import run_recurring_billing
+    scheduler.add_job(run_recurring_billing, "interval", minutes=5, id="recurring_billing")
+    from app.services.xpub_watcher import check_transparent_payments
+    scheduler.add_job(check_transparent_payments, "interval", seconds=20, id="xpub_watcher")
 
     scheduler.start()
     logger.info("Schedulers started")
@@ -508,6 +518,9 @@ app.include_router(auth_fb.router)
 app.include_router(telegram_webhook.router)
 app.include_router(payments.public_router)
 app.include_router(payments.router)
+app.include_router(refunds_api.router)
+app.include_router(recurring_api.router)
+app.include_router(xpub_api.router)
 app.include_router(spark_connect.router)
 app.include_router(wallet_auth.router)
 app.include_router(panel_tools_api.router)
@@ -765,11 +778,8 @@ async def _is_operator_request(r: Request) -> bool:
             u = res.scalar_one_or_none()
             if not u or not u.is_active:
                 return False
-            if u.role == UserRole.operator:
-                return True
-            if settings.is_operator_email(u.email) or settings.is_operator_username(u.username):
-                return True
-        return False
+            from app.core.operator_access import resolve_operator
+            return await resolve_operator(u, db)
     except Exception:
         return False
 
@@ -925,7 +935,7 @@ async def changelog_page(r: Request):
 
 _DASHBOARD_TABS = [
     "home", "api", "payments", "balance",
-    "security", "account", "analytics", "wallet",
+    "security", "account", "analytics", "wallet", "recurring",
 ]
 
 

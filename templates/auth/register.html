@@ -308,7 +308,7 @@ async function doGoogle(){
       });
       const data = await r.json().catch(()=>({}));
       if (!r.ok) {
-        ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
+        ab.innerHTML = alertHTML(data.detail === '2FA code required' ? 'This account uses 2FA. Please sign in from the Sign In page.' : (data.detail || 'Google sign-in failed.'), 'err');
         gbtn.disabled=false; gbtn.innerHTML = originalHtml;
         return;
       }
@@ -345,7 +345,7 @@ async function _consumeGoogleRedirect() {
     });
     const data = await r.json().catch(()=>({}));
     if (!r.ok) {
-      if (ab) ab.innerHTML = alertHTML(data.detail || 'Google sign-in failed.', 'err');
+      if (ab) ab.innerHTML = alertHTML(data.detail === '2FA code required' ? 'This account uses 2FA. Please sign in from the Sign In page.' : (data.detail || 'Google sign-in failed.'), 'err');
       return false;
     }
     Toast.success(data.is_operator ? 'Welcome, Operator!' : 'Welcome!');

@@ -49,12 +49,13 @@ async def get_merchant(
 
 
 def require_api_permission(permission: str):
-    async def _check(request: Request, db: AsyncSession = Depends(get_db)):
+    async def _check(request: Request, db: AsyncSession = Depends(get_db),
+                     merchant: User = Depends(get_merchant)):
         api_key_row = getattr(request.state, "api_key_row", None)
-        if api_key_row is None:
-            return
-        from app.core.api_permissions import check_api_permission
-        await check_api_permission(api_key_row, permission, db)
+        if api_key_row is not None:
+            from app.core.api_permissions import check_api_permission
+            await check_api_permission(api_key_row, permission, db)
+        return merchant
     return _check
 
 
@@ -145,8 +146,8 @@ async def create_payment(
     db.add(payment)
     await db.flush()
 
-    from app.api.spark_connect_helpers import get_next_spark_address
-    address = await get_next_spark_address(db, merchant.id, payment)
+    from app.api.spark_connect_helpers import get_next_receive_address
+    address = await get_next_receive_address(db, merchant.id, payment)
     payment.receiving_address = address
 
     db.add(PaymentAuditLog(
@@ -220,7 +221,10 @@ async def list_payments(
     # This list is always scoped to the authenticated merchant's own payments
     # (merchant_id == merchant.id above), so full=True (email/payer_note) is
     # not a cross-merchant exposure risk.
-    return [_fmt(p, full=True) for p in res.scalars().all()]
+    rows = res.scalars().all()
+    from app.api.refunds import refund_totals
+    refunded = await refund_totals(db, [p.id for p in rows])
+    return [dict(_fmt(p, full=True), refunded_firo=refunded.get(p.id, 0.0)) for p in rows]
 
 
 @router.get("/search", dependencies=[Depends(require_api_permission("read_invoice"))])
@@ -429,7 +433,14 @@ async def get_payment(
     )
     p = res.scalar_one_or_none()
     if not p: raise HTTPException(404, "Payment not found")
-    return _fmt(p, full=True)
+    from app.api.refunds import refund_totals
+    refunded = await refund_totals(db, [p.id])
+    return dict(_fmt(p, full=True), refunded_firo=refunded.get(p.id, 0.0))
+
+
+def _methods(p: Payment) -> list[dict]:
+    from app.api.spark_connect_helpers import payment_methods
+    return payment_methods(p)
 
 
 def _fmt(p: Payment, full: bool = False) -> dict:
@@ -457,6 +468,7 @@ def _fmt(p: Payment, full: bool = False) -> dict:
         "confirmations":          p.confirmations,
         "required_confirmations": p.required_confirmations,
         "receiving_address":      p.receiving_address,
+        "methods":                _methods(p),
         "address_type":           p.address_type or "spark",
         "order_id":               p.order_id,
         "order_description":      p.order_description,
@@ -604,6 +616,31 @@ async def submit_email(payment_id: str, request: Request, db: AsyncSession = Dep
     p.email_collected_at = now
     await db.commit()
     return {"message": "Email saved", "step": "payment"}
+
+
+class MethodIn(BaseModel):
+    method: str
+
+
+@public_router.post("/public/{payment_id}/method")
+async def choose_method(payment_id: str, body: MethodIn, request: Request, db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(Payment).where(Payment.id == payment_id))
+    p = res.scalar_one_or_none()
+    if not p: raise HTTPException(404)
+    _tok = _checkout_token(request)
+    _ts  = p.created_at.isoformat() if p.created_at else ""
+    from app.core.security import verify_checkout_token as _vct
+    if not _tok or not _vct(payment_id, _ts, _tok):
+        raise HTTPException(403, "Invalid checkout token")
+    if p.status not in (PaymentStatus.pending, PaymentStatus.confirming):
+        raise HTTPException(400, "This payment can't be changed now.")
+    chosen = next((m for m in _methods(p) if m["method"] == body.method), None)
+    if not chosen:
+        raise HTTPException(422, "This payment method isn't available.")
+    p.address_type = chosen["method"]
+    p.receiving_address = chosen["address"]
+    await db.commit()
+    return {"method": chosen["method"], "receiving_address": chosen["address"]}
 
 
 @public_router.post("/public/{payment_id}/verify-hash")
