@@ -71,10 +71,10 @@
 
 
 {% macro panel_analytics_cards() %}
-  <div id="panel-node-card" class="card" style="margin-top:16px">
+  <div id="panel-node-card" class="card" style="margin-top:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
       <div style="display:flex;align-items:center;gap:8px">
-        <span class="op-nh-live" id="op-nh-live"><i></i>NODE ONLINE</span>
+        <span class="op-nh-live" id="op-nh-live"><i></i>Node online</span>
         <span class="op-nh-chain" id="op-nh-chain" style="display:none"></span>
       </div>
       <button class="op-nh-refresh" id="op-nh-refresh" aria-label="Refresh node health">
@@ -85,7 +85,7 @@
       <div class="op-nh-stat"><div class="op-nh-k">Block height</div><div class="op-nh-v" id="op-nh-height">—</div></div>
       <div class="op-nh-stat"><div class="op-nh-k">Peers</div><div class="op-nh-v" id="op-nh-peers">—</div></div>
       <div class="op-nh-stat"><div class="op-nh-k">Mempool</div><div class="op-nh-v"><span id="op-nh-mem">—</span> <span class="u">txs</span></div></div>
-      <div class="op-nh-stat"><div class="op-nh-k">Version</div><div class="op-nh-v" id="op-nh-ver" style="font-size:12px">—</div></div>
+      <div class="op-nh-stat"><div class="op-nh-k">Version</div><div class="op-nh-v" id="op-nh-ver">—</div></div>
     </div>
     <div class="op-syncrow">
       <span>Sync</span>
@@ -94,7 +94,8 @@
     </div>
   </div>
 
-  <div id="panel-webhook-card" class="card" style="margin-top:16px">
+  <div id="panel-webhook-card" class="card" style="margin-top:14px">
+    <h3 style="margin:0 0 12px" data-i18n="Webhook">Webhook</h3>
     <div class="op-wh-top">
       <span class="op-wh-url" id="op-wh-url">—</span>
       <span class="op-wh-pill" id="op-wh-pill">—</span>
@@ -185,7 +186,7 @@ async function panelLoadNodeHealth() {
     const r = await fetch('/api/health');
     const d = r.ok ? await r.json() : null;
     if (d && d.block_height != null) {
-      if (live) { live.className = 'op-nh-live'; live.innerHTML = '<i></i>NODE ONLINE'; }
+      if (live) { live.className = 'op-nh-live'; live.innerHTML = '<i></i>' + (window.t ? window.t('Node online') : 'Node online'); }
       set('op-nh-height', d.block_height ? Number(d.block_height).toLocaleString() : '—');
       set('op-nh-peers',  d.peers != null ? d.peers : '—');
       set('op-nh-mem',    d.mempool_size != null ? d.mempool_size : '—');
@@ -210,7 +211,7 @@ async function panelLoadNodeHealth() {
         }
       }
     } else {
-      if (live) { live.className = 'op-nh-live err'; live.innerHTML = '<i></i>NODE OFFLINE'; }
+      if (live) { live.className = 'op-nh-live err'; live.innerHTML = '<i></i>' + (window.t ? window.t('Node offline') : 'Node offline'); }
       ['op-nh-height','op-nh-peers','op-nh-mem','op-nh-ver'].forEach(id => set(id, '—'));
       const chainEl = document.getElementById('op-nh-chain');
       if (chainEl) chainEl.style.display = 'none';
@@ -248,7 +249,7 @@ async function panelLoadWebhook() {
       retryEl.style.cursor = d.url ? '' : 'not-allowed';
     }
     const healthy = d.healthy !== false;
-    if (pillEl) { pillEl.className = 'op-wh-pill ' + (healthy ? 'good' : 'bad'); pillEl.textContent = healthy ? 'HEALTHY' : 'FAILING'; }
+    if (pillEl) { pillEl.className = 'op-wh-pill ' + (healthy ? 'good' : 'bad'); pillEl.textContent = window.t ? window.t(healthy ? 'Healthy' : 'Failing') : (healthy ? 'Healthy' : 'Failing'); }
     if (lastEl) lastEl.textContent = d.last_result || '—';
     const attempts = d.recent_attempts || [];
     if (attEl) {

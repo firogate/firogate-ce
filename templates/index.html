@@ -71,6 +71,7 @@
 {% endblock %}
 {% block body %}
 <div class="fg-entry">
+  <canvas class="fg-globe" data-globe data-globe-step="2.6" aria-hidden="true"></canvas>
   <div class="fg-entry-card{{ ' fg-wide' if auth_pages_hidden else '' }}">
     {% if auth_pages_hidden %}
     <div class="fg-topbar">
@@ -129,6 +130,7 @@
 </div>
 {% endblock %}
 {% block js %}
+<script src="{{ '/static/js/globe.js'|bust }}" defer></script>
 <script>
 (function () {
   var authPagesHidden = {{ (auth_pages_hidden if auth_pages_hidden is defined else False) | tojson }};
