@@ -1,4 +1,5 @@
 import os
+import re
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -962,6 +963,24 @@ async def dashboard_tab(r: Request, tab: str):
 
 
 
+_DASHBOARD_SUB_TABS = ("payments", "analytics")
+_DASHBOARD_SUB_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+
+@app.get("/dashboard/{tab}/{sub}", response_class=HTMLResponse)
+async def dashboard_tab_detail(r: Request, tab: str, sub: str):
+    from fastapi.responses import RedirectResponse
+    if tab not in _DASHBOARD_SUB_TABS or not _DASHBOARD_SUB_RE.match(sub):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    if settings.DASHBOARD_URL and _should_redirect_to_subdomain(r):
+        return RedirectResponse(
+            url=settings.DASHBOARD_URL.rstrip("/") + f"/{tab}/{sub}",
+            status_code=301,
+        )
+    is_operator = await _is_operator_request(r)
+    return page("dashboard/index.html", r, is_operator=is_operator, show_market_price=await _dashboard_show_market_price(r), active_tab=tab, active_sub=sub)
+
+
 # ── Checkout / Invoice ────────────────────────────────────────────────────────
 # Primary URL: checkout.<your-domain>/invoice/{id}
 # Legacy /checkout/{id} → 301 redirect to /invoice/{id}
@@ -1046,6 +1065,15 @@ async def dashboard_subdomain_tab(r: Request, tab: str):
     if _is_dashboard_host(r) and tab in _DASHBOARD_TABS:
         is_operator = await _is_operator_request(r)
         return page("dashboard/index.html", r, is_operator=is_operator, show_market_price=await _dashboard_show_market_price(r), active_tab=tab)
+    from fastapi.responses import Response
+    return Response(status_code=404)
+
+
+@app.get("/{tab}/{sub}", response_class=HTMLResponse)
+async def dashboard_subdomain_tab_detail(r: Request, tab: str, sub: str):
+    if _is_dashboard_host(r) and tab in _DASHBOARD_SUB_TABS and _DASHBOARD_SUB_RE.match(sub):
+        is_operator = await _is_operator_request(r)
+        return page("dashboard/index.html", r, is_operator=is_operator, show_market_price=await _dashboard_show_market_price(r), active_tab=tab, active_sub=sub)
     from fastapi.responses import Response
     return Response(status_code=404)
 

@@ -604,36 +604,83 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-home" class="tab fi">
   <div class="ph">
-    <div class="ph-title tone-teal"><div><h2 data-i18n="Overview">Overview</h2></div></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-o btn-sm" onclick="loadAll()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    <div class="ph-title"><div><h2 data-i18n="Overview">Overview</h2></div></div>
+    <div class="ph-actions">
+      <button class="btn btn-o btn-sm" onclick="loadAll()" title="Refresh" data-i18n-title="Refresh">
+        {{ icon('refresh-cw', 'ico') }}
         <span data-i18n="Refresh">Refresh</span>
+      </button>
+      <button class="btn btn-y btn-sm" onclick="go('api','sb-api','mb-api');openPL()" title="Create Link" data-i18n-title="Create Link">
+        {{ icon('plus', 'ico') }}
+        <span data-i18n="Create Link">Create Link</span>
       </button>
     </div>
   </div>
 
-  
-  <div class="grid g-4 g2" style="margin-bottom:20px">
+  <section class="ov-hero">
+    <canvas class="fg-globe" data-globe data-globe-hops="3" data-globe-alpha=".6" aria-hidden="true"></canvas>
+    <a class="ov-figure" href="#" data-metric="received">
+      <span class="ov-figure-k"><span data-i18n="Total Received">Total Received</span>{{ icon('chevron-right', 'ico mx-go') }}</span>
+      <span class="ov-figure-v"><span id="ov-earned" class="fg-num skel-shimmer">—</span><span class="sc-unit" data-no-i18n>FIRO</span></span>
+      <span class="ov-figure-f">
+        <span id="ov-earned-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
+        <span class="sc-note" data-i18n="confirmed on-chain">confirmed on-chain</span>
+      </span>
+    </a>
+  </section>
 
-    <div class="sc tone-amber">
-      <div class="sc-head">{{ icon('coins', 'ico') }}<div class="sc-label" data-i18n="Total Sales">Total Sales</div></div>
-      <div id="ov-balance" class="sc-val skel-shimmer">—</div>
-      <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="FIRO invoiced">FIRO invoiced</div>
-      <span id="ov-balance-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
-      <svg id="ov-balance-spark" class="an-spark flat" viewBox="0 0 100 22" preserveAspectRatio="none" style="display:none"><polyline points=""/></svg>
-    </div>
-    <div class="sc tone-green">
-      <div class="sc-head">{{ icon('circle-check', 'ico') }}<div class="sc-label" data-i18n="Total Received">Total Received</div></div>
-      <div id="ov-earned" class="sc-val skel-shimmer">—</div>
-      <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="confirmed on-chain">confirmed on-chain</div>
-      <span id="ov-earned-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
-      <svg id="ov-earned-spark" class="an-spark flat" viewBox="0 0 100 22" preserveAspectRatio="none" style="display:none"><polyline points=""/></svg>
-    </div>
+  <div class="ov-grid">
+    <section class="ov-week">
+      <header class="sec-head">
+        <h3 data-i18n="Last 7 days">Last 7 days</h3>
+        <span class="sec-side"><b id="ov-week-total" class="fg-num">—</b> <span data-no-i18n>FIRO</span></span>
+      </header>
+      <div id="ov-bars" class="fg-bars" role="list" aria-label="Last 7 days" data-i18n-aria-label="Last 7 days"></div>
+    </section>
+    <section class="ov-side">
+      <div class="mx-list">
+        <a class="mx" href="#" data-metric="sales">
+          <span class="mx-k" data-i18n="Total Sales">Total Sales</span>
+          <span id="ov-balance-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
+          <span class="mx-v"><b id="ov-balance" class="skel-shimmer">—</b><small data-no-i18n>FIRO</small></span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </a>
+        <a class="mx" href="#" data-metric="orders">
+          <span class="mx-k" data-i18n="Orders">Orders</span>
+          <span id="ov-orders-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
+          <span class="mx-v"><b id="ov-orders" class="skel-shimmer">—</b></span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </a>
+        <a class="mx" href="#" data-metric="rate">
+          <span class="mx-k" data-i18n="Success Rate">Success Rate</span>
+          <span id="ov-rate-delta" class="an-delta flat" style="display:none" title="vs. the previous 7 days" data-i18n-title="vs. the previous 7 days"></span>
+          <span class="mx-v"><b id="ov-rate" class="skel-shimmer">—</b></span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </a>
+        <a class="mx" href="#" data-metric="aov">
+          <span class="mx-k" data-i18n="Avg Order Value">Avg Order Value</span>
+          <span class="mx-v"><b id="ov-aov" class="skel-shimmer">—</b><small data-no-i18n>FIRO</small></span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </a>
+        <button class="mx" type="button" onclick="go('wallet','sb-wallet','mb-wallet')">
+          <span class="mx-k" data-no-i18n>Spark</span>
+          <span id="ov-m-spark" class="ov-m-state">—</span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </button>
+        <button class="mx" type="button" onclick="go('wallet','sb-wallet','mb-wallet')">
+          <span class="mx-k" data-i18n="Transparent">Transparent</span>
+          <span id="ov-m-trans" class="ov-m-state">—</span>
+          {{ icon('chevron-right', 'ico mx-go') }}
+        </button>
+      </div>
+    </section>
   </div>
 
-  <div class="card">
-    <h3 style="margin-bottom:14px" data-i18n="Recent Payments">Recent Payments</h3>
+  <section class="ov-recent">
+    <header class="sec-head">
+      <h3 data-i18n="Recent Payments">Recent Payments</h3>
+      <button class="sec-more" onclick="go('pays','sb-pays','mb-pays')"><span data-i18n="View all">View all</span>{{ icon('chevron-right', 'ico') }}</button>
+    </header>
     <div class="pdt" id="ov-recent-dt">
       <div class="pdt-head pdt-4">
         <button class="pdt-cb" id="ovAllCb" aria-label="Select all" data-i18n-aria-label="Select all"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
@@ -648,97 +695,174 @@ html[data-theme="light"] #sb-profile-popup{
         <button id="ovExport" data-i18n="Export CSV">Export CSV</button>
       </div>
     </div>
+  </section>
+</div>
+
+<div id="t-metric" class="tab" style="display:none">
+  <button class="back-link" type="button" onclick="go('analytics','sb-analytics','mb-analytics')">{{ icon('chevron-left', 'ico') }}<span data-i18n="Analytics">Analytics</span></button>
+  <div class="ph ph-stack">
+    <div class="ph-title"><div><h2 id="mt-title">—</h2><p class="ph-sub" id="mt-desc"></p></div></div>
+    <div class="ph-actions">
+      <div class="an-seg" id="mt-range" role="tablist">
+        <button class="fg-rb active" type="button" data-p="7d" onclick="mtPeriod('7d')">7D</button>
+        <button class="fg-rb" type="button" data-p="30d" onclick="mtPeriod('30d')">30D</button>
+        <button class="fg-rb" type="button" data-p="90d" onclick="mtPeriod('90d')">90D</button>
+      </div>
+    </div>
   </div>
+  <section class="mt-top">
+    <div class="ov-figure-v"><span id="mt-val" class="fg-num">—</span><span class="sc-unit" id="mt-unit" data-no-i18n></span></div>
+    <div class="ov-figure-f"><span id="mt-delta" class="an-delta flat" style="display:none"></span><span class="sc-note" id="mt-vs" data-i18n="vs. the previous period">vs. the previous period</span></div>
+  </section>
+  <section class="mt-sec" id="mt-chart-sec">
+    <div id="mt-bars" class="fg-bars fg-bars-lg" role="list"></div>
+  </section>
+  <section class="mt-sec">
+    <header class="sec-head"><h3 data-i18n="By day">By day</h3></header>
+    <div class="dtab" id="mt-days"></div>
+  </section>
+  <section class="mt-sec">
+    <header class="sec-head">
+      <h3 data-i18n="Payments">Payments</h3>
+      <button class="sec-more" id="mt-pays-all" type="button"><span data-i18n="View all">View all</span>{{ icon('chevron-right', 'ico') }}</button>
+    </header>
+    <div id="mt-pays" class="plist"></div>
+  </section>
+</div>
+
+<div id="t-pay" class="tab" style="display:none">
+  <button class="back-link" type="button" onclick="go('pays','sb-pays','mb-pays')">{{ icon('chevron-left', 'ico') }}<span data-i18n="Payments">Payments</span></button>
+  <div class="ph">
+    <div class="ph-title"><div><h2 id="pv-title" data-no-i18n>—</h2></div></div>
+    <div class="ph-actions" id="pv-actions"></div>
+  </div>
+  <section class="mt-top">
+    <div class="ov-figure-v"><span id="pv-amount" class="fg-num">—</span><span class="sc-unit" data-no-i18n>FIRO</span></div>
+    <div class="ov-figure-f"><span id="pv-status"></span><span class="sc-note" id="pv-sub"></span></div>
+  </section>
+  <section class="mt-sec">
+    <ol class="pv-steps" id="pv-steps"></ol>
+  </section>
+  <div class="pv-grid">
+    <section class="mt-sec">
+      <header class="sec-head"><h3 data-i18n="Payment">Payment</h3></header>
+      <dl class="kv" id="pv-kv-pay"></dl>
+    </section>
+    <section class="mt-sec">
+      <header class="sec-head"><h3 data-i18n="Customer">Customer</h3></header>
+      <dl class="kv" id="pv-kv-cust"></dl>
+    </section>
+  </div>
+  <section class="mt-sec" id="pv-refunds-sec" style="display:none">
+    <header class="sec-head"><h3 data-i18n="Refunds">Refunds</h3><span class="sec-side" id="pv-refunds-total"></span></header>
+    <div id="pv-refunds" class="plist"></div>
+  </section>
 </div>
 
 <div id="t-analytics" class="tab" style="display:none">
   {% if is_operator %}{{ paneltools.panel_nh_mini() }}{% endif %}
 
   <div class="ph">
-    <div class="ph-title tone-violet"><div><h2 data-i18n="Analytics">Analytics</h2></div></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div class="ph-title"><div><h2 data-i18n="Analytics">Analytics</h2></div></div>
+    <div class="ph-actions">
       <select id="user-analytics-period" class="finput fselect" style="display:none" onchange="loadUserAnalytics()">
         <option value="today" data-i18n="Today">Today</option>
         <option value="7d" selected data-i18n="Last 7 days">Last 7 days</option>
         <option value="30d" data-i18n="Last 30 days">Last 30 days</option>
       </select>
-      <button class="btn btn-o btn-sm" onclick="loadUserAnalytics()" data-i18n="Refresh">Refresh</button>
+      <button class="btn btn-o btn-sm" onclick="loadUserAnalytics()" title="Refresh" data-i18n-title="Refresh">
+        {{ icon('refresh-cw', 'ico') }}
+        <span data-i18n="Refresh">Refresh</span>
+      </button>
       <button class="btn btn-o btn-sm" onclick="exportCSV()" title="Download CSV" data-i18n-title="Download CSV">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        {{ icon('download', 'ico') }}
         <span data-i18n="Export CSV">Export CSV</span>
       </button>
-      <button class="btn btn-o btn-sm" onclick="go('pays','sb-pays','mb-pays')" title="View all payments" data-i18n-title="View all payments">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <button class="btn btn-o btn-sm ph-hide-m" onclick="go('pays','sb-pays','mb-pays')" title="View all payments" data-i18n-title="View all payments">
+        {{ icon('credit-card', 'ico') }}
         <span data-i18n="All Payments">All Payments</span>
       </button>
-      <button class="btn btn-o btn-sm" onclick="openResetAnalyticsModal()" title="Clear all analytics history" data-i18n-title="Clear all analytics history" style="color:var(--red);border-color:rgba(239,68,68,.35)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      <button class="btn btn-danger btn-sm" onclick="openResetAnalyticsModal()" title="Clear all analytics history" data-i18n-title="Clear all analytics history">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
         <span data-i18n="Reset Analytics">Reset Analytics</span>
       </button>
     </div>
   </div>
 
-  <div class="grid g-4 g2" style="margin-bottom:16px" data-testid="user-analytics-cards">
-    <div class="sc tone-amber">
-      <div class="sc-head">{{ icon('coins', 'ico') }}<div class="sc-label" data-i18n="Total Sales">Total Sales</div></div>
-      <div id="uan-revenue" class="sc-val skel-shimmer">—</div>
-      <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="FIRO invoiced">FIRO invoiced</div>
-      <span id="uan-revenue-delta" class="an-delta flat" style="display:none"></span>
+  <div class="mx-cols" data-testid="user-analytics-cards">
+    <div class="mx-list">
+      <a class="mx" href="#" data-metric="sales">
+        <span class="mx-k" data-i18n="Total Sales">Total Sales</span>
+        <span id="uan-revenue-delta" class="an-delta flat" style="display:none"></span>
+        <span class="mx-v"><b id="uan-revenue" class="sc-val skel-shimmer">—</b><small data-no-i18n>FIRO</small></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="received">
+        <span class="mx-k" data-i18n="Total Received">Total Received</span>
+        
+        <span class="mx-v"><b id="uan-received" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="orders">
+        <span class="mx-k" data-i18n="Orders">Orders</span>
+        <span id="uan-orders-delta" class="an-delta flat" style="display:none"></span>
+        <span class="mx-v"><b id="uan-orders" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="rate">
+        <span class="mx-k" data-i18n="Success Rate">Success Rate</span>
+        <span id="uan-success-rate-delta" class="an-delta flat" style="display:none"></span>
+        <span class="mx-v"><b id="uan-success-rate" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
     </div>
-    <div class="sc tone-green">
-      <div class="sc-head">{{ icon('circle-check', 'ico') }}<div class="sc-label" data-i18n="Total Received">Total Received</div></div>
-      <div id="uan-received" class="sc-val skel-shimmer">—</div>
-      <div style="font-size:.65rem;color:var(--t3);margin-top:4px" data-i18n="confirmed on-chain">confirmed on-chain</div>
-    </div>
-    <div class="sc tone-blue">
-      <div class="sc-head">{{ icon('shopping-bag', 'ico') }}<div class="sc-label" data-i18n="Orders">Orders</div></div>
-      <div id="uan-orders" class="sc-val skel-shimmer">—</div>
-      <span id="uan-orders-delta" class="an-delta flat" style="display:none"></span>
-    </div>
-    <div class="sc tone-teal">
-      <div class="sc-head">{{ icon('percent', 'ico') }}<div class="sc-label" data-i18n="Success Rate">Success Rate</div></div>
-      <div id="uan-success-rate" class="sc-val skel-shimmer">—</div>
-      <span id="uan-success-rate-delta" class="an-delta flat" style="display:none"></span>
-    </div>
-  </div>
-  <div class="grid g-4 g2" style="margin-bottom:22px">
-    <div class="sc tone-green">
-      <div class="sc-head">{{ icon('badge-check', 'ico') }}<div class="sc-label" data-i18n="Confirmed">Confirmed</div></div>
-      <div id="uan-success" class="sc-val skel-shimmer">—</div>
-    </div>
-    <div class="sc tone-pink">
-      <div class="sc-head">{{ icon('circle-x', 'ico') }}<div class="sc-label" data-i18n="Failed">Failed</div></div>
-      <div id="uan-failed" class="sc-val skel-shimmer">—</div>
-    </div>
-    <div class="sc tone-violet">
-      <div class="sc-head">{{ icon('scale', 'ico') }}<div class="sc-label" data-i18n="Avg Order Value">Avg Order Value</div></div>
-      <div id="uan-avg-order" class="sc-val skel-shimmer">—</div>
-    </div>
-    <div class="sc tone-orange">
-      <div class="sc-head">{{ icon('undo-2', 'ico') }}<div class="sc-label" data-i18n="Refunded">Refunded</div></div>
-      <div id="uan-refunded" class="sc-val">—</div>
+    <div class="mx-list">
+      <a class="mx" href="#" data-metric="confirmed">
+        <span class="mx-k" data-i18n="Confirmed">Confirmed</span>
+        
+        <span class="mx-v"><b id="uan-success" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="failed">
+        <span class="mx-k" data-i18n="Failed">Failed</span>
+        
+        <span class="mx-v"><b id="uan-failed" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="aov">
+        <span class="mx-k" data-i18n="Avg Order Value">Avg Order Value</span>
+        
+        <span class="mx-v"><b id="uan-avg-order" class="sc-val skel-shimmer">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
+      <a class="mx" href="#" data-metric="refunded">
+        <span class="mx-k" data-i18n="Refunded">Refunded</span>
+        
+        <span class="mx-v"><b id="uan-refunded" class="sc-val">—</b></span>
+        {{ icon('chevron-right', 'ico mx-go') }}
+      </a>
     </div>
   </div>
 
   <div class="charts-2col">
   <div class="card" style="padding:0;overflow:visible" data-testid="user-revenue-chart">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:18px 20px 14px">
+    <div class="an-card-head">
       <div>
-        <div style="font-size:.82rem;font-weight:600;color:var(--t1)" data-i18n="Sales Volume">Sales Volume</div>
-        <div id="uan-chart-total" class="skel-shimmer" style="font-size:1.5rem;font-weight:800;color:var(--white);font-family:var(--mono);line-height:1.2">—</div>
-        <div id="uan-chart-change" style="font-size:.72rem;color:var(--t3);margin-top:2px"></div>
+        <h3 data-i18n="Sales Volume">Sales Volume</h3>
+        <div id="uan-chart-total" class="an-big fg-num skel-shimmer">—</div>
+        <div id="uan-chart-change" class="an-sub"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <div id="fg-range-btns" style="display:flex;gap:4px;background:var(--bg4);border-radius:8px;padding:3px">
+        <div id="fg-range-btns" class="an-seg">
           <button class="fg-rb"        data-range="24h" onclick="setChartRange('24h',this)">24H</button>
           <button class="fg-rb active" data-range="7d"  onclick="setChartRange('7d',this)">7D</button>
           <button class="fg-rb"        data-range="30d" onclick="setChartRange('30d',this)">30D</button>
           <button class="fg-rb"        data-range="3m"  onclick="setChartRange('3m',this)">90D</button>
         </div>
-        <div id="uan-range-note" style="font-size:.7rem;color:var(--t3);min-height:1em"></div>
+        <div id="uan-range-note" class="an-sub" style="min-height:1em"></div>
       </div>
     </div>
-    <div style="position:relative;padding:0 16px 16px">
+    <div style="position:relative;padding:0 18px 18px">
       <div class="skel-block" id="ck-skel" style="position:absolute;inset:0"></div>
       <div class="fg-scroll" id="ck-scroll">
         <div class="ck-area-wrap" id="ck-area-wrap">
@@ -752,14 +876,14 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
 
   <div class="card" data-testid="user-orders-chart" style="padding:0;overflow:visible">
-    <div style="padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div class="an-card-head">
       <div>
-        <div style="font-size:.82rem;font-weight:600;color:var(--t1)" data-i18n="Payment Activity">Payment Activity</div>
-        <div id="hm-caption" style="font-size:.68rem;color:var(--t3);margin-top:1px" data-i18n="Drag to explore">Drag to explore</div>
+        <h3 data-i18n="Payment Activity">Payment Activity</h3>
+        <div id="hm-caption" class="an-sub" data-i18n="Drag to explore">Drag to explore</div>
       </div>
-      <div id="hm-total" style="font-size:.82rem;color:var(--t3);font-family:var(--mono)"></div>
+      <div id="hm-total" class="an-sub"></div>
     </div>
-    <div style="padding:0 16px 20px">
+    <div style="padding:0 22px 22px">
       <div style="position:relative">
         <div class="skel-block" id="hm-skel" style="position:absolute;inset:0"></div>
         <div class="fg-scroll" id="hm-scroll">
@@ -780,10 +904,10 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
   </div>
 
-  <div class="card" data-testid="user-invoice-donut" style="padding:18px 20px 20px;margin-bottom:20px">
-    <div style="margin-bottom:14px">
-      <div style="font-size:.82rem;font-weight:600;color:var(--t1)" data-i18n="Invoice Breakdown">Invoice Breakdown</div>
-      <div style="font-size:.68rem;color:var(--t3);margin-top:1px" data-i18n="All-time not limited to the date range above">All-time not limited to the date range above</div>
+  <div class="card" data-testid="user-invoice-donut" style="margin-bottom:14px">
+    <div style="margin-bottom:18px">
+      <h3 data-i18n="Invoice Breakdown">Invoice Breakdown</h3>
+      <div class="an-sub" data-i18n="All-time not limited to the date range above">All-time not limited to the date range above</div>
     </div>
     <div class="an-donut-row">
       <div class="an-donut-wrap">
@@ -810,7 +934,7 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-wallet" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-orange"><div><h2 tabindex="0" style="cursor:help" data-tip="FiroGate only watches. It can never move your funds." data-i18n="Payment methods">Payment methods</h2></div></div></div>
+  <div class="ph"><div class="ph-title"><div><h2 tabindex="0" style="cursor:help" data-tip="FiroGate only watches. It can never move your funds." data-i18n="Payment methods">Payment methods</h2></div></div></div>
 
   <div class="pm-grid">
     <section class="pm-card" id="pm-spark">
@@ -873,10 +997,10 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-api" class="tab" style="display:none">
   <div class="ph">
-    <div class="ph-title tone-blue"><div><h2 data-i18n="API & Webhooks">API & Webhooks</h2></div></div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <a href="/docs" class="btn btn-o btn-sm" target="_blank" style="text-decoration:none">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div class="ph-title"><div><h2 data-i18n="API & Webhooks">API & Webhooks</h2></div></div>
+    <div class="ph-actions">
+      <a href="/docs" class="btn btn-o btn-sm" target="_blank" style="text-decoration:none" title="API Docs" data-i18n-title="API Docs">
+        {{ icon('book-open', 'ico') }}
         <span data-i18n="API Docs">API Docs</span>
       </a>
     </div>
@@ -953,32 +1077,16 @@ html[data-theme="light"] #sb-profile-popup{
 
   <div class="card">
     <h3 style="margin-bottom:16px" data-i18n="Webhook Events">Webhook Events</h3>
-    <div style="display:grid;gap:8px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:var(--bg4);border:1px solid var(--bw);border-radius:8px;padding:12px">
-          <div style="font-family:var(--mono);font-size:.78rem;color:#22C55E;margin-bottom:4px">payment.confirmed</div>
-          <div style="font-size:.75rem;color:var(--t1)" data-i18n="Payment received and confirmed on-chain.">Payment received and confirmed on-chain.</div>
-        </div>
-        <div style="background:var(--bg4);border:1px solid var(--bw);border-radius:8px;padding:12px">
-          <div style="font-family:var(--mono);font-size:.78rem;color:var(--t2);margin-bottom:4px">payment.cancelled</div>
-          <div style="font-size:.75rem;color:var(--t1)" data-i18n="Buyer cancelled the checkout.">Buyer cancelled the checkout.</div>
-        </div>
-        <div style="background:var(--bg4);border:1px solid var(--bw);border-radius:8px;padding:12px">
-          <div style="font-family:var(--mono);font-size:.78rem;color:var(--t2);margin-bottom:4px">payment.expired</div>
-          <div style="font-size:.75rem;color:var(--t1)" data-i18n="Payment window expired without confirmation.">Payment window expired without confirmation.</div>
-        </div>
-        <div style="background:var(--bg4);border:1px solid var(--bw);border-radius:8px;padding:12px">
-          <div style="font-family:var(--mono);font-size:.78rem;color:var(--y);margin-bottom:4px">plan.activated</div>
-          <div style="font-size:.75rem;color:var(--t1)" data-i18n="Merchant plan upgraded via payment.">Merchant plan upgraded via payment.</div>
-        </div>
-      </div>
-      <div style="background:rgba(var(--brand-rgb),.06);border:1px solid rgba(var(--brand-rgb),.15);border-radius:8px;padding:14px;margin-top:4px">
-        <div style="font-size:.78rem;font-weight:600;color:var(--y);margin-bottom:6px" data-i18n="Verifying signatures">Verifying signatures</div>
-        <div style="font-family:var(--mono);font-size:.72rem;color:var(--t2);line-height:1.7">
-          <div>signature = HMAC-SHA256(sorted_compact_json, webhook_secret)</div>
-          <div style="color:var(--t3)"><span data-i18n="Header:">Header:</span> X-FiroGate-Signature: {signature}</div>
-        </div>
-      </div>
+    <div class="ev-grid">
+      <div class="ev"><code>payment.confirmed</code><span data-i18n="Payment received and confirmed on-chain.">Payment received and confirmed on-chain.</span></div>
+      <div class="ev"><code>payment.cancelled</code><span data-i18n="Buyer cancelled the checkout.">Buyer cancelled the checkout.</span></div>
+      <div class="ev"><code>payment.expired</code><span data-i18n="Payment window expired without confirmation.">Payment window expired without confirmation.</span></div>
+      <div class="ev"><code>payment.refunded</code><span data-i18n="A refund was recorded.">A refund was recorded.</span></div>
+    </div>
+    <div class="ev-note">
+      <b data-i18n="Verifying signatures">Verifying signatures</b>
+      <code>signature = HMAC-SHA256(sorted_compact_json, webhook_secret)</code>
+      <code><span data-i18n="Header:">Header:</span> X-FiroGate-Signature: {signature}</code>
     </div>
   </div>
 </div>
@@ -1077,17 +1185,17 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-pays" class="tab" style="display:none">
-  <div class="ph">
-    <div class="ph-title tone-green"><div><h2 data-i18n="Payments">Payments</h2></div></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <select id="pay-filter" class="finput fselect" style="width:150px;max-width:150px;min-width:150px" onchange="loadPays()">
+  <div class="ph ph-stack">
+    <div class="ph-title"><div><h2 data-i18n="Payments">Payments</h2></div></div>
+    <div class="ph-actions">
+      <select id="pay-filter" class="finput fselect" style="width:150px" onchange="loadPays()">
         <option value="" data-i18n="All statuses">All statuses</option>
         <option value="pending" data-i18n="Pending">Pending</option>
         <option value="confirming" data-i18n="Confirming">Confirming</option>
         <option value="confirmed" data-i18n="Confirmed">Confirmed</option>
         <option value="expired" data-i18n="Expired">Expired</option>
       </select>
-      <select id="pays-sort" class="finput fselect" style="width:170px;max-width:170px;min-width:170px" onchange="_paysApplySort()">
+      <select id="pays-sort" class="finput fselect" style="width:170px" onchange="_paysApplySort()">
         <option value="date:-1" data-i18n="Newest First">Newest First</option>
         <option value="date:1" data-i18n="Oldest First">Oldest First</option>
         <option value="amt:-1" data-i18n="Amount (High → Low)">Amount (High → Low)</option>
@@ -1095,7 +1203,7 @@ html[data-theme="light"] #sb-profile-popup{
         <option value="status:1" data-i18n="Status">Status</option>
         <option value="id:1" data-i18n="Invoice ID">Invoice ID</option>
       </select>
-      <select id="pays-pagesize" class="finput fselect" style="width:150px;max-width:150px;min-width:150px" onchange="_paysChangePageSize()">
+      <select id="pays-pagesize" class="finput fselect" style="width:130px" onchange="_paysChangePageSize()">
         <option value="10" data-i18n="10 / page">10 / page</option>
         <option value="25" data-i18n="25 / page">25 / page</option>
         <option value="50" selected data-i18n="50 / page">50 / page</option>
@@ -1104,6 +1212,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
   </div>
   <input id="pays-search" type="hidden" value="">
+  <div class="date-chip" id="pays-date-chip" style="display:none"><b data-no-i18n></b><button type="button" onclick="clearPaysDate()" aria-label="Clear" data-i18n-aria-label="Clear">{{ icon('x', 'ico') }}</button></div>
   <div class="card">
     <div class="pdt" id="pays-dt">
       <div class="pdt-head pdt-6">
@@ -1120,8 +1229,8 @@ html[data-theme="light"] #sb-profile-popup{
         <button id="paysExport" data-i18n="Export CSV">Export CSV</button>
       </div>
     </div>
-    <div id="pays-pagination" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--bw);flex-wrap:wrap">
-      <span id="pays-range" style="font-size:.78rem;color:var(--t3)"></span>
+    <div id="pays-pagination" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 0;flex-wrap:wrap">
+      <span id="pays-range" style="font-size:.84rem;color:var(--t3)"></span>
       <div style="display:flex;gap:6px">
         <button id="pays-prev" class="btn btn-o btn-sm" onclick="_paysPrevPage()" disabled data-i18n="Previous">Previous</button>
         <button id="pays-next" class="btn btn-o btn-sm" onclick="_paysNextPage()" disabled data-i18n="Next">Next</button>
@@ -1131,7 +1240,7 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-sec" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-teal"><div><h2 id="sec-section-title" data-i18n="Settings">Settings</h2></div></div></div>
+  <div class="ph"><div class="ph-title"><div><h2 id="sec-section-title" data-i18n="Settings">Settings</h2></div></div></div>
   <div id="sec-wrap">
 
     <div class="sec-pane" id="sec-pane-appname">
@@ -1466,8 +1575,8 @@ html[data-theme="light"] #sb-profile-popup{
 
 <div id="t-recurring" class="tab" style="display:none">
   <div class="ph">
-    <div class="ph-title tone-pink"><div><h2 data-i18n="Recurring">Recurring</h2></div></div>
-    <button class="btn btn-y btn-sm" id="rc-new-btn" data-tip="Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet." onclick="rcToggleForm(true)">{{ icon('plus', 'ico ico-sm') }}<span data-i18n="New recurring payment">New recurring payment</span></button>
+    <div class="ph-title"><div><h2 data-i18n="Recurring">Recurring</h2></div></div>
+    <div class="ph-actions"><button class="btn btn-y btn-sm" id="rc-new-btn" data-tip="Each period FiroGate makes a pay link and emails it to your customer. Payments go straight to your wallet." onclick="rcToggleForm(true)">{{ icon('plus', 'ico ico-sm') }}<span data-i18n="New recurring payment">New recurring payment</span></button></div>
   </div>
 
   <div class="card rc-form" id="rc-form" style="display:none">
@@ -1495,7 +1604,7 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-account" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title tone-amber"><div><h2 data-i18n="Account">Account</h2></div></div></div>
+  <div class="ph"><div class="ph-title"><div><h2 data-i18n="Account">Account</h2></div></div></div>
   <div id="account-wrap">
 
     <div class="sec-nav">
@@ -1772,9 +1881,11 @@ html[data-theme="light"] .ag-input::placeholder{color:rgba(20,12,0,.4)}
 
 {% endblock %}
 {% block js %}
+<script src="{{ '/static/js/globe.js'|bust }}" defer></script>
 <script>
 
 const ACTIVE_TAB = "{{ active_tab | default('home') }}";
+const ACTIVE_SUB = {{ (active_sub | default('')) | tojson }};
 const IS_TESTNET = {{ 'true' if is_testnet else 'false' }};
 (function() {
   var t = document.getElementById('t-' + ACTIVE_TAB);
@@ -2190,6 +2301,7 @@ async function loadAll() {
     syncProfileUI(d);
     loadRecentPays();
     loadSales();
+    _loadOvMethods();
   } catch (e) {
     console.error('loadAll error:', e);
     Toast.error(window.t ? window.t('Failed to load dashboard. Retrying...') : 'Failed to load dashboard. Retrying...');
@@ -2241,20 +2353,33 @@ function _secSectionTitle(id) {
   return s && window.t ? window.t(s) : s;
 }
 
+const SEC_GROUPS = {
+  appname: ['appname', 'notify', 'privacy'], notify: ['appname', 'notify', 'privacy'], privacy: ['appname', 'notify', 'privacy'],
+  password: ['password', 'tfa'], tfa: ['password', 'tfa'],
+};
+const SEC_GROUP_TITLES = { appname: 'Settings', notify: 'Settings', privacy: 'Settings', password: 'Security', tfa: 'Security' };
+
 function secTab(id) {
-  if (id === 'password' && profile && profile.auth_provider === 'account_number') { id = 'reports'; }
+  const noPassword = profile && profile.auth_provider === 'account_number';
+  if (id === 'password' && noPassword) { id = 'tfa'; }
   const pane = document.getElementById('sec-pane-' + id);
   if (!pane) return;
   const scope = pane.closest('#sec-wrap, #account-wrap') || document;
+  const group = SEC_GROUPS[id] || [id];
   scope.querySelectorAll('.sec-pane').forEach(p => p.style.display = 'none');
-  pane.style.display = '';
+  group.forEach(function (g) {
+    const el = document.getElementById('sec-pane-' + g);
+    if (el && !(g === 'password' && noPassword)) el.style.display = '';
+  });
   scope.classList.toggle('sec-wrap-wide', id === 'theme' || id === 'diag');
+  scope.classList.toggle('sec-grouped', group.length > 1);
+  if (group.length > 1 && group[0] !== id && pane.offsetParent) {
+    requestAnimationFrame(function () { pane.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+  }
 
   const titleEl = scope.parentElement && scope.parentElement.querySelector('.ph h2');
-  if (titleEl && SEC_SECTION_TITLES[id]) {
-    titleEl.setAttribute('data-i18n', SEC_SECTION_TITLES[id]);
-    titleEl.textContent = _secSectionTitle(id);
-  }
+  const titleKey = SEC_GROUP_TITLES[id] || SEC_SECTION_TITLES[id];
+  if (titleEl && titleKey) _setI18nText(titleEl, titleKey);
   const subEl = scope.parentElement && scope.parentElement.querySelector('.ph .ph-sub');
   if (subEl && SEC_SECTION_SUBS[id]) {
     subEl.setAttribute('data-i18n', SEC_SECTION_SUBS[id]);
@@ -2412,6 +2537,7 @@ function go(name, sbId, mobId) {
     account:   '/account',
     analytics: '/analytics',
     recurring: '/recurring',
+    wallet:    '/wallet',
   } : {
     home:      '/dashboard/home',
     api:       '/dashboard/api',
@@ -2422,8 +2548,9 @@ function go(name, sbId, mobId) {
     account:   '/dashboard/account',
     analytics: '/dashboard/analytics',
     recurring: '/dashboard/recurring',
+    wallet:    '/dashboard/wallet',
   };
-  try { history.pushState(null, '', pathMap[name] || (_onDashboardSubdomain ? '/' : '/dashboard')); } catch(e) {}
+  if (!_routeSilent) { try { history.pushState(null, '', pathMap[name] || (_onDashboardSubdomain ? '/' : '/dashboard')); } catch(e) {} }
 }
 
 document.addEventListener('click', function(e) {
@@ -2672,11 +2799,11 @@ async function _loadApiTabPL() {
       var slug = lk.slug || lk.custom_slug || '';
       var url  = '/pay/' + esc(slug);
       return '<tr>' +
-        '<td style="font-weight:600;font-size:.82rem">' + esc(lk.title) + '</td>' +
-        '<td style="font-family:var(--mono);font-size:.72rem"><a href="' + url + '" target="_blank" style="color:var(--y);text-decoration:none">' + url + '</a></td>' +
-        '<td style="font-size:.78rem;color:var(--t2)">' + (lk.uses_count || 0) + '</td>' +
-        '<td>' + (lk.is_active ? '<span style="color:#22C55E;font-size:.75rem">' + _t('Active') + '</span>' : '<span style="color:var(--t3);font-size:.75rem">' + _t('Inactive') + '</span>') + '</td>' +
-        '<td style="text-align:right"><button onclick="openPL()" style="background:none;border:none;cursor:pointer;color:var(--t1);font-size:.75rem;padding:4px 8px" onmouseover="this.style.color=\'var(--white)\'" onmouseout="this.style.color=\'var(--t1)\'">' + _t('Manage') + '</button></td>' +
+        '<td style="font-weight:600">' + esc(lk.title) + '</td>' +
+        '<td><a class="tw-link" href="' + url + '" target="_blank">' + url + '</a></td>' +
+        '<td style="color:var(--t2)">' + (lk.uses_count || 0) + '</td>' +
+        '<td><span class="dx-pill ' + (lk.is_active ? 'lv-ok' : 'lv-off') + '">' + _t(lk.is_active ? 'Active' : 'Inactive') + '</span></td>' +
+        '<td style="text-align:end"><button class="btn btn-o btn-sm" onclick="openPL()">' + _t('Manage') + '</button></td>' +
         '</tr>';
     }).join('') + '</tbody></table></div>';
 }
@@ -2696,7 +2823,7 @@ function _initDT({ bodyEl, bulkEl, cntEl, allCbEl, exportId, cols, data, rowHtml
       cb.addEventListener('click', e => { e.stopPropagation(); const id=cb.dataset.cb; sel.has(id)?sel.delete(id):sel.add(id); render(); });
     });
     bodyEl.querySelectorAll('.pdt-row').forEach(row => {
-      row.addEventListener('click', e => { if(e.target.closest('[data-cb]')) return; row.classList.toggle('exp'); });
+      row.addEventListener('click', e => { if (e.target.closest('[data-cb], a, button')) return; openPayment(row.dataset.id); });
     });
   }
 
@@ -2787,7 +2914,7 @@ async function loadRecentPays() {
       <div class="pdt-row pdt-4${sel?' sel':''}${exp?' exp':''}" data-id="${escHtml(p.payment_id)}">
         <button class="pdt-cb${sel?' on':''}" data-cb="${escHtml(p.payment_id)}"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
         <span style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span class="pdt-mono">'+truncate(p.payment_id,10)+'</span>'}</span>
-        <span class="pdt-mono">${fmtFiro(p.amount_firo)}</span>
+        <span class="pdt-amt">${fmtFiro(p.amount_firo)}</span>
         <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
         <div class="pdt-detail">
@@ -2871,6 +2998,12 @@ async function loadPays(overrideSearch) {
   let url = '/api/payments/?limit=' + size + '&offset=' + _paysOffset;
   if (status) url += '&status=' + encodeURIComponent(status);
   if (search) url += '&search=' + encodeURIComponent(search);
+  if (_paysDate) url += '&date_from=' + _paysDate + '&date_to=' + _paysDate;
+  const chip = document.getElementById('pays-date-chip');
+  if (chip) {
+    chip.style.display = _paysDate ? '' : 'none';
+    if (_paysDate) chip.querySelector('b').textContent = _fgDay(_paysDate, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+  }
   const tb = document.getElementById('pays-tb');
   if (tb) tb.innerHTML = _skelRows('pdt-6', 8);
   const res = await API.getWithHeaders(url);
@@ -2895,7 +3028,7 @@ async function loadPays(overrideSearch) {
         <button class="pdt-cb${sel?' on':''}" data-cb="${escHtml(p.payment_id)}"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
         <span class="pdt-mono pdt-hide-mobile">${truncate(p.payment_id,10)}</span>
         <span class="pdt-hide-mobile" style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span style="color:var(--t3)">—</span>'}</span>
-        <span class="pdt-mono">${fmtFiro(p.amount_firo)}</span>
+        <span class="pdt-amt">${fmtFiro(p.amount_firo)}</span>
         <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
         <div class="pdt-detail">
@@ -3744,7 +3877,7 @@ loadAll().then(() => {
 
   let serverTab;
   if (_onDashboardSubdomain) {
-    const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '') || 'home';
+    const slug = (window.location.pathname.replace(/^\//, '').replace(/\/$/, '') || 'home').split('/')[0];
     const slugToTab = {
       '': 'home', 'home': 'home', 'api': 'api',
       'payments': 'payments', 'wallet': 'wallet',
@@ -3775,7 +3908,17 @@ loadAll().then(() => {
   }
 
   const [tab, sb, mb] = pathMap[resolvedTab] || pathMap['home'];
-  go(tab, sb, mb);
+  const _subRoute = (typeof ACTIVE_SUB !== 'undefined' && ACTIVE_SUB) ? ACTIVE_SUB : '';
+  const _qsDate = new URLSearchParams(window.location.search).get('date') || '';
+  if (_subRoute && resolvedTab === 'payments') {
+    openPayment(_subRoute, { replace: true });
+  } else if (_subRoute && resolvedTab === 'analytics') {
+    openMetric(_subRoute, { replace: true });
+  } else if (resolvedTab === 'payments' && /^\d{4}-\d{2}-\d{2}$/.test(_qsDate)) {
+    openDay(_qsDate);
+  } else {
+    go(tab, sb, mb);
+  }
 });
 
 
@@ -3920,6 +4063,7 @@ async function rfSave() {
   ['rf-amount','rf-txid','rf-reason'].forEach(function(id){ document.getElementById(id).value = ''; });
   await _rfLoad();
   if (typeof loadPays === 'function') loadPays();
+  if (_pvId) _pvLoad();
 }
 document.addEventListener('click', async function(e) {
   var b = e.target.closest('[data-rf-del]');
@@ -3930,6 +4074,7 @@ document.addEventListener('click', async function(e) {
   Toast.info(_ft('Refund record removed'));
   await _rfLoad();
   if (typeof loadPays === 'function') loadPays();
+  if (_pvId) _pvLoad();
 });
 
 
@@ -4265,7 +4410,7 @@ function anCountTo(el, target, duration, decimals, suffix) {
     var p = Math.min(1, (now - start) / duration);
     var eased = 1 - Math.pow(1 - p, 3);
     var val = target * eased;
-    el.textContent = (decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString()) + suffix;
+    el.textContent = val.toLocaleString('en-US', { minimumFractionDigits: decimals > 0 ? decimals : 0, maximumFractionDigits: decimals > 0 ? decimals : 0 }) + suffix;
     if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
@@ -4364,19 +4509,378 @@ function _renderSpark(elId, series, dir) {
   el.style.display = '';
 }
 
+var _routeSilent = false;
+function _dashPath(tab, sub) {
+  var onSub = window.DASHBOARD_URL && window.location.origin === window.DASHBOARD_URL.replace(/\/$/, '');
+  return (onSub ? '/' : '/dashboard/') + tab + (sub ? '/' + encodeURIComponent(sub) : '');
+}
+function _pushRoute(path, replace) {
+  if (_routeSilent) return;
+  try { history[replace ? 'replaceState' : 'pushState'](null, '', path); } catch (e) {}
+}
+function _showView(id, sbId, mbId) {
+  if (typeof closeSidebar === 'function') closeSidebar();
+  document.querySelectorAll('.tab').forEach(function (t) { t.style.display = 'none'; t.classList.remove('fi'); });
+  document.querySelectorAll('.ni').forEach(function (i) { i.classList.remove('active'); });
+  document.querySelectorAll('.mb').forEach(function (b) { b.classList.remove('active'); });
+  var v = document.getElementById(id);
+  if (v) { v.style.display = 'block'; v.style.animation = 'tab-in .25s ease both'; }
+  var sb = document.getElementById(sbId);
+  if (sb) sb.classList.add('active');
+  var mb = (mbId && document.getElementById(mbId)) || document.getElementById('mb-more');
+  if (mb) { mb.classList.add('active'); if (typeof moveMobNavIndicator === 'function') moveMobNavIndicator(mb); }
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}
+function _fgNum(v, dec) {
+  return (parseFloat(v) || 0).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+function _setI18nText(el, key) {
+  if (!el) return;
+  el.__fgOrig_text = key;
+  el.setAttribute('data-i18n', key);
+  el.textContent = window.t ? window.t(key) : key;
+}
+function _fgAmt(v) {
+  var n = parseFloat(v) || 0;
+  var t = n.toFixed(8).replace(/0+$/, '').replace(/\.$/, '');
+  var dot = t.indexOf('.');
+  var dec = dot === -1 ? 0 : t.length - dot - 1;
+  return n.toLocaleString('en-US', { minimumFractionDigits: Math.max(2, dec), maximumFractionDigits: Math.max(2, dec) });
+}
+function _fgLang() { return (window.__FG_I18N__ && window.__FG_I18N__.lang) || 'en'; }
+function _fgDay(d, opt) {
+  try { return new Date(d + 'T00:00:00').toLocaleDateString(_fgLang(), opt); } catch (e) { return d; }
+}
+
+function _fgBars(box, dates, vals, opt) {
+  if (!box) return;
+  opt = opt || {};
+  var n = dates.length;
+  var max = Math.max.apply(null, vals.concat([0]));
+  box.classList.remove('in');
+  box.classList.toggle('dense', n > 14);
+  box.classList.toggle('xdense', n > 45);
+  box.innerHTML = dates.map(function (d, i) {
+    var v = parseFloat(vals[i] || 0);
+    var h = max > 0 ? Math.max(v > 0 ? 4 : 0, Math.round(v / max * 100)) : 0;
+    var lbl = '';
+    if (n <= 7) lbl = _fgDay(d, { weekday: 'short' });
+    else if (n <= 31) lbl = (i % 5 === 0 || i === n - 1) ? _fgDay(d, { day: 'numeric' }) : '';
+    else lbl = d.slice(8) === '01' ? _fgDay(d, { month: 'short' }) : '';
+    var tip = _fgDay(d, { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + _fgNum(v, opt.dec || 0) + (opt.unit ? ' ' + opt.unit : '');
+    return '<button type="button" role="listitem" class="fg-bar' + (i === n - 1 ? ' now' : '') + '" data-day="' + escHtml(d) + '" data-tip="' + escHtml(tip) + '">' +
+      '<span class="fg-bar-t"><i style="height:' + h + '%"></i></span><span class="fg-bar-l">' + escHtml(lbl) + '</span></button>';
+  }).join('');
+  requestAnimationFrame(function () { box.classList.add('in'); });
+}
+
 async function _loadOverviewDeltas() {
   try {
     var data = await API.get('/api/analytics/user?period=7d');
     if (!data || data.error) return;
-    var salesPct = data.deltas && data.deltas.gross_sales_firo;
-    var recvPct  = data.deltas && data.deltas.received_firo;
-    _renderDelta('ov-balance-delta', salesPct);
-    _renderDelta('ov-earned-delta',  recvPct);
-    var series = data.chart && data.chart.sales;
-    _renderSpark('ov-balance-spark', series, salesPct > 0 ? 'up' : salesPct < 0 ? 'down' : 'flat');
-    _renderSpark('ov-earned-spark',  series, recvPct  > 0 ? 'up' : recvPct  < 0 ? 'down' : 'flat');
+    var dl = data.deltas || {};
+    _renderDelta('ov-balance-delta', dl.gross_sales_firo);
+    _renderDelta('ov-earned-delta',  dl.received_firo);
+    _renderDelta('ov-orders-delta',  dl.orders_count);
+    _renderDelta('ov-rate-delta',    dl.success_rate_pct);
+    ['ov-orders', 'ov-rate', 'ov-aov'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('skel-shimmer');
+    });
+    var aov = parseFloat(data.avg_order_value || 0);
+    anCountTo(document.getElementById('ov-orders'), parseInt(data.orders_count || 0, 10), 800, 0, '');
+    anCountTo(document.getElementById('ov-rate'), parseFloat(data.success_rate_pct || 0), 900, 1, '%');
+    anCountTo(document.getElementById('ov-aov'), aov, 900, aov >= 0.01 ? 2 : 4, '');
+    var ch = data.chart || {};
+    var sales = ch.sales || [];
+    var tot = document.getElementById('ov-week-total');
+    if (tot) tot.textContent = _fgNum(sales.reduce(function (x, y) { return x + (parseFloat(y) || 0); }, 0), 2);
+    _fgBars(document.getElementById('ov-bars'), ch.dates || [], sales, { unit: 'FIRO', dec: 2 });
   } catch (e) {}
 }
+
+async function _loadOvMethods() {
+  var sp = document.getElementById('ov-m-spark'), tr = document.getElementById('ov-m-trans');
+  if (!sp || !tr) return;
+  var d = await API.get('/api/xpub/status');
+  if (!d || d.error) return;
+  function put(el, connected, enabled) {
+    var key = !connected ? 'Not connected' : enabled ? 'On' : 'Off';
+    el.textContent = window.t ? window.t(key) : key;
+    el.className = 'ov-m-state ' + (!connected ? 'none' : enabled ? 'on' : 'off');
+  }
+  put(sp, !!d.spark_connected, !!d.spark_enabled);
+  put(tr, !!d.connected, !!d.transparent_enabled);
+}
+
+var MT = {
+  sales:     { title: 'Total Sales', unit: 'FIRO', dec: 2, total: 'gross_sales_firo', delta: 'gross_sales_firo', series: 'sales', desc: 'Everything you invoiced, paid or not.' },
+  received:  { title: 'Total Received', unit: 'FIRO', dec: 2, total: 'received_firo', delta: 'received_firo', series: 'received', status: 'confirmed', desc: 'Payments confirmed on-chain.' },
+  orders:    { title: 'Orders', unit: '', dec: 0, total: 'orders_count', delta: 'orders_count', series: 'orders', desc: 'Invoices created in this period.' },
+  rate:      { title: 'Success Rate', unit: '%', dec: 1, total: 'success_rate_pct', delta: 'success_rate_pct', series: 'rate', status: 'confirmed', desc: 'Paid invoices out of all finished ones.' },
+  aov:       { title: 'Avg Order Value', unit: 'FIRO', dec: 2, total: 'avg_order_value', series: 'aov', desc: 'Sales divided by orders.' },
+  confirmed: { title: 'Confirmed', unit: '', dec: 0, total: 'successful_payments', series: 'confirmed', status: 'confirmed', desc: 'Payments that reached full confirmation.' },
+  failed:    { title: 'Failed', unit: '', dec: 0, total: 'failed_payments', series: 'failed', status: 'expired', desc: 'Invoices that expired or were cancelled.' },
+  refunded:  { title: 'Refunded', unit: 'FIRO', dec: 2, series: null, refunds: true, desc: 'Refunds you recorded.' }
+};
+var _mtKey = 'sales', _mtPeriod = '7d', _mtSeq = 0;
+
+function _mtSeries(key, ch) {
+  var n = (ch.dates || []).length, out = [];
+  for (var i = 0; i < n; i++) {
+    var v = 0;
+    if (key === 'rate') {
+      var c = +((ch.confirmed || [])[i]) || 0, f = +((ch.failed || [])[i]) || 0;
+      v = c + f ? c / (c + f) * 100 : 0;
+    } else if (key === 'aov') {
+      var o = +((ch.orders || [])[i]) || 0;
+      v = o ? (+((ch.sales || [])[i]) || 0) / o : 0;
+    } else {
+      v = +((ch[key] || [])[i]) || 0;
+    }
+    out.push(v);
+  }
+  return out;
+}
+
+function _plRow(p) {
+  var name = p.order_id ? escHtml(fmtOrderId(p.order_id)) : escHtml(truncate(p.payment_id, 12));
+  return '<button type="button" class="pl-row" data-pay="' + escHtml(p.payment_id) + '">' +
+    '<span class="pl-row-main"><b data-no-i18n>' + name + '</b><small>' + escHtml(fmtDate(p.created_at)) + '</small></span>' +
+    '<span class="pl-row-st">' + badge(p.status) + refundTag(p) + '</span>' +
+    '<span class="pl-row-amt" data-no-i18n>' + escHtml(_fgAmt(p.amount_firo)) + ' <small>FIRO</small></span>' +
+    '{{ icon("chevron-right", "ico mx-go") }}</button>';
+}
+
+function openMetric(key, opts) {
+  if (!MT[key]) key = 'sales';
+  _mtKey = key;
+  var m = MT[key];
+  _showView('t-metric', 'sb-analytics', 'mb-analytics');
+  _pushRoute(_dashPath('analytics', key), opts && opts.replace);
+  _setI18nText(document.getElementById('mt-title'), m.title);
+  _setI18nText(document.getElementById('mt-desc'), m.desc);
+  _loadMetric();
+}
+
+function mtPeriod(p) {
+  _mtPeriod = p;
+  document.querySelectorAll('#mt-range .fg-rb').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-p') === p); });
+  _loadMetric();
+}
+
+async function _loadMetric() {
+  var seq = ++_mtSeq, key = _mtKey, m = MT[key];
+  var valEl = document.getElementById('mt-val');
+  valEl.classList.add('skel-shimmer');
+  document.getElementById('mt-unit').textContent = m.unit === '%' ? '' : m.unit;
+  var daysN = { '7d': 7, '30d': 30, '90d': 90 }[_mtPeriod] || 7;
+  var d = await API.get('/api/analytics/user?period=' + _mtPeriod);
+  if (seq !== _mtSeq) return;
+  valEl.classList.remove('skel-shimmer');
+  if (!d || d.error) { valEl.textContent = '—'; Toast.error((d && d.error) || _ft('Failed to load analytics')); return; }
+  var ch = d.chart || {}, dates = ch.dates || [];
+  var total = parseFloat(d[m.total] || 0);
+  if (m.refunds) {
+    var rs = await API.get('/api/refunds/summary?days=' + daysN);
+    if (seq !== _mtSeq) return;
+    total = rs && !rs.error ? parseFloat(rs.period_firo || 0) : 0;
+  }
+  anCountTo(valEl, total, 700, m.dec, m.unit === '%' ? '%' : '');
+  var dv = m.delta && d.deltas ? d.deltas[m.delta] : null;
+  _renderDelta('mt-delta', dv);
+  document.getElementById('mt-vs').style.display = (dv === null || dv === undefined) ? 'none' : '';
+
+  var chartSec = document.getElementById('mt-chart-sec');
+  chartSec.style.display = m.series ? '' : 'none';
+  if (m.series) _fgBars(document.getElementById('mt-bars'), dates, _mtSeries(m.series, ch), { unit: m.unit, dec: m.dec });
+
+  var H = ['Date', 'Total Sales', 'Total Received', 'Orders', 'Confirmed', 'Failed'];
+  var rows = '';
+  for (var i = dates.length - 1; i >= 0; i--) {
+    var o = +((ch.orders || [])[i]) || 0, sl = +((ch.sales || [])[i]) || 0, c = +((ch.confirmed || [])[i]) || 0, f = +((ch.failed || [])[i]) || 0;
+    if (!o && !sl && !c && !f) continue;
+    rows += '<button type="button" class="dtab-r" data-day="' + escHtml(dates[i]) + '">' +
+      '<span class="dtab-d">' + escHtml(_fgDay(dates[i], { weekday: 'short', month: 'short', day: 'numeric' })) + '</span>' +
+      '<span>' + _fgNum(sl, 2) + '</span><span>' + _fgNum((ch.received || [])[i], 2) + '</span>' +
+      '<span>' + o + '</span><span>' + c + '</span><span>' + f + '</span>{{ icon("chevron-right", "ico mx-go") }}</button>';
+  }
+  document.getElementById('mt-days').innerHTML = rows
+    ? '<div class="dtab-h">' + H.map(function (h) { return '<span>' + escHtml(_ft(h)) + '</span>'; }).join('') + '<span></span></div>' + rows
+    : '<div class="empty-state"><div class="es-hint">' + escHtml(_ft('No payments.')) + '</div></div>';
+
+  var box = document.getElementById('mt-pays');
+  box.innerHTML = '<div class="skel-line" style="height:44px;margin:8px 0"></div>';
+  var url = '/api/payments/?limit=' + (m.refunds ? 100 : 8) + (m.status ? '&status=' + m.status : '') + (dates.length ? '&date_from=' + dates[0] : '');
+  var ps = await API.get(url);
+  if (seq !== _mtSeq) return;
+  if (ps && !ps.error && m.refunds) ps = ps.filter(function (x) { return parseFloat(x.refunded_firo || 0) > 0; }).slice(0, 8);
+  box.innerHTML = (ps && !ps.error && ps.length) ? ps.map(_plRow).join('')
+    : '<div class="empty-state"><div class="es-hint">' + escHtml(_ft('No payments.')) + '</div></div>';
+  document.getElementById('mt-pays-all').onclick = function () {
+    var f = document.getElementById('pay-filter');
+    if (f) f.value = m.status || '';
+    _paysDate = '';
+    go('pays', 'sb-pays', 'mb-pays');
+  };
+}
+
+var _paysDate = '';
+function openDay(day) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day || '')) return;
+  var f = document.getElementById('pay-filter');
+  if (f) f.value = '';
+  _paysDate = day;
+  _paysOffset = 0;
+  go('pays', 'sb-pays', 'mb-pays');
+  _pushRoute(_dashPath('payments') + '?date=' + day, true);
+}
+function clearPaysDate() {
+  _paysDate = '';
+  _paysOffset = 0;
+  _pushRoute(_dashPath('payments'), true);
+  loadPays();
+}
+
+var _pvId = null;
+function _pvCopy(v) {
+  return '<button type="button" class="kv-copy" data-copy="' + escHtml(v) + '" title="' + escHtml(_ft('Copy')) + '" aria-label="' + escHtml(_ft('Copy')) + '">{{ icon("copy", "ico") }}</button>';
+}
+function _pvRow(k, html) {
+  return '<div class="kv-r"><dt>' + escHtml(_ft(k)) + '</dt><dd>' + html + '</dd></div>';
+}
+
+async function openPayment(id, opts) {
+  if (!id) return;
+  _pvId = id;
+  _showView('t-pay', 'sb-pays', 'mb-pays');
+  _pushRoute(_dashPath('payments', id), opts && opts.replace);
+  document.getElementById('pv-title').textContent = '—';
+  document.getElementById('pv-amount').textContent = '—';
+  document.getElementById('pv-status').innerHTML = '';
+  document.getElementById('pv-sub').textContent = '';
+  document.getElementById('pv-actions').innerHTML = '';
+  document.getElementById('pv-steps').innerHTML = '';
+  document.getElementById('pv-kv-pay').innerHTML = '<div class="skel-line" style="height:44px;margin:8px 0"></div>';
+  document.getElementById('pv-kv-cust').innerHTML = '';
+  document.getElementById('pv-refunds-sec').style.display = 'none';
+  await _pvLoad();
+}
+
+async function _pvLoad() {
+  var id = _pvId;
+  if (!id) return;
+  var p = await API.get('/api/payments/' + encodeURIComponent(id));
+  if (id !== _pvId) return;
+  if (!p || p.error) {
+    document.getElementById('pv-title').textContent = _ft('Payment not found');
+    document.getElementById('pv-kv-pay').innerHTML = '';
+    return;
+  }
+  var dash = '<span class="kv-none">—</span>';
+  document.getElementById('pv-title').textContent = p.order_id ? fmtOrderId(p.order_id) : truncate(p.payment_id, 14);
+  document.getElementById('pv-amount').textContent = _fgAmt(p.amount_firo);
+  document.getElementById('pv-status').innerHTML = badge(p.status) + refundTag(p);
+  document.getElementById('pv-sub').textContent = fmtDate(p.created_at);
+
+  var acts = '';
+  if (p.status === 'pending' || p.status === 'confirming') {
+    acts += '<a class="btn btn-o btn-sm" target="_blank" rel="noopener" href="/invoice/' + escHtml(p.payment_id) + '?t=' + escHtml(p.checkout_token || '') + '">{{ icon("external-link", "ico") }}<span>' + escHtml(_ft('View checkout')) + '</span></a>';
+  }
+  if (p.status === 'confirmed') {
+    acts += '<button type="button" class="btn btn-o btn-sm" onclick="openRefundModal(_pvId)">{{ icon("undo-2", "ico") }}<span>' + escHtml(_ft('Refund')) + '</span></button>';
+  }
+  document.getElementById('pv-actions').innerHTML = acts;
+
+  var seen = p.status === 'confirming' || p.status === 'confirmed' || parseFloat(p.amount_received || 0) > 0;
+  var dead = p.status === 'expired' || p.status === 'cancelled' || p.status === 'failed';
+  var steps = [{ k: 'Created', sub: fmtDate(p.created_at), st: 'done' }];
+  if (dead && !seen) {
+    steps.push({ k: p.status === 'cancelled' ? 'Cancelled' : 'Expired', sub: p.status === 'expired' ? fmtDate(p.expires_at) : '', st: 'bad' });
+  } else {
+    steps.push({ k: 'Confirming', sub: (p.confirmations || 0) + ' / ' + (p.required_confirmations || 0), st: p.status === 'confirmed' ? 'done' : (seen ? 'now' : 'todo') });
+    steps.push({ k: 'Confirmed', sub: p.confirmed_at ? fmtDate(p.confirmed_at) : '', st: p.status === 'confirmed' ? 'done' : 'todo' });
+  }
+  document.getElementById('pv-steps').innerHTML = steps.map(function (s) {
+    return '<li class="pv-step ' + s.st + '"><i></i><b>' + escHtml(_ft(s.k)) + '</b><small data-no-i18n>' + escHtml(s.sub || '') + '</small></li>';
+  }).join('');
+
+  var mono = function (v) { return '<code data-no-i18n>' + escHtml(v) + '</code>' + _pvCopy(v); };
+  var pay = '';
+  pay += _pvRow('Payment ID', mono(p.payment_id));
+  pay += _pvRow('Order', p.order_id ? '<span data-no-i18n>' + escHtml(fmtOrderId(p.order_id)) + '</span>' : dash);
+  if (p.order_description) pay += _pvRow('Description', '<span data-no-i18n>' + escHtml(p.order_description) + '</span>');
+  pay += _pvRow('Method', (p.address_type || 'spark') === 'spark' ? '<span data-no-i18n>Spark</span>' : escHtml(_ft('Transparent')));
+  pay += _pvRow('Address', p.receiving_address ? mono(p.receiving_address) : dash);
+  pay += _pvRow('Transaction ID', p.txid ? mono(p.txid) : dash);
+  pay += _pvRow('Confirmations', '<span data-no-i18n>' + (p.confirmations || 0) + ' / ' + (p.required_confirmations || 0) + '</span>');
+  pay += _pvRow('Received', '<span data-no-i18n>' + escHtml(_fgAmt(p.amount_received || 0)) + ' FIRO</span>');
+  if (p.amount_usd) pay += _pvRow('Price', '<span data-no-i18n>$' + _fgNum(p.amount_usd, 2) + '</span>');
+  if (p.expires_at && !p.confirmed_at) pay += _pvRow('Expires', '<span data-no-i18n>' + escHtml(fmtDate(p.expires_at)) + '</span>');
+  pay += _pvRow('Webhook', escHtml(_ft(p.webhook_sent ? 'Sent' : 'Not sent')));
+  document.getElementById('pv-kv-pay').innerHTML = pay;
+
+  var cust = '';
+  cust += _pvRow('Email', p.customer_email ? '<span data-no-i18n>' + escHtml(p.customer_email) + '</span>' + _pvCopy(p.customer_email) : escHtml(_ft('Anonymous')));
+  cust += _pvRow('Note', p.payer_note ? '<span class="kv-note" data-no-i18n>' + escHtml(p.payer_note) + '</span>' : dash);
+  document.getElementById('pv-kv-cust').innerHTML = cust;
+
+  var sec = document.getElementById('pv-refunds-sec');
+  if (parseFloat(p.refunded_firo || 0) > 0) {
+    var rf = await API.get('/api/payments/' + encodeURIComponent(id) + '/refunds');
+    if (id !== _pvId) return;
+    if (rf && !rf.error && rf.refunds && rf.refunds.length) {
+      document.getElementById('pv-refunds-total').innerHTML = '<b class="fg-num">' + escHtml(_fgAmt(rf.refunded_firo)) + '</b> FIRO';
+      document.getElementById('pv-refunds').innerHTML = rf.refunds.map(function (r) {
+        return '<div class="pl-row static"><span class="pl-row-main"><b data-no-i18n>' + escHtml(r.reason || '—') + '</b><small data-no-i18n>' + escHtml(fmtDate(r.created_at)) + (r.txid ? ' · ' + escHtml(truncate(r.txid, 16)) : '') + '</small></span>' +
+          '<span class="pl-row-amt" data-no-i18n>' + escHtml(_fgAmt(r.amount_firo)) + ' <small>FIRO</small></span></div>';
+      }).join('');
+      sec.style.display = '';
+      return;
+    }
+  }
+  sec.style.display = 'none';
+}
+
+document.addEventListener('click', function (e) {
+  var t = e.target;
+  if (!t.closest) return;
+  var c = t.closest('[data-copy]');
+  if (c) {
+    e.preventDefault(); e.stopPropagation();
+    var v = c.getAttribute('data-copy');
+    var done = function () { Toast.success(_ft('Copied!')); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(function () {});
+    return;
+  }
+  var mEl = t.closest('[data-metric]');
+  if (mEl) { e.preventDefault(); openMetric(mEl.getAttribute('data-metric')); return; }
+  var pEl = t.closest('[data-pay]');
+  if (pEl) { e.preventDefault(); openPayment(pEl.getAttribute('data-pay')); return; }
+  var dEl = t.closest('[data-day]');
+  if (dEl) { e.preventDefault(); openDay(dEl.getAttribute('data-day')); }
+});
+
+function _routeFromLocation() {
+  var onSub = window.DASHBOARD_URL && window.location.origin === window.DASHBOARD_URL.replace(/\/$/, '');
+  var parts = window.location.pathname.replace(/^\/dashboard/, '').split('/').filter(Boolean);
+  var tab = parts[0] || 'home', sub = parts[1] ? decodeURIComponent(parts[1]) : '';
+  var q = new URLSearchParams(window.location.search).get('date') || '';
+  var map = { home: ['home', 'sb-home', 'mb-home'], api: ['api', 'sb-api', 'mb-api'], payments: ['pays', 'sb-pays', 'mb-pays'],
+    security: ['sec', 'sb-sec', 'mb-sec'], account: ['account', 'sb-account', null], analytics: ['analytics', 'sb-analytics', 'mb-analytics'],
+    wallet: ['wallet', 'sb-wallet', 'mb-wallet'], recurring: ['recurring', 'sb-recurring', null] };
+  _routeSilent = true;
+  try {
+    if (tab === 'payments' && sub) openPayment(sub);
+    else if (tab === 'analytics' && sub) openMetric(sub);
+    else {
+      _paysDate = (tab === 'payments' && /^\d{4}-\d{2}-\d{2}$/.test(q)) ? q : '';
+      var m = map[tab] || map.home;
+      go(m[0], m[1], m[2]);
+    }
+  } finally { _routeSilent = false; }
+}
+window.addEventListener('popstate', _routeFromLocation);
 
 function _renderInvoiceDonut(status) {
   status = status || { total: 0, paylink: 0, direct: 0, failed_cancelled: 0 };
@@ -5370,30 +5874,30 @@ async function loadPLList() {
     list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--t3)">' + (window.t ? window.t('No payment links yet.') : 'No payment links yet.') + '<br><span style="font-size:.78rem">' + (window.t ? window.t('Click "+ New Link" to create one.') : 'Click "+ New Link" to create one.') + '</span></div>';
     return;
   }
+  const _pt = k => (window.t ? window.t(k) : k);
   list.innerHTML = links.map(lk => `
-    <div style="border:1px solid var(--bw);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--bg3)">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:.9rem;margin-bottom:3px">${esc(lk.title)}</div>
-          ${lk.description ? `<div style="font-size:.78rem;color:var(--t1);margin-bottom:6px">${esc(lk.description)}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <code style="font-size:.72rem;background:var(--bg4);padding:3px 8px;border-radius:6px;color:var(--y);word-break:break-all;flex:1;min-width:0">${esc(lk.url)}</code>
-            <button onclick="navigator.clipboard.writeText('${esc(lk.url)}').then(()=>Toast.success(window.t ? window.t('Link copied!') : 'Link copied!'))" class="btn btn-o btn-sm" style="flex-shrink:0;padding:4px 8px;font-size:.7rem">${window.t ? window.t('Copy') : 'Copy'}</button>
-          </div>
+    <div class="pl-item${lk.is_active ? '' : ' off'}">
+      <div class="pl-top">
+        <div class="pl-main">
+          <div class="pl-title">${esc(lk.title)}</div>
+          ${lk.description ? `<div class="pl-desc">${esc(lk.description)}</div>` : ''}
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          ${lk.amount_firo ? `<div style="font-size:.95rem;font-weight:700;color:var(--y)">${lk.amount_firo} FIRO</div>` : `<div style="font-size:.78rem;color:var(--t1)">${window.t ? window.t('Custom amount') : 'Custom amount'}</div>`}
-          <div style="font-size:.7rem;color:var(--t3);margin-top:3px">${lk.uses_count} ${window.t ? window.t('uses') : 'uses'}</div>
-        </div>
+        <div class="pl-amt">${lk.amount_firo ? `<b>${lk.amount_firo}</b> FIRO` : `<span>${_pt('Custom amount')}</span>`}</div>
       </div>
-      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-        <span style="font-size:.68rem;padding:2px 8px;border-radius:20px;background:${lk.is_active?'rgba(74,222,128,.12)':'var(--bg4)'};color:${lk.is_active?'#4ade80':'var(--t4)'};border:1px solid ${lk.is_active?'rgba(74,222,128,.25)':'var(--bw)'}">${lk.is_active?(window.t ? window.t('Active') : 'Active'):(window.t ? window.t('Inactive') : 'Inactive')}</span>
-        ${lk.max_uses ? `<span style="font-size:.68rem;padding:2px 8px;border-radius:20px;background:var(--bg4);color:var(--t3);border:1px solid var(--bw)">${window.t ? window.t('Max uses') : 'Max'} ${lk.max_uses}</span>` : ''}
-        ${lk.expires_at ? `<span style="font-size:.68rem;padding:2px 8px;border-radius:20px;background:var(--bg4);color:var(--t3);border:1px solid var(--bw)">${window.t ? window.t('Expires') : 'Expires'} ${lk.expires_at.slice(0,10)}</span>` : ''}
-        <button onclick="togglePL('${lk.id}',${lk.is_active})" class="btn btn-o btn-sm" style="margin-left:auto;padding:3px 10px;font-size:.7rem">${lk.is_active?(window.t ? window.t('Deactivate') : 'Deactivate'):(window.t ? window.t('Activate') : 'Activate')}</button>
-        <button onclick="deletePL('${lk.id}')" class="btn btn-sm" style="padding:3px 10px;font-size:.7rem;color:var(--red);border:1px solid rgba(239,68,68,.3);background:none;border-radius:8px;cursor:pointer">${window.t ? window.t('Delete') : 'Delete'}</button>
+      <div class="pl-url">
+        <code>${esc(lk.url)}</code>
+        <button onclick="navigator.clipboard.writeText('${esc(lk.url)}').then(()=>Toast.success(window.t ? window.t('Link copied!') : 'Link copied!'))" class="btn btn-o btn-sm">${_pt('Copy')}</button>
       </div>
-      ${lk.cancel_count > 0 ? `<div style="font-size:.68rem;color:var(--t4);margin-top:6px">⚠️ ${lk.cancel_count} ${lk.cancel_count > 1 ? (window.t ? window.t('cancellations by buyers') : 'cancellations by buyers') : (window.t ? window.t('cancellation by buyers') : 'cancellation by buyers')}</div>` : ''}
+      <div class="pl-foot">
+        <span class="dx-pill ${lk.is_active ? 'lv-ok' : 'lv-off'}">${_pt(lk.is_active ? 'Active' : 'Inactive')}</span>
+        <span class="pl-meta">${lk.uses_count} ${_pt('uses')}</span>
+        ${lk.max_uses ? `<span class="pl-meta">${window.t ? window.t('Max uses') : 'Max'} ${lk.max_uses}</span>` : ''}
+        ${lk.expires_at ? `<span class="pl-meta">${_pt('Expires')} ${lk.expires_at.slice(0,10)}</span>` : ''}
+        ${lk.cancel_count > 0 ? `<span class="pl-meta">${lk.cancel_count} ${_pt(lk.cancel_count > 1 ? 'cancellations by buyers' : 'cancellation by buyers')}</span>` : ''}
+        <span class="pl-sp"></span>
+        <button onclick="togglePL('${lk.id}',${lk.is_active})" class="btn btn-o btn-sm">${_pt(lk.is_active ? 'Deactivate' : 'Activate')}</button>
+        <button onclick="deletePL('${lk.id}')" class="btn btn-danger btn-sm">${_pt('Delete')}</button>
+      </div>
     </div>`).join('');
 }
 

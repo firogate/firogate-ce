@@ -205,6 +205,76 @@
     .rv { opacity: 1; transform: none; transition: none; }
     .sheet, .sheet-bg { transition: none; }
   }
+
+  @font-face { font-family: "Outfit"; font-weight: 100 900; font-display: swap; src: url("{{ '/static/fonts/gf-outfit-300.woff2'|bust }}") format("woff2"); }
+  :root { --font-d: "Outfit", "Inter", -apple-system, "Segoe UI", sans-serif; --surface-2: #191E20; --ink: #031517; }
+  [data-theme="light"] { --surface-2: #E9EDED; --bg: #F1F3F3; }
+  h1, h2, h3, .brand, .fact b { font-family: var(--font-d); }
+  h2, .row h3 { font-weight: 600; }
+  .brand { font-size: 1.3rem; font-weight: 700; letter-spacing: -.03em; }
+  .brand b { font-weight: 700; }
+  .nav { border-bottom: 0; }
+  .nav-in { height: 72px; }
+  .icon-btn { border: 0; background: var(--surface); }
+  .icon-btn:hover { background: var(--surface-2); }
+  .btn { border: 0; }
+  .btn-main { background: var(--brand); color: var(--ink); }
+  .btn-main:hover { background: var(--brand-2); }
+  .btn-line { border: 0; background: var(--surface-2); color: var(--text); }
+  .btn-line:hover { background: var(--border-2); }
+  .hero { padding: 40px 0 0; text-align: start; overflow: hidden; }
+  .hero-in { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: center; gap: 20px; min-height: 520px; }
+  .hero-copy { position: relative; z-index: 1; }
+  .tag { border: 0; padding: 0; font-size: .92rem; font-weight: 500; }
+  .hero h1 { margin: 18px 0 18px; max-width: 640px; font-size: clamp(2.6rem, 6vw, 4.9rem); line-height: 1; letter-spacing: -.045em; font-weight: 600; }
+  .hero p { margin: 0; max-width: 460px; font-size: clamp(1.02rem, 1.6vw, 1.2rem); }
+  .hero-cta { justify-content: flex-start; margin-top: 32px; }
+  .globe { display: block; color: var(--accent); pointer-events: none; }
+  .hero-in .globe { justify-self: end; width: 660px; height: 660px; margin-inline-end: -200px; --globe-hop: #FFFFFF; }
+  [data-theme="light"] .hero-in .globe { --globe-hop: #0B1314; }
+  .stage { margin-top: 28px; }
+  .frame { border: 0; border-radius: 18px; }
+  .facts { gap: 0; margin-top: 36px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .fact { padding: 26px 0; text-align: start; }
+  .fact + .fact { border-inline-start: 1px solid var(--border); padding-inline-start: 32px; }
+  .fact b { font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  .fact span { font-size: .95rem; color: var(--text-2); }
+  .kicker { font: 500 .92rem var(--font); letter-spacing: 0; color: var(--text-3); }
+  .head.c { margin-inline: 0; text-align: start; }
+  .head { margin-bottom: 40px; }
+  .styles { justify-content: space-between; }
+  .styles figure { flex: 1 1 0; max-width: 210px; }
+  .more { justify-content: flex-start; }
+  .list li { font-weight: 500; }
+  .term { border: 0; border-radius: 18px; }
+  .copy-btn { border: 0; background: rgba(255,255,255,.08); }
+  .cta { border-top: 0; padding: 0 0 96px; text-align: start; }
+  .cta-tile { position: relative; overflow: hidden; isolation: isolate; border-radius: 28px; padding: 64px 56px; background: var(--brand); color: var(--ink); }
+  .cta-tile > * { position: relative; z-index: 1; }
+  .cta-tile h2 { margin: 0 0 26px; max-width: 520px; color: var(--ink); font-size: clamp(2rem, 4.6vw, 3.4rem); }
+  .cta-tile .hero-cta { margin-top: 0; }
+  .cta-tile .btn-main { background: var(--ink); color: #fff; }
+  .cta-tile .btn-main:hover { background: #0B2A2D; }
+  .cta-tile .btn-line { background: rgba(3,21,23,.14); color: var(--ink); }
+  .cta-tile .btn-line:hover { background: rgba(3,21,23,.22); }
+  .cta-tile .globe { position: absolute; z-index: 0; top: 50%; inset-inline-end: -110px; transform: translateY(-50%); width: 520px; height: 520px; color: var(--ink); opacity: .32; }
+  footer { border-top: 0; }
+  .tip code { border: 0; background: var(--surface); }
+  .sheet { border: 0; }
+  @media (max-width: 900px) {
+    .hero-in { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-top: 28px; padding-bottom: 8px; }
+    .hero-in .globe { position: absolute; z-index: 0; top: -60px; inset-inline-end: -250px; width: 460px; height: 460px; margin: 0; opacity: .45; }
+    .cta-tile { padding: 44px 26px; border-radius: 22px; }
+    .cta-tile .globe { width: 380px; height: 380px; inset-inline-end: -190px; opacity: .24; }
+    .styles { justify-content: flex-start; }
+    .styles figure { flex: 0 0 168px; max-width: none; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding-top: 12px; }
+    .fact { padding: 18px 0; }
+    .fact + .fact { padding-inline-start: 16px; }
+    .cta { padding-bottom: 64px; }
+  }
 </style>
 <script>document.documentElement.className = 'js';</script>
 </head>
@@ -267,7 +337,8 @@
 
 <main id="main">
   <section class="hero">
-    <div class="wrap">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
       <span class="tag"><i></i>Open source · Self-hosted</span>
       <h1>Accept <em>FIRO</em> on your own server.</h1>
       <p>No custody. No middleman. Every payment goes straight to your wallet.</p>
@@ -277,7 +348,10 @@
         </a>
         <a class="btn btn-line" href="https://demo.firogate.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg> Try the demo</a>
       </div>
-
+      </div>
+      <canvas class="globe" data-globe data-globe-step="2.6" data-globe-hops="4" data-globe-alpha=".6" aria-hidden="true"></canvas>
+    </div>
+    <div class="wrap">
       <div class="stage">
         <div class="frame">
           <div class="frame-bar"><span></span><span></span><span></span><code>your-server.com/dashboard</code></div>
@@ -323,8 +397,8 @@
             <p>Spark keeps amounts hidden. Transparent works with any wallet.</p>
           </div>
           <div class="frame">
-            <img class="only-dark" src="{{ '/static/images/landing/wallet-dark.webp'|bust }}" width="1400" height="385" alt="Spark and transparent payment methods" loading="lazy">
-            <img class="only-light" src="{{ '/static/images/landing/wallet-light.webp'|bust }}" width="1400" height="385" alt="Spark and transparent payment methods" loading="lazy">
+            <img class="only-dark" src="{{ '/static/images/landing/wallet-dark.webp'|bust }}" width="1400" height="504" alt="Spark and transparent payment methods" loading="lazy">
+            <img class="only-light" src="{{ '/static/images/landing/wallet-light.webp'|bust }}" width="1400" height="504" alt="Spark and transparent payment methods" loading="lazy">
           </div>
         </div>
         <div class="row rv">
@@ -334,8 +408,8 @@
             <p>FiroGate sends the pay link for you.</p>
           </div>
           <div class="frame">
-            <img class="only-dark" src="{{ '/static/images/landing/recurring-dark.webp'|bust }}" width="1400" height="421" alt="Recurring payments list" loading="lazy">
-            <img class="only-light" src="{{ '/static/images/landing/recurring-light.webp'|bust }}" width="1400" height="421" alt="Recurring payments list" loading="lazy">
+            <img class="only-dark" src="{{ '/static/images/landing/recurring-dark.webp'|bust }}" width="1400" height="459" alt="Recurring payments list" loading="lazy">
+            <img class="only-light" src="{{ '/static/images/landing/recurring-light.webp'|bust }}" width="1400" height="459" alt="Recurring payments list" loading="lazy">
           </div>
         </div>
         <div class="row flip rv">
@@ -423,10 +497,13 @@
 
   <div class="cta">
     <div class="wrap rv">
+      <div class="cta-tile">
+      <canvas class="globe" data-globe data-globe-start="160" aria-hidden="true"></canvas>
       <h2>Start taking FIRO today.</h2>
       <div class="hero-cta">
         <a class="btn btn-main" href="#install">Get started</a>
         <a class="btn btn-line" href="https://demo.firogate.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg> Try the demo</a>
+      </div>
       </div>
     </div>
   </div>
@@ -450,6 +527,7 @@
   </div>
 </footer>
 
+<script src="{{ '/static/js/globe.js'|bust }}" defer></script>
 <script>
 (function () {
   var btn = document.getElementById('menuBtn'), sheet = document.getElementById('sheet'), bg = document.getElementById('sheetBg'), close = document.getElementById('sheetClose');

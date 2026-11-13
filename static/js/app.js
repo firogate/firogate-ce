@@ -269,7 +269,7 @@ function truncate(s,n=16){if(!s||s==='—')return'—';if(s.length<=n)return s;r
 function badge(s){
   const cls={active:'b-active',confirmed:'b-confirmed',pending:'b-pending',
     confirming:'b-confirming',inactive:'b-inactive',expired:'b-expired',
-    failed:'b-failed',
+    failed:'b-failed',cancelled:'b-cancelled',
     spark:'b-spark',transparent:'b-transparent'};
   return`<span class="badge ${cls[s]||'b-inactive'}">${IC.dot}${s}</span>`;
 }

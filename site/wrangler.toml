@@ -1,4 +1,4 @@
-name = "firogate-site"
+name = "site"
 main = "worker.js"
 compatibility_date = "2026-09-25"
 

@@ -51,8 +51,7 @@ html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a0
 </style>
 {% endblock %}
 {% block body %}
-<canvas id="stars"></canvas>
-<div class="auth-page-wrap" style="position:relative;z-index:1;background:radial-gradient(ellipse at 50% 0%,rgba(34,197,94,.04) 0%,transparent 55%)">
+<div class="auth-page-wrap">
   <div class="auth-split">
     <div class="auth-left">
     <div class="auth-left-brand" style="text-align:center;margin-bottom:24px">
@@ -153,13 +152,12 @@ html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a0
     </div>
 
     <div class="auth-right-panel">
-      <a href="{{ base_url }}" data-testid="register-brand-link-desktop"
-         style="display:inline-block;font-weight:800;font-size:1.9rem;letter-spacing:-.02em;color:var(--white);text-decoration:none;transition:color .18s;margin-bottom:8px">
-        Firo<span style="color:var(--y)">Gate</span>
-      </a>
-      <p id="register-subtitle" style="color:var(--g3);font-size:1rem;margin:0 0 28px">Create your account</p>
-      <div id="desktop-social-wrap" style="width:100%;max-width:320px"></div>
+    <canvas class="fg-globe" data-globe data-globe-step="2.6" data-globe-hops="4" data-globe-alpha=".5" aria-hidden="true"></canvas>
+    <div class="auth-art-txt">
+      <a href="{{ base_url }}" class="auth-art-logo" data-testid="register-brand-link-desktop" data-no-i18n>Firo<b>Gate</b></a>
+      <p id="register-subtitle">Create your account</p>
     </div>
+  </div>
   </div>
 </div>
 
@@ -169,13 +167,7 @@ html[data-theme="light"] .fg-ai-btn-switch:hover{border-color:var(--y);color:#a0
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 {% endif %}
-<script>
-if (window.matchMedia('(min-width:900px)').matches) {
-  var _starsScript = document.createElement('script');
-  _starsScript.src = '/static/js/auth-stars.js';
-  document.body.appendChild(_starsScript);
-}
-</script>
+<script src="{{ '/static/js/globe.js'|bust }}" defer></script>
 <script>
 const IS_ONION = window.location.hostname.endsWith('.onion');
 const FB_ENABLED  = {{ firebase_enabled|tojson }} && !IS_ONION;

@@ -29,6 +29,7 @@ def _build_daily_series(daily_data, start_date: str, end_date: str) -> dict:
     analytics chart and the long-range history endpoint so both stay
     consistent."""
     chart_dates, chart_sales, chart_orders = [], [], []
+    chart_received, chart_confirmed, chart_failed = [], [], []
     current = datetime.strptime(start_date, "%Y-%m-%d").date()
     end     = datetime.strptime(end_date,   "%Y-%m-%d").date()
     daily_dict = {d.date: d for d in daily_data}
@@ -36,15 +37,18 @@ def _build_daily_series(daily_data, start_date: str, end_date: str) -> dict:
     while current <= end:
         date_str = current.strftime("%Y-%m-%d")
         chart_dates.append(date_str)
-        if date_str in daily_dict:
-            chart_sales.append(round(daily_dict[date_str].gross_sales_firo or 0, 8))
-            chart_orders.append(daily_dict[date_str].orders_count or 0)
-        else:
-            chart_sales.append(0)
-            chart_orders.append(0)
+        row = daily_dict.get(date_str)
+        chart_sales.append(round(row.gross_sales_firo or 0, 8) if row else 0)
+        chart_orders.append((row.orders_count or 0) if row else 0)
+        chart_received.append(round(row.received_firo or 0, 8) if row else 0)
+        chart_confirmed.append((row.successful_payments or 0) if row else 0)
+        chart_failed.append((row.failed_payments or 0) if row else 0)
         current += timedelta(days=1)
 
-    return {"dates": chart_dates, "sales": chart_sales, "orders": chart_orders}
+    return {
+        "dates": chart_dates, "sales": chart_sales, "orders": chart_orders,
+        "received": chart_received, "confirmed": chart_confirmed, "failed": chart_failed,
+    }
 
 
 async def get_user_chart_history(db: AsyncSession, user_id: str, days: int = 1095) -> dict:
