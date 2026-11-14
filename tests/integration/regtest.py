@@ -1,15 +1,3 @@
-"""
-Two local Firo regtest nodes for integration tests.
-
-  node A  FiroGate's node and the paying customer. addressindex, spentindex,
-          txindex and mobile on. Its wallet never holds a merchant key.
-  node B  The merchant's own wallet. It owns the invoice keys (imported from a
-          test seed) and its own Spark wallet, and it makes the mints.
-
-Everything lives in a temporary directory and uses its own ports. The test
-seed below exists only to play the merchant's wallet; FiroGate code under test
-only ever receives the tpub and the Spark view key.
-"""
 from __future__ import annotations
 
 import hashlib
@@ -86,7 +74,7 @@ class Node:
 
 class Regtest:
     def __init__(self, base_port: int = 28930):
-        self.root = tempfile.mkdtemp(prefix="fg-privacy-regtest-")
+        self.root = tempfile.mkdtemp(prefix="fg-mint-regtest-")
         self.a = Node(self.root, "a", base_port + 1, base_port + 11,
                       ["addressindex=1", "spentindex=1", "timestampindex=1", "mobile=1"])
         self.b = Node(self.root, "b", base_port + 2, base_port + 12, ["usemnemonic=0"])
@@ -143,7 +131,6 @@ class Regtest:
 
 
 class MerchantSeed:
-    """BIP32 test seed standing in for the merchant's own wallet."""
 
     WIF_PREFIX = 239
 

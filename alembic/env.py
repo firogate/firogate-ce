@@ -30,7 +30,7 @@ from app.core.database import Base
 
 import app.models.models  # noqa: F401
 import app.models.spark    # noqa: F401
-import app.models.privacy  # noqa: F401
+import app.models.spark_mint  # noqa: F401
 
 target_metadata = Base.metadata
 

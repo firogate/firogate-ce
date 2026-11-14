@@ -1,17 +1,3 @@
-"""
-Live regtest test for transparent-to-Spark privacy tracking.
-
-Runs only when FIROGATE_REGTEST=1 and firod is installed:
-
-    FIROGATE_REGTEST=1 python -m unittest tests.integration.test_privacy_regtest -v
-
-Set FIROGATE_RECORD=tests/fixtures/privacy_regtest.json to also record every
-RPC response, which tests/test_privacy_replay.py replays without a node.
-
-Node B plays the merchant's wallet with a usemnemonic=0 Firo Core wallet
-(Firo Core refuses importprivkey in mnemonic wallets). Stack Wallet and
-Campfire are not driven by this test.
-"""
 import json
 import os
 import unittest
@@ -19,13 +5,13 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from tests.integration import regtest
-from tests import privacy_scenario as sc
+from tests import mint_scenario as sc
 
 if regtest.available():
     from app.core.xpub import Xpub
-    from app.services import privacy_core as core
+    from app.services import mint_core as core
     from app.services.firo_rpc import get_rpc
-    from app.services.privacy_watcher import run_pass
+    from app.services.mint_watcher import run_pass
     from app.services.xpub_watcher import check_transparent_payments
     from app.core.database import AsyncSessionLocal
 
@@ -47,7 +33,7 @@ class RecordingRPC:
 
 
 @unittest.skipUnless(regtest.available(), "set FIROGATE_REGTEST=1 with firod installed")
-class PrivacyRegtestTest(unittest.IsolatedAsyncioTestCase):
+class MintRegtestTest(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         self.net = regtest.Regtest(base_port=int(os.environ.get("FIROGATE_REGTEST_BASE_PORT", "28930")))

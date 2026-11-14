@@ -1,4 +1,3 @@
-"""Shared setup and snapshots for the privacy tracking tests."""
 from __future__ import annotations
 
 import json
@@ -9,7 +8,7 @@ from sqlalchemy import delete, select
 from app.core.database import AsyncSessionLocal, create_tables
 from app.core.security import encrypt_field
 from app.models.models import Payment, PaymentStatus, User, XpubWalletConnection
-from app.models.privacy import PaymentPrivacyInput
+from app.models.spark_mint import SparkMintInput
 from app.models.spark import SparkWalletConnection
 
 FIELDS = ("state", "final", "credit_found", "minted_sats", "unmatched_sats", "fee_sats", "change_sats",
@@ -19,14 +18,14 @@ FIELDS = ("state", "final", "credit_found", "minted_sats", "unmatched_sats", "fe
 async def reset_db() -> None:
     await create_tables()
     async with AsyncSessionLocal() as db:
-        for model in (PaymentPrivacyInput, Payment, XpubWalletConnection, SparkWalletConnection, User):
+        for model in (SparkMintInput, Payment, XpubWalletConnection, SparkWalletConnection, User):
             await db.execute(delete(model))
         await db.commit()
 
 
 async def setup_merchant(tpub: str, view_key_hex: str, payments: list[dict]) -> str:
     async with AsyncSessionLocal() as db:
-        user = User(username="privacy-test", email="privacy-test@example.invalid")
+        user = User(username="mint-test", email="mint-test@example.invalid")
         db.add(user)
         await db.flush()
         db.add(XpubWalletConnection(merchant_id=user.id, xpub_enc=encrypt_field(tpub), network="testnet",
@@ -45,7 +44,6 @@ async def setup_merchant(tpub: str, view_key_hex: str, payments: list[dict]) -> 
 
 
 async def set_payment_progress(progress: dict) -> None:
-    """progress: label -> {"status": str, "transparent_received": float}"""
     async with AsyncSessionLocal() as db:
         res = await db.execute(select(Payment))
         for p in res.scalars().all():
@@ -65,8 +63,8 @@ async def payment_progress() -> dict:
 
 async def snapshot() -> dict:
     async with AsyncSessionLocal() as db:
-        res = await db.execute(select(PaymentPrivacyInput, Payment.order_id)
-                               .join(Payment, Payment.id == PaymentPrivacyInput.payment_id))
+        res = await db.execute(select(SparkMintInput, Payment.order_id)
+                               .join(Payment, Payment.id == SparkMintInput.payment_id))
         out: dict[str, list[dict]] = {}
         for row, label in res.all():
             item = {"txid": row.txid, "vout": row.vout, "sats": row.sats}
@@ -79,7 +77,7 @@ async def snapshot() -> dict:
 
 async def drop_rows() -> None:
     async with AsyncSessionLocal() as db:
-        await db.execute(delete(PaymentPrivacyInput))
+        await db.execute(delete(SparkMintInput))
         await db.commit()
 
 

@@ -3111,8 +3111,6 @@
   "Minted, no key match": "سُك، المفتاح غير مطابق",
   "Spent, no mint": "صُرف دون سك",
   "Payment confirming": "الدفعة قيد التأكيد",
-  "Tracking": "التتبع",
-  "Track Spark mints": "تتبع سك Spark",
   "Totals": "الإجماليات",
   "How it works": "كيف يعمل",
   "A customer pays an invoice to a transparent address.": "يدفع العميل الفاتورة إلى عنوان شفاف.",
@@ -3141,10 +3139,7 @@
   "Nothing here yet.": "لا شيء هنا بعد.",
   "Transparent payments show up here when they arrive.": "تظهر الدفعات الشفافة هنا عند وصولها.",
   "Mint": "سك",
-  "Tracking on.": "التتبع مفعّل.",
-  "Tracking off.": "التتبع متوقف.",
   "No transparent coins received yet.": "لم تصل عملات شفافة بعد.",
-  "Tracking is off.": "التتبع متوقف.",
   "Mint status": "حالة السك",
   "Payment coin": "عملة الدفعة",
   "Mint transaction": "معاملة السك",
@@ -3155,5 +3150,10 @@
   "Input values not readable.": "تعذر قراءة قيم المدخلات.",
   "No Spark view key connected.": "لا يوجد مفتاح عرض Spark متصل.",
   "Payment transaction not found on the node right now.": "لم يُعثر على معاملة الدفع في العقدة حاليًا.",
-  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "تطابق المفتاح يعني أن العملة ذهبت إلى محفظة Spark المتصلة. لا يثبت من يملك مفتاح الصرف."
+  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "تطابق المفتاح يعني أن العملة ذهبت إلى محفظة Spark المتصلة. لا يثبت من يملك مفتاح الصرف.",
+  "Mint check": "فحص السك",
+  "Check Spark mints": "فحص سك Spark",
+  "Mint check on.": "فحص السك مفعّل.",
+  "Mint check off.": "فحص السك متوقف.",
+  "Mint check is off.": "فحص السك متوقف."
 }

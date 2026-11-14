@@ -115,13 +115,13 @@ mobile=1
 
 The checkout then says "Payment found" with 0 confirmations. Nothing is credited, confirmed, sent to your webhook or redirected until the payment reaches the confirmations you set. Without it, Spark payments show up once they are in a block.
 
-**Spark mint tracking (transparent payments).** To see when you mint transparent payments to Spark in your own wallet, the node also needs:
+**Spark mint check (transparent payments).** To see when you mint transparent payments to Spark in your own wallet, the node also needs:
 
 ```
 txindex=1
 ```
 
-together with `addressindex=1` above. Start once with `firod -reindex` after adding it. FiroGate only reads the chain and checks mints with your Spark view key; it never holds keys or mints for you. See [PRIVACY_TRACKING.md](PRIVACY_TRACKING.md).
+together with `addressindex=1` above. Start once with `firod -reindex` after adding it. FiroGate only reads the chain and checks mints with your Spark view key; it never holds keys or mints for you. See [SPARK_MINTS.md](SPARK_MINTS.md).
 
 ## Updating
 
@@ -135,5 +135,5 @@ docker compose up -d --build
 * [README.md](README.md) — overview, architecture, API
 * [SECURITY.md](SECURITY.md) — security policy
 * [AUDIT.md](AUDIT.md) — trust model and security boundaries
-* [PRIVACY_TRACKING.md](PRIVACY_TRACKING.md): Spark mint tracking for transparent payments
+* [SPARK_MINTS.md](SPARK_MINTS.md): Spark mint check for transparent payments
 * `/docs` (in-app) — full API reference

@@ -1,4 +1,4 @@
-# Spark mint tracking
+# Spark mint check
 
 FiroGate can show what happened to a transparent payment after it arrived: still transparent, minted to Spark by your own wallet, or spent some other way.
 
@@ -29,7 +29,7 @@ Firo Core can also mint (`mintspark`, `automintspark`, or the desktop "Make Priv
 
 ## States
 
-Payment status and mint status are separate. Mint tracking never changes a payment's status, amount, confirmations or webhooks.
+Payment status and mint status are separate. The mint check never changes a payment's status, amount, confirmations or webhooks.
 
 | State | Meaning |
 |---|---|
@@ -37,7 +37,7 @@ Payment status and mint status are separate. Mint tracking never changes a payme
 | Not minted | The coin is still transparent at the invoice address. |
 | Mint seen | A mint spent the coin; the mint is not in a block yet. |
 | Minted, key match | A mint spent the coin and your view key matched the new Spark coin. |
-| Partly minted | Only part was minted; the rest went to a transparent output. FiroGate follows that change for up to two more transactions when it is a single output. |
+| Partly minted | Only part was minted; the rest went to a transparent output. FiroGate checks that change for up to two more transactions when it is a single output. |
 | Minted, no key match | A mint spent the coin but your view key did not match its Spark output. Usually a different wallet. |
 | Spent, no mint | The coin was spent by a normal transaction. |
 
@@ -55,15 +55,15 @@ The fee of a mint is its inputs minus its outputs. When one mint spends coins fr
 
 ## Validation level
 
-* Tested end to end on a private Firo **regtest** network (Firo Core v0.14.18.2), with Firo Core playing the merchant's wallet: full mint, one mint spending two invoices, partial mint with change followed into a later mint, a mint to another wallet, a dropped mint with a node restart, a reorg, finality, repeated passes and a full rebuild from the chain.
+* Tested end to end on a private Firo **regtest** network (Firo Core v0.14.18.2), with Firo Core playing the merchant's wallet: full mint, one mint spending two invoices, partial mint with its change minted later, a mint to another wallet, a dropped mint with a node restart, a reorg, finality, repeated passes and a full rebuild from the chain.
 * Stack Wallet and Campfire have **not** been tested live, on regtest or on public testnet. Their behaviour above comes from reading their source code.
 * Public testnet has not been tested.
 
 ## Known limits
 
 * **Gap limit (not solved).** Stack Wallet and Campfire stop scanning after 50 unused addresses in a row. FiroGate gives every invoice a new address and never reuses one, even when the invoice expires unpaid. After more than 50 unpaid invoices in a row, a later payment may not show in your wallet until you rescan with a larger gap, so it cannot be minted from there. FiroGate does not reuse addresses to work around this, because a late payment to a reused address could be credited to the wrong invoice.
-* Late payments to an invoice that already expired are not tracked, the same as for payments.
-* Change is only followed after a mint, only when the mint left a single transparent output, and for at most two more transactions.
+* Late payments to an invoice that already expired are not checked, the same as for payments.
+* Change is only checked after a mint, only when the mint left a single transparent output, and for at most two more transactions.
 
 ## API
 
@@ -71,10 +71,10 @@ All endpoints need a signed-in merchant or an API key with the listed permission
 
 | Method | Path | Permission |
 |---|---|---|
-| GET | `/api/privacy/status` | `read_invoice` |
-| GET | `/api/privacy/inputs?offset=0&limit=25&state=` | `read_invoice` |
-| GET | `/api/privacy/payments/{payment_id}` | `read_invoice` |
-| PATCH | `/api/privacy/settings` `{"tracking_enabled": true}` | `wallet_connect` |
+| GET | `/api/spark-mints/status` | `read_invoice` |
+| GET | `/api/spark-mints/inputs?offset=0&limit=25&state=` | `read_invoice` |
+| GET | `/api/spark-mints/payments/{payment_id}` | `read_invoice` |
+| PATCH | `/api/spark-mints/settings` `{"check_enabled": true}` | `wallet_connect` |
 
 ## Tests
 
@@ -85,7 +85,7 @@ python -m unittest discover -s tests -t .
 The live regtest test needs `firod` and `firo-cli` installed:
 
 ```bash
-FIROGATE_REGTEST=1 python -m unittest tests.integration.test_privacy_regtest -v
+FIROGATE_REGTEST=1 python -m unittest tests.integration.test_mint_regtest -v
 ```
 
-Add `FIROGATE_RECORD=tests/fixtures/privacy_regtest.json` to refresh the recorded run that the replay test uses in CI.
+Add `FIROGATE_RECORD=tests/fixtures/mint_regtest.json` to refresh the recorded run that the replay test uses in CI.

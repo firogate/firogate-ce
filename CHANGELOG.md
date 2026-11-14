@@ -10,7 +10,7 @@ Current: **API v1.0** · **App 0.1.2**
 
 ### API
 #### Added
-- Spark mint tracking: `GET /api/privacy/status`, `GET /api/privacy/inputs`, `GET /api/privacy/payments/{id}` and `PATCH /api/privacy/settings`. Read-only; FiroGate never holds keys or mints. See [PRIVACY_TRACKING.md](PRIVACY_TRACKING.md).
+- Spark mint check: `GET /api/spark-mints/status`, `GET /api/spark-mints/inputs`, `GET /api/spark-mints/payments/{id}` and `PATCH /api/spark-mints/settings`. Read-only; FiroGate never holds keys or mints. See [SPARK_MINTS.md](SPARK_MINTS.md).
 
 ### App
 #### Added

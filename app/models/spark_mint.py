@@ -1,11 +1,3 @@
-"""
-Transparent-to-Spark privacy tracking.
-
-One row per transparent coin (txid:vout) received at an invoice address.
-Rows only describe what happened to the coin after it arrived. They never
-change the payment's status, amount or confirmations, and FiroGate never
-holds a key that could move the coin.
-"""
 from sqlalchemy import (
     BigInteger, Boolean, Column, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint,
 )
@@ -13,8 +5,8 @@ from sqlalchemy import (
 from app.models.models import Base, _now, _uuid
 
 
-class PaymentPrivacyInput(Base):
-    __tablename__ = "payment_privacy_inputs"
+class SparkMintInput(Base):
+    __tablename__ = "spark_mint_inputs"
 
     id                  = Column(String(36), primary_key=True, default=_uuid)
     payment_id          = Column(String, ForeignKey("payments.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -48,14 +40,14 @@ class PaymentPrivacyInput(Base):
     checked_at          = Column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (
-        UniqueConstraint("txid", "vout", name="uq_privacy_input_outpoint"),
-        Index("ix_privacy_merchant_state", "merchant_id", "state"),
+        UniqueConstraint("txid", "vout", name="uq_spark_mint_outpoint"),
+        Index("ix_spark_mint_merchant_state", "merchant_id", "state"),
     )
 
 
-class PrivacySettings(Base):
-    __tablename__ = "privacy_settings"
+class SparkMintSettings(Base):
+    __tablename__ = "spark_mint_settings"
 
     merchant_id      = Column(String, ForeignKey("users.id"), primary_key=True)
-    tracking_enabled = Column(Boolean, nullable=False, default=True)
+    check_enabled = Column(Boolean, nullable=False, default=True)
     updated_at       = Column(DateTime(timezone=True), default=_now, onupdate=_now)

@@ -1520,8 +1520,6 @@
   "Minted, no key match": "Gemintet, Schlüssel passt nicht",
   "Spent, no mint": "Ausgegeben, kein Mint",
   "Payment confirming": "Zahlung wird bestätigt",
-  "Tracking": "Verfolgung",
-  "Track Spark mints": "Spark-Mints verfolgen",
   "Totals": "Summen",
   "How it works": "So funktioniert es",
   "A customer pays an invoice to a transparent address.": "Ein Kunde bezahlt eine Rechnung an eine transparente Adresse.",
@@ -1550,10 +1548,7 @@
   "Nothing here yet.": "Noch nichts hier.",
   "Transparent payments show up here when they arrive.": "Transparente Zahlungen erscheinen hier, sobald sie eingehen.",
   "Mint": "Mint",
-  "Tracking on.": "Verfolgung an.",
-  "Tracking off.": "Verfolgung aus.",
   "No transparent coins received yet.": "Noch keine transparenten Coins erhalten.",
-  "Tracking is off.": "Verfolgung ist aus.",
   "Mint status": "Mint-Status",
   "Payment coin": "Zahlungs-Coin",
   "Mint transaction": "Mint-Transaktion",
@@ -1564,5 +1559,10 @@
   "Input values not readable.": "Eingangswerte nicht lesbar.",
   "No Spark view key connected.": "Kein Spark View Key verbunden.",
   "Payment transaction not found on the node right now.": "Zahlungstransaktion derzeit nicht auf dem Node.",
-  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "Ein Schlüssel-Treffer zeigt, dass die Coin an Ihre verbundene Spark-Wallet ging. Er beweist nicht, wer den Spend Key hält."
+  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "Ein Schlüssel-Treffer zeigt, dass die Coin an Ihre verbundene Spark-Wallet ging. Er beweist nicht, wer den Spend Key hält.",
+  "Mint check": "Mint-Prüfung",
+  "Check Spark mints": "Spark-Mints prüfen",
+  "Mint check on.": "Mint-Prüfung an.",
+  "Mint check off.": "Mint-Prüfung aus.",
+  "Mint check is off.": "Mint-Prüfung ist aus."
 }

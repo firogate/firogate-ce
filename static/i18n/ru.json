@@ -1520,8 +1520,6 @@
   "Minted, no key match": "Минтовано, ключ не совпал",
   "Spent, no mint": "Потрачено без минта",
   "Payment confirming": "Платёж подтверждается",
-  "Tracking": "Отслеживание",
-  "Track Spark mints": "Отслеживать минты Spark",
   "Totals": "Итоги",
   "How it works": "Как это работает",
   "A customer pays an invoice to a transparent address.": "Клиент оплачивает счёт на прозрачный адрес.",
@@ -1550,10 +1548,7 @@
   "Nothing here yet.": "Пока пусто.",
   "Transparent payments show up here when they arrive.": "Прозрачные платежи появятся здесь, когда поступят.",
   "Mint": "Минт",
-  "Tracking on.": "Отслеживание включено.",
-  "Tracking off.": "Отслеживание выключено.",
   "No transparent coins received yet.": "Прозрачные монеты ещё не получены.",
-  "Tracking is off.": "Отслеживание выключено.",
   "Mint status": "Статус минта",
   "Payment coin": "Монета платежа",
   "Mint transaction": "Транзакция минта",
@@ -1564,5 +1559,10 @@
   "Input values not readable.": "Значения входов не читаются.",
   "No Spark view key connected.": "Ключ просмотра Spark не подключён.",
   "Payment transaction not found on the node right now.": "Транзакция платежа сейчас не найдена на узле.",
-  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "Совпадение ключа показывает, что монета ушла в ваш подключённый кошелёк Spark. Это не доказывает, у кого ключ расходования."
+  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "Совпадение ключа показывает, что монета ушла в ваш подключённый кошелёк Spark. Это не доказывает, у кого ключ расходования.",
+  "Mint check": "Проверка минтов",
+  "Check Spark mints": "Проверять минты Spark",
+  "Mint check on.": "Проверка минтов включена.",
+  "Mint check off.": "Проверка минтов выключена.",
+  "Mint check is off.": "Проверка минтов выключена."
 }

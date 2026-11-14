@@ -1,14 +1,3 @@
-"""payment_privacy_inputs and privacy_settings
-
-Revision ID: b7e2c4d91a05
-Revises: eaa4693d6b35
-Create Date: 2026-11-14
-
-Adds the two tables used by transparent-to-Spark privacy tracking. Both are
-new tables, so existing data is untouched. create_tables() also builds them
-on boot through Base.metadata.create_all; this revision skips any table that
-already exists, so it is safe on databases that booted the new code first.
-"""
 from typing import Sequence, Union
 
 from alembic import op
@@ -26,9 +15,9 @@ def _has(table: str) -> bool:
 
 
 def upgrade() -> None:
-    if not _has("payment_privacy_inputs"):
+    if not _has("spark_mint_inputs"):
         op.create_table(
-            "payment_privacy_inputs",
+            "spark_mint_inputs",
             sa.Column("id", sa.String(36), primary_key=True),
             sa.Column("payment_id", sa.String(), sa.ForeignKey("payments.id", ondelete="CASCADE"), nullable=False),
             sa.Column("merchant_id", sa.String(), sa.ForeignKey("users.id"), nullable=False),
@@ -55,24 +44,24 @@ def upgrade() -> None:
             sa.Column("first_seen_at", sa.DateTime(timezone=True), nullable=True),
             sa.Column("state_changed_at", sa.DateTime(timezone=True), nullable=True),
             sa.Column("checked_at", sa.DateTime(timezone=True), nullable=True),
-            sa.UniqueConstraint("txid", "vout", name="uq_privacy_input_outpoint"),
+            sa.UniqueConstraint("txid", "vout", name="uq_spark_mint_outpoint"),
         )
-        op.create_index("ix_payment_privacy_inputs_payment_id", "payment_privacy_inputs", ["payment_id"])
-        op.create_index("ix_payment_privacy_inputs_merchant_id", "payment_privacy_inputs", ["merchant_id"])
-        op.create_index("ix_payment_privacy_inputs_state", "payment_privacy_inputs", ["state"])
-        op.create_index("ix_payment_privacy_inputs_final", "payment_privacy_inputs", ["final"])
-        op.create_index("ix_privacy_merchant_state", "payment_privacy_inputs", ["merchant_id", "state"])
-    if not _has("privacy_settings"):
+        op.create_index("ix_spark_mint_inputs_payment_id", "spark_mint_inputs", ["payment_id"])
+        op.create_index("ix_spark_mint_inputs_merchant_id", "spark_mint_inputs", ["merchant_id"])
+        op.create_index("ix_spark_mint_inputs_state", "spark_mint_inputs", ["state"])
+        op.create_index("ix_spark_mint_inputs_final", "spark_mint_inputs", ["final"])
+        op.create_index("ix_spark_mint_merchant_state", "spark_mint_inputs", ["merchant_id", "state"])
+    if not _has("spark_mint_settings"):
         op.create_table(
-            "privacy_settings",
+            "spark_mint_settings",
             sa.Column("merchant_id", sa.String(), sa.ForeignKey("users.id"), primary_key=True),
-            sa.Column("tracking_enabled", sa.Boolean(), nullable=False, server_default=sa.true()),
+            sa.Column("check_enabled", sa.Boolean(), nullable=False, server_default=sa.true()),
             sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         )
 
 
 def downgrade() -> None:
-    if _has("privacy_settings"):
-        op.drop_table("privacy_settings")
-    if _has("payment_privacy_inputs"):
-        op.drop_table("payment_privacy_inputs")
+    if _has("spark_mint_settings"):
+        op.drop_table("spark_mint_settings")
+    if _has("spark_mint_inputs"):
+        op.drop_table("spark_mint_inputs")

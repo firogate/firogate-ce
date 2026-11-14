@@ -1,21 +1,12 @@
-"""
-Replays the recorded regtest run (tests/fixtures/privacy_regtest.json)
-through the real privacy watcher, without a node. Every step must produce
-exactly the rows the live run produced.
-
-Re-record with:
-    FIROGATE_REGTEST=1 FIROGATE_RECORD=tests/fixtures/privacy_regtest.json \
-        python -m unittest tests.integration.test_privacy_regtest
-"""
 import json
 import os
 import unittest
 
-from tests import privacy_scenario as sc
+from tests import mint_scenario as sc
 from app.core.database import AsyncSessionLocal
-from app.services.privacy_watcher import run_pass
+from app.services.mint_watcher import run_pass
 
-FIXTURE = os.path.join(os.path.dirname(__file__), "fixtures", "privacy_regtest.json")
+FIXTURE = os.path.join(os.path.dirname(__file__), "fixtures", "mint_regtest.json")
 
 
 class ReplayRPC:
@@ -33,7 +24,7 @@ class ReplayRPC:
 
 
 @unittest.skipUnless(os.path.exists(FIXTURE), "fixture not recorded")
-class PrivacyReplayTest(unittest.IsolatedAsyncioTestCase):
+class MintReplayTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_replay_matches_live_run(self):
         data = json.load(open(FIXTURE))
@@ -47,8 +38,8 @@ class PrivacyReplayTest(unittest.IsolatedAsyncioTestCase):
                 await run_pass(ReplayRPC(step["calls"]), db)
             self.assertEqual(await sc.snapshot(), step["expect"], step["name"])
 
-    async def test_disabled_tracking_skips_merchant(self):
-        from app.models.privacy import PrivacySettings
+    async def test_check_off_skips_merchant(self):
+        from app.models.spark_mint import SparkMintSettings
         from sqlalchemy import select
         from app.models.models import User
         data = json.load(open(FIXTURE))
@@ -56,7 +47,7 @@ class PrivacyReplayTest(unittest.IsolatedAsyncioTestCase):
         await sc.setup_merchant(data["tpub"], data["view_key"], data["payments"])
         async with AsyncSessionLocal() as db:
             uid = (await db.execute(select(User.id))).scalar_one()
-            db.add(PrivacySettings(merchant_id=uid, tracking_enabled=False))
+            db.add(SparkMintSettings(merchant_id=uid, check_enabled=False))
             await db.commit()
         step = data["steps"][1]
         await sc.set_payment_progress(step["progress"])

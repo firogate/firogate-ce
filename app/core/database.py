@@ -72,7 +72,7 @@ async def get_db():
 async def create_tables():
     import app.models.models as _
     import app.models.spark as _spk
-    import app.models.privacy as _prv
+    import app.models.spark_mint as _mint
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(_ensure_user_columns)

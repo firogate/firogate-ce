@@ -1520,8 +1520,6 @@
   "Minted, no key match": "已铸币，密钥不匹配",
   "Spent, no mint": "已花费，未铸币",
   "Payment confirming": "付款确认中",
-  "Tracking": "跟踪",
-  "Track Spark mints": "跟踪 Spark 铸币",
   "Totals": "合计",
   "How it works": "工作原理",
   "A customer pays an invoice to a transparent address.": "客户向透明地址支付发票。",
@@ -1550,10 +1548,7 @@
   "Nothing here yet.": "暂无内容。",
   "Transparent payments show up here when they arrive.": "透明付款到账后会显示在这里。",
   "Mint": "铸币",
-  "Tracking on.": "跟踪已开启。",
-  "Tracking off.": "跟踪已关闭。",
   "No transparent coins received yet.": "尚未收到透明币。",
-  "Tracking is off.": "跟踪已关闭。",
   "Mint status": "铸币状态",
   "Payment coin": "付款币",
   "Mint transaction": "铸币交易",
@@ -1564,5 +1559,10 @@
   "Input values not readable.": "无法读取输入金额。",
   "No Spark view key connected.": "未连接 Spark 查看密钥。",
   "Payment transaction not found on the node right now.": "节点上暂时找不到付款交易。",
-  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "密钥匹配表示该币进入了您连接的 Spark 钱包。它不能证明谁持有花费密钥。"
+  "A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.": "密钥匹配表示该币进入了您连接的 Spark 钱包。它不能证明谁持有花费密钥。",
+  "Mint check": "铸币检查",
+  "Check Spark mints": "检查 Spark 铸币",
+  "Mint check on.": "铸币检查已开启。",
+  "Mint check off.": "铸币检查已关闭。",
+  "Mint check is off.": "铸币检查已关闭。"
 }

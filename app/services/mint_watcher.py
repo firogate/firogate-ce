@@ -1,18 +1,3 @@
-"""
-Transparent-to-Spark privacy watcher.
-
-Tracks what happens to each transparent coin received at an invoice address:
-still unspent, spent by a Spark mint, or spent some other way. It only reads
-from the node (address index, raw transactions) and uses the merchant's
-Spark view key to check whether a mint's Spark outputs belong to the
-connected Spark wallet.
-
-It never signs, mints, imports keys or changes a payment. Each pass rebuilds
-the state of every unfinished row from the chain, so a crash, node restart,
-dropped transaction or reorg is handled by simply running again.
-
-Node requirements: addressindex=1 and txindex=1.
-"""
 from __future__ import annotations
 
 import asyncio
@@ -25,9 +10,9 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.database import AsyncSessionLocal
 from app.models.models import Payment, PaymentStatus, XpubWalletConnection
-from app.models.privacy import PaymentPrivacyInput, PrivacySettings
+from app.models.spark_mint import SparkMintInput, SparkMintSettings
 from app.models.spark import SparkWalletConnection
-from app.services import privacy_core as core
+from app.services import mint_core as core
 
 _state: dict = {"checked_at": None, "last_error": None, "node_ready": None, "rows_checked": 0}
 _lock = asyncio.Lock()
@@ -49,7 +34,6 @@ class NodeNotReady(Exception):
 
 
 class _Chain:
-    """Read-only node access with a per-pass cache."""
 
     def __init__(self, rpc):
         self.rpc = rpc
@@ -60,7 +44,7 @@ class _Chain:
             try:
                 self._tx[txid] = await self.rpc.call("getrawtransaction", txid, 1)
             except Exception as e:
-                logger.debug(f"[privacy] getrawtransaction {txid[:12]} failed: {e}")
+                logger.debug(f"[spark-mint] getrawtransaction {txid[:12]} failed: {e}")
                 self._tx[txid] = None
         return self._tx[txid]
 
@@ -86,7 +70,6 @@ class _Chain:
         return total
 
     async def scan(self, addresses: list[str]) -> tuple[dict, dict]:
-        """credits: address -> [credit]; spent: (txid, vout) -> spending txid."""
         credits: dict[str, list[dict]] = {a: [] for a in addresses}
         spent: dict[tuple[str, int], str] = {}
         for start in range(0, len(addresses), _ADDR_CHUNK):
@@ -142,10 +125,9 @@ def _matches(vk, tx: dict) -> dict[int, tuple[int, str] | None]:
     return out
 
 
-async def trace_outpoint(chain: _Chain, vk, txid: str, vout: int, own_sats: int,
-                         spent: dict) -> tuple[core.Trace, str | None]:
-    """Follows one invoice coin. Returns the trace and an optional detail."""
-    t = core.Trace()
+async def check_outpoint(chain: _Chain, vk, txid: str, vout: int, own_sats: int,
+                         spent: dict) -> tuple[core.MintResult, str | None]:
+    t = core.MintResult()
     spend_txid = spent.get((txid, vout))
     if not spend_txid:
         return t, None
@@ -165,12 +147,12 @@ async def trace_outpoint(chain: _Chain, vk, txid: str, vout: int, own_sats: int,
         t.change_outpoint = f"{tx['txid']}:{n}"
         nxt_id = await chain.spender(addr, tx["txid"], n)
         if not nxt_id:
-            t.change_followable = True
+            t.change_open = True
             break
         nxt = await chain.tx(nxt_id)
         nxt_total = await chain.input_total(nxt) if nxt else None
         if not nxt or not nxt_total:
-            t.change_followable = True
+            t.change_open = True
             break
         nsum = core.summarize_spend(nxt, nxt_total, _matches(vk, nxt))
         if not nsum.has_mint:
@@ -195,12 +177,12 @@ def _credit_ok(payment: Payment, c: dict) -> bool:
     return True
 
 
-def _apply_row(row: PaymentPrivacyInput, credit: dict | None, tip: int | None, trace: core.Trace,
+def _apply_row(row: SparkMintInput, credit: dict | None, tip: int | None, res: core.MintResult,
                detail: str | None, now: datetime) -> bool:
     found = credit is not None
     height = credit["height"] if credit else row.height
     confs = (tip - height + 1) if (found and tip is not None and height is not None) else 0
-    state, final = core.decide(found, confs, trace)
+    state, final = core.decide(found, confs, res)
     if not found:
         detail = "Payment transaction not found on the node right now."
     values = {
@@ -209,16 +191,16 @@ def _apply_row(row: PaymentPrivacyInput, credit: dict | None, tip: int | None, t
         "credit_found": found,
         "state": state,
         "final": final,
-        "spend_txid": trace.spend_txid,
-        "spend_confirmations": trace.spend_confirmations,
-        "mint_txid": trace.mint_txid,
-        "minted_sats": trace.minted_sats,
-        "unmatched_sats": trace.unmatched_sats,
-        "fee_sats": trace.fee_sats,
-        "change_sats": trace.change_sats,
-        "change_outpoint": trace.change_outpoint,
-        "change_hops": trace.hops,
-        "coin_tags": json.dumps(trace.coin_tags) if trace.coin_tags else None,
+        "spend_txid": res.spend_txid,
+        "spend_confirmations": res.spend_confirmations,
+        "mint_txid": res.mint_txid,
+        "minted_sats": res.minted_sats,
+        "unmatched_sats": res.unmatched_sats,
+        "fee_sats": res.fee_sats,
+        "change_sats": res.change_sats,
+        "change_outpoint": res.change_outpoint,
+        "change_hops": res.hops,
+        "coin_tags": json.dumps(res.coin_tags) if res.coin_tags else None,
         "detail": detail,
     }
     changed = False
@@ -242,13 +224,12 @@ async def _merchants(db) -> set[str]:
     ids = {r for r in res.scalars().all()}
     if not ids:
         return ids
-    off = await db.execute(select(PrivacySettings.merchant_id).where(
-        PrivacySettings.merchant_id.in_(ids), PrivacySettings.tracking_enabled == False))
+    off = await db.execute(select(SparkMintSettings.merchant_id).where(
+        SparkMintSettings.merchant_id.in_(ids), SparkMintSettings.check_enabled == False))
     return ids - set(off.scalars().all())
 
 
 async def run_pass(rpc, db) -> int:
-    """One full pass. Returns the number of rows checked."""
     now = datetime.now(timezone.utc)
     merchants = await _merchants(db)
     if not merchants:
@@ -261,9 +242,9 @@ async def run_pass(rpc, db) -> int:
                 if (p.transparent_received or 0) > 0 or p.status in (PaymentStatus.pending, PaymentStatus.confirming)]
     if not payments:
         return 0
-    rows_res = await db.execute(select(PaymentPrivacyInput).where(
-        PaymentPrivacyInput.payment_id.in_([p.id for p in payments])))
-    by_payment: dict[str, list[PaymentPrivacyInput]] = {}
+    rows_res = await db.execute(select(SparkMintInput).where(
+        SparkMintInput.payment_id.in_([p.id for p in payments])))
+    by_payment: dict[str, list[SparkMintInput]] = {}
     for r in rows_res.scalars().all():
         by_payment.setdefault(r.payment_id, []).append(r)
 
@@ -293,13 +274,13 @@ async def run_pass(rpc, db) -> int:
         for key, c in found.items():
             if key in rows:
                 continue
-            exists = (await db.execute(select(PaymentPrivacyInput).where(
-                PaymentPrivacyInput.txid == key[0], PaymentPrivacyInput.vout == key[1]))).scalar_one_or_none()
+            exists = (await db.execute(select(SparkMintInput).where(
+                SparkMintInput.txid == key[0], SparkMintInput.vout == key[1]))).scalar_one_or_none()
             if exists is not None:
                 if exists.payment_id == p.id:
                     rows[key] = exists
                 continue
-            row = PaymentPrivacyInput(payment_id=p.id, merchant_id=p.merchant_id, txid=key[0], vout=key[1],
+            row = SparkMintInput(payment_id=p.id, merchant_id=p.merchant_id, txid=key[0], vout=key[1],
                                       address=p.transparent_address, sats=c["sats"], height=c["height"],
                                       first_seen_at=now, state_changed_at=now)
             db.add(row)
@@ -308,9 +289,9 @@ async def run_pass(rpc, db) -> int:
         for key, row in rows.items():
             if row.final:
                 continue
-            trace, detail = await trace_outpoint(chain, vk, row.txid, row.vout, row.sats, spent)
+            outcome, detail = await check_outpoint(chain, vk, row.txid, row.vout, row.sats, spent)
             prev_state = row.state
-            _apply_row(row, found.get(key), tip, trace, detail, now)
+            _apply_row(row, found.get(key), tip, outcome, detail, now)
             if row.state != prev_state:
                 row.state_changed_at = now
             checked += 1
@@ -318,11 +299,11 @@ async def run_pass(rpc, db) -> int:
             await db.commit()
         except IntegrityError:
             await db.rollback()
-            logger.warning(f"[privacy] duplicate outpoint skipped for payment {p.id[:8]}")
+            logger.warning(f"[spark-mint] duplicate outpoint skipped for payment {p.id[:8]}")
     return checked
 
 
-async def check_privacy_inputs() -> None:
+async def check_spark_mints() -> None:
     if _lock.locked():
         return
     async with _lock:
@@ -336,7 +317,7 @@ async def check_privacy_inputs() -> None:
         except NodeNotReady as e:
             _state["node_ready"] = False
             _state["last_error"] = str(e)
-            logger.info(f"[privacy] node not ready (needs addressindex=1 and txindex=1): {e}")
+            logger.info(f"[spark-mint] node not ready (needs addressindex=1 and txindex=1): {e}")
         except Exception as e:
             _state["last_error"] = str(e)[:160]
-            logger.warning(f"[privacy] watcher error: {e}")
+            logger.warning(f"[spark-mint] watcher error: {e}")
