@@ -4773,6 +4773,11 @@ async function openPayment(id, opts) {
   await _pvLoad();
 }
 
+function _pvTx(v, url) {
+  if (!url || !/^https:\/\//.test(url)) return _pvId(v);
+  return '<a class="pv-txlink" href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer" data-no-i18n data-tip="' + escHtml(v) + '"><code>' + escHtml(truncate(v, 18)) + '</code>{{ icon("external-link", "ico") }}</a>' + _pvCopy(v);
+}
+
 function _pvId(v, n) {
   return '<code data-no-i18n data-tip="' + escHtml(v) + '">' + escHtml(truncate(v, n || 18)) + '</code>' + _pvCopy(v);
 }
@@ -4832,7 +4837,7 @@ async function _pvLoad() {
   pay += _pvRow('Payment ID', _pvId(p.payment_id));
   if (p.order_id) pay += _pvRow('Order', '<span data-no-i18n>' + escHtml(fmtOrderId(p.order_id)) + '</span>');
   if (p.order_description) pay += _pvRow('Description', '<span data-no-i18n>' + escHtml(p.order_description) + '</span>');
-  pay += _pvRow('Transaction ID', p.txid ? _pvId(p.txid) : dash);
+  pay += _pvRow('Transaction ID', p.txid ? _pvTx(p.txid, p.explorer_url) : dash);
   pay += _pvRow('Address', p.receiving_address ? _pvId(p.receiving_address) : dash);
   pay += _pvRow('Confirmations', '<span data-no-i18n>' + (p.confirmations || 0) + ' / ' + (p.required_confirmations || 0) + '</span>');
   if (p.confirmed_at) pay += _pvRow('Confirmed', '<span data-no-i18n>' + escHtml(fmtDate(p.confirmed_at)) + '</span>');

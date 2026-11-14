@@ -1091,3 +1091,9 @@ html body .pdt-row, html body .pl-row, html body .mx { font-size: .92rem; }
   html[dir="rtl"] body .ph.ph-stack > .ph-actions select.fselect { background-position: left 8px center !important; }
 }
 html body .pdt-bulk:not(.show) { pointer-events: none; visibility: hidden; }
+
+.pv-txlink{display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none}
+.pv-txlink:hover,.pv-txlink:focus-visible{color:inherit;text-decoration:none}
+.pv-txlink code{color:inherit}
+.pv-txlink .ico{width:13px;height:13px;flex-shrink:0;opacity:.55;transition:opacity .15s}
+.pv-txlink:hover .ico{opacity:1}

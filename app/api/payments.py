@@ -494,6 +494,7 @@ def _fmt(p: Payment, full: bool = False) -> dict:
             except Exception:
                 pass
         d.update({
+            "explorer_url":   get_settings().tx_explorer_url(p.txid) or None,
             "customer_email": p.customer_email,
             "vout":           p.vout,
             "webhook_sent":   p.webhook_sent,
