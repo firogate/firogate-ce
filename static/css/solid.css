@@ -1024,3 +1024,17 @@ html body .mx .an-delta, html body .ov-figure-f .an-delta { align-self: center; 
 .ov-hero .fg-globe { -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
 html body .card[data-testid$="-chart"] > div:first-child { padding: 0 0 16px !important; }
 html body .card[data-testid$="-chart"] > div { padding-inline: 0 !important; }
+
+html[data-theme="light"] body .finput, html[data-theme="light"] body input.finput,
+html[data-theme="light"] body textarea.finput, html[data-theme="light"] body select.finput {
+  background-color: var(--bg2) !important; border-color: transparent !important;
+}
+html[data-theme="light"] body .finput:hover:not(:focus) { border-color: var(--bw2) !important; }
+html[data-theme="light"] body .finput:focus { border-color: var(--brand) !important; }
+html[data-theme="light"] body .modal .finput, html[data-theme="light"] body .fg-modal-box .finput, html[data-theme="light"] body #pl-modal .finput { background-color: var(--bg3) !important; }
+html body select.fselect, html[data-theme="light"] body select.fselect {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237B8587' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important; background-size: 14px 14px !important;
+  background-position: right 12px center !important; padding-inline: 14px 34px !important;
+}
+html[dir="rtl"] body select.fselect { background-position: left 12px center !important; }
