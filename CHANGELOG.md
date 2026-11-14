@@ -9,10 +9,13 @@ Current: **API v1.0** · **App 0.1.2**
 [Live demo](https://demo.firogate.com) · [Demo source](https://github.com/firogate/demo)
 
 ### API
-_No API changes._
+#### Added
+- Spark mint tracking: `GET /api/privacy/status`, `GET /api/privacy/inputs`, `GET /api/privacy/payments/{id}` and `PATCH /api/privacy/settings`. Read-only; FiroGate never holds keys or mints. See [PRIVACY_TRACKING.md](PRIVACY_TRACKING.md).
 
 ### App
 #### Added
+- Spark mints page: see when transparent payments are minted to Spark in your own wallet, matched by the exact coins spent and checked with your Spark view key. Needs `addressindex=1` and `txindex=1` on the node.
+- Payment page: a separate "Spark mint" section for transparent payments.
 - [Live demo](https://demo.firogate.com): try the dashboard, checkout and API with fake FIRO. No install.
 - Tips on hover explain pages, cards and settings. On phones, tap the ⓘ.
 - Sidebar icons animate once when tapped.

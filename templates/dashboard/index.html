@@ -458,6 +458,14 @@ html[data-theme="light"] #sb-profile-popup{
     </button>
       </div>
     </div>
+    <div class="ni-group" data-ni-node="privacy">
+      <div class="ni-row">
+    <button class="ni tone-teal" id="sb-privacy" data-tip="Transparent payments you minted to Spark." onclick="go('privacy','sb-privacy',null)">
+      {{ icon('layers', 'ico') }}
+      <span class="ni-label" data-i18n="Spark mints">Spark mints</span>
+    </button>
+      </div>
+    </div>
 
     <div class="sb-sect" data-i18n="Developers">Developers</div>
     <div class="ni-group" data-ni-node="api">
@@ -739,6 +747,10 @@ html[data-theme="light"] #sb-profile-popup{
       <section class="mt-sec">
         <header class="sec-head"><h3 data-i18n="Customer">Customer</h3></header>
         <dl class="kv" id="pv-kv-cust"></dl>
+      </section>
+      <section class="mt-sec" id="pv-prv-sec" style="display:none">
+        <header class="sec-head"><h3 data-i18n="Spark mint">Spark mint</h3><span id="pv-prv-status"></span></header>
+        <div id="pv-prv"></div>
       </section>
     </div>
   </div>
@@ -1587,6 +1599,65 @@ html[data-theme="light"] #sb-profile-popup{
   <div class="card" style="padding:0;overflow:hidden">
     <div id="rc-list"><div class="empty-state"><div class="es-hint" data-i18n="Loading…">Loading…</div></div></div>
   </div>
+</div>
+
+<div id="t-privacy" class="tab" style="display:none">
+  <div class="ph ph-stack">
+    <div class="ph-title"><div><h2 data-i18n="Spark mints">Spark mints</h2><p class="ph-sub" data-i18n="What happened to transparent payments after they arrived.">What happened to transparent payments after they arrived.</p></div></div>
+    <div class="ph-actions">
+      <select id="prv-filter" class="finput fselect" style="width:190px" onchange="_prvOffset=0;loadPrivacy()">
+        <option value="" data-i18n="All">All</option>
+        <option value="not_minted" data-i18n="Not minted">Not minted</option>
+        <option value="mint_unconfirmed" data-i18n="Mint seen">Mint seen</option>
+        <option value="minted_verified" data-i18n="Minted, key match">Minted, key match</option>
+        <option value="partly_minted" data-i18n="Partly minted">Partly minted</option>
+        <option value="mint_unverified" data-i18n="Minted, no key match">Minted, no key match</option>
+        <option value="spent_without_mint" data-i18n="Spent, no mint">Spent, no mint</option>
+        <option value="payment_unconfirmed" data-i18n="Payment confirming">Payment confirming</option>
+      </select>
+    </div>
+  </div>
+
+  <section class="mt-sec">
+    <header class="sec-head">
+      <h3 data-i18n="Tracking">Tracking</h3>
+      <label class="prv-switch" title="Track Spark mints" data-i18n-title="Track Spark mints">
+        <input type="checkbox" id="prv-toggle" onchange="privacySetTracking(this.checked)">
+        <span id="prv-slider" class="prv-slider"></span>
+      </label>
+    </header>
+    <dl class="kv" id="prv-kv-status"></dl>
+  </section>
+
+  <section class="mt-sec">
+    <header class="sec-head"><h3 data-i18n="Totals">Totals</h3></header>
+    <dl class="kv" id="prv-kv-totals"></dl>
+  </section>
+
+  <section class="mt-sec">
+    <header class="sec-head"><h3 data-i18n="Payments">Payments</h3></header>
+    <div id="prv-list" class="plist"><div class="empty-state"><div class="es-hint" data-i18n="Loading…">Loading…</div></div></div>
+    <div id="prv-pagination" class="pager" style="display:none">
+      <span id="prv-range" class="pager-range"></span>
+      <div class="pager-nav">
+        <button id="prv-prev" class="pager-btn" onclick="_prvGo(-1)" disabled aria-label="Previous" data-i18n-aria-label="Previous">{{ icon('chevron-left', 'ico') }}</button>
+        <div id="prv-pages" class="pager-pages"></div>
+        <button id="prv-next" class="pager-btn" onclick="_prvGo(1)" disabled aria-label="Next" data-i18n-aria-label="Next">{{ icon('chevron-right', 'ico') }}</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-sec prv-help">
+    <header class="sec-head"><h3 data-i18n="How it works">How it works</h3></header>
+    <ol class="prv-steps">
+      <li data-i18n="A customer pays an invoice to a transparent address.">A customer pays an invoice to a transparent address.</li>
+      <li data-i18n="You mint the coins to Spark in your own wallet. In Stack Wallet or Campfire, open the wallet and tap Privatize funds.">You mint the coins to Spark in your own wallet. In Stack Wallet or Campfire, open the wallet and tap Privatize funds.</li>
+      <li data-i18n="FiroGate finds the mint by the exact coins it spent and checks the new Spark coin with your view key.">FiroGate finds the mint by the exact coins it spent and checks the new Spark coin with your view key.</li>
+    </ol>
+    <p class="prv-note" data-i18n="Use one wallet for both your xpub and your Spark view key. A mint to a different wallet shows as no key match.">Use one wallet for both your xpub and your Spark view key. A mint to a different wallet shows as no key match.</p>
+    <p class="prv-note" data-i18n="A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key. A mint's amount and its transparent inputs stay public.">A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key. A mint's amount and its transparent inputs stay public.</p>
+    <p class="prv-note" data-i18n="FiroGate never holds your keys and never mints for you.">FiroGate never holds your keys and never mints for you.</p>
+  </section>
 </div>
 
 <div id="t-account" class="tab" style="display:none">
@@ -2499,6 +2570,7 @@ function go(name, sbId, mobId) {
   if (name === 'wallet') { loadSparkStatus(); loadXpubStatus(); }
   if (name === 'api')  { loadApiTab(); }
   if (name === 'recurring') { loadRecurring(); }
+  if (name === 'privacy') { loadPrivacy(); }
 
   if (name === 'analytics') {
     requestAnimationFrame(function() { loadUserAnalytics(); });
@@ -2520,6 +2592,7 @@ function go(name, sbId, mobId) {
     account:   '/account',
     analytics: '/analytics',
     recurring: '/recurring',
+    privacy:   '/privacy',
     wallet:    '/wallet',
   } : {
     home:      '/dashboard/home',
@@ -2531,6 +2604,7 @@ function go(name, sbId, mobId) {
     account:   '/dashboard/account',
     analytics: '/dashboard/analytics',
     recurring: '/dashboard/recurring',
+    privacy:   '/dashboard/privacy',
     wallet:    '/dashboard/wallet',
   };
   if (!_routeSilent) { try { history.pushState(null, '', pathMap[name] || (_onDashboardSubdomain ? '/' : '/dashboard')); } catch(e) {} }
@@ -3874,6 +3948,7 @@ loadAll().then(() => {
     'account':   ['account',   'sb-account',   null],
     'analytics': ['analytics', 'sb-analytics', null],
     'recurring': ['recurring', 'sb-recurring', null],
+    'privacy':   ['privacy',   'sb-privacy',   null],
   };
 
   const _onDashboardSubdomain = (
@@ -3887,7 +3962,7 @@ loadAll().then(() => {
     const slugToTab = {
       '': 'home', 'home': 'home', 'api': 'api',
       'payments': 'payments', 'wallet': 'wallet',
-      'security': 'security', 'account': 'account', 'analytics': 'analytics', 'recurring': 'recurring',
+      'security': 'security', 'account': 'account', 'analytics': 'analytics', 'recurring': 'recurring', 'privacy': 'privacy',
     };
     serverTab = slugToTab[slug] || 'home';
   } else {
@@ -3896,7 +3971,7 @@ loadAll().then(() => {
 
   const legacyHash = window.location.hash.replace('#', '');
   const legacyHashMap = { sec:'security', account:'account', api:'api', pays:'payments',
-    wallet:'wallet', home:'home', analytics:'analytics', recurring:'recurring' };
+    wallet:'wallet', home:'home', analytics:'analytics', recurring:'recurring', privacy:'privacy' };
 
   const _qsTab = new URLSearchParams(window.location.search).get('tab');
   const _qsTabMapped = _qsTab && legacyHashMap[_qsTab] ? legacyHashMap[_qsTab] : null;
@@ -3929,6 +4004,137 @@ loadAll().then(() => {
 
 
 function _ft(x){ return window.t ? window.t(x) : x; }
+
+var PRV_STATES = {
+  payment_unconfirmed: ['b-confirming', 'Payment confirming', "The customer's payment is not in a block yet."],
+  not_minted:          ['b-pending',    'Not minted', 'Still transparent. Mint it to Spark from your wallet.'],
+  mint_unconfirmed:    ['b-confirming', 'Mint seen', 'A mint spent this payment. Waiting for a block.'],
+  minted_verified:     ['b-confirmed',  'Minted, key match', 'A mint spent this payment and your Spark view key matched the new coin.'],
+  partly_minted:       ['b-cancelled',  'Partly minted', 'Only part was minted. The rest is still transparent.'],
+  mint_unverified:     ['b-failed',     'Minted, no key match', 'A mint spent this payment, but your view key did not match the new coin. Check you used the same wallet.'],
+  spent_without_mint:  ['b-expired',    'Spent, no mint', 'This payment was sent on without a Spark mint.']
+};
+function _prvPill(state) {
+  var s = PRV_STATES[state] || ['b-inactive', state, ''];
+  return '<span class="badge ' + s[0] + '" data-tip="' + escHtml(_ft(s[2])) + '">' + escHtml(_ft(s[1])) + '</span>';
+}
+function _prvAmt(sats) { return '<span data-no-i18n>' + escHtml(_fgAmt((sats || 0) / 1e8)) + ' FIRO</span>'; }
+function _prvSyncToggle(on) {
+  var t = document.getElementById('prv-toggle');
+  if (t) t.checked = !!on;
+}
+var _prvOffset = 0, _prvTotal = 0, PRV_PAGE = 25;
+function _prvRenderStatus(s) {
+  _prvSyncToggle(s.tracking_enabled);
+  var yes = function (ok, a, b) { return escHtml(_ft(ok ? a : b)); };
+  var node = s.node_ready === true ? _ft('Ready') : s.node_ready === false ? _ft('Needs addressindex=1 and txindex=1') : _ft('Not checked yet');
+  var st = '';
+  st += _pvRow('Wallet xpub', yes(s.xpub_connected, 'Connected', 'Not connected'));
+  st += _pvRow('Spark view key', yes(s.view_key_connected, 'Connected', 'Not connected'));
+  st += _pvRow('Node', escHtml(node));
+  if (s.checked_at) st += _pvRow('Last check', '<span data-no-i18n>' + escHtml(fmtDate(s.checked_at)) + '</span>');
+  document.getElementById('prv-kv-status').innerHTML = st;
+  var c = s.counts || {};
+  var n = function (k) { return '<span data-no-i18n>' + (c[k] || 0) + '</span>'; };
+  var tt = '';
+  tt += _pvRow('Received (transparent)', _prvAmt(s.received_sats));
+  tt += _pvRow('Minted, key match', _prvAmt(s.minted_verified_sats));
+  tt += _pvRow('Mint fees', _prvAmt(s.fee_sats));
+  tt += _pvRow('Not minted', n('not_minted'));
+  if (c.partly_minted) tt += _pvRow('Partly minted', n('partly_minted'));
+  if (c.mint_unverified) tt += _pvRow('Minted, no key match', n('mint_unverified'));
+  if (c.spent_without_mint) tt += _pvRow('Spent, no mint', n('spent_without_mint'));
+  document.getElementById('prv-kv-totals').innerHTML = tt;
+}
+function _prvRenderPager() {
+  var pager = document.getElementById('prv-pagination');
+  if (!pager) return;
+  pager.style.display = _prvTotal > 0 ? '' : 'none';
+  var to = Math.min(_prvOffset + PRV_PAGE, _prvTotal);
+  document.getElementById('prv-range').textContent = _prvTotal ? (_prvOffset + 1) + '–' + to + ' ' + _ft('of') + ' ' + _prvTotal.toLocaleString('en-US') : '';
+  document.getElementById('prv-prev').disabled = _prvOffset <= 0;
+  document.getElementById('prv-next').disabled = _prvOffset + PRV_PAGE >= _prvTotal;
+  var pages = Math.max(1, Math.ceil(_prvTotal / PRV_PAGE)), cur = Math.floor(_prvOffset / PRV_PAGE) + 1;
+  var want = new Set([1, pages, cur - 1, cur, cur + 1]), html = '', last = 0;
+  for (var i = 1; i <= pages; i++) {
+    if (!want.has(i)) continue;
+    if (i - last > 1) html += '<span class="pager-gap">…</span>';
+    html += '<button type="button" class="pager-btn' + (i === cur ? ' on' : '') + '" onclick="_prvPage(' + i + ')"' + (i === cur ? ' aria-current="page"' : '') + '>' + i + '</button>';
+    last = i;
+  }
+  document.getElementById('prv-pages').innerHTML = _prvTotal > PRV_PAGE ? html : '';
+}
+function _prvGo(dir) { _prvOffset = Math.max(0, _prvOffset + dir * PRV_PAGE); loadPrivacy(); }
+function _prvPage(p) { _prvOffset = (p - 1) * PRV_PAGE; loadPrivacy(); }
+async function loadPrivacy() {
+  var st = await API.get('/api/privacy/status');
+  if (st && !st.error) _prvRenderStatus(st);
+  var f = document.getElementById('prv-filter');
+  var state = f ? f.value : '';
+  var d = await API.get('/api/privacy/inputs?offset=' + _prvOffset + '&limit=' + PRV_PAGE + (state ? '&state=' + encodeURIComponent(state) : ''));
+  var box = document.getElementById('prv-list');
+  if (!box) return;
+  if (!d || d.error) {
+    box.innerHTML = '<div class="empty-state"><div class="es-title">' + escHtml(_ft('Could not load.')) + '</div></div>';
+    return;
+  }
+  _prvTotal = d.total || 0;
+  if (!d.items.length) {
+    box.innerHTML = '<div class="empty-state"><div class="es-title">' + escHtml(_ft('Nothing here yet.')) + '</div><div class="es-hint">' + escHtml(_ft('Transparent payments show up here when they arrive.')) + '</div></div>';
+  } else {
+    box.innerHTML = d.items.map(function (r) {
+      var sub = r.mint_txid ? _ft('Mint') + ' ' + truncate(r.mint_txid, 14) : truncate(r.txid, 14) + ':' + r.vout;
+      return '<button type="button" class="pl-row" data-pay="' + escHtml(r.payment_id) + '"><span class="pl-row-main"><b data-no-i18n>' +
+        escHtml(r.order_id ? fmtOrderId(r.order_id) : truncate(r.payment_id, 14)) + '</b><small data-no-i18n>' + escHtml(sub) + '</small></span>' +
+        '<span class="pl-row-amt">' + _prvAmt(r.amount_sats) + '</span>' + _prvPill(r.state) + '</button>';
+    }).join('');
+  }
+  _prvRenderPager();
+}
+async function privacySetTracking(on) {
+  var r = await API.patch('/api/privacy/settings', { tracking_enabled: !!on });
+  if (r && !r.error) {
+    Toast.success(_ft(on ? 'Tracking on.' : 'Tracking off.'));
+    loadPrivacy();
+  } else {
+    Toast.error(_ft('Failed to save.'));
+    _prvSyncToggle(!on);
+  }
+}
+async function _pvPrivacy(id) {
+  var sec = document.getElementById('pv-prv-sec');
+  if (!sec) return;
+  var d = await API.get('/api/privacy/payments/' + encodeURIComponent(id));
+  if (id !== _pvId_cur()) return;
+  if (!d || d.error || !d.transparent) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  var box = document.getElementById('pv-prv');
+  var head = document.getElementById('pv-prv-status');
+  if (!d.items.length) {
+    head.innerHTML = '';
+    box.innerHTML = '<p class="prv-note">' + escHtml(_ft(d.tracking_enabled ? 'No transparent coins received yet.' : 'Tracking is off.')) + '</p>';
+    return;
+  }
+  var one = d.items.every(function (r) { return r.state === d.items[0].state; });
+  head.innerHTML = one ? _prvPill(d.items[0].state) : '';
+  box.innerHTML = d.items.map(function (r) {
+    var kv = '';
+    if (!one || d.items.length > 1) kv += _pvRow('Mint status', _prvPill(r.state));
+    var coin = r.txid_url && /^https:\/\//.test(r.txid_url)
+      ? '<a class="pv-txlink" href="' + escHtml(r.txid_url) + '" target="_blank" rel="noopener noreferrer" data-no-i18n data-tip="' + escHtml(r.txid + ':' + r.vout) + '"><code>' + escHtml(truncate(r.txid, 18)) + '<span class="prv-vout">:' + r.vout + '</span></code>{{ icon("external-link", "ico") }}</a>'
+      : '<code data-no-i18n data-tip="' + escHtml(r.txid + ':' + r.vout) + '">' + escHtml(truncate(r.txid, 18)) + '<span class="prv-vout">:' + r.vout + '</span></code>';
+    kv += _pvRow('Payment coin', coin + _pvCopy(r.txid));
+    kv += _pvRow('Amount', _prvAmt(r.amount_sats));
+    if (r.mint_txid) kv += _pvRow('Mint transaction', _pvTx(r.mint_txid, r.mint_url));
+    if (r.mint_txid) kv += _pvRow('Mint confirmations', '<span data-no-i18n>' + (r.spend_confirmations || 0) + '</span>');
+    if (r.minted_verified_sats) kv += _pvRow('Minted, key match', _prvAmt(r.minted_verified_sats));
+    if (r.minted_unmatched_sats) kv += _pvRow('Minted, no key match', _prvAmt(r.minted_unmatched_sats));
+    if (r.fee_sats) kv += _pvRow('Fee share', _prvAmt(r.fee_sats));
+    if (r.change_sats) kv += _pvRow('Still transparent', _prvAmt(r.change_sats));
+    if (r.detail) kv += _pvRow('Note', escHtml(_ft(r.detail)));
+    return '<dl class="kv prv-coin">' + kv + '</dl>';
+  }).join('') + '<p class="prv-note">' + escHtml(_ft('A key match shows the coin went to your connected Spark wallet. It does not prove who holds the spend key.')) + '</p>';
+}
 
 var RC_EVERY = { week: 'Every week', month: 'Every month', year: 'Every year' };
 function rcToggleForm(open) {
@@ -4770,6 +4976,7 @@ async function openPayment(id, opts) {
   document.getElementById('pv-steps').innerHTML = '';
   document.getElementById('pv-kv-pay').innerHTML = '<div class="skel-line" style="height:44px;margin:8px 0"></div>';
   ['pv-kv-cust', 'pv-kv-amt', 'pv-kv-ref', 'pv-refunds', 'pv-refund-status'].forEach(function (k) { var el = document.getElementById(k); if (el) el.innerHTML = ''; });
+  var _prvSec = document.getElementById('pv-prv-sec'); if (_prvSec) _prvSec.style.display = 'none';
   await _pvLoad();
 }
 
@@ -4849,6 +5056,7 @@ async function _pvLoad() {
   cust += _pvRow('Email', p.customer_email ? '<span data-no-i18n>' + escHtml(p.customer_email) + '</span>' + _pvCopy(p.customer_email) : escHtml(_ft('Anonymous')));
   cust += _pvRow('Note', p.payer_note ? '<span class="kv-note" data-no-i18n>' + escHtml(p.payer_note) + '</span>' : dash);
   document.getElementById('pv-kv-cust').innerHTML = cust;
+  _pvPrivacy(id);
 
   var full = refd > 0 && refd >= got - 1e-8;
   var rs = refd <= 0 ? ['none', 'No refunds'] : full ? ['full', 'Refunded'] : ['part', 'Partially refunded'];
@@ -4898,7 +5106,7 @@ function _routeFromLocation() {
   var q = new URLSearchParams(window.location.search).get('date') || '';
   var map = { home: ['home', 'sb-home', 'mb-home'], api: ['api', 'sb-api', 'mb-api'], payments: ['pays', 'sb-pays', 'mb-pays'],
     security: ['sec', 'sb-sec', 'mb-sec'], account: ['account', 'sb-account', null], analytics: ['analytics', 'sb-analytics', 'mb-analytics'],
-    wallet: ['wallet', 'sb-wallet', 'mb-wallet'], recurring: ['recurring', 'sb-recurring', null] };
+    wallet: ['wallet', 'sb-wallet', 'mb-wallet'], recurring: ['recurring', 'sb-recurring', null], privacy: ['privacy', 'sb-privacy', null] };
   _routeSilent = true;
   try {
     if (tab === 'payments' && sub) openPayment(sub);

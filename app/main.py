@@ -19,6 +19,7 @@ from app.api import auth, auth_fb, telegram_webhook, payments, users, analytics
 from app.api import refunds as refunds_api
 from app.api import recurring as recurring_api
 from app.api import xpub_connect as xpub_api
+from app.api import privacy as privacy_api
 from app.api import spark_connect
 from app.api import wallet_auth
 from app.api import i18n as i18n_api
@@ -241,6 +242,8 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(run_recurring_billing, "interval", minutes=5, id="recurring_billing")
     from app.services.xpub_watcher import check_transparent_payments
     scheduler.add_job(check_transparent_payments, "interval", seconds=20, id="xpub_watcher")
+    from app.services.privacy_watcher import check_privacy_inputs
+    scheduler.add_job(check_privacy_inputs, "interval", seconds=30, id="privacy_watcher", max_instances=1, coalesce=True)
 
     scheduler.start()
     logger.info("Schedulers started")
@@ -524,6 +527,7 @@ app.include_router(payments.router)
 app.include_router(refunds_api.router)
 app.include_router(recurring_api.router)
 app.include_router(xpub_api.router)
+app.include_router(privacy_api.router)
 app.include_router(spark_connect.router)
 app.include_router(wallet_auth.router)
 app.include_router(panel_tools_api.router)
@@ -938,7 +942,7 @@ async def changelog_page(r: Request):
 
 _DASHBOARD_TABS = [
     "home", "api", "payments", "balance",
-    "security", "account", "analytics", "wallet", "recurring",
+    "security", "account", "analytics", "wallet", "recurring", "privacy",
 ]
 
 
