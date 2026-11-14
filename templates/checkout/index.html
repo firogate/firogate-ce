@@ -4302,9 +4302,10 @@ async function cancelPayment() {
 }
 
 function updateCancelButton(status) {
+  const off = ['confirming','confirmed','expired','cancelled','failed'].includes(status);
   const wrap = document.querySelector('.cancel-inline');
-  if (!wrap) return;
-  wrap.style.display = ['confirmed','expired','cancelled','failed'].includes(status) ? 'none' : '';
+  if (wrap) wrap.style.display = off ? 'none' : '';
+  document.querySelectorAll('#v2-themes [data-cancel]').forEach(function (b) { b.style.visibility = off ? 'hidden' : ''; });
 }
 
 function show(id) { const e=document.getElementById(id); if(e) e.style.display = 'block'; }
