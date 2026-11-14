@@ -539,19 +539,11 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
       <div class="ni-children">
         <div class="ni-children-inner">
-          <div class="ni-group" data-ni-node="account-password">
+          <div class="ni-group" data-ni-node="account-security">
             <div class="ni-row">
               <button class="ni" onclick="go('account','sb-account',null);secTab('password')">
-                {{ icon('key-round', 'ico') }}
-                <span class="ni-label" data-i18n="Password">Password</span>
-              </button>
-            </div>
-          </div>
-          <div class="ni-group" data-ni-node="account-tfa">
-            <div class="ni-row">
-              <button class="ni" onclick="go('account','sb-account',null);secTab('tfa')">
-                {{ icon('smartphone', 'ico') }}
-                <span class="ni-label" data-i18n="Secure 2FA">Secure 2FA</span>
+                {{ icon('shield', 'ico') }}
+                <span class="ni-label" data-i18n="Security">Security</span>
               </button>
             </div>
           </div>
@@ -2132,10 +2124,6 @@ function syncProfileUI(d) {
   if (_displayName === 'Payment Gateway' && window.t) _displayName = window.t('Payment Gateway');
   document.getElementById('sb-uname').textContent = _displayName;
   { const _m = document.getElementById('sb-popup-mail'); if (_m) _m.textContent = _profileIdentLine(d); }
-  {
-    const _pwNode = document.querySelector('[data-ni-node="account-password"]');
-    if (_pwNode) _pwNode.style.display = d.auth_provider === 'account_number' ? 'none' : '';
-  }
   { const _u = document.getElementById('sb-popup-uname'); if (_u && _displayName) _u.textContent = _displayName; }
 
   ['ov-left', 'ov-balance', 'ov-earned'].forEach(function(id) {
@@ -2406,7 +2394,8 @@ function secTab(id) {
   const parentGroup = document.querySelector('[data-ni-node="' + parentNode + '"]');
   if (parentGroup) {
     parentGroup.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-    const childNode = parentGroup.querySelector('[data-ni-node="' + parentNode + '-' + id + '"] .ni');
+    const childKey = (id === 'password' || id === 'tfa') ? 'security' : id;
+    const childNode = parentGroup.querySelector('[data-ni-node="' + parentNode + '-' + childKey + '"] .ni');
     if (childNode) childNode.classList.add('active');
     else document.getElementById(parentBtnId)?.classList.add('active');
   }
