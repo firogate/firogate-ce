@@ -6,44 +6,7 @@
   var MAX_RETRIES  = 15;
   var FALLBACK_MS  = 15000;
 
-  var _dot = null, _dotTimer = null;
-
-  function _getDot() {
-    if (_dot) return _dot;
-    if (typeof document === 'undefined') return null;
-    _dot = document.createElement('div');
-    _dot.id = 'fg-live-dot';
-    _dot.style.cssText = [
-      'position:fixed', 'bottom:14px', 'right:14px', 'z-index:9100',
-      'width:7px', 'height:7px', 'border-radius:50%',
-      'opacity:0', 'transition:opacity .5s,background .4s',
-      'pointer-events:none',
-    ].join(';');
-    var s = document.createElement('style');
-    s.textContent = '@keyframes _fgpulse{0%,100%{opacity:.2}50%{opacity:1}}';
-    document.head.appendChild(s);
-    document.body && document.body.appendChild(_dot);
-    return _dot;
-  }
-
-  function _dotState(state) {
-    var d = _getDot();
-    if (!d) return;
-    clearTimeout(_dotTimer);
-    if (state === 'live') {
-      d.style.background = '#22C55E';
-      d.style.opacity    = '0.8';
-      d.style.animation  = 'none';
-      _dotTimer = setTimeout(function() { d.style.opacity = '0'; }, 2500);
-    } else if (state === 'sync') {
-      d.style.background = 'var(--warn)';
-      d.style.opacity    = '1';
-      d.style.animation  = '_fgpulse 1.2s ease-in-out infinite';
-    } else {
-      d.style.opacity = '0';
-      d.style.animation = 'none';
-    }
-  }
+  function _dotState() {}
 
   function _revalidate(restUrl, onData, restToken) {
     if (!restUrl) return;
