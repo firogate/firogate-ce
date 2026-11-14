@@ -482,19 +482,11 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
       <div class="ni-children">
         <div class="ni-children-inner">
-          <div class="ni-group" data-ni-node="sec-appname">
+          <div class="ni-group" data-ni-node="sec-general">
             <div class="ni-row">
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('appname')">
-                {{ icon('tag', 'ico') }}
-                <span class="ni-label" data-i18n="App Name">App Name</span>
-              </button>
-            </div>
-          </div>
-          <div class="ni-group" data-ni-node="sec-notify">
-            <div class="ni-row">
-              <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('notify')">
-                {{ icon('bell', 'ico') }}
-                <span class="ni-label" data-i18n="Notifications">Notifications</span>
+                {{ icon('sliders-horizontal', 'ico') }}
+                <span class="ni-label" data-i18n="General">General</span>
               </button>
             </div>
           </div>
@@ -503,14 +495,6 @@ html[data-theme="light"] #sb-profile-popup{
               <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('theme')">
                 {{ icon('palette', 'ico') }}
                 <span class="ni-label" data-i18n="Checkout Theme">Checkout Theme</span>
-              </button>
-            </div>
-          </div>
-          <div class="ni-group" data-ni-node="sec-privacy">
-            <div class="ni-row">
-              <button class="ni" onclick="go('sec','sb-sec','mb-sec');secTab('privacy')">
-                {{ icon('eye-off', 'ico') }}
-                <span class="ni-label" data-i18n="Privacy">Privacy</span>
               </button>
             </div>
           </div>
@@ -2394,7 +2378,7 @@ function secTab(id) {
   const parentGroup = document.querySelector('[data-ni-node="' + parentNode + '"]');
   if (parentGroup) {
     parentGroup.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-    const childKey = (id === 'password' || id === 'tfa') ? 'security' : id;
+    const childKey = (id === 'password' || id === 'tfa') ? 'security' : (id === 'appname' || id === 'notify' || id === 'privacy') ? 'general' : id;
     const childNode = parentGroup.querySelector('[data-ni-node="' + parentNode + '-' + childKey + '"] .ni');
     if (childNode) childNode.classList.add('active');
     else document.getElementById(parentBtnId)?.classList.add('active');
