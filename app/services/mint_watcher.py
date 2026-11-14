@@ -265,6 +265,7 @@ async def run_pass(rpc, db) -> int:
         raise NodeNotReady(str(e)[:160])
     addresses = sorted({p.transparent_address for p in active})
     credits, spent = await chain.scan(addresses)
+    _state["node_ready"] = True
     keys = await _view_keys(db, {p.merchant_id for p in active})
 
     checked = 0
@@ -312,7 +313,6 @@ async def check_spark_mints() -> None:
         try:
             async with AsyncSessionLocal() as db:
                 _state["rows_checked"] = await run_pass(get_rpc(), db)
-            _state["node_ready"] = True
             _state["last_error"] = None
         except NodeNotReady as e:
             _state["node_ready"] = False
