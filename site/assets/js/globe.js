@@ -235,12 +235,22 @@
     ctx.globalAlpha = 1;
   }
 
+  function onDark(el) {
+    for (var n = el; n && n.nodeType === 1; n = n.parentElement) {
+      var m = getComputedStyle(n).backgroundColor.match(/[\d.]+/g);
+      if (m && (m.length < 4 || +m[3] > 0.5)) return (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) < 128;
+    }
+    return !(window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+  }
+
   function draw(it) {
     if (!it.w || !it.h) return;
     if (!it.color || it.tick % 40 === 0) {
       var cs = getComputedStyle(it.cv);
       it.color = cs.color || '#00A2A7';
       it.hopColor = (cs.getPropertyValue('--globe-hop') || '').trim() || it.color;
+      var dim = onDark(it.cv) ? 'opacity(.82)' : '';
+      if (it.cv.style.filter !== dim) it.cv.style.filter = dim;
     }
     it.tick++;
     var ctx = it.ctx;
