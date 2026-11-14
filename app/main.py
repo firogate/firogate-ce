@@ -225,7 +225,9 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(check_pending_payments, "interval", seconds=12, id="payment_monitor")
 
     from app.services.payment_engine import check_spark_payments
+    from app.services.spark_mempool import check_spark_mempool
     scheduler.add_job(check_spark_payments, "interval", seconds=20, id="spark_scanner")
+    scheduler.add_job(check_spark_mempool, "interval", seconds=4, id="spark_mempool", max_instances=1, coalesce=True)
 
     from app.services.webhook import retry_failed_webhooks
     scheduler.add_job(retry_failed_webhooks, "interval", seconds=120, id="webhook_retry")

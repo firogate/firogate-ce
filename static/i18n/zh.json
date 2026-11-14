@@ -1502,5 +1502,12 @@
   "Sales divided by orders.": "销售额除以订单数。",
   "Payments that reached full confirmation.": "已完全确认的付款。",
   "Invoices that expired or were cancelled.": "已过期或已取消的账单。",
-  "Refunds you recorded.": "您记录的退款。"
+  "Refunds you recorded.": "您记录的退款。",
+  "Requested": "应付",
+  "Overpaid": "多付",
+  "Missing": "缺少",
+  "Left to refund": "可退款",
+  "No refunds": "无退款",
+  "Partially refunded": "部分退款",
+  "Payment found": "已找到付款"
 }

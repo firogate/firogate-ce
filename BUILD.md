@@ -107,6 +107,14 @@ addressindex=1
 
 The first start after adding it needs `firod -reindex` (this can take hours). Without the index FiroGate still works, but it falls back to watch-only addresses in the node wallet, which is slower. The Diagnostics page shows which mode is running.
 
+**Instant "payment found" (Spark).** To show the buyer a Spark payment the moment it is sent, before it is mined, add this to `firo.conf` and restart `firod`:
+
+```
+mobile=1
+```
+
+The checkout then says "Payment found" with 0 confirmations. Nothing is credited, confirmed, sent to your webhook or redirected until the payment reaches the confirmations you set. Without it, Spark payments show up once they are in a block.
+
 ## Updating
 
 ```bash

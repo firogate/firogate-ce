@@ -3093,5 +3093,12 @@
   "Sales divided by orders.": "المبيعات مقسومة على الطلبات.",
   "Payments that reached full confirmation.": "مدفوعات اكتمل تأكيدها.",
   "Invoices that expired or were cancelled.": "فواتير انتهت أو أُلغيت.",
-  "Refunds you recorded.": "المبالغ المستردة التي سجّلتها."
+  "Refunds you recorded.": "المبالغ المستردة التي سجّلتها.",
+  "Requested": "المطلوب",
+  "Overpaid": "زيادة في الدفع",
+  "Missing": "المتبقي",
+  "Left to refund": "المتبقي للاسترداد",
+  "No refunds": "لا استرداد",
+  "Partially refunded": "مسترد جزئيًا",
+  "Payment found": "تم العثور على الدفعة"
 }

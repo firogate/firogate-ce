@@ -2737,7 +2737,7 @@ function fmtFiro(val) {
 }
 
 const T = {
-  en: { dir:'ltr', payTo:'Payment to', order:'Order', subtotal:'Subtotal', network:'Network', total:'Total due',
+  en: { dir:'ltr', found:'Payment found', payTo:'Payment to', order:'Order', subtotal:'Subtotal', network:'Network', total:'Total due',
         secure:'Secure checkout', emailTitle:'Your email', emailSub:"We'll send your receipt here.",
         continueBtn:'Continue to Payment', sendTitle:'Send FIRO', waiting:'Waiting', confirming:'Confirming', paid:'Paid',
         exactWarn:'Send the exact amount. Different amounts may not be detected.',
@@ -2749,7 +2749,7 @@ const T = {
         invalidHash:'Please enter a valid TX hash.', verifying:'Verifying…', saving:'Saving…',
         okTitle:'Paid', okRedirect:'Redirecting you back…', okStay:'Your payment has been confirmed.',
         stillThinkSent:'Still think you sent this?', contactSupport:'Contact support' },
-  ar: { dir:'rtl', payTo:'دفع إلى', order:'الطلب', subtotal:'المجموع الفرعي', network:'الشبكة', total:'الإجمالي المستحق',
+  ar: { dir:'rtl', found:'تم العثور على الدفعة', payTo:'دفع إلى', order:'الطلب', subtotal:'المجموع الفرعي', network:'الشبكة', total:'الإجمالي المستحق',
         secure:'دفع آمن', emailTitle:'بريدك الإلكتروني', emailSub:'سنرسل الإيصال هنا.',
         continueBtn:'متابعة للدفع', sendTitle:'إرسال FIRO', waiting:'في الانتظار', confirming:'قيد التأكيد', paid:'تم الدفع',
         exactWarn:'أرسل المبلغ المحدد. المبالغ المختلفة قد لا يتم اكتشافها.',
@@ -2760,7 +2760,7 @@ const T = {
         copyMsg:'تم نسخ العنوان', invalidEmail:'يرجى إدخال بريد إلكتروني صحيح.',
         invalidHash:'يرجى إدخال رمز معاملة صحيح.', verifying:'جاري التحقق…', saving:'جاري الحفظ…',
         okTitle:'تم الدفع', okRedirect:'جاري إعادة التوجيه…', okStay:'تم تأكيد الدفع.' },
-  ru: { dir:'ltr', payTo:'Оплата', order:'Заказ', subtotal:'Промежуточный итог', network:'Сеть', total:'К оплате',
+  ru: { dir:'ltr', found:'Платёж найден', payTo:'Оплата', order:'Заказ', subtotal:'Промежуточный итог', network:'Сеть', total:'К оплате',
         secure:'Безопасная оплата', emailTitle:'Ваш email', emailSub:'Мы пришлем сюда чек.',
         continueBtn:'Перейти к оплате', sendTitle:'Отправить FIRO', waiting:'Ожидание', confirming:'Подтверждение', paid:'Оплачено',
         exactWarn:'Отправьте точную сумму.',
@@ -2770,7 +2770,7 @@ const T = {
         copyMsg:'Скопировано', invalidEmail:'Введите корректный email.',
         invalidHash:'Введите корректный TX.', verifying:'Проверка…', saving:'Сохранение…',
         okTitle:'Оплачено', okRedirect:'Перенаправление…', okStay:'Платёж подтверждён.' },
-  zh: { dir:'ltr', payTo:'付款至', order:'订单', subtotal:'小计', network:'网络', total:'应付',
+  zh: { dir:'ltr', found:'已找到付款', payTo:'付款至', order:'订单', subtotal:'小计', network:'网络', total:'应付',
         secure:'安全支付', emailTitle:'您的邮箱', emailSub:'我们会将收据发送到这里。',
         continueBtn:'继续支付', sendTitle:'发送 FIRO', waiting:'等待', confirming:'确认中', paid:'已支付',
         exactWarn:'请发送精确金额。', timeLeft:'剩余时间', confirmations:'确认数',
@@ -2780,7 +2780,7 @@ const T = {
         copyMsg:'已复制', invalidEmail:'请输入有效邮箱。',
         invalidHash:'请输入有效的 TX。', verifying:'验证中…', saving:'保存中…',
         okTitle:'已支付', okRedirect:'正在跳转…', okStay:'支付已确认。' },
-  ja: { dir:'ltr', payTo:'支払先', order:'注文', subtotal:'小計', network:'ネットワーク', total:'合計',
+  ja: { dir:'ltr', found:'支払いを検出', payTo:'支払先', order:'注文', subtotal:'小計', network:'ネットワーク', total:'合計',
         secure:'安全なチェックアウト', emailTitle:'メールアドレス', emailSub:'ここに領収書を送信します。',
         continueBtn:'支払いへ進む', sendTitle:'FIRO を送信', waiting:'待機中', confirming:'確認中', paid:'支払い済み',
         exactWarn:'正確な金額を送信してください。', timeLeft:'残り時間', confirmations:'確認',
@@ -2790,7 +2790,7 @@ const T = {
         copyMsg:'コピーしました', invalidEmail:'有効なメールを入力してください。',
         invalidHash:'有効な TX を入力してください。', verifying:'検証中…', saving:'保存中…',
         okTitle:'支払い済み', okRedirect:'リダイレクト中…', okStay:'支払いが確認されました。' },
-  fr: { dir:'ltr', payTo:'Paiement à', order:'Commande', subtotal:'Sous-total', network:'Réseau', total:'Total dû',
+  fr: { dir:'ltr', found:'Paiement trouvé', payTo:'Paiement à', order:'Commande', subtotal:'Sous-total', network:'Réseau', total:'Total dû',
         secure:'Paiement sécurisé', emailTitle:'Votre email', emailSub:'Nous enverrons le reçu ici.',
         continueBtn:'Continuer', sendTitle:'Envoyer FIRO', waiting:'En attente', confirming:'Confirmation', paid:'Payé',
         exactWarn:'Envoyez le montant exact.', timeLeft:'Temps restant', confirmations:'Confirmations',
@@ -2800,7 +2800,7 @@ const T = {
         copyMsg:'Copié', invalidEmail:'Email invalide.', invalidHash:'Hash invalide.',
         verifying:'Vérification…', saving:'Enregistrement…',
         okTitle:'Payé', okRedirect:'Redirection…', okStay:'Paiement confirmé.' },
-  de: { dir:'ltr', payTo:'Zahlung an', order:'Bestellung', subtotal:'Zwischensumme', network:'Netzwerk', total:'Zu zahlen',
+  de: { dir:'ltr', found:'Zahlung gefunden', payTo:'Zahlung an', order:'Bestellung', subtotal:'Zwischensumme', network:'Netzwerk', total:'Zu zahlen',
         secure:'Sicherer Checkout', emailTitle:'Ihre E-Mail', emailSub:'Wir senden die Quittung hierher.',
         continueBtn:'Weiter zur Zahlung', sendTitle:'FIRO senden', waiting:'Warten', confirming:'Bestätigung', paid:'Bezahlt',
         exactWarn:'Senden Sie den genauen Betrag.', timeLeft:'Restzeit', confirmations:'Bestätigungen',
@@ -2810,7 +2810,7 @@ const T = {
         copyMsg:'Kopiert', invalidEmail:'Ungültige E-Mail.', invalidHash:'Ungültiger Hash.',
         verifying:'Prüfung…', saving:'Speichern…',
         okTitle:'Bezahlt', okRedirect:'Weiterleiten…', okStay:'Zahlung bestätigt.' },
-  pt: { dir:'ltr', payTo:'Pagamento para', order:'Pedido', subtotal:'Subtotal', network:'Rede', total:'Total',
+  pt: { dir:'ltr', found:'Pagamento encontrado', payTo:'Pagamento para', order:'Pedido', subtotal:'Subtotal', network:'Rede', total:'Total',
         secure:'Checkout seguro', emailTitle:'Seu email', emailSub:'Enviaremos o recibo aqui.',
         continueBtn:'Continuar', sendTitle:'Enviar FIRO', waiting:'Aguardando', confirming:'Confirmando', paid:'Pago',
         exactWarn:'Envie o valor exato.', timeLeft:'Tempo restante', confirmations:'Confirmações',
@@ -2820,7 +2820,7 @@ const T = {
         copyMsg:'Copiado', invalidEmail:'Email inválido.', invalidHash:'Hash inválido.',
         verifying:'Verificando…', saving:'Salvando…',
         okTitle:'Pago', okRedirect:'Redirecionando…', okStay:'Pagamento confirmado.' },
-  tr: { dir:'ltr', payTo:'Ödeme', order:'Sipariş', subtotal:'Ara toplam', network:'Ağ', total:'Toplam',
+  tr: { dir:'ltr', found:'Ödeme bulundu', payTo:'Ödeme', order:'Sipariş', subtotal:'Ara toplam', network:'Ağ', total:'Toplam',
         secure:'Güvenli ödeme', emailTitle:'E-postanız', emailSub:'Makbuzu buraya göndereceğiz.',
         continueBtn:'Ödemeye devam', sendTitle:'FIRO gönder', waiting:'Bekleniyor', confirming:'Onaylanıyor', paid:'Ödendi',
         exactWarn:'Tam tutarı gönderin.', timeLeft:'Kalan', confirmations:'Onay',
@@ -3044,7 +3044,7 @@ async function init() {
       const err = await r.json().catch(() => ({}));
       showError(err.detail || 'Failed to load payment.'); return;
     }
-    payData = await r.json();
+    payData = _fgUnconf(await r.json());
     applyMerchantBranding(payData);
     applyOrderSummary(payData);
 
@@ -3584,7 +3584,7 @@ window._updateAltLayout = function(d) {
   } else if (d.status === 'confirming') {
     var confs = d.confirmations || 0;
     var req = d.required_confirmations || 2;
-    if (confs === 0) { state = 'det'; fxText = 'Payment detected'; }
+    if (confs === 0) { state = 'det'; fxText = ((T[currentLang] || T.en).found || 'Payment found') + ' · 0/' + req; }
     else if (confs < req) { state = 'c1'; fxText = 'Confirming · ' + confs + '/' + req; }
     else { state = 'c2'; fxText = 'Confirming · ' + confs + '/' + req; }
   }
@@ -3765,6 +3765,7 @@ function _startSSEStream() {
     }
   }, function(restData) {
     if (!restData || !restData.status) return;
+    restData = _fgUnconf(restData);
     _setMaintenanceBanner(restData.node_online !== false);
     if (restData.status === 'confirmed') { showConfirmed(restData); return; }
     if (restData.status === 'expired')   { showExpired(restData);   return; }
@@ -3780,6 +3781,18 @@ function _handleSSEEvent(event) {
   if (!event || !event.type) return;
   var type = event.type;
 
+  if (type === 'payment.seen') {
+    if (payData && payData.status === 'pending') {
+      payData = _fgUnconf(Object.assign({}, payData, { unconfirmed: { amount_firo: event.amount_firo, instant_locked: !!event.instant_locked } }));
+      updateProgress(payData);
+      updateCancelButton('confirming');
+      if (window.fgShowToast && (!_checkoutLayoutActive || _checkoutLayoutActive === 'stripe')) {
+        var tt = T[currentLang] || T.en;
+        fgShowToast({type:'info', title: tt.found || 'Payment found', message: (tt.confirming || 'Confirming') + ' 0/' + (payData.required_confirmations || 2)});
+      }
+    }
+    return;
+  }
   if (type === 'payment.detected' || type === 'payment.confirming') {
     var req = (payData && payData.required_confirmations) || 2;
     var confs = (event.confirmations !== undefined) ? event.confirmations : (payData && payData.confirmations) || 0;
@@ -3960,12 +3973,21 @@ function _setMaintenanceBanner(online) {
   b.style.display = online ? 'none' : 'flex';
 }
 
+function _fgUnconf(d) {
+  if (!d || d.status !== 'pending' || !d.unconfirmed || !(d.unconfirmed.amount_firo > 0)) return d;
+  var got = d.unconfirmed.amount_firo;
+  return Object.assign({}, d, {
+    status: 'confirming', confirmations: 0, amount_received: got, _seen: true,
+    display_status: (got + 1e-8 < (d.amount_firo || 0)) ? 'partially_paid' : 'confirming'
+  });
+}
+
 async function pollPayment() {
   if (_pollPaused) return;
   try {
     const r = await fetch(`/api/payments/public/${PAYMENT_ID}`, { headers: { 'X-Checkout-Token': CHECKOUT_TOKEN } });
     if (!r.ok) return;
-    const d = await r.json();
+    const d = _fgUnconf(await r.json());
     payData = d;
     _setMaintenanceBanner(d.node_online !== false);
     updateProgress(d);
@@ -3995,7 +4017,7 @@ function updateProgress(d) {
   if (box && txt) {
     box.classList.remove('pending','confirming','ok');
     if (d.status === 'confirmed') { box.classList.add('ok'); txt.textContent = t.paid; }
-    else if (d.status === 'confirming') { box.classList.add('confirming'); txt.textContent = t.confirming + ` ${d.confirmations||0}/${d.required_confirmations||2}`; }
+    else if (d.status === 'confirming') { box.classList.add('confirming'); txt.textContent = ((d.confirmations||0) === 0 && t.found ? t.found + ' · ' : t.confirming + ' ') + `${d.confirmations||0}/${d.required_confirmations||2}`; }
     else { box.classList.add('pending'); txt.textContent = t.waiting; }
   }
   updatePartialBlock(d);

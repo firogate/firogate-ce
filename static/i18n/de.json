@@ -1502,5 +1502,12 @@
   "Sales divided by orders.": "Umsatz geteilt durch Bestellungen.",
   "Payments that reached full confirmation.": "Vollständig bestätigte Zahlungen.",
   "Invoices that expired or were cancelled.": "Abgelaufene oder stornierte Rechnungen.",
-  "Refunds you recorded.": "Von Ihnen erfasste Rückerstattungen."
+  "Refunds you recorded.": "Von Ihnen erfasste Rückerstattungen.",
+  "Requested": "Angefordert",
+  "Overpaid": "Zu viel bezahlt",
+  "Missing": "Fehlt",
+  "Left to refund": "Noch erstattbar",
+  "No refunds": "Keine Erstattung",
+  "Partially refunded": "Teilweise erstattet",
+  "Payment found": "Zahlung gefunden"
 }

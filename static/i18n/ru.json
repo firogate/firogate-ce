@@ -1502,5 +1502,12 @@
   "Sales divided by orders.": "Продажи, делённые на заказы.",
   "Payments that reached full confirmation.": "Полностью подтверждённые платежи.",
   "Invoices that expired or were cancelled.": "Истёкшие или отменённые счета.",
-  "Refunds you recorded.": "Записанные вами возвраты."
+  "Refunds you recorded.": "Записанные вами возвраты.",
+  "Requested": "Запрошено",
+  "Overpaid": "Переплата",
+  "Missing": "Не хватает",
+  "Left to refund": "Можно вернуть",
+  "No refunds": "Без возвратов",
+  "Partially refunded": "Частично возвращён",
+  "Payment found": "Платёж найден"
 }

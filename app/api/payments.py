@@ -522,6 +522,10 @@ async def public_status(payment_id: str, request: Request, db: AsyncSession = De
 
     result = _fmt(p)
     result["is_plan_purchase"] = bool(p.order_id and "plan" in str(p.order_id).lower())
+    result["unconfirmed"] = None
+    if result["status"] == PaymentStatus.pending:
+        from app.services.spark_mempool import sighting_for
+        result["unconfirmed"] = sighting_for(p.id)
 
     # Expose merchant's branded app/store name (NOT username) so the checkout
     # page can show proper branding. Falls back to generic label.

@@ -744,19 +744,28 @@ html[data-theme="light"] #sb-profile-popup{
     <ol class="pv-steps" id="pv-steps"></ol>
   </section>
   <div class="pv-grid">
-    <section class="mt-sec">
-      <header class="sec-head"><h3 data-i18n="Payment">Payment</h3></header>
-      <dl class="kv" id="pv-kv-pay"></dl>
-    </section>
-    <section class="mt-sec">
-      <header class="sec-head"><h3 data-i18n="Customer">Customer</h3></header>
-      <dl class="kv" id="pv-kv-cust"></dl>
-    </section>
+    <div class="pv-col">
+      <section class="mt-sec">
+        <header class="sec-head"><h3 data-i18n="Amount">Amount</h3></header>
+        <dl class="kv" id="pv-kv-amt"></dl>
+      </section>
+      <section class="mt-sec">
+        <header class="sec-head"><h3 data-i18n="Payment">Payment</h3></header>
+        <dl class="kv" id="pv-kv-pay"></dl>
+      </section>
+    </div>
+    <div class="pv-col">
+      <section class="mt-sec">
+        <header class="sec-head"><h3 data-i18n="Refund">Refund</h3><span id="pv-refund-status"></span></header>
+        <dl class="kv" id="pv-kv-ref"></dl>
+        <div id="pv-refunds" class="plist"></div>
+      </section>
+      <section class="mt-sec">
+        <header class="sec-head"><h3 data-i18n="Customer">Customer</h3></header>
+        <dl class="kv" id="pv-kv-cust"></dl>
+      </section>
+    </div>
   </div>
-  <section class="mt-sec" id="pv-refunds-sec" style="display:none">
-    <header class="sec-head"><h3 data-i18n="Refunds">Refunds</h3><span class="sec-side" id="pv-refunds-total"></span></header>
-    <div id="pv-refunds" class="plist"></div>
-  </section>
 </div>
 
 <div id="t-analytics" class="tab" style="display:none">
@@ -1218,7 +1227,7 @@ html[data-theme="light"] #sb-profile-popup{
       <div class="pdt-head pdt-6">
         <button class="pdt-cb" id="paysAllCb" aria-label="Select all" data-i18n-aria-label="Select all"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
         <button class="pdt-sort pdt-hide-mobile" data-k="id"><span data-i18n="ID">ID</span><span class="arr">↑</span></button>
-        <button class="pdt-sort pdt-hide-mobile" data-k="order"><span data-i18n="Order">Order</span><span class="arr">↑</span></button>
+        <button class="pdt-sort" data-k="order"><span data-i18n="Order">Order</span><span class="arr">↑</span></button>
         <button class="pdt-sort" data-k="amt"><span data-i18n="Amount">Amount</span><span class="arr">↑</span></button>
         <span data-i18n="Status">Status</span>
         <button class="pdt-sort pdt-hide-mobile" data-k="date"><span data-i18n="Date">Date</span><span class="arr">↑</span></button>
@@ -1229,11 +1238,12 @@ html[data-theme="light"] #sb-profile-popup{
         <button id="paysExport" data-i18n="Export CSV">Export CSV</button>
       </div>
     </div>
-    <div id="pays-pagination" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 0;flex-wrap:wrap">
-      <span id="pays-range" style="font-size:.84rem;color:var(--t3)"></span>
-      <div style="display:flex;gap:6px">
-        <button id="pays-prev" class="btn btn-o btn-sm" onclick="_paysPrevPage()" disabled data-i18n="Previous">Previous</button>
-        <button id="pays-next" class="btn btn-o btn-sm" onclick="_paysNextPage()" disabled data-i18n="Next">Next</button>
+    <div id="pays-pagination" class="pager">
+      <span id="pays-range" class="pager-range"></span>
+      <div class="pager-nav">
+        <button id="pays-prev" class="pager-btn" onclick="_paysPrevPage()" disabled aria-label="Previous" data-i18n-aria-label="Previous">{{ icon('chevron-left', 'ico') }}</button>
+        <div id="pays-pages" class="pager-pages"></div>
+        <button id="pays-next" class="pager-btn" onclick="_paysNextPage()" disabled aria-label="Next" data-i18n-aria-label="Next">{{ icon('chevron-right', 'ico') }}</button>
       </div>
     </div>
   </div>
@@ -2913,7 +2923,7 @@ async function loadRecentPays() {
     rowHtml: (p, sel, exp) => `
       <div class="pdt-row pdt-4${sel?' sel':''}${exp?' exp':''}" data-id="${escHtml(p.payment_id)}">
         <button class="pdt-cb${sel?' on':''}" data-cb="${escHtml(p.payment_id)}"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
-        <span style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span class="pdt-mono">'+truncate(p.payment_id,10)+'</span>'}</span>
+        <span class="pdt-order" data-tip="${escHtml(p.order_id || p.payment_id)}">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span class="pdt-mono">'+truncate(p.payment_id,10)+'</span>'}</span>
         <span class="pdt-amt">${fmtFiro(p.amount_firo)}</span>
         <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
@@ -2982,10 +2992,33 @@ function _paysRenderPagination() {
   } else {
     const from = _paysOffset + 1;
     const to = Math.min(_paysOffset + size, _paysTotal);
-    rangeEl.textContent = from + '–' + to + ' ' + (window.t ? window.t('of') : 'of') + ' ' + _paysTotal;
+    rangeEl.textContent = from + '–' + to + ' ' + (window.t ? window.t('of') : 'of') + ' ' + _paysTotal.toLocaleString('en-US') + ' ' + (window.t ? window.t('payments') : 'payments');
   }
   if (prevBtn) prevBtn.disabled = _paysOffset <= 0;
   if (nextBtn) nextBtn.disabled = _paysOffset + size >= _paysTotal;
+  const pagesEl = document.getElementById('pays-pages');
+  if (pagesEl) {
+    const pages = Math.max(1, Math.ceil(_paysTotal / size));
+    const cur = Math.floor(_paysOffset / size) + 1;
+    const want = new Set([1, pages, cur - 1, cur, cur + 1]);
+    let html = '', last = 0;
+    for (let i = 1; i <= pages; i++) {
+      if (!want.has(i)) continue;
+      if (i - last > 1) html += '<span class="pager-gap">…</span>';
+      html += '<button type="button" class="pager-btn' + (i === cur ? ' on' : '') + '" onclick="_paysGoPage(' + i + ')"' + (i === cur ? ' aria-current="page"' : '') + '>' + i + '</button>';
+      last = i;
+    }
+    pagesEl.innerHTML = _paysTotal > size ? html : '';
+  }
+  const pager = document.getElementById('pays-pagination');
+  if (pager) pager.style.display = _paysTotal ? '' : 'none';
+}
+
+function _paysGoPage(n) {
+  _paysOffset = Math.max(0, (n - 1) * _paysPageSize());
+  loadPays();
+  const t = document.getElementById('t-pays');
+  if (t) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function loadPays(overrideSearch) {
@@ -3026,8 +3059,8 @@ async function loadPays(overrideSearch) {
     rowHtml: (p, sel, exp) => `
       <div class="pdt-row pdt-6${sel?' sel':''}${exp?' exp':''}" data-id="${escHtml(p.payment_id)}">
         <button class="pdt-cb${sel?' on':''}" data-cb="${escHtml(p.payment_id)}"><svg viewBox="0 0 24 24"><path d="M5 13l5 5L20 7"/></svg></button>
-        <span class="pdt-mono pdt-hide-mobile">${truncate(p.payment_id,10)}</span>
-        <span class="pdt-hide-mobile" style="font-size:.8rem">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span style="color:var(--t3)">—</span>'}</span>
+        <span class="pdt-mono pdt-hide-mobile" data-tip="${escHtml(p.payment_id)}">${truncate(p.payment_id,10)}</span>
+        <span class="pdt-order" data-tip="${escHtml(p.order_id || p.payment_id)}">${p.order_id ? escHtml(fmtOrderId(p.order_id)) : '<span class="pdt-mono">' + truncate(p.payment_id,10) + '</span>'}</span>
         <span class="pdt-amt">${fmtFiro(p.amount_firo)}</span>
         <span>${badge(p.status)}${refundTag(p)}</span>
         <span class="pdt-hide-mobile" style="font-size:.75rem;color:var(--t3)">${fmtDate(p.created_at)}</span>
@@ -4063,7 +4096,7 @@ async function rfSave() {
   ['rf-amount','rf-txid','rf-reason'].forEach(function(id){ document.getElementById(id).value = ''; });
   await _rfLoad();
   if (typeof loadPays === 'function') loadPays();
-  if (_pvId) _pvLoad();
+  if (_pvIdCur) _pvLoad();
 }
 document.addEventListener('click', async function(e) {
   var b = e.target.closest('[data-rf-del]');
@@ -4074,7 +4107,7 @@ document.addEventListener('click', async function(e) {
   Toast.info(_ft('Refund record removed'));
   await _rfLoad();
   if (typeof loadPays === 'function') loadPays();
-  if (_pvId) _pvLoad();
+  if (_pvIdCur) _pvLoad();
 });
 
 
@@ -4742,7 +4775,8 @@ function clearPaysDate() {
   loadPays();
 }
 
-var _pvId = null;
+var _pvIdCur = null;
+function _pvId_cur() { return _pvIdCur; }
 function _pvCopy(v) {
   return '<button type="button" class="kv-copy" data-copy="' + escHtml(v) + '" title="' + escHtml(_ft('Copy')) + '" aria-label="' + escHtml(_ft('Copy')) + '">{{ icon("copy", "ico") }}</button>';
 }
@@ -4752,7 +4786,7 @@ function _pvRow(k, html) {
 
 async function openPayment(id, opts) {
   if (!id) return;
-  _pvId = id;
+  _pvIdCur = id;
   _showView('t-pay', 'sb-pays', 'mb-pays');
   _pushRoute(_dashPath('payments', id), opts && opts.replace);
   document.getElementById('pv-title').textContent = '—';
@@ -4762,33 +4796,37 @@ async function openPayment(id, opts) {
   document.getElementById('pv-actions').innerHTML = '';
   document.getElementById('pv-steps').innerHTML = '';
   document.getElementById('pv-kv-pay').innerHTML = '<div class="skel-line" style="height:44px;margin:8px 0"></div>';
-  document.getElementById('pv-kv-cust').innerHTML = '';
-  document.getElementById('pv-refunds-sec').style.display = 'none';
+  ['pv-kv-cust', 'pv-kv-amt', 'pv-kv-ref', 'pv-refunds', 'pv-refund-status'].forEach(function (k) { var el = document.getElementById(k); if (el) el.innerHTML = ''; });
   await _pvLoad();
 }
 
+function _pvId(v, n) {
+  return '<code data-no-i18n data-tip="' + escHtml(v) + '">' + escHtml(truncate(v, n || 18)) + '</code>' + _pvCopy(v);
+}
+
 async function _pvLoad() {
-  var id = _pvId;
+  var id = _pvId_cur();
   if (!id) return;
   var p = await API.get('/api/payments/' + encodeURIComponent(id));
-  if (id !== _pvId) return;
+  if (id !== _pvId_cur()) return;
   if (!p || p.error) {
     document.getElementById('pv-title').textContent = _ft('Payment not found');
     document.getElementById('pv-kv-pay').innerHTML = '';
     return;
   }
   var dash = '<span class="kv-none">—</span>';
+  var num = function (v) { return '<span data-no-i18n>' + escHtml(_fgAmt(v)) + ' FIRO</span>'; };
   document.getElementById('pv-title').textContent = p.order_id ? fmtOrderId(p.order_id) : truncate(p.payment_id, 14);
   document.getElementById('pv-amount').textContent = _fgAmt(p.amount_firo);
-  document.getElementById('pv-status').innerHTML = badge(p.status) + refundTag(p);
+  document.getElementById('pv-status').innerHTML = badge(p.status);
   document.getElementById('pv-sub').textContent = fmtDate(p.created_at);
 
   var acts = '';
   if (p.status === 'pending' || p.status === 'confirming') {
-    acts += '<a class="btn btn-o btn-sm" target="_blank" rel="noopener" href="/invoice/' + escHtml(p.payment_id) + '?t=' + escHtml(p.checkout_token || '') + '">{{ icon("external-link", "ico") }}<span>' + escHtml(_ft('View checkout')) + '</span></a>';
+    acts += '<a class="btn btn-o btn-sm" target="_blank" rel="noopener" href="/invoice/' + escHtml(p.payment_id) + '?t=' + escHtml(p.checkout_token || '') + '" title="' + escHtml(_ft('View checkout')) + '">{{ icon("external-link", "ico") }}<span>' + escHtml(_ft('View checkout')) + '</span></a>';
   }
   if (p.status === 'confirmed') {
-    acts += '<button type="button" class="btn btn-o btn-sm" onclick="openRefundModal(_pvId)">{{ icon("undo-2", "ico") }}<span>' + escHtml(_ft('Refund')) + '</span></button>';
+    acts += '<button type="button" class="btn btn-o btn-sm" onclick="openRefundModal(_pvId_cur())" title="' + escHtml(_ft('Refund')) + '">{{ icon("undo-2", "ico") }}<span>' + escHtml(_ft('Refund')) + '</span></button>';
   }
   document.getElementById('pv-actions').innerHTML = acts;
 
@@ -4801,22 +4839,31 @@ async function _pvLoad() {
     steps.push({ k: 'Confirming', sub: (p.confirmations || 0) + ' / ' + (p.required_confirmations || 0), st: p.status === 'confirmed' ? 'done' : (seen ? 'now' : 'todo') });
     steps.push({ k: 'Confirmed', sub: p.confirmed_at ? fmtDate(p.confirmed_at) : '', st: p.status === 'confirmed' ? 'done' : 'todo' });
   }
-  document.getElementById('pv-steps').innerHTML = steps.map(function (s) {
-    return '<li class="pv-step ' + s.st + '"><i></i><b>' + escHtml(_ft(s.k)) + '</b><small data-no-i18n>' + escHtml(s.sub || '') + '</small></li>';
+  document.getElementById('pv-steps').innerHTML = steps.map(function (st) {
+    return '<li class="pv-step ' + st.st + '"><i></i><b>' + escHtml(_ft(st.k)) + '</b><small data-no-i18n>' + escHtml(st.sub || '') + '</small></li>';
   }).join('');
 
-  var mono = function (v) { return '<code data-no-i18n>' + escHtml(v) + '</code>' + _pvCopy(v); };
+  var req = parseFloat(p.amount_firo || 0), got = parseFloat(p.amount_received || 0), refd = parseFloat(p.refunded_firo || 0);
+  var amt = '';
+  amt += _pvRow('Requested', num(req));
+  amt += _pvRow('Received', got > 0 ? num(got) : dash);
+  if (got > 0 && Math.abs(got - req) > 1e-8) amt += _pvRow(got > req ? 'Overpaid' : 'Missing', num(Math.abs(got - req)));
+  if (refd > 0) amt += _pvRow('Refunded', num(refd));
+  if (got > 0) amt += _pvRow('Net', '<b data-no-i18n>' + escHtml(_fgAmt(Math.max(0, got - refd))) + ' FIRO</b>');
+  if (p.amount_usd) amt += _pvRow('Price', '<span data-no-i18n>$' + _fgNum(p.amount_usd, 2) + '</span>');
+  document.getElementById('pv-kv-amt').innerHTML = amt;
+
   var pay = '';
-  pay += _pvRow('Payment ID', mono(p.payment_id));
-  pay += _pvRow('Order', p.order_id ? '<span data-no-i18n>' + escHtml(fmtOrderId(p.order_id)) + '</span>' : dash);
-  if (p.order_description) pay += _pvRow('Description', '<span data-no-i18n>' + escHtml(p.order_description) + '</span>');
+  pay += _pvRow('Status', badge(p.status));
   pay += _pvRow('Method', (p.address_type || 'spark') === 'spark' ? '<span data-no-i18n>Spark</span>' : escHtml(_ft('Transparent')));
-  pay += _pvRow('Address', p.receiving_address ? mono(p.receiving_address) : dash);
-  pay += _pvRow('Transaction ID', p.txid ? mono(p.txid) : dash);
+  pay += _pvRow('Payment ID', _pvId(p.payment_id));
+  if (p.order_id) pay += _pvRow('Order', '<span data-no-i18n>' + escHtml(fmtOrderId(p.order_id)) + '</span>');
+  if (p.order_description) pay += _pvRow('Description', '<span data-no-i18n>' + escHtml(p.order_description) + '</span>');
+  pay += _pvRow('Transaction ID', p.txid ? _pvId(p.txid) : dash);
+  pay += _pvRow('Address', p.receiving_address ? _pvId(p.receiving_address) : dash);
   pay += _pvRow('Confirmations', '<span data-no-i18n>' + (p.confirmations || 0) + ' / ' + (p.required_confirmations || 0) + '</span>');
-  pay += _pvRow('Received', '<span data-no-i18n>' + escHtml(_fgAmt(p.amount_received || 0)) + ' FIRO</span>');
-  if (p.amount_usd) pay += _pvRow('Price', '<span data-no-i18n>$' + _fgNum(p.amount_usd, 2) + '</span>');
-  if (p.expires_at && !p.confirmed_at) pay += _pvRow('Expires', '<span data-no-i18n>' + escHtml(fmtDate(p.expires_at)) + '</span>');
+  if (p.confirmed_at) pay += _pvRow('Confirmed', '<span data-no-i18n>' + escHtml(fmtDate(p.confirmed_at)) + '</span>');
+  else if (p.expires_at) pay += _pvRow('Expires', '<span data-no-i18n>' + escHtml(fmtDate(p.expires_at)) + '</span>');
   pay += _pvRow('Webhook', escHtml(_ft(p.webhook_sent ? 'Sent' : 'Not sent')));
   document.getElementById('pv-kv-pay').innerHTML = pay;
 
@@ -4825,21 +4872,26 @@ async function _pvLoad() {
   cust += _pvRow('Note', p.payer_note ? '<span class="kv-note" data-no-i18n>' + escHtml(p.payer_note) + '</span>' : dash);
   document.getElementById('pv-kv-cust').innerHTML = cust;
 
-  var sec = document.getElementById('pv-refunds-sec');
-  if (parseFloat(p.refunded_firo || 0) > 0) {
+  var full = refd > 0 && refd >= got - 1e-8;
+  var rs = refd <= 0 ? ['none', 'No refunds'] : full ? ['full', 'Refunded'] : ['part', 'Partially refunded'];
+  document.getElementById('pv-refund-status').innerHTML = '<span class="rf-pill rf-' + rs[0] + '">' + escHtml(_ft(rs[1])) + '</span>';
+  var ref = '';
+  ref += _pvRow('Refunded', refd > 0 ? num(refd) : dash);
+  if (p.status === 'confirmed') ref += _pvRow('Left to refund', num(Math.max(0, got - refd)));
+  document.getElementById('pv-kv-ref').innerHTML = ref;
+  var list = document.getElementById('pv-refunds');
+  list.innerHTML = '';
+  if (refd > 0) {
     var rf = await API.get('/api/payments/' + encodeURIComponent(id) + '/refunds');
-    if (id !== _pvId) return;
+    if (id !== _pvId_cur()) return;
     if (rf && !rf.error && rf.refunds && rf.refunds.length) {
-      document.getElementById('pv-refunds-total').innerHTML = '<b class="fg-num">' + escHtml(_fgAmt(rf.refunded_firo)) + '</b> FIRO';
-      document.getElementById('pv-refunds').innerHTML = rf.refunds.map(function (r) {
-        return '<div class="pl-row static"><span class="pl-row-main"><b data-no-i18n>' + escHtml(r.reason || '—') + '</b><small data-no-i18n>' + escHtml(fmtDate(r.created_at)) + (r.txid ? ' · ' + escHtml(truncate(r.txid, 16)) : '') + '</small></span>' +
+      list.innerHTML = rf.refunds.map(function (r) {
+        return '<div class="pl-row static"><span class="pl-row-main"><b data-no-i18n>' + escHtml(r.reason || _ft('Refund')) + '</b><small data-no-i18n>' + escHtml(fmtDate(r.created_at)) + '</small>' +
+          (r.txid ? '<small class="pv-reftx">' + _pvId(r.txid, 16) + '</small>' : '') + '</span>' +
           '<span class="pl-row-amt" data-no-i18n>' + escHtml(_fgAmt(r.amount_firo)) + ' <small>FIRO</small></span></div>';
       }).join('');
-      sec.style.display = '';
-      return;
     }
   }
-  sec.style.display = 'none';
 }
 
 document.addEventListener('click', function (e) {
