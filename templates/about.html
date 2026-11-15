@@ -52,13 +52,13 @@ a:hover { color: var(--text); }
 .nav-link { color: var(--text-2); font-size: .88rem; font-weight: 500; padding: 8px 10px; border-radius: 9px; }
 .nav-link:hover { color: var(--text); background: var(--surface-2); }
 .top-end { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
-.icon-btn { width: 38px; height: 38px; display: inline-grid; place-items: center; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); cursor: pointer; }
-.icon-btn:hover { color: var(--text); border-color: var(--border-2); }
-.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn { width: 38px; height: 38px; display: inline-grid; place-items: center; border: 0; background: none; padding: 0; color: var(--text-2); cursor: pointer; }
+.icon-btn:hover { color: var(--text); }
+.icon-btn svg { width: 19px; height: 19px; }
 .sun { display: none; }
 html[data-theme="light"] .sun { display: block; }
 html[data-theme="light"] .moon { display: none; }
-.btn { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 10px; font-size: .9rem; font-weight: 600; border: 1px solid var(--border-2); color: var(--text); }
+.btn { display: inline-flex; align-items: center; white-space: nowrap; height: 40px; padding: 0 16px; border-radius: 10px; font-size: .9rem; font-weight: 600; border: 1px solid var(--border-2); color: var(--text); }
 .btn:hover { background: var(--surface-2); color: var(--text); }
 .btn-main { background: var(--brand); border-color: var(--brand); color: #fff; }
 .btn-main:hover { background: #008C91; color: #fff; }
@@ -130,7 +130,7 @@ h2 { margin: 0; font-family: var(--font-d); font-size: 1.35rem; font-weight: 600
     <div class="wrap">
       <p class="eyebrow">Community Edition</p>
       <h1>A Firo payment gateway you run yourself.</h1>
-      <p class="lede">Open source and non-custodial. FiroGate runs on your server, talks to your own Firo node, and every payment goes straight to your wallet.</p>
+      <p class="lede">Non-custodial. FiroGate runs on your server, talks to your own Firo node, and every payment goes straight to your wallet.</p>
       <div class="actions">
         <a class="btn btn-main" href="/docs">Read the docs</a>
         <a class="btn" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">View on GitHub</a>
@@ -186,7 +186,7 @@ h2 { margin: 0; font-family: var(--font-d); font-size: 1.35rem; font-weight: 600
     <section class="sec">
       <div><h2>Open source</h2></div>
       <div>
-        <p>Apache 2.0 license. Read the code, run it on your own server, and change it to fit your store.</p>
+        <p>Apache 2.0 license. Read the code and change it to fit your store.</p>
         <div class="actions">
           <a class="btn" href="https://github.com/firogate/firogate-ce" target="_blank" rel="noopener">Source code</a>
           <a class="btn" href="/changelog">Changelog</a>
