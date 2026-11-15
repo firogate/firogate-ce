@@ -1606,5 +1606,7 @@
   "Not set up": "Не настроено",
   "On at checkout": "Включено при оплате",
   "Disconnect Spark? Customers can no longer pay with Spark. Orders already open still work.": "Отключить Spark? Клиенты больше не смогут платить через Spark. Открытые заказы продолжат работать.",
-  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "Отключить xpub? Клиенты больше не смогут платить прозрачно. Открытые заказы продолжат работать."
+  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "Отключить xpub? Клиенты больше не смогут платить прозрачно. Открытые заказы продолжат работать.",
+  "Webhook events and how to check signatures are in the docs.": "События вебхуков и проверка подписи описаны в документации.",
+  "Open webhook docs": "Открыть документацию"
 }

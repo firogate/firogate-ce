@@ -1107,20 +1107,7 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
   </div>
 
-  <div class="card">
-    <h3 style="margin-bottom:16px" data-i18n="Webhook Events">Webhook Events</h3>
-    <div class="ev-grid">
-      <div class="ev"><code>payment.confirmed</code><span data-i18n="Payment received and confirmed on-chain.">Payment received and confirmed on-chain.</span></div>
-      <div class="ev"><code>payment.cancelled</code><span data-i18n="Buyer cancelled the checkout.">Buyer cancelled the checkout.</span></div>
-      <div class="ev"><code>payment.expired</code><span data-i18n="Payment window expired without confirmation.">Payment window expired without confirmation.</span></div>
-      <div class="ev"><code>payment.refunded</code><span data-i18n="A refund was recorded.">A refund was recorded.</span></div>
-    </div>
-    <div class="ev-note">
-      <b data-i18n="Verifying signatures">Verifying signatures</b>
-      <code>signature = HMAC-SHA256(sorted_compact_json, webhook_secret)</code>
-      <code><span data-i18n="Header:">Header:</span> X-FiroGate-Signature: {signature}</code>
-    </div>
-  </div>
+  <p class="wh-docs"><span data-i18n="Webhook events and how to check signatures are in the docs.">Webhook events and how to check signatures are in the docs.</span> <a href="/docs/webhooks" target="_blank" rel="noopener" data-i18n="Open webhook docs">Open webhook docs</a></p>
 </div>
 
 <div id="modal-create-key" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:none;-webkit-backdrop-filter:none;z-index:9000;align-items:center;justify-content:center;padding:20px">

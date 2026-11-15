@@ -1606,5 +1606,7 @@
   "Not set up": "未设置",
   "On at checkout": "结账时已开启",
   "Disconnect Spark? Customers can no longer pay with Spark. Orders already open still work.": "断开 Spark？客户将无法再用 Spark 付款，已开启的订单仍可完成。",
-  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "断开此 xpub？客户将无法再用透明支付，已开启的订单仍可完成。"
+  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "断开此 xpub？客户将无法再用透明支付，已开启的订单仍可完成。",
+  "Webhook events and how to check signatures are in the docs.": "Webhook 事件和签名校验方法见文档。",
+  "Open webhook docs": "打开 Webhook 文档"
 }

@@ -1146,3 +1146,8 @@ html body .pdt-bulk:not(.show) { pointer-events: none; visibility: hidden; }
   #t-mints .pl-row { flex-wrap: wrap; gap: 6px 12px; }
   #t-mints .pl-row-main { flex-basis: 100%; }
 }
+
+html body .wh-docs { margin: 18px 2px 0; font-size: .86rem; color: var(--t3); }
+html body .wh-docs a { color: var(--brand-2); font-weight: 600; text-decoration: none; }
+html body .wh-docs a:hover { color: var(--t1); }
+html[data-theme="light"] body .wh-docs a { color: var(--brand); }

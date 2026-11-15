@@ -3197,5 +3197,7 @@
   "Not set up": "غير مُعد",
   "On at checkout": "مفعّل في الدفع",
   "Disconnect Spark? Customers can no longer pay with Spark. Orders already open still work.": "فصل Spark؟ لن يتمكن العملاء من الدفع عبر Spark. الطلبات المفتوحة تبقى تعمل.",
-  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "فصل xpub؟ لن يتمكن العملاء من الدفع الشفاف. الطلبات المفتوحة تبقى تعمل."
+  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "فصل xpub؟ لن يتمكن العملاء من الدفع الشفاف. الطلبات المفتوحة تبقى تعمل.",
+  "Webhook events and how to check signatures are in the docs.": "أحداث الويب هوك وطريقة التحقق من التوقيع موجودة في الدليل.",
+  "Open webhook docs": "افتح دليل الويب هوك"
 }

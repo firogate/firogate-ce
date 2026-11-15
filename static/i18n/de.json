@@ -1606,5 +1606,7 @@
   "Not set up": "Nicht eingerichtet",
   "On at checkout": "An der Kasse aktiv",
   "Disconnect Spark? Customers can no longer pay with Spark. Orders already open still work.": "Spark trennen? Kunden können dann nicht mehr mit Spark zahlen. Offene Bestellungen funktionieren weiter.",
-  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "Diesen xpub trennen? Kunden können dann nicht mehr transparent zahlen. Offene Bestellungen funktionieren weiter."
+  "Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.": "Diesen xpub trennen? Kunden können dann nicht mehr transparent zahlen. Offene Bestellungen funktionieren weiter.",
+  "Webhook events and how to check signatures are in the docs.": "Webhook-Ereignisse und die Signaturprüfung stehen in der Doku.",
+  "Open webhook docs": "Webhook-Doku öffnen"
 }
