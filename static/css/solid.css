@@ -1151,3 +1151,30 @@ html body .wh-docs { margin: 18px 2px 0; font-size: .86rem; color: var(--t3); }
 html body .wh-docs a { color: var(--brand-2); font-weight: 600; text-decoration: none; }
 html body .wh-docs a:hover { color: var(--t1); }
 html[data-theme="light"] body .wh-docs a { color: var(--brand); }
+
+/* Section title band: starts at the sidebar edge and ends in a slant. */
+:root { --sec-band: #3a6466; --sec-band: color-mix(in srgb, var(--brand, #00A2A7) 22%, #4a5254); --sec-band-ink: #ffffff; }
+html[data-theme="light"] { --sec-band: #b5d7d9; --sec-band: color-mix(in srgb, var(--brand, #00A2A7) 18%, #dde3e4); --sec-band-ink: #0d1415; }
+html body .main .tab .card:has(h3) { overflow: visible; }
+html body .main .tab .card h3 {
+  position: relative; isolation: isolate; display: inline-block;
+  padding: 6px 40px 6px 0; margin-bottom: 4px !important;
+  color: var(--sec-band-ink) !important;
+}
+html body .main .tab .card h3::before {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; right: 0; left: -100vw;
+  background: var(--sec-band);
+  clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 100%, 0 100%);
+}
+html[dir="rtl"] body .main .tab .card h3 { padding: 6px 0 6px 40px; }
+html[dir="rtl"] body .main .tab .card h3::before { left: 0; right: -100vw; clip-path: polygon(32px 0, 100% 0, 100% 100%, 0 100%); }
+/* Cards on the right of a two-column row: stay inside the gap, never over the left card. */
+@media (min-width: 901px) {
+  html body .main .tab .charts-2col > .card:nth-child(2n) h3::before { left: -20px; }
+  html[dir="rtl"] body .main .tab .charts-2col > .card:nth-child(2n) h3::before { right: -20px; }
+}
+/* A small icon in front of a banded title would sit under the band: hide it. */
+html body .main .tab .card div:has(> h3) > svg:first-child { display: none; }
+/* Centred messages are not section titles. */
+html body .main .tab .card.sg-card h3 { display: block; padding: 0; color: var(--t1) !important; }
+html body .main .tab .card.sg-card h3::before { display: none; }
