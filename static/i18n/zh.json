@@ -1571,5 +1571,11 @@
   "to this address:": "到此地址：",
   "PAYMENT": "付款",
   "CANCEL ORDER": "取消订单",
-  "QR unavailable": "二维码不可用"
+  "QR unavailable": "二维码不可用",
+  "Phone": "手机",
+  "Desktop": "电脑",
+  "Open in new tab": "在新标签页打开",
+  "Colors": "颜色",
+  "Suggested": "推荐",
+  "Hard to read on this background.": "在此背景上难以阅读。"
 }

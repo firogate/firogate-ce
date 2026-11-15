@@ -1571,5 +1571,11 @@
   "to this address:": "an diese Adresse:",
   "PAYMENT": "ZAHLUNG",
   "CANCEL ORDER": "BESTELLUNG STORNIEREN",
-  "QR unavailable": "QR nicht verfügbar"
+  "QR unavailable": "QR nicht verfügbar",
+  "Phone": "Handy",
+  "Desktop": "Desktop",
+  "Open in new tab": "In neuem Tab öffnen",
+  "Colors": "Farben",
+  "Suggested": "Vorschläge",
+  "Hard to read on this background.": "Schwer lesbar auf diesem Hintergrund."
 }

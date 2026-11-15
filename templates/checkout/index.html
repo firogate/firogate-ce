@@ -2982,9 +2982,21 @@ async function init() {
           var logo = ld && ld.app_logo ? ld.app_logo : '';
           var themeSettings = (td && td.resolved) ? td.resolved : null;
           _runPreview(name, logo, themeSettings);
+          _pvReady(name, logo);
         });
       })
-      .catch(function() { _runPreview('My Store', ''); });
+      .catch(function() { _runPreview('My Store', ''); _pvReady('My Store', ''); });
+    function _pvReady(name, logo) {
+      if (window.parent === window) return;
+      window.addEventListener('message', function (e) {
+        if (e.origin !== location.origin || e.source !== window.parent) return;
+        var m = e.data;
+        if (m && m.type === 'fg-preview-theme' && m.theme && typeof m.theme === 'object') {
+          try { _runPreview(name, logo, m.theme); } catch (err) {}
+        }
+      });
+      try { window.parent.postMessage('fg-preview-ready', location.origin); } catch (err) {}
+    }
     return;
   }
   function _getCookieLang() {

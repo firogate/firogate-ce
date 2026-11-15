@@ -219,8 +219,9 @@
     }
   }
 
-  window.addEventListener('message', function(e) { applyExtras(e.data); });
-  try { if (window.opener) window.opener.postMessage('firo-preview-ready', '*'); } catch (_) {}
+  window.addEventListener('message', function(e) { if (e.origin !== location.origin) return; applyExtras(e.data); });
+  try { if (window.opener) window.opener.postMessage('firo-preview-ready', location.origin); } catch (_) {}
+  try { if (window.parent && window.parent !== window) window.parent.postMessage('firo-preview-ready', location.origin); } catch (_) {}
 })();
 </script>
 {% endblock %}

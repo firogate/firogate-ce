@@ -3162,5 +3162,11 @@
   "to this address:": "إلى هذا العنوان:",
   "PAYMENT": "الدفع",
   "CANCEL ORDER": "إلغاء الطلب",
-  "QR unavailable": "رمز QR غير متاح"
+  "QR unavailable": "رمز QR غير متاح",
+  "Phone": "الجوال",
+  "Desktop": "الكمبيوتر",
+  "Open in new tab": "فتح في علامة تبويب جديدة",
+  "Colors": "الألوان",
+  "Suggested": "مقترحة",
+  "Hard to read on this background.": "صعب القراءة على هذه الخلفية."
 }

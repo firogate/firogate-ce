@@ -37,6 +37,9 @@ from app.api import internal as internal_api
 # LocalProtocolError/"No response returned" noise on a long-lived
 # StreamingResponse (SSE) when the client disconnects mid-stream. Setting
 # headers on the raw http.response.start event sidesteps that entirely.
+_FRAMABLE_PATHS = frozenset({"/invoice/preview", "/checkout/preview", "/theme-preview"})
+
+
 class SecurityMiddleware:
     def __init__(self, app):
         self.app = app
@@ -46,6 +49,8 @@ class SecurityMiddleware:
             return await self.app(scope, receive, send)
 
         is_https = scope.get("scheme") == "https"
+        path = scope.get("path", "")
+        framable = path in _FRAMABLE_PATHS
 
         async def send_wrapper(message):
             if message["type"] == "http.response.start":
@@ -57,7 +62,7 @@ class SecurityMiddleware:
                         headers.append((name.encode("latin-1"), value.encode("latin-1")))
 
                 _setdefault("X-Content-Type-Options", "nosniff")
-                _setdefault("X-Frame-Options", "DENY")
+                _setdefault("X-Frame-Options", "SAMEORIGIN" if framable else "DENY")
                 _setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
                 _setdefault("Permissions-Policy",
                             "camera=(self), microphone=(), geolocation=(), payment=()")
@@ -68,8 +73,8 @@ class SecurityMiddleware:
                             "font-src 'self' https://fonts.gstatic.com data:; "
                             "img-src 'self' data: https:; "
                             "connect-src 'self' https: wss:; "
-                            "frame-src https://challenges.cloudflare.com; "
-                            "frame-ancestors 'none'; "
+                            "frame-src 'self' https://challenges.cloudflare.com; "
+                            + ("frame-ancestors 'self'; " if framable else "frame-ancestors 'none'; ") +
                             "base-uri 'self'; "
                             "form-action 'self'")
                 if is_https:
