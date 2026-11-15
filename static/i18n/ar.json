@@ -3155,5 +3155,12 @@
   "Check Spark mints": "فحص سك Spark",
   "Mint check on.": "فحص السك مفعّل.",
   "Mint check off.": "فحص السك متوقف.",
-  "Mint check is off.": "فحص السك متوقف."
+  "Mint check is off.": "فحص السك متوقف.",
+  "Show QR code": "إظهار رمز QR",
+  "Hide QR code": "إخفاء رمز QR",
+  "Send exactly": "أرسل بالضبط",
+  "to this address:": "إلى هذا العنوان:",
+  "PAYMENT": "الدفع",
+  "CANCEL ORDER": "إلغاء الطلب",
+  "QR unavailable": "رمز QR غير متاح"
 }

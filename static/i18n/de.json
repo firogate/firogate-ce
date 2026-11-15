@@ -1564,5 +1564,12 @@
   "Check Spark mints": "Spark-Mints prüfen",
   "Mint check on.": "Mint-Prüfung an.",
   "Mint check off.": "Mint-Prüfung aus.",
-  "Mint check is off.": "Mint-Prüfung ist aus."
+  "Mint check is off.": "Mint-Prüfung ist aus.",
+  "Show QR code": "QR-Code zeigen",
+  "Hide QR code": "QR-Code ausblenden",
+  "Send exactly": "Sende genau",
+  "to this address:": "an diese Adresse:",
+  "PAYMENT": "ZAHLUNG",
+  "CANCEL ORDER": "BESTELLUNG STORNIEREN",
+  "QR unavailable": "QR nicht verfügbar"
 }

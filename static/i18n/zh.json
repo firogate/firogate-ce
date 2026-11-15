@@ -1564,5 +1564,12 @@
   "Check Spark mints": "检查 Spark 铸币",
   "Mint check on.": "铸币检查已开启。",
   "Mint check off.": "铸币检查已关闭。",
-  "Mint check is off.": "铸币检查已关闭。"
+  "Mint check is off.": "铸币检查已关闭。",
+  "Show QR code": "显示二维码",
+  "Hide QR code": "隐藏二维码",
+  "Send exactly": "请准确发送",
+  "to this address:": "到此地址：",
+  "PAYMENT": "付款",
+  "CANCEL ORDER": "取消订单",
+  "QR unavailable": "二维码不可用"
 }

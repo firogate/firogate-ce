@@ -1564,5 +1564,12 @@
   "Check Spark mints": "Проверять минты Spark",
   "Mint check on.": "Проверка минтов включена.",
   "Mint check off.": "Проверка минтов выключена.",
-  "Mint check is off.": "Проверка минтов выключена."
+  "Mint check is off.": "Проверка минтов выключена.",
+  "Show QR code": "Показать QR-код",
+  "Hide QR code": "Скрыть QR-код",
+  "Send exactly": "Отправьте ровно",
+  "to this address:": "на этот адрес:",
+  "PAYMENT": "ОПЛАТА",
+  "CANCEL ORDER": "ОТМЕНИТЬ ЗАКАЗ",
+  "QR unavailable": "QR недоступен"
 }

@@ -408,7 +408,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 .t-news .under{border-bottom:2.5px solid #1c1a17;text-align:center;font:600 9.5px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:6px;margin-bottom:16px;color:#6b665c}
 .t-news .head{font-size:34px;font-weight:700;line-height:1.05;text-align:center}
 .t-news .deck{text-align:center;font-style:italic;font-size:14px;color:#59544a;margin:8px auto 16px;max-width:380px}
-.t-news .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;border-top:1px solid #c9c3b4;padding-top:14px}
+.t-news .cols{display:grid;grid-template-columns:1fr;gap:16px;border-top:1px solid #c9c3b4;padding-top:14px}
 .t-news .story{font-size:12.5px;line-height:1.65;text-align:justify;color:#33302a}
 .t-news .story::first-letter{font-size:34px;font-weight:700;float:left;line-height:.85;margin:2px 6px 0 0}
 .t-news .story .mono{font:700 12px 'JetBrains Mono';word-break:break-all;background:#efe9d8;padding:1px 3px}
@@ -448,7 +448,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 .t-swiss .amt{font-size:64px;font-weight:800;letter-spacing:-3px;line-height:.95}
 .t-swiss .amt small{font-size:18px;font-weight:400;letter-spacing:0;color:#8a8a8a;margin-left:6px}
 .t-swiss .fiat{font-size:13px;font-weight:300;color:#8a8a8a;margin:8px 0 30px}
-.t-swiss .gridd{display:grid;grid-template-columns:1fr 128px;gap:24px;align-items:start;border-top:1px solid #e6e6e6;padding-top:22px}
+.t-swiss .gridd{display:grid;grid-template-columns:1fr;gap:24px;align-items:start;border-top:1px solid #e6e6e6;padding-top:22px}
 .t-swiss dl{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:12px}
 .t-swiss dt{color:#8a8a8a;font-weight:400}
 .t-swiss dd{font-weight:600;word-break:break-all}
@@ -1337,133 +1337,105 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
   #v2-themes .t-news,#v2-themes .t-cyber,#v2-themes .t-pix,#v2-themes .t-zen,#v2-themes .t-aur,
   #v2-themes .t-blu,#v2-themes .t-bot,#v2-themes .t-ink,#v2-themes .t-fin,#v2-themes .t-deco,
   #v2-themes .t-com,#v2-themes .t-vap,#v2-themes .t-ship,#v2-themes .t-can,#v2-themes .t-bea,
-  #v2-themes .t-pri,#v2-themes .t-bou,#v2-themes .t-caf,#v2-themes .t-gym,#v2-themes .t-vin{max-width:720px}
+  #v2-themes .t-pri,#v2-themes .t-bou,#v2-themes .t-caf,#v2-themes .t-gym,#v2-themes .t-vin{max-width:560px}
   #v2-themes .t-pass{max-width:720px}
-  #v2-themes .t-swiss{max-width:680px}
+  #v2-themes .t-swiss{max-width:560px}
 
-  .t-rcpt .paper{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-rcpt .paper{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-rcpt .paper>*{grid-column:1;min-width:0}
-  .t-rcpt .paper .qrbox{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-glass .glass{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-glass .glass{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-glass .glass>*{grid-column:1;min-width:0}
-  .t-glass .glass .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-brut .inner{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-brut .inner{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-brut .inner>*{grid-column:1;min-width:0}
-  .t-brut .inner .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-brut .inner .cp{justify-self:start}
 
-  .t-lux .box{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-lux .box{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-lux .box>*{grid-column:1;min-width:0}
-  .t-lux .box .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-lux .box .cp{justify-self:start}
 
-  .t-play .bub{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-play .bub{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-play .bub>*{grid-column:1;min-width:0}
-  .t-play .bub .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-news .adbox .qrwrap{width:220px;height:220px}
 
   .t-cyber .core{display:contents}
-  .t-cyber .rig{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-cyber .rig{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-cyber .rig>*{grid-column:1;min-width:0}
-  .t-cyber .rig .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px;position:relative;z-index:1}
 
   .t-pix .qrrow{display:contents}
-  .t-pix .cart{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-pix .cart{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-pix .cart>*{grid-column:1;min-width:0}
-  .t-pix .cart .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-zen .room{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-zen .room{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-zen .room>*{grid-column:1;min-width:0}
-  .t-zen .room .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-zen .room .cp{justify-self:center}
 
   .t-aur .in .row{display:contents}
-  .t-aur .in{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-aur .in{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-aur .in>*{grid-column:1;min-width:0}
-  .t-aur .in .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
   .t-blu .sheet .row{display:contents}
-  .t-blu .sheet{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-blu .sheet{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-blu .sheet>*{grid-column:1;min-width:0}
-  .t-blu .sheet .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-bot .leafcard{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-bot .leafcard{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-bot .leafcard>*{grid-column:1;min-width:0}
-  .t-bot .leafcard .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-bot .leafcard .cp{justify-self:center}
 
   .t-ink .page .row{display:contents}
-  .t-ink .page{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-ink .page{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-ink .page>*{grid-column:1;min-width:0}
-  .t-ink .page .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
   .t-fin .app .row{display:contents}
-  .t-fin .app{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-fin .app{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-fin .app>*{grid-column:1;min-width:0}
-  .t-fin .app .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-deco .hall{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-deco .hall{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-deco .hall>*{grid-column:1;min-width:0}
-  .t-deco .hall .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-deco .hall .cp{justify-self:center}
 
   .t-com .panel .row{display:contents}
-  .t-com .panel{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-com .panel{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-com .panel>*{grid-column:1;min-width:0}
-  .t-com .panel .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
   .t-vap .in .row{display:contents}
-  .t-vap .in{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-vap .in{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-vap .in>*{grid-column:1;min-width:0}
-  .t-vap .in .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-ship .shipcard{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-ship .shipcard{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-ship .shipcard>*{grid-column:1;min-width:0}
-  .t-ship .shipcard .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-ship .shipcard .cp{justify-self:center}
 
-  .t-can .jar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-can .jar{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-can .jar>*{grid-column:1;min-width:0}
-  .t-can .jar .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-can .jar .cp{justify-self:center}
 
-  .t-bea .compact{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-bea .compact{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-bea .compact>*{grid-column:1;min-width:0}
-  .t-bea .compact .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px;padding:22px}
   .t-bea .compact .cp{justify-self:center}
 
-  .t-pri .castle{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-pri .castle{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-pri .castle>*{grid-column:1;min-width:0}
-  .t-pri .castle .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-pri .castle .cp{justify-self:center}
 
   .t-bou .edit .row{display:contents}
-  .t-bou .edit{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-bou .edit{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-bou .edit>*{grid-column:1;min-width:0}
-  .t-bou .edit .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-caf .board{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-caf .board{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-caf .board>*{grid-column:1;min-width:0}
-  .t-caf .board .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-caf .board .cp{justify-self:center}
 
   .t-gym .in .row{display:contents}
-  .t-gym .in{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-gym .in{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-gym .in>*{grid-column:1;min-width:0}
-  .t-gym .in .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
 
-  .t-vin .sleeve{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:34px;align-items:center}
+  .t-vin .sleeve{display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
   .t-vin .sleeve>*{grid-column:1;min-width:0}
-  .t-vin .sleeve .qrwrap{grid-column:2;grid-row:1/span 40;align-self:center;justify-self:end;margin:0;width:220px;height:220px}
   .t-vin .sleeve .cp{justify-self:center}
 
-  .t-swiss .gridd{grid-template-columns:minmax(0,1fr) auto}
-  .t-swiss .gridd .qrwrap{width:220px;height:220px;justify-self:end}
   .t-pass .stub{width:224px;padding:22px 18px}
-  .t-pass .stub .qrwrap{width:206px;height:206px}
 }
 
 .v2-stage{padding:26px 14px 60px;display:grid;place-items:center;align-content:start;min-height:100dvh;background:#141312}
@@ -1494,6 +1466,24 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 [dir="rtl"] .fg-method::before{left:auto;right:3px}
 [dir="rtl"] .fg-method[data-cur="transparent"]::before{transform:translateX(calc(-100% - 4px))}
 .fg-method button{position:relative;z-index:1}
+.fg-qr{margin:10px 0 2px;min-width:0}
+.fg-qrbtn{cursor:pointer;white-space:nowrap}
+.fg-qrbtn .fg-qri{width:1.3em;height:1.3em;vertical-align:-.28em;margin-inline-end:.45em;flex-shrink:0}
+.fg-qrbtn .fg-qrc{width:1em;height:1em;vertical-align:-.15em;margin-inline-start:.35em;transition:transform .25s ease}
+.fg-qr.open .fg-qrc{transform:rotate(180deg)}
+.t-glass .fg-qrbtn,.t-play .fg-qrbtn{width:auto;padding:0 14px;display:inline-flex;align-items:center;font-size:12.5px;font-weight:600}
+.t-news .fg-qrbtn,.t-rcpt .fg-qrbtn{font-size:11px;padding:6px 12px;margin-left:0}
+.t-rcpt .fg-qr{text-align:center}
+.fg-qrpanel{padding:14px 0 4px;display:flex;justify-content:center;animation:fgQrIn .28s ease}
+.fg-qrpanel[hidden]{display:none}
+#v2-themes .fg-qrpanel .qrwrap,#v2-themes .fg-qrpanel .qrbox{width:min(240px,64vw);height:min(240px,64vw);margin:0 auto;flex-shrink:0}
+.st-qr-card .fg-qr{width:100%;display:flex;flex-direction:column;align-items:center;margin:0}
+.st-qr-card .fg-qrbtn{display:inline-flex;align-items:center}
+.st-qr-card .fg-qrpanel{width:100%}
+.st-qr-card .fg-qrpanel .st-qr-box{width:min(250px,100%)!important;height:auto!important;aspect-ratio:1/1;flex-shrink:0;box-sizing:border-box}
+body.fg-qr-off .fg-qr{display:none}
+@keyframes fgQrIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fg-qrpanel{animation:none}.fg-qrbtn .fg-qrc{transition:none}}
 .st-qr-box img{transition:opacity .25s ease,transform .25s ease}
 .st-qr-box.swap img{opacity:0;transform:scale(.94)}
 @media (prefers-reduced-motion:reduce){.fg-method::before,.st-qr-box img{transition:none}}
@@ -1927,7 +1917,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
           <div class="st-qr-box" id="qr-box">
             <div id="qr-loading" class="spin" style="width:22px;height:22px;border-width:3px;color:#555"></div>
             <img id="qr-image" src="" alt="Payment QR" style="display:none">
-            <div id="qr-error" style="display:none;text-align:center;font-size:.72rem;color:#888;padding:0 8px" data-i18n="qr-unavailable-use-address">QR unavailable use the address below</div>
+            <div id="qr-error" style="display:none;text-align:center;font-size:.72rem;color:#888;padding:0 8px" data-i18n="QR unavailable">QR unavailable</div>
           </div>
           <div id="st-spark-badge" style="display:none;align-items:center;gap:5px;font-size:.65rem;font-weight:700;color:#a855f7;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;margin:0 auto 8px;width:fit-content">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
@@ -2045,7 +2035,6 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 <section class="theme" id="th-rcpt"><div class="t-rcpt"><div class="paper">
   <div class="stamp v2-status">AWAITING PAYMENT</div>
   <div class="c logo v2-merchant">STORE</div>
-  <div class="c tag">POWERED BY FIROGATE</div>
   <hr class="sep">
   <div class="row"><span>Invoice</span><b class="v2-order">—</b></div>
   <div class="row"><span>Date</span><b class="v2-date">—</b></div>
@@ -2061,7 +2050,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="c" style="font-size:10px">expires in <b class="timer">—</b></div>
   <div class="barcode"></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
-<button class="cxbtn" data-cancel>VOID THIS RECEIPT</button>
+<button class="cxbtn" data-cancel>CANCEL ORDER</button>
 <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div><div class="rstamp">PAID</div></div>
 <div class="done isx"><svg class="dxx" viewBox="0 0 120 120" style="color:#B82334"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div><div class="rstamp xstamp">VOID</div></div></div></div></section>
 
@@ -2085,7 +2074,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 </div></section>
 
 <section class="theme" id="th-brut"><div class="t-brut"><div class="sheet">
-  <div class="topbar"><span>CHECKOUT™</span><span class="timer">—</span></div>
+  <div class="topbar"><span>CHECKOUT</span><span class="timer">—</span></div>
   <div class="inner">
     <h1>Pay <em class="v2-amount skel-shimmer">—</em> Firo.</h1>
     <div class="sub">// INVOICE <span class="v2-order">—</span> → <span class="v2-merchant">STORE</span></div>
@@ -2134,33 +2123,31 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 <div class="done isx"><div class="pc"><svg viewBox="0 0 120 120"><path class="x1" d="M40 40l40 40"/><path class="x2" d="M80 40l-40 40"/></svg></div><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div></div></div></section>
 
 <section class="theme" id="th-news"><div class="t-news"><div class="page">
-  <div class="mast"><span>Checkout</span><span class="v2-date">—</span><span>Non-Custodial</span></div>
+  <div class="mast"><span>Checkout</span><span class="v2-date">—</span></div>
   <div class="title">CHECKOUT</div>
-  <div class="under">Printed on the blockchain · Price <span class="v2-amount skel-shimmer">—</span> FIRO<span class="v2-fiat-wrap"> (<span class="v2-fiat skel-shimmer">—</span>)</span></div>
+  <div class="under">Price <span class="v2-amount skel-shimmer">—</span> FIRO<span class="v2-fiat-wrap"> (<span class="v2-fiat skel-shimmer">—</span>)</span></div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="head">INVOICE AWAITS PAYMENT</div>
-  <div class="deck"><span class="v2-merchant">Store</span> issues invoice № <span class="v2-order">—</span>; funds to travel directly to merchant.</div>
+  <div class="deck"><span class="v2-merchant">Store</span> · <span>Invoice №</span> <span class="v2-order">—</span></div>
   <div class="cols">
     <div class="story">
-      Payment of exactly <b><span class="v2-amount skel-shimmer">—</span> FIRO</b> is due to the following Firo address:
+      <span>Send exactly</span> <b><span class="v2-amount skel-shimmer">—</span> FIRO</b> <span>to this address:</span>
       <span class="mono addr-txt">—</span>
-      <button class="cp" data-copy>COPY</button><br><br>
-      Payment is sent directly to the merchant via the Firo blockchain.
+      <button class="cp" data-copy>COPY</button>
     </div>
     <div class="adbox">
-      <div class="ttl">— SCAN TO PAY —</div>
       <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#1c1a17" data-light="#ffffff"></svg></div>
       <div class="tm">EXPIRES <span class="timer">—</span></div>
     </div>
   </div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
-  <button class="cxbtn" data-cancel>Retract this order</button>
+  <button class="cxbtn" data-cancel>Cancel order</button>
 <div class="done"><div class="press">STOP PRESS</div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
 <div class="done isx"><div class="press">RETRACTION</div><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div></div></div></section>
 
 <section class="theme" id="th-cyber"><div class="t-cyber"><div class="rig">
   <div class="sys"><span>SYS://CHECKOUT.PAY</span></div>
-  <h1>Payment Uplink</h1>
+  <h1>Payment</h1>
   <div class="sub"><span class="v2-merchant">STORE</span> // INV <span class="v2-order">—</span></div>
   <div class="core">
     <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#00e5ff" data-light="#060312"></svg></div>
@@ -2168,12 +2155,12 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
       <div class="amt"><span class="v2-amount skel-shimmer">—</span> <small>FIRO</small></div>
       <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
       <div class="tbar"><i></i></div>
-      <div class="tm">WINDOW CLOSES <span class="timer">—</span></div>
+      <div class="tm">EXPIRES IN <span class="timer">—</span></div>
     </div>
   </div>
   <div class="addr"><span class="addr-txt" style="flex:1">—</span><button class="cp" data-copy>COPY</button></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
-  <button class="cxbtn" data-cancel>Abort uplink</button>
+  <button class="cxbtn" data-cancel>Cancel payment</button>
 <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
 <div class="done isx"><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div></div></div></section>
 
@@ -2197,7 +2184,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 
 <section class="theme" id="th-pix"><div class="t-pix"><div class="cart">
   <div class="hud"><span class="v2-merchant-short">STORE</span><span class="v2-order">—</span></div>
-  <h1><svg width="11" height="11" viewBox="0 0 7 7" style="vertical-align:-1px" fill="#ffd166"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/></svg> PAYMENT QUEST <svg width="11" height="11" viewBox="0 0 7 7" style="vertical-align:-1px" fill="#ffd166"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/></svg></h1>
+  <h1><svg width="11" height="11" viewBox="0 0 7 7" style="vertical-align:-1px" fill="#ffd166"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/></svg> PAYMENT <svg width="11" height="11" viewBox="0 0 7 7" style="vertical-align:-1px" fill="#ffd166"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/></svg></h1>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> FIRO</div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="hp"><span>TIME LEFT</span><span class="timer">—</span></div>
@@ -2210,13 +2197,13 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
     </div>
   </div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
-  <button class="cxbtn" data-cancel>ABORT ORDER</button>
+  <button class="cxbtn" data-cancel>CANCEL ORDER</button>
 <div class="done"><svg class="pixcheck" viewBox="0 0 11 8"><rect x="0" y="4" width="1" height="1" style="animation-delay:0.15s"/><rect x="1" y="5" width="1" height="1" style="animation-delay:0.20s"/><rect x="2" y="6" width="1" height="1" style="animation-delay:0.24s"/><rect x="3" y="7" width="1" height="1" style="animation-delay:0.29s"/><rect x="4" y="6" width="1" height="1" style="animation-delay:0.33s"/><rect x="5" y="5" width="1" height="1" style="animation-delay:0.38s"/><rect x="6" y="4" width="1" height="1" style="animation-delay:0.42s"/><rect x="7" y="3" width="1" height="1" style="animation-delay:0.46s"/><rect x="8" y="2" width="1" height="1" style="animation-delay:0.51s"/><rect x="9" y="1" width="1" height="1" style="animation-delay:0.55s"/><rect x="10" y="0" width="1" height="1" style="animation-delay:0.60s"/><rect x="1" y="4" width="1" height="1" style="animation-delay:0.65s"/><rect x="2" y="5" width="1" height="1" style="animation-delay:0.69s"/><rect x="3" y="6" width="1" height="1" style="animation-delay:0.73s"/><rect x="5" y="4" width="1" height="1" style="animation-delay:0.78s"/><rect x="6" y="3" width="1" height="1" style="animation-delay:0.82s"/><rect x="7" y="2" width="1" height="1" style="animation-delay:0.87s"/><rect x="8" y="1" width="1" height="1" style="animation-delay:0.92s"/><rect x="9" y="0" width="1" height="1" style="animation-delay:0.96s"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
 <div class="done isx"><svg class="pixx" viewBox="0 0 9 9"><rect x="8" y="0" width="1" height="1" style="animation-delay:0.12s"/><rect x="0" y="0" width="1" height="1" style="animation-delay:0.17s"/><rect x="1" y="1" width="1" height="1" style="animation-delay:0.22s"/><rect x="7" y="1" width="1" height="1" style="animation-delay:0.27s"/><rect x="6" y="2" width="1" height="1" style="animation-delay:0.32s"/><rect x="2" y="2" width="1" height="1" style="animation-delay:0.37s"/><rect x="5" y="3" width="1" height="1" style="animation-delay:0.42s"/><rect x="3" y="3" width="1" height="1" style="animation-delay:0.47s"/><rect x="4" y="4" width="1" height="1" style="animation-delay:0.52s"/><rect x="5" y="5" width="1" height="1" style="animation-delay:0.57s"/><rect x="3" y="5" width="1" height="1" style="animation-delay:0.62s"/><rect x="6" y="6" width="1" height="1" style="animation-delay:0.67s"/><rect x="2" y="6" width="1" height="1" style="animation-delay:0.72s"/><rect x="1" y="7" width="1" height="1" style="animation-delay:0.77s"/><rect x="7" y="7" width="1" height="1" style="animation-delay:0.82s"/><rect x="8" y="8" width="1" height="1" style="animation-delay:0.87s"/><rect x="0" y="8" width="1" height="1" style="animation-delay:0.92s"/></svg><div class="dt1" style="color:#e06060">Payment cancelled</div><div class="dt2">No funds were charged.</div></div></div></div></section>
 
 <section class="theme" id="th-pass"><div class="t-pass"><div class="ticket">
   <div class="main">
-    <div class="air"><span>CHECKOUT PASS</span><span>BOARDING PASS</span></div>
+    <div class="air"><span>CHECKOUT</span><span>FIRO</span></div>
     <div class="route">
       <div class="port"><b>YOU</b><small>Your wallet</small></div>
       <div class="plane"></div>
@@ -2230,7 +2217,6 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
     <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
   </div>
   <div class="stub">
-    <div class="k">Scan to pay</div>
     <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#182236" data-light="#ffffff"></svg></div>
     <div class="k">Time left</div>
     <div class="tm timer">—</div>
@@ -2294,7 +2280,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 <section class="theme" id="th-bot"><div class="t-bot"><div class="leafcard">
   <svg class="vine" viewBox="0 0 74 74"><path d="M6 68 C 10 40, 30 16, 66 8"/><path class="lf" d="M22 44c8-2 10-10 8-14-6 1-10 8-8 14z"/><path class="lf" d="M40 26c8-1 11-8 10-13-6 0-11 7-10 13z"/></svg>
   <svg class="vine v2" viewBox="0 0 74 74"><path d="M6 68 C 10 40, 30 16, 66 8"/><path class="lf" d="M22 44c8-2 10-10 8-14-6 1-10 8-8 14z"/><path class="lf" d="M40 26c8-1 11-8 10-13-6 0-11 7-10 13z"/></svg>
-  <div class="who">Handmade · № <span class="v2-order">—</span></div>
+  <div class="who"><span>ORDER №</span> <span class="v2-order">—</span></div>
   <div class="store v2-merchant">Store</div>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> <span>FIRO</span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
@@ -2303,13 +2289,13 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="addr addr-txt">—</div>
   <button class="cp" data-copy>Copy Address</button>
   <button class="cxbtn" data-cancel>cancel order</button>
-  <div class="tm">THE BLOOM CLOSES IN <b class="timer">—</b></div>
+  <div class="tm">EXPIRES IN <b class="timer">—</b></div>
   <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
   <div class="done isx"><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div>
 </div></div></section>
 
 <section class="theme" id="th-ink"><div class="t-ink"><div class="page">
-  <div class="hdr"><span>Checkout</span><span>Invoice <span class="v2-order">—</span> · p. 1 of 1</span></div>
+  <div class="hdr"><span>Checkout</span><span>Invoice <span class="v2-order">—</span></span></div>
   <div class="store v2-merchant">Store</div>
   <div class="amt"><b class="v2-amount skel-shimmer">—</b> FIRO</div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
@@ -2345,7 +2331,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 <section class="theme" id="th-deco"><div class="t-deco"><div class="hall">
   <div class="fan"><svg viewBox="0 0 120 120"><path d="M60 60L60 6M60 60L22 22M60 60L98 22M60 60L8 45M60 60L112 45M60 60L38 10M60 60L82 10"/><circle cx="60" cy="60" r="7" fill="#b39a63" stroke="none"/></svg></div>
   <div class="store v2-merchant">Store</div>
-  <div class="inv">INVOICE № <span class="v2-order">—</span> · MMXXVI</div>
+  <div class="inv">INVOICE № <span class="v2-order">—</span></div>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> <span>FIRO</span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
@@ -2414,7 +2400,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
     <rect x="24" y="112" width="11" height="8" fill="#fdfcfa" stroke-width="1.8"/>
   </svg>
   <div class="store v2-merchant">Store</div>
-  <div class="inv">ORDER <span class="v2-order">—</span> · SHIPS AFTER PAYMENT</div>
+  <div class="inv">ORDER <span class="v2-order">—</span></div>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> <span>FIRO</span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
@@ -2450,14 +2436,13 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#5c2340" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
   <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
-  <div class="tm">the jar closes in <b class="timer">—</b></div>
+  <div class="tm">expires in <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><div class="pcC"><i><svg viewBox="0 0 120 120"><path d="M36 64l16 16 32-38"/></svg></i></div><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
   <div class="done isx"><div class="pcC"><i><svg viewBox="0 0 120 120"><path class="x1" d="M40 40l40 40"/><path class="x2" d="M80 40l-40 40"/></svg></i></div><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div>
 </div></div></section>
 
 <section class="theme" id="th-bea" data-state="wait"><div class="t-bea"><div class="compact">
-  <div class="who">Maison de Beauté</div>
   <div class="store v2-merchant">Store</div>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> <span>FIRO</span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
@@ -2466,7 +2451,7 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <div class="addr addr-txt">—</div>
   <button class="cp" data-copy>Copy Address</button><br>
   <button class="cxbtn" data-cancel>Cancel Order</button>
-  <div class="tm">THIS OFFER FADES IN <b class="timer">—</b></div>
+  <div class="tm">EXPIRES IN <b class="timer">—</b></div>
   <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
   <div class="done isx"><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div>
 </div></div></section>
@@ -2478,14 +2463,14 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
   <svg class="spark" style="right:8%;bottom:24%;animation-delay:2.1s" width="11" height="11" viewBox="0 0 16 16"><polygon points="8,0 10,6 16,8 10,10 8,16 6,10 0,8 6,6"/></svg>
   <svg class="crown" viewBox="0 0 64 44"><path d="M6 36L3 12l14 9L32 4l15 17 14-9-3 24z"/><circle cx="3.5" cy="9" r="3"/><circle cx="60.5" cy="9" r="3"/><circle cx="32" cy="4.5" r="3"/><path d="M6 36h52v5H6z"/></svg>
   <div class="store v2-merchant">Store</div>
-  <div class="inv">ROYAL ORDER <span class="v2-order">—</span></div>
+  <div class="inv">ORDER <span class="v2-order">—</span></div>
   <div class="amt"><span class="v2-amount skel-shimmer">—</span> <span>FIRO</span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#6b4d8f" data-light="#ffffff"></svg></div>
   <div class="addr addr-txt">—</div>
   <button class="cp" data-copy data-i18n="Copy address">Copy address</button>
-  <div class="tm">the magic fades in <b class="timer">—</b></div>
+  <div class="tm">expires in <b class="timer">—</b></div>
   <button class="cxbtn" data-cancel>Cancel order</button>
   <div class="done"><div class="dstars"><i class="dstar"></i><i class="dstar"></i><i class="dstar"></i><i class="dstar"></i></div><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
   <div class="done isx"><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1" style="font-family:'Pacifico',cursive">Payment cancelled</div><div class="dt2">No funds were charged.</div></div>
@@ -2508,15 +2493,15 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 
 <section class="theme" id="th-caf" data-state="wait"><div class="t-caf"><div class="board">
   <div class="store v2-merchant">Store</div>
-  <div class="inv">ORDER <span class="v2-order">—</span> · FRESHLY BREWED</div>
-  <div class="menuline"><span>Today's special</span><span class="dots"></span><span class="amt"><span class="v2-amount skel-shimmer">—</span></span></div>
+  <div class="inv">ORDER <span class="v2-order">—</span></div>
+  <div class="menuline"><span>Total</span><span class="dots"></span><span class="amt"><span class="v2-amount skel-shimmer">—</span></span></div>
   <div class="fiat v2-fiat skel-shimmer">—</div><div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
   <div class="flow"><span class="ld"><i></i></span><span class="fx">Awaiting payment</span></div>
   <div class="qrwrap"><svg class="qr" viewBox="0 0 25 25" data-dark="#243028" data-light="#f3f1e8"></svg></div>
   <div class="addr addr-txt">—</div>
   <button class="cp" data-copy>copy address</button>
-  <div class="tm">kitchen closes in <b class="timer">—</b></div>
-  <button class="cxbtn" data-cancel>cancel my order</button>
+  <div class="tm">expires in <b class="timer">—</b></div>
+  <button class="cxbtn" data-cancel>cancel order</button>
   <div class="done"><svg class="dcheck" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path d="M40 62l14 14 28-32"/></svg><div class="dt1">Payment confirmed</div><div class="dt2">Your payment has been received.</div></div>
   <div class="done isx"><svg class="dxx" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50"/><path class="x1" d="M42 42l36 36"/><path class="x2" d="M78 42l-36 36"/></svg><div class="dt1">Payment cancelled</div><div class="dt2">No funds were charged.</div></div>
 </div></div></section>
@@ -4306,11 +4291,69 @@ async function cancelPayment() {
   }
 }
 
+(function fgQrToggles() {
+  var QI = '<svg class="fg-qri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20v.01M17 20h4v-3"/></svg>';
+  var QC = '<svg class="fg-qrc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  var AFTER = { 'th-rcpt': '.addr', 'th-glass': '.addrg', 'th-play': '.addr', 'th-news': '.story', 'th-cyber': '.rig > .addr', 'th-swiss': '.gridd', 'th-pix': '.qrrow' };
+  var n = 0;
+  function label(b, open) {
+    var old = b.querySelector('.fg-qrl');
+    var sp = document.createElement('span');
+    sp.className = 'fg-qrl';
+    sp.textContent = open ? 'Hide QR code' : 'Show QR code';
+    if (old) old.replaceWith(sp); else b.insertBefore(sp, b.querySelector('.fg-qrc'));
+  }
+  function dock(qr, after, cls) {
+    if (!qr || !after || !after.parentNode) return;
+    var box = document.createElement('div');
+    box.className = 'fg-qr';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'fg-qrbtn ' + cls;
+    b.setAttribute('aria-expanded', 'false');
+    var p = document.createElement('div');
+    p.className = 'fg-qrpanel';
+    p.id = 'fg-qrp-' + (++n);
+    p.hidden = true;
+    b.setAttribute('aria-controls', p.id);
+    b.innerHTML = QI + QC;
+    label(b, false);
+    after.parentNode.insertBefore(box, after.nextSibling);
+    p.appendChild(qr);
+    box.appendChild(b);
+    box.appendChild(p);
+    b.addEventListener('click', function () {
+      var open = p.hidden;
+      p.hidden = !open;
+      box.classList.toggle('open', open);
+      b.setAttribute('aria-expanded', String(open));
+      label(b, open);
+      if (open) setTimeout(function () { try { p.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }, 80);
+    });
+  }
+  document.querySelectorAll('#v2-themes section.theme').forEach(function (sec) {
+    var qr = sec.querySelector('.qrwrap, .qrbox');
+    var cp = sec.querySelector('[data-copy]');
+    if (!qr || !cp) return;
+    var sel = AFTER[sec.id];
+    var after = sel ? sec.querySelector(sel) : null;
+    if (!after) {
+      var par = qr.parentElement;
+      after = (par && par.querySelector('.addr-txt') && !par.querySelector('.flow')) ? par : cp;
+    }
+    dock(qr, after, 'cp');
+  });
+  var stBox = document.getElementById('qr-box');
+  var stAddr = document.querySelector('.st-qr-card .st-addr');
+  if (stBox && stAddr) dock(stBox, stAddr, 'btn btn-o btn-sm');
+})();
+
 function updateCancelButton(status) {
   const off = ['confirming','confirmed','expired','cancelled','failed'].includes(status);
   const wrap = document.querySelector('.cancel-inline');
   if (wrap) wrap.style.display = off ? 'none' : '';
   document.querySelectorAll('#v2-themes [data-cancel]').forEach(function (b) { b.style.visibility = off ? 'hidden' : ''; });
+  document.body.classList.toggle('fg-qr-off', off);
   var m = document.getElementById('fg-method');
   if (off) {
     if (m) m.style.display = 'none';
