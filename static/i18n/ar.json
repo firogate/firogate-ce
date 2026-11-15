@@ -3168,5 +3168,15 @@
   "Open in new tab": "فتح في علامة تبويب جديدة",
   "Colors": "الألوان",
   "Suggested": "مقترحة",
-  "Hard to read on this background.": "صعب القراءة على هذه الخلفية."
+  "Hard to read on this background.": "صعب القراءة على هذه الخلفية.",
+  "Search by payment ID, TxID, address, order, email or amount. A few characters are enough.": "ابحث برقم الدفع أو رقم المعاملة أو العنوان أو الطلب أو البريد أو المبلغ. بضعة أحرف تكفي.",
+  "No payments match that.": "لا توجد مدفوعات مطابقة.",
+  "Search is not available right now.": "البحث غير متاح الآن.",
+  "TxID": "رقم المعاملة",
+  "Search ID, TxID, address…": "ابحث بالرقم أو المعاملة أو العنوان…",
+  "Payment ID, TxID, address, order…": "رقم الدفع، المعاملة، العنوان، الطلب…",
+  "Clear search": "مسح البحث",
+  "Payment link": "رابط الدفع",
+  "See all matching payments": "عرض كل المدفوعات المطابقة",
+  "Search by payment ID, TxID, address, order, email, amount or date. Add “paid” or “مدفوع” to filter by status.": "ابحث برقم الدفع أو المعاملة أو العنوان أو الطلب أو البريد أو المبلغ أو التاريخ. أضف «مدفوع» للتصفية حسب الحالة."
 }

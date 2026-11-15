@@ -1577,5 +1577,15 @@
   "Open in new tab": "在新标签页打开",
   "Colors": "颜色",
   "Suggested": "推荐",
-  "Hard to read on this background.": "在此背景上难以阅读。"
+  "Hard to read on this background.": "在此背景上难以阅读。",
+  "Search by payment ID, TxID, address, order, email or amount. A few characters are enough.": "可按付款 ID、TxID、地址、订单、邮箱或金额搜索。输入几个字符即可。",
+  "No payments match that.": "没有匹配的付款。",
+  "Search is not available right now.": "搜索暂时不可用。",
+  "TxID": "TxID",
+  "Search ID, TxID, address…": "搜索 ID、TxID、地址…",
+  "Payment ID, TxID, address, order…": "付款 ID、TxID、地址、订单…",
+  "Clear search": "清除搜索",
+  "Payment link": "付款链接",
+  "See all matching payments": "查看所有匹配的付款",
+  "Search by payment ID, TxID, address, order, email, amount or date. Add “paid” or “مدفوع” to filter by status.": "可按付款 ID、TxID、地址、订单、邮箱、金额或日期搜索。加上“paid”可按状态筛选。"
 }

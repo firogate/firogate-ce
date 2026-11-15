@@ -1577,5 +1577,15 @@
   "Open in new tab": "In neuem Tab öffnen",
   "Colors": "Farben",
   "Suggested": "Vorschläge",
-  "Hard to read on this background.": "Schwer lesbar auf diesem Hintergrund."
+  "Hard to read on this background.": "Schwer lesbar auf diesem Hintergrund.",
+  "Search by payment ID, TxID, address, order, email or amount. A few characters are enough.": "Suche nach Zahlungs-ID, TxID, Adresse, Bestellung, E-Mail oder Betrag. Ein paar Zeichen reichen.",
+  "No payments match that.": "Keine passenden Zahlungen.",
+  "Search is not available right now.": "Suche gerade nicht verfügbar.",
+  "TxID": "TxID",
+  "Search ID, TxID, address…": "ID, TxID, Adresse suchen…",
+  "Payment ID, TxID, address, order…": "Zahlungs-ID, TxID, Adresse, Bestellung…",
+  "Clear search": "Suche leeren",
+  "Payment link": "Zahlungslink",
+  "See all matching payments": "Alle passenden Zahlungen ansehen",
+  "Search by payment ID, TxID, address, order, email, amount or date. Add “paid” or “مدفوع” to filter by status.": "Suche nach Zahlungs-ID, TxID, Adresse, Bestellung, E-Mail, Betrag oder Datum. Mit „paid“ nach Status filtern."
 }

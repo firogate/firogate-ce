@@ -1577,5 +1577,15 @@
   "Open in new tab": "Открыть в новой вкладке",
   "Colors": "Цвета",
   "Suggested": "Предложенные",
-  "Hard to read on this background.": "Плохо читается на этом фоне."
+  "Hard to read on this background.": "Плохо читается на этом фоне.",
+  "Search by payment ID, TxID, address, order, email or amount. A few characters are enough.": "Ищите по ID платежа, TxID, адресу, заказу, почте или сумме. Хватит нескольких символов.",
+  "No payments match that.": "Нет подходящих платежей.",
+  "Search is not available right now.": "Поиск сейчас недоступен.",
+  "TxID": "TxID",
+  "Search ID, TxID, address…": "Поиск по ID, TxID, адресу…",
+  "Payment ID, TxID, address, order…": "ID платежа, TxID, адрес, заказ…",
+  "Clear search": "Очистить поиск",
+  "Payment link": "Платёжная ссылка",
+  "See all matching payments": "Показать все подходящие платежи",
+  "Search by payment ID, TxID, address, order, email, amount or date. Add “paid” or “مدفوع” to filter by status.": "Ищите по ID, TxID, адресу, заказу, почте, сумме или дате. Добавьте «paid», чтобы фильтровать по статусу."
 }

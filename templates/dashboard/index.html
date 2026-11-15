@@ -144,14 +144,32 @@ html[data-theme="light"]{
 
 #ds-overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:none;display:none;align-items:flex-start;justify-content:center;padding-top:80px}
 #ds-overlay.open{display:flex}
-#ds-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:16px 6px 14px 8px;width:100%;max-width:600px;box-shadow:0 24px 64px rgba(0,0,0,.55);overflow:hidden;animation:ds-in .15s ease}
+#ds-box{background:var(--bg1);border:1px solid var(--bw2);border-radius:14px;width:100%;max-width:620px;overflow:hidden;animation:ds-in .15s ease}
+.ds-item-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:4px}
+.ds-tag{font-size:.66rem;font-weight:700;color:var(--t3);margin-inline-end:6px}
+.ds-all .ds-item-title{font-size:.8rem;color:var(--y)}
+.ds-val{font-family:var(--mono);font-size:.72rem;color:var(--t2)}
+.ds-val mark{background:var(--yg2,rgba(245,165,36,.18));color:var(--white);border-radius:3px;padding:0 1px}
+#ds-results[aria-busy="true"]{opacity:.55}
+.pays-find{display:flex;align-items:center;gap:8px;height:38px;min-width:200px;flex:0 1 250px;padding:0 10px;border:1px solid var(--bw2);border-radius:var(--rSm);background:var(--bg2)}
+.pays-find:focus-within{border-color:var(--y)}
+.pays-find .ico{width:15px;height:15px;color:var(--t3);flex-shrink:0}
+.pays-find input{flex:1;min-width:0;background:none;border:0;outline:0;font:inherit;font-size:.84rem;color:var(--white)}
+.pays-find input::placeholder{color:var(--t4)}
+.pays-find button{border:0;background:none;color:var(--t3);cursor:pointer;display:inline-flex;padding:2px}
+.pays-find button:hover{color:var(--white)}
+.pays-find button[hidden]{display:none}
+@media (min-width:641px){ html body #t-pays .ph > .ph-actions{flex-wrap:nowrap} html body #t-pays .pays-find{flex:1 1 220px;min-width:150px} }
+
 @keyframes ds-in{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
 #ds-input-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bw)}
 #ds-input-row svg{flex-shrink:0;opacity:.45}
 #ds-q{flex:1;background:none;border:none;outline:none;font-size:1rem;font-family:inherit;color:var(--white);caret-color:var(--y)}
 #ds-q::placeholder{color:var(--t4)}
-#ds-kbd{font-size:.65rem;padding:2px 7px;border-radius:5px;border:1px solid var(--bw2);color:var(--t3);background:var(--bg3);white-space:nowrap;flex-shrink:0}
+#ds-kbd{font:inherit;font-size:.65rem;padding:2px 7px;border-radius:5px;border:1px solid var(--bw2);color:var(--t3);background:var(--bg3);white-space:nowrap;flex-shrink:0;cursor:pointer}
+.ds-k-m{display:none}
+
 #ds-results{max-height:380px;overflow-y:auto}
 #ds-results:empty::after{content:var(--fg-ds-type-to-search,'Type to search payments…');display:block;padding:24px;text-align:center;color:var(--t4);font-size:.85rem}
 .ds-section{padding:8px 12px 4px;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t4)}
@@ -171,7 +189,7 @@ html[data-theme="light"]{
 #ds-trigger{display:flex;align-items:center;gap:7px;width:100%;padding:5px 8px;margin-bottom:4px;background:var(--bg2);border:1px solid var(--bw);border-radius:var(--rSm);cursor:pointer;color:var(--t3);font-size:.72rem;font-family:inherit;transition:all .15s;overflow:hidden;text-align:start}
 #ds-trigger:hover{border-color:var(--y);color:var(--t1);background:var(--yg2)}
 #ds-trigger-kbd{margin-inline-start:auto;font-size:.58rem;padding:1px 5px;border-radius:4px;border:1px solid var(--bw);background:var(--bg1);color:var(--t4)}
-html[data-theme="light"] #ds-box{box-shadow:0 24px 64px rgba(0,0,0,.18)}
+@media (max-width:640px){ html body #ds-overlay{padding:0;align-items:stretch} html body #ds-box{max-width:none;border-radius:0;border:0;display:flex;flex-direction:column} html body #ds-results{max-height:none;flex:1} html body #ds-footer{display:none} html body #ds-input-row #ds-kbd{border:0;background:none;font-size:.95rem;font-weight:600;color:var(--y);padding:6px 2px} .ds-k-d{display:none} .ds-k-m{display:inline} html body #t-pays .ph.ph-stack > .ph-actions{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr))} html body #t-pays .ph.ph-stack > .ph-actions > .pays-find{grid-column:1 / -1} .ds-item{flex-wrap:wrap} .ds-item-meta{width:100%;text-align:start;display:flex;align-items:center;justify-content:space-between;gap:8px} .ds-item-row{margin-top:0}}
 html[data-theme="light"] #ds-overlay{background:rgba(0,0,0,.3)}
 
 #report-form-wrap{display:none;margin-top:14px;border-top:1px solid var(--bw);padding-top:14px}
@@ -390,8 +408,8 @@ html[data-theme="light"] #sb-profile-popup{
   <div id="ds-box">
     <div id="ds-input-row">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="ds-q" type="text" placeholder="Search by TxID, Order ID, Payment ID…" data-i18n-placeholder="Search by TxID, Order ID, Payment ID…" autocomplete="off" spellcheck="false">
-      <span id="ds-kbd">Esc</span>
+      <input id="ds-q" type="text" placeholder="Payment ID, TxID, address, order…" data-i18n-placeholder="Payment ID, TxID, address, order…" autocomplete="off" spellcheck="false">
+      <button type="button" id="ds-kbd" onclick="dsClose()" aria-label="Close" data-i18n-aria-label="Close"><span class="ds-k-d">Esc</span><span class="ds-k-m" data-i18n="Cancel">Cancel</span></button>
     </div>
     <div id="ds-results" role="listbox"></div>
     <div id="ds-footer">
@@ -412,10 +430,6 @@ html[data-theme="light"] #sb-profile-popup{
     </div>
   </div>
   <nav class="sb-nav">
-    <button id="ds-trigger" onclick="dsOpen()" title="Search" data-i18n-title="Search">
-      {{ icon('search', 'ico') }}
-      <span class="ni-label"><span data-i18n="Search…">Search…</span> <span id="ds-trigger-kbd">Ctrl K</span></span>
-    </button>
 
     <div class="sb-sect" data-i18n="Main">Main</div>
     <div class="ni-group" data-ni-node="home">
@@ -1185,6 +1199,12 @@ html[data-theme="light"] #sb-profile-popup{
   <div class="ph ph-stack">
     <div class="ph-title"><div><h2 data-i18n="Payments">Payments</h2></div></div>
     <div class="ph-actions">
+      <label class="pays-find" for="pays-search">
+        {{ icon('search', 'ico') }}
+        <input id="pays-search" type="text" inputmode="search" autocomplete="off" spellcheck="false" maxlength="128"
+               placeholder="Search ID, TxID, address…" data-i18n-placeholder="Search ID, TxID, address…">
+        <button type="button" id="pays-search-clear" hidden aria-label="Clear search" data-i18n-aria-label="Clear search">{{ icon('x', 'ico') }}</button>
+      </label>
       <select id="pay-filter" class="finput fselect" style="width:150px" onchange="loadPays()">
         <option value="" data-i18n="All statuses">All statuses</option>
         <option value="pending" data-i18n="Pending">Pending</option>
@@ -1208,7 +1228,7 @@ html[data-theme="light"] #sb-profile-popup{
       </select>
     </div>
   </div>
-  <input id="pays-search" type="hidden" value="">
+  
   <div class="date-chip" id="pays-date-chip" style="display:none"><b data-no-i18n></b><button type="button" onclick="clearPaysDate()" aria-label="Clear" data-i18n-aria-label="Clear">{{ icon('x', 'ico') }}</button></div>
   <div class="card">
     <div class="pdt" id="pays-dt">
@@ -3457,9 +3477,7 @@ function dsOpen() {
   document.getElementById('ds-overlay').classList.add('open');
   const q = document.getElementById('ds-q');
   q.value = '';
-  document.getElementById('ds-results').innerHTML = '';
-  _dsActive = -1;
-  _dsItems  = [];
+  _dsHint();
   setTimeout(() => q.focus(), 60);
 }
 
@@ -3468,43 +3486,47 @@ function dsClose() {
   _dsActive = -1;
 }
 
-function _dsStatusColor(s) {
-  return {confirmed:'#4ade80',confirming:'#60a5fa',pending:'#F5A524',expired:'#6b7280',failed:'#ef4444',cancelled:'#ef4444'}[s] || '#6b7280';
+var _dsSeq = 0, _dsTerm = '';
+
+function _dsLabel(m) {
+  return _ft({ id: 'Payment ID', txid: 'TxID', order: 'Order', address: 'Address', email: 'Email', amount: 'Amount', date: 'Date', link: 'Payment link' }[m] || m);
 }
 
-function _dsMatchLabel(m) {
-  var label = {txid:'TxID',order:'Order ID',id:'Payment ID'}[m] || m;
-  return window.t ? window.t(label) : label;
+function _dsMark(value, term) {
+  var v = String(value || ''), i = v.toLowerCase().indexOf(String(term || '').toLowerCase());
+  if (!term || i < 0) return escHtml(truncate(v, 34));
+  var start = Math.max(0, i - 12), end = Math.min(v.length, i + term.length + 12);
+  return (start > 0 ? '…' : '') + escHtml(v.slice(start, i)) + '<mark>' + escHtml(v.slice(i, i + term.length)) + '</mark>' +
+    escHtml(v.slice(i + term.length, end)) + (end < v.length ? '…' : '');
+}
+
+function _dsHint(msg) {
+  document.getElementById('ds-results').innerHTML = '<div class="ds-empty">' + escHtml(msg ||
+    _ft('Search by payment ID, TxID, address, order, email or amount. A few characters are enough.')) + '</div>';
+  _dsItems = []; _dsActive = -1;
 }
 
 function _dsRender(items) {
   const box = document.getElementById('ds-results');
   _dsItems = items;
-  _dsActive = -1;
-  if (!items.length) {
-    box.innerHTML = '<div class="ds-empty">' + (window.t ? window.t('No payments found for that search.') : 'No payments found for that search.') + '</div>';
-    return;
-  }
-  box.innerHTML = items.map((it, i) => {
-    const col  = _dsStatusColor(it.status);
-    const amt  = it.amount_firo != null ? fmtFiro(it.amount_firo) + ' FIRO' : '—';
-    const date = it.created_at ? new Date(it.created_at).toLocaleDateString() : '—';
-    const sub  = (it.order_id ? (window.t ? window.t('Order:') : 'Order:') + ' ' + fmtOrderId(it.order_id) : '') || it.payment_id;
-    const tag  = _mrEsc(_dsMatchLabel(it.match_on));
-    return `<div class="ds-item" role="option" data-idx="${i}" onclick="dsSelect(${i})">
-      <div class="ds-item-icon" style="background:${col}18;color:${col}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      </div>
-      <div class="ds-item-body">
-        <div class="ds-item-title">${_mrEsc(it.txid || it.payment_id)}</div>
-        <div class="ds-item-sub"><span style="color:${col};font-size:.65rem;font-weight:700;margin-inline-end:5px">${_mrEsc(it.status)}</span>${_mrEsc(sub)} <span style="color:var(--t4);font-size:.65rem;margin-inline-start:4px">[${tag}]</span></div>
-      </div>
-      <div class="ds-item-meta">
-        <div class="ds-item-amount">${_mrEsc(amt)}</div>
-        <div class="ds-item-date">${_mrEsc(date)}</div>
-      </div>
-    </div>`;
-  }).join('');
+  _dsActive = items.length ? 0 : -1;
+  if (!items.length) { _dsHint(_ft('No payments match that.')); return; }
+  box.innerHTML = items.map(function (it, i) {
+    var title = it.type === 'link' ? it.title : it.order_id ? fmtOrderId(it.order_id) : _ft('Payment') + ' ' + truncate(it.payment_id, 10);
+    var amt = it.amount_firo != null ? fmtFiro(it.amount_firo) + ' FIRO' : '';
+    var date = it.created_at ? fmtDate(it.created_at) : '';
+    return '<div class="ds-item' + (i === 0 ? ' ds-active' : '') + '" role="option" data-idx="' + i + '" onclick="dsSelect(' + i + ')">' +
+      '<div class="ds-item-body">' +
+        '<div class="ds-item-title">' + escHtml(title) + '</div>' +
+        '<div class="ds-item-sub"><span class="ds-tag">' + escHtml(_dsLabel(it.match_on)) + '</span><span class="ds-val" data-no-i18n>' + _dsMark(it.match_value, _dsTerm) + '</span></div>' +
+      '</div>' +
+      '<div class="ds-item-meta">' +
+        '<div class="ds-item-amount" data-no-i18n>' + escHtml(amt) + '</div>' +
+        '<div class="ds-item-row">' + (it.type === 'link' ? '<span class="ds-tag">' + escHtml(_ft(it.status === 'active' ? 'Active' : 'Off')) + '</span>' : badge(it.status)) + '<span class="ds-item-date">' + escHtml(date) + '</span></div>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '<div class="ds-item ds-all" role="option" data-idx="' + items.length + '" onclick="dsSelect(' + items.length + ')"><div class="ds-item-body"><div class="ds-item-title">' + escHtml(_ft('See all matching payments')) + '</div></div></div>';
+  _dsItems = items.concat([{ type: 'all' }]);
 }
 
 function _dsSetActive(i) {
@@ -3521,11 +3543,18 @@ function dsSelect(i) {
   const it = _dsItems[i];
   if (!it) return;
   dsClose();
-  const term = it.txid || it.payment_id;
-  const hidden = document.getElementById('pays-search');
-  if (hidden) hidden.value = term;
-  go('pays','sb-pays','mb-pays');
-  setTimeout(() => loadPays(term), 180);
+  if (it.type === 'all') {
+    var ps = document.getElementById('pays-search');
+    if (ps) ps.value = _dsTerm;
+    var pc = document.getElementById('pays-search-clear');
+    if (pc) pc.hidden = !_dsTerm;
+    _paysOffset = 0;
+    go('pays', 'sb-pays', 'mb-pays');
+    setTimeout(function () { loadPays(); }, 60);
+    return;
+  }
+  if (it.type === 'link') { if (typeof openPaymentLinks === 'function') openPaymentLinks(); return; }
+  openPayment(it.payment_id);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -3536,28 +3565,40 @@ document.addEventListener('DOMContentLoaded', function() {
   q.addEventListener('input', function() {
     clearTimeout(_dsTimer);
     const val = this.value.trim();
-    if (!val || val.length < 2) {
-      document.getElementById('ds-results').innerHTML = '';
-      _dsItems = []; _dsActive = -1;
-      return;
-    }
+    const seq = ++_dsSeq;
+    if (val.length < 2) { _dsHint(); return; }
     _dsTimer = setTimeout(async () => {
+      document.getElementById('ds-results').setAttribute('aria-busy', 'true');
       const r = await API.get('/api/payments/search?q=' + encodeURIComponent(val));
+      if (seq !== _dsSeq) return;
+      document.getElementById('ds-results').removeAttribute('aria-busy');
+      _dsTerm = val;
       if (Array.isArray(r)) _dsRender(r);
-    }, 280);
+      else _dsHint(_ft('Search is not available right now.'));
+    }, 220);
   });
 
   q.addEventListener('keydown', function(e) {
     const len = _dsItems.length;
-    if (e.key === 'ArrowDown') { e.preventDefault(); _dsSetActive((_dsActive + 1) % len); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); _dsSetActive((_dsActive - 1 + len) % len); }
-    else if (e.key === 'Enter' && _dsActive >= 0) { e.preventDefault(); dsSelect(_dsActive); }
+    if (e.key === 'ArrowDown' && len) { e.preventDefault(); _dsSetActive((_dsActive + 1) % len); }
+    else if (e.key === 'ArrowUp' && len) { e.preventDefault(); _dsSetActive((_dsActive - 1 + len) % len); }
+    else if (e.key === 'Enter' && len) { e.preventDefault(); dsSelect(_dsActive >= 0 ? _dsActive : 0); }
     else if (e.key === 'Escape') { dsClose(); }
   });
 
   ov.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') dsClose();
   });
+
+  const ps = document.getElementById('pays-search');
+  const pc = document.getElementById('pays-search-clear');
+  if (ps) {
+    let t;
+    const run = function () { if (pc) pc.hidden = !ps.value; _paysOffset = 0; loadPays(); };
+    ps.addEventListener('input', function () { clearTimeout(t); t = setTimeout(run, 300); });
+    ps.addEventListener('keydown', function (e) { if (e.key === 'Escape' && ps.value) { ps.value = ''; run(); } });
+    if (pc) pc.addEventListener('click', function () { ps.value = ''; run(); ps.focus(); });
+  }
 });
 
 document.addEventListener('keydown', function(e) {

@@ -1,9 +1,10 @@
+import re
 import json
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request, Header, Response
 from app.core.rate_limit import rate_limit_moderate
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from loguru import logger
 
@@ -199,14 +200,15 @@ async def list_payments(
             base = base.where(Payment.created_at <= _parse_date(date_to, end_of_day=True))
         except Exception:
             raise HTTPException(422, "invalid date_to")
-    if search:
-        s = f"%{search.strip()}%"
-        base = base.where(
-            (Payment.id.like(s))
-            | (Payment.order_id.like(s))
-            | (Payment.customer_email.like(s))
-            | (Payment.txid.like(s))
-        )
+    if search and search.strip():
+        sp = f"%{_like_escape(search.strip().lower()[:128])}%"
+        base = base.where(or_(
+            func.lower(Payment.id).like(sp, escape="\\"),
+            func.lower(Payment.order_id).like(sp, escape="\\"),
+            func.lower(Payment.customer_email).like(sp, escape="\\"),
+            func.lower(Payment.txid).like(sp, escape="\\"),
+            func.lower(Payment.receiving_address).like(sp, escape="\\"),
+        ))
 
     # Total matching row count (same filters, no limit/offset), exposed via a
     # response header rather than the body — this endpoint's body is a bare
@@ -233,41 +235,75 @@ async def search_payments(
     merchant: User = Depends(get_merchant),
     db: AsyncSession = Depends(get_db),
 ):
-    """Fast search endpoint for the dashboard search modal. Returns max 10 results."""
-    term = q.strip()
+    """Search the dashboard: payment ID, TxID, order, address, email or amount.
+    Short pieces work (the first or last few characters of an ID or address)."""
+    term = (q or "").strip()[:128]
     if len(term) < 2:
         return []
-    s = f"%{term}%"
+    t = term.lower()
+    pat = f"%{_like_escape(t)}%"
+    fields = [
+        ("id", Payment.id), ("txid", Payment.txid), ("order", Payment.order_id),
+        ("address", Payment.receiving_address), ("email", Payment.customer_email),
+    ]
+    conds = [func.lower(col).like(pat, escape="\\") for _, col in fields]
+    amount = _as_amount(term)
+    if amount is not None:
+        conds.append(func.abs(Payment.amount_firo - amount) < 1e-8)
     stmt = (
         select(Payment)
         .where(Payment.merchant_id == merchant.id)
-        .where(
-            (Payment.id.like(s))
-            | (Payment.txid.like(s))
-            | (Payment.order_id.like(s))
-        )
+        .where(or_(*conds))
         .order_by(Payment.created_at.desc())
-        .limit(10)
+        .limit(80)
     )
     res = await db.execute(stmt)
-    results = []
+    ranked = []
     for p in res.scalars().all():
+        best = None
+        for key, _ in fields:
+            v = (getattr(p, {"id": "id", "txid": "txid", "order": "order_id",
+                              "address": "receiving_address", "email": "customer_email"}[key]) or "")
+            lv = v.lower()
+            if not lv or t not in lv:
+                continue
+            rank = 0 if lv == t else (1 if lv.startswith(t) or lv.endswith(t) else 2)
+            if best is None or rank < best[0]:
+                best = (rank, key, v)
+        if best is None and amount is not None and abs((p.amount_firo or 0) - amount) < 1e-8:
+            best = (1, "amount", f"{p.amount_firo:g}")
+        if best is None:
+            continue
+        ranked.append((best, p))
+    ranked.sort(key=lambda r: (r[0][0], -(r[1].created_at.timestamp() if r[1].created_at else 0)))
+    results = []
+    for (rank, key, value), p in ranked[:12]:
         status = p.status.value if hasattr(p.status, "value") else str(p.status)
-        match_on = "id"
-        if term.lower() in (p.txid or "").lower():
-            match_on = "txid"
-        elif term.lower() in (p.order_id or "").lower():
-            match_on = "order"
         results.append({
-            "payment_id":     p.id,
-            "txid":           p.txid,
-            "order_id":       p.order_id,
-            "amount_firo":    p.amount_firo,
-            "status":         status,
-            "created_at":     p.created_at.isoformat() if p.created_at else None,
-            "match_on":       match_on,
+            "payment_id":  p.id,
+            "txid":        p.txid,
+            "order_id":    p.order_id,
+            "amount_firo": p.amount_firo,
+            "status":      status,
+            "created_at":  p.created_at.isoformat() if p.created_at else None,
+            "match_on":    key,
+            "match_value": value,
+            "exact":       rank == 0,
         })
     return results
+
+
+def _like_escape(term: str) -> str:
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def _as_amount(term: str):
+    if not re.fullmatch(r"\d{1,9}(\.\d{1,8})?", term):
+        return None
+    try:
+        return float(term)
+    except ValueError:
+        return None
 
 
 def _parse_date(s: str, end_of_day: bool = False):
