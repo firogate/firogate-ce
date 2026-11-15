@@ -919,8 +919,29 @@ async def payment_link_page(r: Request, slug: str):
 @app.get("/about", response_class=HTMLResponse)
 async def about(r: Request):     return await page_async("about.html", r)
 
+async def _docs_page(r: Request, slug: str):
+    from app.core.docs_nav import DOCS_NAV, DOCS_PAGES, DOCS_LEGACY
+    return await page_async(
+        "api-docs.html", r, api_version=API_VERSION,
+        docs_nav=DOCS_NAV, docs_page=slug, docs_title=DOCS_PAGES[slug], docs_legacy=DOCS_LEGACY,
+    )
+
+
 @app.get("/docs", response_class=HTMLResponse)
-async def api_docs_page(r: Request): return await page_async("api-docs.html", r, api_version=API_VERSION)
+async def api_docs_page(r: Request):
+    from app.core.docs_nav import DOCS_HOME
+    return await _docs_page(r, DOCS_HOME)
+
+
+@app.get("/docs/{slug}", response_class=HTMLResponse)
+async def api_docs_section(r: Request, slug: str):
+    from fastapi.responses import RedirectResponse
+    from app.core.docs_nav import DOCS_HOME, DOCS_PAGES, DOCS_LEGACY
+    if slug in DOCS_LEGACY:
+        return RedirectResponse(url=f"/docs/{DOCS_LEGACY[slug]}", status_code=301)
+    if slug == DOCS_HOME or slug not in DOCS_PAGES:
+        return RedirectResponse(url="/docs", status_code=302)
+    return await _docs_page(r, slug)
 
 @app.get("/changelog", response_class=HTMLResponse)
 async def changelog_page(r: Request):

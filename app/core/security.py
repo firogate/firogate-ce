@@ -415,9 +415,12 @@ def account_number_lookup_key(normalized: str) -> str:
     return hmac.new(key, normalized.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+def webhook_body(payload: dict) -> bytes:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
 def sign_webhook(payload: dict, secret: str) -> str:
-    body = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return hmac.new(secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
+    return hmac.new(secret.encode("utf-8"), webhook_body(payload), hashlib.sha256).hexdigest()
 
 
 def build_webhook_payload(base: dict) -> dict:

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import Payment, User
-from app.core.security import sign_webhook, decrypt_field, build_webhook_payload
+from app.core.security import sign_webhook, webhook_body, decrypt_field, build_webhook_payload
 from app.core.config import get_settings
 
 RETRY_DELAYS = [0, 60, 300, 1800, 7200]
@@ -117,7 +117,7 @@ async def _send_webhook(
 
     try:
         async with _build_client(url) as c:
-            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
+            r = await c.post(delivery_url, content=webhook_body(payload), headers=headers, **extra_kwargs)
 
         payment.webhook_sent     = True
         payment.webhook_sent_at  = datetime.now(timezone.utc)
@@ -284,7 +284,7 @@ async def fire_expired_webhook(payment: Payment):
             headers.update(extra_headers)
 
             async with _build_client(url) as c:
-                r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
+                r = await c.post(delivery_url, content=webhook_body(payload), headers=headers, **extra_kwargs)
             logger.info(f"Expired webhook (payment.expired) → {url[:50]} status={r.status_code}")
     except Exception as e:
         logger.warning(f"fire_expired_webhook failed: {e}")
@@ -329,7 +329,7 @@ async def fire_cancellation_webhook(db: AsyncSession, payment: Payment, cancelle
 
     try:
         async with _build_client(url) as c:
-            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
+            r = await c.post(delivery_url, content=webhook_body(payload), headers=headers, **extra_kwargs)
         logger.info(f"Cancellation webhook (payment.cancelled) → {url[:50]} status={r.status_code}")
     except Exception as e:
         _log_webhook_failure(url, str(e))
@@ -364,7 +364,7 @@ async def fire_event_webhook(merchant_id: str, event: str, base_payload: dict) -
         headers = _build_headers(event, sig, payload)
         headers.update(extra_headers)
         async with _build_client(url) as c:
-            r = await c.post(delivery_url, json=payload, headers=headers, **extra_kwargs)
+            r = await c.post(delivery_url, content=webhook_body(payload), headers=headers, **extra_kwargs)
         logger.info(f"Event webhook ({event}) → {url[:50]} status={r.status_code}")
     except Exception as e:
         logger.warning(f"fire_event_webhook({event}) failed: {e}")

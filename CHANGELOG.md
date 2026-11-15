@@ -1,6 +1,6 @@
 # Changelog
 
-Current: **API v1.0** · **App 0.1.2**
+Current: **API v1.2** · **App 0.1.2**
 
 ---
 
@@ -12,8 +12,12 @@ Current: **API v1.0** · **App 0.1.2**
 #### Added
 - Spark mint check: `GET /api/spark-mints/status`, `GET /api/spark-mints/inputs`, `GET /api/spark-mints/payments/{id}` and `PATCH /api/spark-mints/settings`. Read-only; FiroGate never holds keys or mints. See [SPARK_MINTS.md](SPARK_MINTS.md).
 
+#### Changed
+- API v1.2. Webhook bodies are now sent exactly as they were signed, so you can verify the raw body in any language. Existing handlers keep working.
+
 ### App
 #### Added
+- New API docs: a page and link for every topic, search, code tabs and copy buttons. Old links still work.
 - Spark mints page: see when transparent payments are minted to Spark in your own wallet, matched by the exact coins spent and checked with your Spark view key. Needs `addressindex=1` and `txindex=1` on the node.
 - Payment page: a separate "Spark mint" section for transparent payments.
 - [Live demo](https://demo.firogate.com): try the dashboard, checkout and API with fake FIRO. No install.
