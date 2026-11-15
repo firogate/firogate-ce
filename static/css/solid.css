@@ -162,10 +162,10 @@ html body #ds-trigger-kbd {
 
 html body .sidebar .sb-sect {
   font-size: .72rem; font-weight: 500; letter-spacing: 0; text-transform: none;
-  color: var(--t4); padding: 18px 12px 6px;
+  color: var(--t4); padding: 6px 4px 2px;
 }
 html body .sidebar .ni {
-  height: 38px; padding: 0 12px; gap: 12px;
+  height: 35px; padding: 0 5px; gap: 8px;
   border: 0; border-radius: 10px;
   font-size: .88rem; font-weight: 500; color: var(--t2);
   background: none;
@@ -188,10 +188,10 @@ html body .sidebar .ni.active::before,
 html body .sidebar .ni-children .ni.active::before { display: none; }
 html body .sidebar .ni-row > .ni-chev { width: 26px; height: 26px; border-radius: 8px; inset-inline-end: 6px; }
 html body .sidebar .ni-row > .ni-chev:hover { background: var(--bg4); }
-html body .sidebar .ni-children-inner::before { inset-inline-start: 20px; background: var(--bw2); }
-html body .sidebar .ni-group .ni-group { padding-inline-start: 32px; }
+html body .sidebar .ni-children-inner::before { inset-inline-start: 13px; background: var(--bw2); }
+html body .sidebar .ni-group .ni-group { padding-inline-start: 22px; }
 html body .sidebar .ni-children .ni {
-  height: 34px; padding: 0 10px; font-size: .84rem; font-weight: 500; border-radius: 8px; gap: 10px;
+  height: 32px; padding: 0 8px; font-size: .84rem; font-weight: 500; border-radius: 8px; gap: 8px;
 }
 html body .sidebar .ni-children .ni svg { width: 15px; height: 15px; }
 html body .sidebar .ni-children .ni.active,
@@ -988,6 +988,38 @@ html body .pm-default { margin: 0; padding: 22px 0; border-radius: 0; background
 html body .pm-seg { background: var(--bg2); }
 html body .pm-tag, html body .pm-tag-pub { background: var(--bg2); }
 html body .xp-preview { background: var(--bg2); }
+
+/* Payment methods: labels people understand at a glance */
+html body .pm-lead { margin: 6px 0 0; max-width: 620px; color: var(--t3); font-size: .9rem; line-height: 1.5; }
+html body .pm-card.pm-off > :not(.pm-top) { opacity: 1; }
+html body .pm-desc { margin: 10px 0 4px; color: var(--t2); font-size: .9rem; line-height: 1.5; }
+html body .pm-onoff { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+html body .pm-onoff-txt { font-size: .8rem; font-weight: 600; color: var(--t3); white-space: nowrap; }
+html body .pm-onoff-txt.on { color: var(--brand-2); }
+html[data-theme="light"] body .pm-onoff-txt.on { color: var(--brand); }
+html body .pm-switch[disabled] { opacity: .45; cursor: not-allowed; }
+html body .pm-rows { margin: 14px 0 0; }
+html body .pm-rows > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 10px 0; border-top: 1px solid var(--bw); }
+html body .pm-rows dt { font-size: .86rem; color: var(--t3); }
+html body .pm-rows dd { margin: 0; font-size: .9rem; font-weight: 600; color: var(--t1); text-align: end; min-width: 0; }
+html body .pm-rows code { font-family: var(--mono); font-size: .82rem; font-weight: 500; color: var(--t1); }
+html body .pm-ok { display: inline-flex; align-items: center; gap: 7px; color: var(--g); }
+html body .pm-ok .pm-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: none; animation: none; }
+html body .pm-addr { display: inline-flex; align-items: center; gap: 6px; }
+html body .pm-copy { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--t3); border-radius: 7px; cursor: pointer; padding: 0; }
+html body .pm-copy:hover { color: var(--t1); background: var(--bg2); }
+html body .pm-copy .ico { width: 15px; height: 15px; }
+html body .pm-offnote { display: none; margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg2); color: var(--t2); font-size: .84rem; }
+html body .pm-card.pm-off .pm-offnote { display: block; }
+html body .pm-remove { display: inline-flex; align-items: center; height: 34px; margin-top: 14px; margin-inline-start: -12px; padding: 0 12px; border: 0; border-radius: 9px; background: none; color: var(--red); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; }
+html body .pm-remove:hover { background: rgba(239, 68, 68, .1); color: var(--red); }
+html body .pm-default { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+html body .pm-default-t { font-weight: 600; color: var(--t1); }
+html body .pm-default-s { font-size: .84rem; color: var(--t3); margin-top: 2px; }
+@media (max-width: 640px) {
+  html body .pm-onoff-txt { font-size: .76rem; }
+  html body .pm-default .pm-seg { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+}
 
 html body .rc-row { padding: 18px 0; }
 html body .rf-summary span, html body .rf-item { background: var(--bg3); }

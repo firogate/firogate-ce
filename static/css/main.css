@@ -2807,7 +2807,7 @@ html[data-theme="light"] .tone-pink   { --tone: #BE185D; --tone-rgb: 190,24,93; 
 html[data-theme="light"] .sb-wordmark b { color: var(--brand); }
 .sidebar .sb-sect {
   font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--t3); padding: 14px 10px 6px;
+  color: var(--t3); padding: 6px 4px 2px;
 }
 .sidebar .ni { padding: 8px 10px; gap: 11px; font-size: .84rem; }
 .sidebar .ni svg { width: 16px; height: 16px; opacity: 1; color: var(--t3); }

@@ -431,7 +431,6 @@ html[data-theme="light"] #sb-profile-popup{
   </div>
   <nav class="sb-nav">
 
-    <div class="sb-sect" data-i18n="Main">Main</div>
     <div class="ni-group" data-ni-node="home">
       <div class="ni-row">
     <button class="ni tone-teal mob-hide active" id="sb-home" data-tip="Your sales and latest payments at a glance." onclick="go('home','sb-home','mb-home')">
@@ -945,41 +944,56 @@ html[data-theme="light"] #sb-profile-popup{
 </div>
 
 <div id="t-wallet" class="tab" style="display:none">
-  <div class="ph"><div class="ph-title"><div><h2 tabindex="0" style="cursor:help" data-tip="FiroGate only watches. It can never move your funds." data-i18n="Payment methods">Payment methods</h2></div></div></div>
+  <div class="ph"><div class="ph-title"><div>
+    <h2 data-i18n="Payment methods">Payment methods</h2>
+    <p class="pm-lead" data-i18n="How customers can pay you. FiroGate only watches your wallet. It can never move your funds.">How customers can pay you. FiroGate only watches your wallet. It can never move your funds.</p>
+  </div></div></div>
 
   <div class="pm-grid">
     <section class="pm-card" id="pm-spark">
       <header class="pm-top">
-        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-no-i18n>Spark</h3><span class="pm-tag" tabindex="0" data-tip="Customers pay privately. Amounts stay hidden." data-i18n="Private">Private</span></div>
-        <button type="button" class="pm-switch" id="pm-spark-toggle" role="switch" aria-checked="false" aria-label="Spark" onclick="pmToggle('spark', this)"><i></i></button>
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-no-i18n>Spark</h3><span class="pm-tag" data-i18n="Private">Private</span></div>
+        <label class="pm-onoff"><span class="pm-onoff-txt" id="pm-spark-state"></span>
+          <button type="button" class="pm-switch" id="pm-spark-toggle" role="switch" aria-checked="false" aria-label="Spark at checkout" data-i18n-aria-label="Spark at checkout" onclick="pmToggle('spark', this)"><i></i></button>
+        </label>
       </header>
+      <p class="pm-desc" data-i18n="Customers pay privately. The amount and sender stay hidden.">Customers pay privately. The amount and sender stay hidden.</p>
 
       <div id="spark-loading"><div class="skel-line" style="width:60%;height:12px;margin:14px 0"></div></div>
 
       <div id="spark-empty" style="display:none">
         <label class="flabel" for="spark-viewkey-input" data-i18n="Spark view key">Spark view key</label>
         <textarea id="spark-viewkey-input" class="finput pm-input" rows="3" spellcheck="false" autocomplete="off" placeholder="Paste your Spark full view key (hex)…" data-i18n-placeholder="Paste your Spark full view key (hex)…"></textarea>
-        <div class="pm-hint" data-i18n="Wallet: Settings → Spark View Key">Wallet: Settings → Spark View Key</div>
+        <div class="pm-hint" data-i18n="Find it in your wallet: Settings → Spark View Key">Find it in your wallet: Settings → Spark View Key</div>
         <div id="spark-connect-alert"></div>
         <button class="btn btn-y pm-btn" onclick="connectSparkViewKey()" id="spark-connect-btn" data-i18n="Connect">Connect</button>
       </div>
 
       <div id="spark-connected" style="display:none">
-        <div class="pm-status"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span><span class="pm-meta"><span id="spark-network">mainnet</span><span id="spark-key-suffix"></span></span></div>
-        <button class="pm-remove" onclick="disconnectSpark()" data-i18n="Remove">Remove</button>
+        <dl class="pm-rows">
+          <div><dt data-i18n="Wallet">Wallet</dt><dd><span class="pm-ok"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span></span></dd></div>
+          <div><dt data-i18n="Network">Network</dt><dd id="spark-network">Mainnet</dd></div>
+          <div><dt data-i18n="View key">View key</dt><dd><code id="spark-key-suffix">—</code></dd></div>
+          <div><dt data-i18n="Connected on">Connected on</dt><dd id="spark-since">—</dd></div>
+        </dl>
+        <p class="pm-offnote" data-i18n="Off: customers can't pick Spark right now.">Off: customers can't pick Spark right now.</p>
+        <button type="button" class="pm-remove" onclick="disconnectSpark()" data-i18n="Disconnect Spark">Disconnect Spark</button>
       </div>
     </section>
 
     <section class="pm-card" id="pm-transparent">
       <header class="pm-top">
-        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-i18n="Transparent">Transparent</h3><span class="pm-tag pm-tag-pub" tabindex="0" data-tip="Works with any Firo wallet. New address for every order." data-i18n="Public">Public</span></div>
-        <button type="button" class="pm-switch" id="pm-transparent-toggle" role="switch" aria-checked="false" aria-label="Transparent" onclick="pmToggle('transparent', this)"><i></i></button>
+        <div class="pm-name"><img class="pm-coin" src="{{ '/static/images/firo-coin.svg'|bust }}" alt="" aria-hidden="true"><h3 data-i18n="Transparent">Transparent</h3><span class="pm-tag pm-tag-pub" data-i18n="Public">Public</span></div>
+        <label class="pm-onoff"><span class="pm-onoff-txt" id="pm-transparent-state"></span>
+          <button type="button" class="pm-switch" id="pm-transparent-toggle" role="switch" aria-checked="false" aria-label="Transparent at checkout" data-i18n-aria-label="Transparent at checkout" onclick="pmToggle('transparent', this)"><i></i></button>
+        </label>
       </header>
+      <p class="pm-desc" data-i18n="Works with any Firo wallet. Each order gets a new address.">Works with any Firo wallet. Each order gets a new address.</p>
 
       <div id="xp-empty">
         <label class="flabel" for="xp-input" data-i18n="Wallet xpub">Wallet xpub</label>
         <textarea id="xp-input" class="finput pm-input" rows="3" spellcheck="false" autocomplete="off" placeholder="xpub6…"></textarea>
-        <div class="pm-hint" data-i18n="Wallet: Settings → Wallet xpub">Wallet: Settings → Wallet xpub</div>
+        <div class="pm-hint" data-i18n="Find it in your wallet: Settings → Wallet xpub">Find it in your wallet: Settings → Wallet xpub</div>
         <div id="xp-preview" class="xp-preview" style="display:none"></div>
         <div class="pm-actions">
           <button class="btn btn-o pm-btn" id="xp-check-btn" onclick="xpPreview()" data-i18n="Check">Check</button>
@@ -988,19 +1002,26 @@ html[data-theme="light"] #sb-profile-popup{
       </div>
 
       <div id="xp-connected" style="display:none">
-        <div class="pm-status"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span><span class="pm-meta" id="xp-net"></span></div>
-        <div class="pm-kv"><span data-i18n="First address">First address</span><code id="xp-first"></code></div>
-        <div class="pm-kv"><span data-i18n="Addresses used">Addresses used</span><b id="xp-used"></b></div>
-        <button class="pm-remove" onclick="xpDisconnect()" data-i18n="Remove">Remove</button>
+        <dl class="pm-rows">
+          <div><dt data-i18n="Wallet">Wallet</dt><dd><span class="pm-ok"><span class="pm-dot"></span><span data-i18n="Connected">Connected</span></span></dd></div>
+          <div><dt data-i18n="Network">Network</dt><dd id="xp-net">Mainnet</dd></div>
+          <div><dt data-i18n="First address">First address</dt><dd class="pm-addr"><code id="xp-first" data-no-i18n></code><button type="button" class="pm-copy" id="xp-first-copy" aria-label="Copy" data-i18n-aria-label="Copy">{{ icon('copy', 'ico') }}</button></dd></div>
+          <div><dt data-i18n="Addresses used">Addresses used</dt><dd id="xp-used">0</dd></div>
+        </dl>
+        <p class="pm-offnote" data-i18n="Off: customers can't pick Transparent right now.">Off: customers can't pick Transparent right now.</p>
+        <button type="button" class="pm-remove" onclick="xpDisconnect()" data-i18n="Disconnect xpub">Disconnect xpub</button>
       </div>
     </section>
   </div>
 
   <div class="pm-default" id="pm-default" style="display:none">
-    <span data-i18n="Show first at checkout">Show first at checkout</span>
-    <div class="pm-seg" role="radiogroup">
-      <button type="button" data-pm-default="spark" onclick="pmDefault('spark')" data-no-i18n>Spark</button>
-      <button type="button" data-pm-default="transparent" onclick="pmDefault('transparent')" data-i18n="Transparent">Transparent</button>
+    <div>
+      <div class="pm-default-t" data-i18n="Shown first at checkout">Shown first at checkout</div>
+      <div class="pm-default-s" data-i18n="Customers can still switch to the other one.">Customers can still switch to the other one.</div>
+    </div>
+    <div class="pm-seg" role="radiogroup" aria-label="Shown first at checkout" data-i18n-aria-label="Shown first at checkout">
+      <button type="button" role="radio" data-pm-default="spark" onclick="pmDefault('spark')" data-no-i18n>Spark</button>
+      <button type="button" role="radio" data-pm-default="transparent" onclick="pmDefault('transparent')" data-i18n="Transparent">Transparent</button>
     </div>
   </div>
 
@@ -2496,9 +2517,11 @@ async function loadSparkStatus() {
     empty.style.display = 'none';
     conn.style.display  = 'block';
     const net = document.getElementById('spark-network');
-    if (net) net.textContent = r.network || 'testnet';
+    if (net) net.textContent = _ft((r.network || 'testnet') === 'testnet' ? 'Testnet' : 'Mainnet');
     const suf = document.getElementById('spark-key-suffix');
-    if (suf) suf.textContent = r.view_key_suffix ? ' · ••••' + r.view_key_suffix : '';
+    if (suf) suf.textContent = r.view_key_suffix ? '••••' + r.view_key_suffix : '—';
+    const since = document.getElementById('spark-since');
+    if (since) since.textContent = r.connected_at ? _fgDay(r.connected_at.slice(0, 10), { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
   } else {
     empty.style.display = 'block';
     conn.style.display  = 'none';
@@ -2539,7 +2562,7 @@ async function connectSparkViewKey() {
 }
 
 async function disconnectSpark() {
-  const _confirmMsg = window.t ? window.t('Remove Spark? Open orders still work.') : 'Remove Spark? Open orders still work.';
+  const _confirmMsg = _ft('Disconnect Spark? Customers can no longer pay with Spark. Orders already open still work.');
   if (!confirm(_confirmMsg)) return;
   try {
     await API.post('/spark/disconnect', {});
@@ -4339,9 +4362,14 @@ async function loadXpubStatus() {
   document.getElementById('xp-empty').style.display = d.connected ? 'none' : '';
   document.getElementById('xp-connected').style.display = d.connected ? '' : 'none';
   if (d.connected) {
-    document.getElementById('xp-first').textContent = d.first_address || '';
+    var fa = d.first_address || '';
+    var fe = document.getElementById('xp-first');
+    fe.textContent = fa.length > 20 ? fa.slice(0, 10) + '…' + fa.slice(-8) : fa;
+    fe.title = fa;
+    var fc = document.getElementById('xp-first-copy');
+    fc.onclick = function () { if (navigator.clipboard) navigator.clipboard.writeText(fa).then(function () { Toast.success(_ft('Copied')); }); };
     document.getElementById('xp-used').textContent = String(d.addresses_used);
-    document.getElementById('xp-net').textContent = d.network === 'testnet' ? 'Testnet' : 'Mainnet';
+    document.getElementById('xp-net').textContent = _ft(d.network === 'testnet' ? 'Testnet' : 'Mainnet');
   }
   var sw = function(id, connected, on){
     var b = document.getElementById(id);
@@ -4349,13 +4377,17 @@ async function loadXpubStatus() {
     b.disabled = !connected;
     b.closest('.pm-card').classList.toggle('pm-off', connected && !on);
     b.closest('.pm-card').classList.toggle('pm-on', connected && on);
+    var st = document.getElementById(id.replace('-toggle', '-state'));
+    if (st) { st.textContent = _ft(!connected ? 'Not set up' : on ? 'On at checkout' : 'Off'); st.classList.toggle('on', connected && on); }
   };
   sw('pm-spark-toggle', d.spark_connected, d.spark_enabled);
   sw('pm-transparent-toggle', d.connected, d.transparent_enabled);
   var both = d.spark_connected && d.connected && d.spark_enabled && d.transparent_enabled;
   document.getElementById('pm-default').style.display = both ? '' : 'none';
   document.querySelectorAll('[data-pm-default]').forEach(function(b){
-    b.classList.toggle('on', b.getAttribute('data-pm-default') === d.default_method);
+    var sel = b.getAttribute('data-pm-default') === d.default_method;
+    b.classList.toggle('on', sel);
+    b.setAttribute('aria-checked', sel ? 'true' : 'false');
   });
 }
 async function pmToggle(method, btn) {
@@ -4398,7 +4430,7 @@ async function xpConnect() {
   loadXpubStatus();
 }
 async function xpDisconnect() {
-  if (!confirm(_ft('Remove this xpub? Open orders still work.'))) return;
+  if (!confirm(_ft('Disconnect this xpub? Customers can no longer pay with Transparent. Orders already open still work.'))) return;
   var r = await API.post('/api/xpub/disconnect', {});
   if (!r || r.error) { Toast.error((r && r.error) || _ft('Something went wrong.')); return; }
   Toast.info(_ft('Removed'));
