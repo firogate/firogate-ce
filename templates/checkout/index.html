@@ -405,7 +405,7 @@ body.rtl, [dir="rtl"] { direction: rtl; text-align: right; }
 .t-news .mast{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:600 10px 'JetBrains Mono';letter-spacing:1px;color:#6b665c;text-transform:uppercase}
 .t-news .title{font-weight:700;font-size:36px;text-align:center;letter-spacing:1px;border-top:2.5px solid #1c1a17;border-bottom:1px solid #1c1a17;padding:8px 0 6px;margin:8px 0 3px}
 .t-news .title i{color:#B82334;font-style:normal}
-.t-news .under{border-bottom:2.5px solid #1c1a17;text-align:center;font:600 9.5px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:6px;margin-bottom:16px;color:#6b665c}
+.t-news .under{border-top:2.5px solid #1c1a17;border-bottom:2.5px solid #1c1a17;padding-top:7px;margin-top:8px;text-align:center;font:600 9.5px 'JetBrains Mono';letter-spacing:2px;text-transform:uppercase;padding-bottom:6px;margin-bottom:16px;color:#6b665c}
 .t-news .head{font-size:34px;font-weight:700;line-height:1.05;text-align:center}
 .t-news .deck{text-align:center;font-style:italic;font-size:14px;color:#59544a;margin:8px auto 16px;max-width:380px}
 .t-news .cols{display:grid;grid-template-columns:1fr;gap:16px;border-top:1px solid #c9c3b4;padding-top:14px}
@@ -2124,10 +2124,8 @@ body.fg-curr-off .meta > span:has(> .v2-fiat),body.fg-price-none .meta > span:ha
 
 <section class="theme" id="th-news"><div class="t-news"><div class="page">
   <div class="mast"><span>Checkout</span><span class="v2-date">—</span></div>
-  <div class="title">CHECKOUT</div>
   <div class="under">Price <span class="v2-amount skel-shimmer">—</span> FIRO<span class="v2-fiat-wrap"> (<span class="v2-fiat skel-shimmer">—</span>)</span></div>
   <div class="cw"><button class="cwb" data-cw><span class="cwc">USD</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><div class="cwm"></div></div>
-  <div class="head">INVOICE AWAITS PAYMENT</div>
   <div class="deck"><span class="v2-merchant">Store</span> · <span>Invoice №</span> <span class="v2-order">—</span></div>
   <div class="cols">
     <div class="story">
@@ -2911,6 +2909,7 @@ async function init() {
         merchant_logo:      merchantLogo || '',
         show_market_price:  true,
         expires_in_seconds: _previewLive ? 900 : 1200,
+        expires_at:         new Date(Date.now() + (_previewLive ? 900 : 1200) * 1000).toISOString(),
         status:             'pending',
         theme:              Object.assign({}, themeSettings || {}, {
           checkout_layout:   _previewLayout,
@@ -2921,6 +2920,7 @@ async function init() {
         }),
       };
       applyMerchantBranding(payData);
+      try { applyOrderSummary(payData); } catch (e) {}
       hide('step-loading');
       if (!document.getElementById('fg-preview-ribbon')) {
         var ribbonWrap = document.createElement('div');

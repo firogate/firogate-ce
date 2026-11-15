@@ -183,7 +183,7 @@ async def get_theme_thumbnails():
         for ext in (".webp", ".jpg", ".png"):
             p = _THUMB_DIR / (lid + ext)
             if p.exists():
-                result[lid] = f"/static/images/themes/{lid}{ext}"
+                result[lid] = f"/static/images/themes/{lid}{ext}?v={int(p.stat().st_mtime)}"
                 break
     return result
 
